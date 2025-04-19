@@ -414,13 +414,15 @@ function addElementsToDOM() {
       // categoryItems.forEach((categoryItem) => {
       for (const categoryItem of categoryItems) {
         let indexCase = categoryItem - 1;
+
         // Check if selected algorithm is valid
         if (GROUP.algorithms[indexCase + 1] == undefined) {
           console.warn("Trying to access invalid Case\nindexGroup: " + INDEX_GROUP + "\nindexCase: " + indexCase);
           continue;
         }
         // Case Selection Page
-        const IMG_CASE_PATH = GROUP.imgPath + "right/F2L" + (indexCase + 1) + ".svg";
+        const IMG_CASE_PATH_RIGHT = GROUP.imgPath + "right/F2L" + (indexCase + 1) + ".svg";
+        const IMG_CASE_PATH_LEFT = GROUP.imgPath + "left/F2L" + (indexCase + 1) + ".svg";
 
         GROUP.divContainer[indexCase] = document.createElement("div");
         GROUP.divContainer[indexCase].classList.add("case-container");
@@ -437,8 +439,13 @@ function addElementsToDOM() {
           changeState(INDEX_GROUP, indexCategory, indexCase);
         };
 
-        GROUP.imgCase[indexCase] = document.createElement("img");
-        GROUP.imgCase[indexCase].classList.add("img-case");
+        GROUP.imgCaseLeft[indexCase] = document.createElement("img");
+        GROUP.imgCaseLeft[indexCase].classList.add("img-case");
+        GROUP.imgCaseLeft[indexCase].classList.add("back");
+
+        GROUP.imgCaseRight[indexCase] = document.createElement("img");
+        GROUP.imgCaseRight[indexCase].classList.add("img-case");
+        GROUP.imgCaseRight[indexCase].classList.add("front");
 
         GROUP.algorithm[indexCase] = document.createElement("div");
         GROUP.algorithm[indexCase].classList.add("algorithm");
@@ -465,20 +472,19 @@ function addElementsToDOM() {
         GROUP.btnMirror[indexCase].title = "Mirror";
 
         GROUP.imgMirror[indexCase] = document.createElement("img");
-        GROUP.imgMirror[indexCase].classList.add("img-edit-trash");
-        GROUP.imgMirror[indexCase].style.filter = COLORS_BTN_EDIT[GROUP.caseSelection[indexCase]];
-        GROUP.imgMirror[indexCase].alt = "mirror case " + (indexCase + 1);
-        GROUP.imgMirror[indexCase].onclick = function () {
-          mirrorCase(INDEX_GROUP, indexCase);
-        };
 
         GROUP.divAlgorithm[indexCase] = document.createElement("div");
         GROUP.divAlgorithm[indexCase].classList.add("div-algorithm");
 
         GROUP.caseNumber[indexCase].innerHTML = indexCase + 1;
-        GROUP.imgCase[indexCase].src = IMG_CASE_PATH;
-        GROUP.imgCase[indexCase].alt = GROUP.name + ", Case " + (indexCase + 1);
-        GROUP.imgCase[indexCase].loading = "lazy";
+        GROUP.imgCaseRight[indexCase].src = IMG_CASE_PATH_RIGHT;
+        GROUP.imgCaseRight[indexCase].alt = GROUP.name + ", Case " + (indexCase + 1);
+        GROUP.imgCaseRight[indexCase].loading = "lazy";
+
+        GROUP.imgCaseLeft[indexCase].src = IMG_CASE_PATH_LEFT;
+        GROUP.imgCaseLeft[indexCase].alt = GROUP.name + ", Case " + (indexCase + 1);
+        GROUP.imgCaseLeft[indexCase].loading = "lazy";
+
 
         // Set shown alg
         if (GROUP.algorithmSelectionRight[indexCase] < GROUP.algorithms[indexCase + 1].length) {
@@ -489,6 +495,21 @@ function addElementsToDOM() {
         }
 
         GROUP.imgMirror[indexCase].src = "./images/mirror1.svg";
+
+        GROUP.flipInner[indexCase] = document.createElement("div");
+        GROUP.flipInner[indexCase].classList.add("img-flip-inner");
+        GROUP.flipInner[indexCase].classList.add("img-mirror-trash");
+        GROUP.flipInner[indexCase].style.filter = COLORS_BTN_EDIT[GROUP.caseSelection[indexCase]];
+        GROUP.flipInner[indexCase].alt = "mirror case " + (indexCase + 1);
+        GROUP.flipInner[indexCase].onclick = function () {
+          mirrorCase(INDEX_GROUP, indexCase);
+        };
+
+        GROUP.flipFront[indexCase] = document.createElement("div");
+        GROUP.flipFront[indexCase].classList.add("flip-front");
+        GROUP.flipFront[indexCase].appendChild(GROUP.imgMirror[indexCase]);
+        GROUP.flipInner[indexCase].appendChild(GROUP.flipFront[indexCase]);
+
         GROUP.imgEdit[indexCase].src = "./images/edit.svg";
 
         GROUP.divContainer[indexCase].style.background = CATEGORY_COLORS[GROUP.caseSelection[indexCase]];
@@ -496,14 +517,15 @@ function addElementsToDOM() {
         GROUP.divContainer[indexCase].appendChild(GROUP.caseNumber[indexCase]); // Don't show case number
 
         GROUP.divContainer[indexCase].appendChild(GROUP.imgContainer[indexCase]);
-        GROUP.imgContainer[indexCase].appendChild(GROUP.imgCase[indexCase]);
+        GROUP.imgContainer[indexCase].appendChild(GROUP.imgCaseRight[indexCase]);
+        GROUP.imgContainer[indexCase].appendChild(GROUP.imgCaseLeft[indexCase]);
         GROUP.divContainer[indexCase].appendChild(GROUP.algorithm[indexCase]);
         GROUP.algorithm[indexCase].appendChild(GROUP.divAlgorithm[indexCase]);
         GROUP.algorithm[indexCase].appendChild(GROUP.btnContainer[indexCase]);
         GROUP.btnContainer[indexCase].appendChild(GROUP.btnEdit[indexCase]);
         GROUP.btnContainer[indexCase].appendChild(GROUP.btnMirror[indexCase]);
         GROUP.btnEdit[indexCase].appendChild(GROUP.imgEdit[indexCase]);
-        GROUP.btnMirror[indexCase].appendChild(GROUP.imgMirror[indexCase]);
+        GROUP.btnMirror[indexCase].appendChild(GROUP.flipInner[indexCase]);
 
         GROUP.categoryContainer[indexCategory].appendChild(GROUP.divContainer[indexCase]);
       }
@@ -1758,15 +1780,10 @@ function mirrorCase(indexGroup, indexCase) {
     tempAlgLeft = GROUP.customAlgorithmsLeft[indexCase];
   }
 
-  if (GROUP.flagMirrored[indexCase]) {
-    GROUP.imgCase[indexCase].src = GROUP.imgPath + "right/F2L" + (indexCase + 1) + ".svg";
-    GROUP.flagMirrored[indexCase] = false;
-    GROUP.divAlgorithm[indexCase].innerHTML = tempAlgRight;
-  } else {
-    GROUP.imgCase[indexCase].src = GROUP.imgPath + "left/F2L" + (indexCase + 1) + ".svg";
-    GROUP.flagMirrored[indexCase] = true;
-    GROUP.divAlgorithm[indexCase].innerHTML = tempAlgLeft;
-  }
+  const mirrored = GROUP.flagMirrored[indexCase]
+  GROUP.flagMirrored[indexCase] = !GROUP.flagMirrored[indexCase]
+  GROUP.imgContainer[indexCase].style.transform = mirrored ? "rotateY(0deg)" : "rotateY(180deg)";
+  GROUP.divAlgorithm[indexCase].innerHTML = mirrored ? tempAlgRight : tempAlgLeft;
 }
 
 /**

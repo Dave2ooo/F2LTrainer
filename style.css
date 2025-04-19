@@ -116,7 +116,7 @@ iframe {
 .btn-next-prev {
   filter: var(--filter-img);
 }
-
+.img-mirror-trash,
 .img-edit-trash {
   filter: var(--filter-white);
 }
@@ -206,6 +206,9 @@ a {
 }
 
 .img-case-container {
+  transition: transform 0.8s ease-in-out;
+  transform-style: preserve-3d;
+  position: relative;
   display: flex;
   flex-shrink: 1;
   height: 100px;
@@ -216,7 +219,17 @@ a {
 .img-case {
   height: 100%;
   width: 100%;
+  backface-visibility: hidden;
   /* height: 98px; */
+}
+
+.img-case.front {
+  transform: rotateY(0deg);
+}
+
+.img-case.back {
+  position: absolute;
+  transform: rotateY(180deg) translateX(+10%);
 }
 
 .algorithm {
@@ -232,10 +245,15 @@ a {
   /* margin: auto; */
 }
 
-.case-container:hover .img-edit-trash {
+.case-container:hover .img-edit-trash{
   visibility: visible;
 }
 
+.case-container:hover .img-mirror-trash{
+  visibility: visible;
+}
+
+.img-mirror-trash,
 .img-edit-trash {
   /* width: 100%; */
   height: 24px;
@@ -243,6 +261,16 @@ a {
   cursor: pointer;
   margin-top: auto;
   margin-bottom: auto;
+}
+
+.img-flip-inner {
+  transform: rotateY(0deg);
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+.btn-edit:hover  .img-flip-inner {
+  transform: rotateY(180deg);
 }
 
 .div-algorithm {
@@ -1189,6 +1217,7 @@ textarea {
     height: 25px;
     width: 25px;
   }
+  .img-mirror-trash,
   .img-edit-trash {
     /* height: 18px; */
     height: 20px;
@@ -1274,6 +1303,7 @@ textarea {
 }
 
 @media (pointer: coarse) {
+  .img-mirror-trash,
   .img-edit-trash {
     visibility: visible;
   }
