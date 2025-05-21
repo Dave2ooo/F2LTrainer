@@ -138,10 +138,10 @@ function loadUserData() {
   temp = localStorage.getItem("viewSelection");
   if (temp != null) viewSelection = parseInt(temp);
 
-  // Check if user visits site for the first time
-  if (localStorage.getItem("firstVisit") != null) firstVisit = false;
-  // Check if user visits train view for the first time
-  if (localStorage.getItem("firstVisitTrain") != null) firstVisitTrain = false;
+  temp = localStorage.getItem("firstVisit");
+  if (temp != null) firstVisit = false;
+  temp = localStorage.getItem("firstVisitTrain");
+  if (temp != null) firstVisitTrain = false;
 
   // Load trainStateSelection
   // Switch from old storage solution
@@ -297,7 +297,7 @@ function clearUserData() {
  * train page for the first time.
  */
 function setFirstVisitTrain() {
-  localStorage.setItem("firstVisitTrain", false);
+  localStorage.setItem("firstVisitTrain", "shown");
 }
 
 /**
