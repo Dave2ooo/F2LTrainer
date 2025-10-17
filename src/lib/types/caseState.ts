@@ -6,7 +6,7 @@ export interface CaseState {
     algorithmSelection: { left: number | null; right: number | null };
     customAlgorithm: { left: string; right: string };
     identicalAlgorithm: boolean;
-    mirrored: boolean;
+    // mirrored: boolean;
     solveCount: number;
 }
 

@@ -7,7 +7,7 @@ export const createCaseState = (): CaseState => ({
     algorithmSelection: { left: 0, right: 0 },
     customAlgorithm: { left: "", right: "" },
     identicalAlgorithm: true,
-    mirrored: false,
+    // mirrored: false,
     solveCount: 0,
 });
 
