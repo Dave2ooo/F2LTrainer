@@ -1,34 +1,57 @@
 <script lang="ts">
 	import TwistyPlayer from '$lib/components/TwistyPlayer.svelte';
+	import { casesStatic } from '$lib/casesStatic';
+	import { casesState } from '$lib/casesState.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 	import getRotationAlg from '$lib/rotation';
 	import getStickeringString from '$lib/stickering';
-	import { type StickerColor, type StickerHidden } from '$lib/types/stickering';
-	import { globalState } from '$lib/globalState.svelte';
+	import type { CaseId, GroupId } from '$lib/types/group';
+	import { Button } from 'flowbite-svelte';
 
 	let {
-		alg,
-		setupAlg,
-		// crossColor,
-		// frontColor,
-		stickering
+		groupId,
+		caseId
 	}: {
-		alg: string;
-		setupAlg: string;
-		// crossColor: StickerColor;
-		// frontColor: StickerColor;
-		stickering: StickerHidden;
+		groupId: GroupId;
+		caseId: CaseId;
 	} = $props();
 
-	let mirrored = $state(false);
+	const staticData = casesStatic[groupId][caseId];
+	const caseState = casesState[groupId][caseId];
+
+	const selectedAlgorithm = $derived(
+		caseState.customAlgorithm.left.trim() ||
+			staticData.algPool[caseState.algorithmSelection.right] ||
+			staticData.algPool[0] ||
+			''
+	);
+
+	const selectedScramble = $derived(
+		staticData.scramblePool[caseState.algorithmSelection.right] || staticData.scramblePool[0] || ''
+	);
 
 	let stickeringString = $derived(
-		getStickeringString(globalState.crossColor, globalState.frontColor, stickering, mirrored)
+		getStickeringString(
+			globalState.crossColor,
+			globalState.frontColor,
+			staticData.pieceToHide,
+			caseState.mirrored
+		)
 	);
 	const setupRotation = $derived(getRotationAlg(globalState.crossColor, globalState.frontColor));
-
 </script>
 
 <div class="flex items-center rounded-2xl border-3">
-	<TwistyPlayer {alg} {setupRotation} {setupAlg} {stickeringString} />
-	<span> {alg} </span>
+	<TwistyPlayer
+		alg={selectedAlgorithm}
+		{setupRotation}
+		setupAlg={selectedScramble}
+		{stickeringString}
+	/>
+	<span> {selectedAlgorithm} </span>
+	<Button
+		onclick={() => {
+			caseState.mirrored = !caseState.mirrored;
+		}}>Mirror</Button
+	>
 </div>

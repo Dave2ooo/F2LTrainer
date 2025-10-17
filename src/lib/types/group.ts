@@ -1,3 +1,5 @@
+import type { CaseState } from "./caseState";
+
 export type GroupId = "basic" | "basicBack" | "advanced" | "expert";
 export const GROUP_IDS: readonly GroupId[] = ["basic", "basicBack", "advanced", "expert"];
 
@@ -5,14 +7,6 @@ export type TrainState = "unlearned" | "learning" | "finished";
 export const TRAIN_STATES: readonly TrainState[] = ["unlearned", "learning", "finished"];
 
 export type CaseId = number; // 1-based, matches existing assets
-
-export interface CaseState {
-    status: TrainState;
-    algorithmSelection: { left: number; right: number };
-    customAlgorithm: { left: string; right: string };
-    identicalAlgorithm: boolean;
-    solveCount: number;
-}
 
 export interface GroupState {
     cases: Record<CaseId, CaseState>;
@@ -227,13 +221,6 @@ export const GROUP_DEFINITIONS: Record<GroupId, GroupDefinition> = {
     expert: EXPERT_DEFINITION,
 } as const;
 
-export const createCaseState = (): CaseState => ({
-    status: "unlearned",
-    algorithmSelection: { left: 0, right: 0 },
-    customAlgorithm: { left: "", right: "" },
-    identicalAlgorithm: true,
-    solveCount: 0,
-});
 
 // export const createGroupState = (group: GroupId, definition: GroupDefinition = GROUP_DEFINITIONS[group]): GroupState => {
 //     const categoryCases = definition.categoryCases ?? [];
