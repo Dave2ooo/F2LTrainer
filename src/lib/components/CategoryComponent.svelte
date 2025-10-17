@@ -13,7 +13,6 @@
 
 	const groupDefinition = GROUP_DEFINITIONS[groupId];
 	const category = groupDefinition.categories[categoryIndex];
-	const categoryName = category.name;
 	const categoryCases = category.cases;
 	const scrambleArray = GROUP_SCRAMBLES[groupId];
 	const algorithmArray = GROUP_ALGORITHMS[groupId];
