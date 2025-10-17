@@ -4,18 +4,10 @@
 	import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
 
-	let selectedGroup: GroupId = globalState.selectedGroup;
+	let selectedGroup: GroupId = $state(globalState.selectedGroup);
 
 	$effect(() => {
-		if (globalState.selectedGroup !== selectedGroup) {
-			selectedGroup = globalState.selectedGroup;
-		}
-	});
-
-	$effect(() => {
-		if (selectedGroup !== globalState.selectedGroup) {
-			globalState.selectedGroup = selectedGroup;
-		}
+		globalState.selectedGroup = selectedGroup;
 	});
 </script>
 
