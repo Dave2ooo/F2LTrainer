@@ -18,16 +18,18 @@
 		caseId: CaseId;
 	} = $props();
 
+	let mirrored = $state(false);
+
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
 	const selectedAlgRight = $derived(getCaseAlg(staticData, caseState, 'right'));
 	const selectedAlgLeft = $derived(getCaseAlg(staticData, caseState, 'left'));
 
-	const alg = $derived(caseState.mirrored ? mirrorAlg(selectedAlgLeft) : selectedAlgRight);
+	const alg = $derived(mirrored ? mirrorAlg(selectedAlgLeft) : selectedAlgRight);
 
 	const setupAlg = $derived(
-		caseState.mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
+		mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
 	);
 
 	let stickeringString = $derived(
@@ -35,16 +37,16 @@
 			globalState.crossColor,
 			globalState.frontColor,
 			staticData.pieceToHide,
-			caseState.mirrored
+			mirrored
 		)
 	);
 	const setupRotation = $derived(getRotationAlg(globalState.crossColor, globalState.frontColor));
-	const cameraLongitude = $derived(caseState.mirrored ? -25 : 25);
+	const cameraLongitude = $derived(mirrored ? -25 : 25);
 </script>
 
 <div class="flex items-center rounded-2xl border-3">
-        <span> {getCaseName(staticData)} </span>
+	<span> {getCaseName(staticData)} </span>
 	<TwistyPlayer {alg} {setupRotation} {setupAlg} {stickeringString} {cameraLongitude} />
 	<span> {alg} </span>
-	<Button onclick={() => (caseState.mirrored = !caseState.mirrored)}>Mirror</Button>
+	<Button onclick={() => (mirrored = !mirrored)}>Mirror</Button>
 </div>
