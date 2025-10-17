@@ -1,10 +1,24 @@
 import type { GlobalState } from "$lib/types/globalState"
-import type { StickerHidden } from "./types/stickering"
-import { GROUP_ALGORITHMS, GROUP_SCRAMBLES } from "./data"
-import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from "./types/group"
+import { browser } from "$app/environment"
+import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage"
 
+const GLOBAL_STATE_STORAGE_KEY = "globalState"
 
-export const globalState: GlobalState = $state({
+const createDefaultGlobalState = (): GlobalState => ({
     crossColor: "white",
     frontColor: "red",
 })
+
+export const globalState: GlobalState = $state(createDefaultGlobalState())
+
+const persistedGlobalState = loadFromLocalStorage<Partial<GlobalState>>(GLOBAL_STATE_STORAGE_KEY)
+
+if (persistedGlobalState) {
+    Object.assign(globalState, persistedGlobalState)
+}
+
+if (browser) {
+    $effect(() => {
+        saveToLocalStorage(GLOBAL_STATE_STORAGE_KEY, globalState)
+    })
+}
