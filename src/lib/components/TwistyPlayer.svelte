@@ -1,29 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 
-	// Public props (feel free to add more from the docs)
-	// export let alg: string;
-	// export let setupAlg: string;
-	// export let setupRotation: string | undefined = "z2 y'";
-	// export let cameraLongitude: number | undefined = 25;
-	// export let cameraLatitude: number | undefined = 25;
-	// export let stickeringString: string | undefined =
-	// 	'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------';
-	// export let controlPanel: 'bottom-row' | 'none' | undefined = 'none';
-	// export let experimentalDragInput: 'auto' | 'none' | undefined = 'none';
-	// export let size: number | undefined = 160;
-
-	// let {alg, setupAlg,setupRotation, cameraLongitude, cameraLatitude, stickeringString, controlPanel, experimentalDragInput, size}: {
-	// 	alg: string;
-	// 	setupAlg: string;
-	// 	setupRotation: string | undefined;
-	// 	cameraLongitude: number | undefined;
-	// 	cameraLatitude: number | undefined;
-	// 	stickeringString: string | undefined;
-	// 	controlPanel: 'bottom-row' | 'none' | undefined;
-	// 	experimentalDragInput: 'auto' | 'none' | undefined;
-	// 	size: number | undefined;
-	// } = $props();
 	let {
 		alg,
 		setupAlg,

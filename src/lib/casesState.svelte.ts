@@ -1,5 +1,15 @@
 import { casesStatic } from "./casesStatic";
-import { GROUP_IDS, type CaseId, type CaseState, type GroupId, createCaseState } from "./types/group";
+import type { CaseState } from "./types/caseState";
+import { GROUP_IDS, type CaseId, type GroupId } from "./types/group";
+
+export const createCaseState = (): CaseState => ({
+    status: "unlearned",
+    algorithmSelection: { left: 0, right: 0 },
+    customAlgorithm: { left: "", right: "" },
+    identicalAlgorithm: true,
+    mirrored: false,
+    solveCount: 0,
+});
 
 const createGroupCasesState = (groupId: GroupId): Record<CaseId, CaseState> => {
     const caseEntries = Object.keys(casesStatic[groupId]).map((caseId) => [
