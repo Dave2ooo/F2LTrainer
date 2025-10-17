@@ -1,0 +1,26 @@
+<script lang="ts">
+	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
+	import { GROUP_SCRAMBLES, GROUP_ALGORITHMS } from '$lib/data';
+	import CategoryComponent from '$lib/components/CategoryComponent.svelte';
+	import { Accordion, AccordionItem } from 'flowbite-svelte';
+
+	let {
+		groupId
+	}: {
+		groupId: GroupId;
+	} = $props();
+
+	const groupDefinition = GROUP_DEFINITIONS[groupId];
+	const categoryNames = groupDefinition.categoryNames;
+</script>
+
+<Accordion multiple>
+	{#each categoryNames as categoryName, categoryIndex}
+		<AccordionItem open>
+			{#snippet header()}
+				{categoryName}
+			{/snippet}
+			<CategoryComponent {groupId} {categoryIndex} />
+		</AccordionItem>
+	{/each}
+</Accordion>
