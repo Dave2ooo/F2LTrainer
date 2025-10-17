@@ -4,11 +4,23 @@
 	import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
 
-	const groupIds = Object.keys(GROUP_DEFINITIONS) as GroupId[];
+	let selectedGroup: GroupId = globalState.selectedGroup;
+
+	$effect(() => {
+		if (globalState.selectedGroup !== selectedGroup) {
+			selectedGroup = globalState.selectedGroup;
+		}
+	});
+
+	$effect(() => {
+		if (selectedGroup !== globalState.selectedGroup) {
+			globalState.selectedGroup = selectedGroup;
+		}
+	});
 </script>
 
-<Tabs bind:selected={globalState.selectedGroup} tabStyle="underline">
-	{#each groupIds as groupId (groupId)}
+<Tabs bind:selected={selectedGroup} tabStyle="underline">
+	{#each GROUP_IDS as groupId}
 		<TabItem key={groupId} title={GROUP_DEFINITIONS[groupId].name}>
 			<GroupComponent {groupId} />
 		</TabItem>
