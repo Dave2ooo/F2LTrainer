@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Button, Heading, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
-        import Toast from '$lib/components/Toast.svelte';
-        import { globalState } from '$lib/globalState.svelte';
+	import Toast from '$lib/components/Toast.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView.svelte';
 </script>
 

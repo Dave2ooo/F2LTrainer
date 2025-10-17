@@ -55,42 +55,29 @@ export interface GroupDefinition {
     readonly id: GroupId;
     readonly name: string;
     readonly numberCases: number;
-    readonly categoryNames: readonly string[];
-    readonly categoryCases: readonly (readonly CaseId[])[];
+    readonly categories: readonly { name: string; cases: readonly CaseId[] }[];
     readonly ignoreAUF?: readonly CaseId[];
     readonly caseNumberMapping?: Readonly<Record<CaseId, string>>;
     readonly piecesToHide?: readonly string[];
 }
 
+
 const BASIC_DEFINITION: GroupDefinition = {
     id: "basic",
     name: "Basic Cases",
     numberCases: 41,
-    categoryNames: [
-        "Basic Inserts",
-        "Pieces on Top / White facing Front / Edge oriented",
-        "Pieces on Top / White facing Front / Edge unoriented",
-        "Pieces on Top / White facing Side / Edge oriented",
-        "Pieces on Top / white facing Side / Edge unoriented",
-        "Pieces on Top / White facing Up / Edge oriented",
-        "Pieces on Top / White facing Up / Edge unoriented",
-        "Edge solved",
-        "Edge flipped",
-        "Corner on Bottom / Edge on Top / Edge oriented",
-        "Corner on Bottom / Edge on Top / Edge unoriented",
-    ],
-    categoryCases: [
-        [4, 3, 1, 2],
-        [5, 7, 15],
-        [9, 11, 13],
-        [10, 12, 14],
-        [6, 8, 16],
-        [17, 19, 21, 23],
-        [18, 20, 22, 24],
-        [32, 33, 34, 38, 39],
-        [31, 35, 36, 40, 41, 37],
-        [27, 30, 25],
-        [29, 28, 26],
+    categories: [
+        { name: "Basic Inserts", cases: [4, 3, 1, 2] },
+        { name: "Pieces on Top / White facing Front / Edge oriented", cases: [5, 7, 15] },
+        { name: "Pieces on Top / White facing Front / Edge unoriented", cases: [9, 11, 13] },
+        { name: "Pieces on Top / White facing Side / Edge oriented", cases: [10, 12, 14] },
+        { name: "Pieces on Top / white facing Side / Edge unoriented", cases: [6, 8, 16] },
+        { name: "Pieces on Top / White facing Up / Edge oriented", cases: [17, 19, 21, 23] },
+        { name: "Pieces on Top / White facing Up / Edge unoriented", cases: [18, 20, 22, 24] },
+        { name: "Edge solved", cases: [32, 33, 34, 38, 39] },
+        { name: "Edge flipped", cases: [31, 35, 36, 40, 41, 37] },
+        { name: "Corner on Bottom / Edge on Top / Edge oriented", cases: [27, 30, 25] },
+        { name: "Corner on Bottom / Edge on Top / Edge unoriented", cases: [29, 28, 26] },
     ],
     ignoreAUF: [37, 38, 39, 40, 41],
 } as const;
@@ -99,31 +86,18 @@ const BASIC_BACK_DEFINITION: GroupDefinition = {
     id: "basicBack",
     name: "Basic Backslot",
     numberCases: 41,
-    categoryNames: [
-        "Basic Inserts",
-        "Pieces on Top / White facing Back / Edge oriented",
-        "Pieces on Top / White facing Back / Edge unoriented",
-        "Pieces on Top / White facing Side / Edge oriented",
-        "Pieces on Top / white facing Side / Edge unoriented",
-        "Pieces on Top / White facing Up / Edge oriented",
-        "Pieces on Top / White facing Up / Edge unoriented",
-        "Edge solved",
-        "Edge flipped",
-        "Corner on Bottom / Edge on Top / Edge oriented",
-        "Corner on Bottom / Edge on Top / Edge unoriented",
-    ],
-    categoryCases: [
-        [4, 3, 1, 2],
-        [6, 8, 16],
-        [10, 12, 14],
-        [9, 11, 13],
-        [5, 7, 15],
-        [18, 20, 22, 24],
-        [17, 19, 21, 23],
-        [32, 34, 33, 39, 38],
-        [31, 36, 35, 41, 40, 37],
-        [28, 29, 26],
-        [30, 27, 25],
+    categories: [
+        { name: "Basic Inserts", cases: [4, 3, 1, 2] },
+        { name: "Pieces on Top / White facing Back / Edge oriented", cases: [6, 8, 16] },
+        { name: "Pieces on Top / White facing Back / Edge unoriented", cases: [10, 12, 14] },
+        { name: "Pieces on Top / White facing Side / Edge oriented", cases: [9, 11, 13] },
+        { name: "Pieces on Top / white facing Side / Edge unoriented", cases: [5, 7, 15] },
+        { name: "Pieces on Top / White facing Up / Edge oriented", cases: [18, 20, 22, 24] },
+        { name: "Pieces on Top / White facing Up / Edge unoriented", cases: [17, 19, 21, 23] },
+        { name: "Edge solved", cases: [32, 34, 33, 39, 38] },
+        { name: "Edge flipped", cases: [31, 36, 35, 41, 40, 37] },
+        { name: "Corner on Bottom / Edge on Top / Edge oriented", cases: [28, 29, 26] },
+        { name: "Corner on Bottom / Edge on Top / Edge unoriented", cases: [30, 27, 25] },
     ],
     ignoreAUF: [37, 38, 39, 40, 41],
 } as const;
@@ -132,27 +106,16 @@ const ADVANCED_DEFINITION: GroupDefinition = {
     id: "advanced",
     name: "Advanced Cases",
     numberCases: 60, // 42,
-    categoryNames: [
-        "Slot in Front  / White facing Up",
-        "Slot in Front / White facing Front",
-        "Slot in Front / White facing Side",
-        "Slot in Front / Corner in Adjacent Slot",
-        "Slot in Back / Edge in Adjacent Front Slot", // new
-        "Slot in Back / Corner in Adjacent Front Slot",
-        "Edge in Opposite Slot",
-        "Corner in Opposite Slot",
-        "Basic Cases / Free Slot",
-    ],
-    categoryCases: [
-        [1, 2, 3, 4],
-        [9, 10, 13, 14],
-        [7, 8, 11, 12],
-        [19, 20, 21, 22, 23, 24],
-        [37, 38, 39, 40, 41, 42], // new
-        [25, 26, 27, 28, 29, 30],
-        [5, 6, 17, 18, 15, 16],
-        [31, 32, 33, 34, 35, 36],
-        [43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60],
+    categories: [
+        { name: "Slot in Front  / White facing Up", cases: [1, 2, 3, 4] },
+        { name: "Slot in Front / White facing Front", cases: [9, 10, 13, 14] },
+        { name: "Slot in Front / White facing Side", cases: [7, 8, 11, 12] },
+        { name: "Slot in Front / Corner in Adjacent Slot", cases: [19, 20, 21, 22, 23, 24] },
+        { name: "Slot in Back / Edge in Adjacent Front Slot", cases: [37, 38, 39, 40, 41, 42] },
+        { name: "Slot in Back / Corner in Adjacent Front Slot", cases: [25, 26, 27, 28, 29, 30] },
+        { name: "Edge in Opposite Slot", cases: [5, 6, 17, 18, 15, 16] },
+        { name: "Corner in Opposite Slot", cases: [31, 32, 33, 34, 35, 36] },
+        { name: "Basic Cases / Free Slot", cases: [43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60] },
     ],
     caseNumberMapping: {
         43: "10B",
@@ -246,17 +209,11 @@ const EXPERT_DEFINITION: GroupDefinition = {
     id: "expert",
     name: "Expert Cases",
     numberCases: 17,
-    categoryNames: [
-        "Corner is solved",
-        "Pair in wrong slot",
-        "Flipped edge & corner in adjacent slot",
-        "Other easy cases",
-    ],
-    categoryCases: [
-        [1, 2, 3, 4, 5, 6],
-        [7, 8, 9],
-        [10, 11, 12, 13, 14, 15],
-        [16, 17],
+    categories: [
+        { name: "Corner is solved", cases: [1, 2, 3, 4, 5, 6] },
+        { name: "Pair in wrong slot", cases: [7, 8, 9] },
+        { name: "Flipped edge & corner in adjacent slot", cases: [10, 11, 12, 13, 14, 15] },
+        { name: "Other easy cases", cases: [16, 17] },
     ],
     piecesToHide: ["br", "br", "fl", "fl", "fl", "fl", "fl", "br", "fr", "fl", "br", "fl", "br", "fl", "br", "fl", "br"],
     // fr: front-right, fl: front-left, br: back-right, bl: back-left
@@ -278,33 +235,33 @@ export const createCaseState = (): CaseState => ({
     solveCount: 0,
 });
 
-export const createGroupState = (group: GroupId, definition: GroupDefinition = GROUP_DEFINITIONS[group]): GroupState => {
-    const categoryCases = definition.categoryCases ?? [];
-    const uniqueCaseIds = Array.from(new Set(categoryCases.flat())).sort((a, b) => a - b);
-    const caseIds = uniqueCaseIds.length > 0
-        ? uniqueCaseIds
-        : Array.from({ length: definition.numberCases }, (_, index) => index + 1);
+// export const createGroupState = (group: GroupId, definition: GroupDefinition = GROUP_DEFINITIONS[group]): GroupState => {
+//     const categoryCases = definition.categoryCases ?? [];
+//     const uniqueCaseIds = Array.from(new Set(categoryCases.flat())).sort((a, b) => a - b);
+//     const caseIds = uniqueCaseIds.length > 0
+//         ? uniqueCaseIds
+//         : Array.from({ length: definition.numberCases }, (_, index) => index + 1);
 
-    const cases = Object.fromEntries(caseIds.map((caseId) => [caseId, createCaseState()]));
+//     const cases = Object.fromEntries(caseIds.map((caseId) => [caseId, createCaseState()]));
 
-    const collapsedCategories = Object.fromEntries(
-        definition.categoryNames.map((_, index) => [index, false as boolean]),
-    );
+//     const collapsedCategories = Object.fromEntries(
+//         definition.categoryNames.map((_, index) => [index, false as boolean]),
+//     );
 
-    return {
-        cases: cases as Record<CaseId, CaseState>,
-        collapsedCategories: collapsedCategories as Record<number, boolean>,
-    };
-};
+//     return {
+//         cases: cases as Record<CaseId, CaseState>,
+//         collapsedCategories: collapsedCategories as Record<number, boolean>,
+//     };
+// };
 
-export const createInitialGroupsState = (): Record<GroupId, GroupState> =>
-    Object.fromEntries(GROUPS.map((group) => [group, createGroupState(group)])) as Record<GroupId, GroupState>;
+// export const createInitialGroupsState = (): Record<GroupId, GroupState> =>
+//     Object.fromEntries(GROUPS.map((group) => [group, createGroupState(group)])) as Record<GroupId, GroupState>;
 
-export const createInitialGlobalState = (): GlobalState => ({
-    groups: createInitialGroupsState(),
-    currentGroup: "basic",
-    trainStateSelection: { ...defaultTrainStateSelection },
-    trainGroupSelection: { ...defaultTrainGroupSelection },
-    trainSideSelection: { ...defaultTrainSideSelection },
-    colorSelection: { ...defaultColorSelection },
-});
+// export const createInitialGlobalState = (): GlobalState => ({
+//     groups: createInitialGroupsState(),
+//     currentGroup: "basic",
+//     trainStateSelection: { ...defaultTrainStateSelection },
+//     trainGroupSelection: { ...defaultTrainGroupSelection },
+//     trainSideSelection: { ...defaultTrainSideSelection },
+//     colorSelection: { ...defaultColorSelection },
+// });

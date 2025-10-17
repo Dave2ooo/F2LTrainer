@@ -12,13 +12,13 @@
 	} = $props();
 
 	const groupDefinition = GROUP_DEFINITIONS[groupId];
-	const categoryCases = groupDefinition.categoryCases[categoryIndex];
+	const category = groupDefinition.categories[categoryIndex];
+	const categoryName = category.name;
+	const categoryCases = category.cases;
 	const scrambleArray = GROUP_SCRAMBLES[groupId];
 	const algorithmArray = GROUP_ALGORITHMS[groupId];
 </script>
 
-<!-- <CaseCard alg="U' (R U R')" setupAlg="L' U R U' L R' U" /> -->
-<!-- <h2>{categoryName}</h2> -->
 <div class="flex flex-wrap gap-2">
 	{#each categoryCases as caseId}
 		<CaseCard

@@ -11,14 +11,14 @@
 	} = $props();
 
 	const groupDefinition = GROUP_DEFINITIONS[groupId];
-	const categoryNames = groupDefinition.categoryNames;
+	const categories = groupDefinition.categories;
 </script>
 
 <Accordion multiple>
-	{#each categoryNames as categoryName, categoryIndex}
+	{#each categories as category, categoryIndex}
 		<AccordionItem open>
 			{#snippet header()}
-				{categoryName}
+				{category.name}
 			{/snippet}
 			<CategoryComponent {groupId} {categoryIndex} />
 		</AccordionItem>
