@@ -1,5 +1,5 @@
 export type GroupId = "basic" | "basicBack" | "advanced" | "expert";
-export const GROUPS: readonly GroupId[] = ["basic", "basicBack", "advanced", "expert"];
+export const GROUP_IDS: readonly GroupId[] = ["basic", "basicBack", "advanced", "expert"];
 
 export type TrainState = "unlearned" | "learning" | "finished";
 export const TRAIN_STATES: readonly TrainState[] = ["unlearned", "learning", "finished"];
@@ -19,14 +19,14 @@ export interface GroupState {
     collapsedCategories: Record<number, boolean>;
 }
 
-export interface GlobalState {
-    groups: Record<GroupId, GroupState>;
-    currentGroup: GroupId; // GroupId that is selected in selection view
-    trainStateSelection: Record<TrainState, boolean>;
-    trainGroupSelection: Record<GroupId, boolean>;
-    trainSideSelection: Record<"left" | "right", boolean>;
-    colorSelection: Record<"cross" | "front", string>;
-}
+// export interface GlobalState {
+//     groups: Record<GroupId, GroupState>;
+//     currentGroup: GroupId; // GroupId that is selected in selection view
+//     trainStateSelection: Record<TrainState, boolean>;
+//     trainGroupSelection: Record<GroupId, boolean>;
+//     trainSideSelection: Record<"left" | "right", boolean>;
+//     colorSelection: Record<"cross" | "front", string>;
+// }
 
 const defaultTrainStateSelection = {
     unlearned: false,
@@ -255,7 +255,7 @@ export const createCaseState = (): CaseState => ({
 // };
 
 // export const createInitialGroupsState = (): Record<GroupId, GroupState> =>
-//     Object.fromEntries(GROUPS.map((group) => [group, createGroupState(group)])) as Record<GroupId, GroupState>;
+//     Object.fromEntries(GROUP_IDS.map((group) => [group, createGroupState(group)])) as Record<GroupId, GroupState>;
 
 // export const createInitialGlobalState = (): GlobalState => ({
 //     groups: createInitialGroupsState(),

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Tabs, TabItem } from 'flowbite-svelte';
 	import GroupComponent from '$lib/components/GroupComponent.svelte';
-	import { GROUP_DEFINITIONS, GROUPS, type GroupId } from '$lib/types/group';
+	import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from '$lib/types/group';
 
 	const groupIds = Object.keys(GROUP_DEFINITIONS) as GroupId[];
 </script>
