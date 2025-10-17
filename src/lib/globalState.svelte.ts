@@ -1,4 +1,5 @@
 import type { GlobalState } from "$lib/types/globalState"
+import type { StickerHidden } from "./types/stickering"
 import { GROUP_ALGORITHMS, GROUP_SCRAMBLES } from "./data"
 import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from "./types/group"
 
@@ -13,6 +14,12 @@ export interface CaseStatic {
     caseId: number
     algPool: string[]
     scramblePool: string[]
+    categoryName: string | undefined
+    categoryIndex: number | undefined
+    groupName: string
+    ignoreAUF: boolean
+    pieceToHide: StickerHidden
+    caseName: string | undefined
 }
 
 const collectCaseIds = (groupId: GroupId): number[] => {
@@ -29,18 +36,43 @@ const collectCaseIds = (groupId: GroupId): number[] => {
 
 export const casesStatic = (() => {
     const entries = GROUP_IDS.map((groupId) => {
-        const algorithms = GROUP_ALGORITHMS[groupId];
-        const scrambles = GROUP_SCRAMBLES[groupId];
+        const definition = GROUP_DEFINITIONS[groupId];
+        const algorithms = GROUP_ALGORITHMS[groupId] ?? {};
+        const scrambles = GROUP_SCRAMBLES[groupId] ?? {};
+        const categoryLookup = new Map<number, { name: string; categoryIndex: number }>();
+        definition.categories.forEach(({ name, cases }, categoryIndex) => {
+            cases.forEach((caseId) => {
+                if (!categoryLookup.has(caseId)) {
+                    categoryLookup.set(caseId, { name, categoryIndex });
+                }
+            });
+        });
 
-        const cases: CaseStatic[] = collectCaseIds(groupId).map((caseId) => ({
-            groupId,
-            caseId,
-            algPool: algorithms[caseId] ?? [],
-            scramblePool: scrambles[caseId] ?? [],
-        }));
+        const cases = Object.fromEntries(
+            collectCaseIds(groupId).map((caseId) => {
+                const category = categoryLookup.get(caseId);
+                const pieceToHide = definition.piecesToHide?.[caseId - 1] as StickerHidden | undefined;
+
+                return [
+                    caseId,
+                    {
+                        groupId,
+                        caseId,
+                        algPool: algorithms[caseId] ?? [],
+                        scramblePool: scrambles[caseId] ?? [],
+                        categoryName: category?.name,
+                        categoryIndex: category?.categoryIndex,
+                        groupName: definition.name,
+                        ignoreAUF: definition.ignoreAUF?.includes(caseId) ?? false,
+                        pieceToHide,
+                        caseName: definition.caseNumberMapping?.[caseId],
+                    } satisfies CaseStatic,
+                ];
+            }),
+        ) as Record<number, CaseStatic>;
 
         return [groupId, cases] as const;
     });
 
-    return Object.fromEntries(entries) as Record<GroupId, CaseStatic[]>;
+    return Object.fromEntries(entries) as Record<GroupId, Record<number, CaseStatic>>;
 })();
