@@ -13,3 +13,5 @@ export interface CaseStatic {
     pieceToHide: StickerHidden
     caseName: string | undefined
 }
+
+export type Side = "left" | "right"

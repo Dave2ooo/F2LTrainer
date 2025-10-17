@@ -6,8 +6,9 @@
 	import getRotationAlg from '$lib/rotation';
 	import getStickeringString from '$lib/stickering';
 	import type { CaseId, GroupId } from '$lib/types/group';
-        import { Button } from 'flowbite-svelte';
-        import { mirrorAlg } from '$lib/mirrorAlg';
+	import { Button } from 'flowbite-svelte';
+	import { mirrorAlg } from '$lib/mirrorAlg';
+	import { getCaseAlg, getCaseName } from '$lib/types/caseState';
 
 	let {
 		groupId,
@@ -20,19 +21,13 @@
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
-        const selectedAlgorithm = $derived(
-                caseState.customAlgorithm.left.trim() ||
-                        staticData.algPool[caseState.algorithmSelection.right] ||
-                        staticData.algPool[0] ||
-                        ''
-        );
+	const selectedAlgRight = $derived(getCaseAlg(staticData, caseState, 'right'));
+	const selectedAlgLeft = $derived(getCaseAlg(staticData, caseState, 'left'));
 
-        const displayedAlgorithm = $derived(
-                caseState.mirrored ? mirrorAlg(selectedAlgorithm) : selectedAlgorithm
-        );
+	const alg = $derived(caseState.mirrored ? mirrorAlg(selectedAlgLeft) : selectedAlgRight);
 
-	const selectedScramble = $derived(
-		staticData.scramblePool[caseState.algorithmSelection.right] || staticData.scramblePool[0] || ''
+	const setupAlg = $derived(
+		caseState.mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
 	);
 
 	let stickeringString = $derived(
@@ -43,22 +38,13 @@
 			caseState.mirrored
 		)
 	);
-        const setupRotation = $derived(getRotationAlg(globalState.crossColor, globalState.frontColor));
-        const cameraLongitude = $derived(caseState.mirrored ? -25 : 25);
+	const setupRotation = $derived(getRotationAlg(globalState.crossColor, globalState.frontColor));
+	const cameraLongitude = $derived(caseState.mirrored ? -25 : 25);
 </script>
 
 <div class="flex items-center rounded-2xl border-3">
-        <TwistyPlayer
-                alg={displayedAlgorithm}
-                {setupRotation}
-                setupAlg={selectedScramble}
-                {stickeringString}
-                {cameraLongitude}
-        />
-        <span> {displayedAlgorithm} </span>
-	<Button
-		onclick={() => {
-			caseState.mirrored = !caseState.mirrored;
-		}}>Mirror</Button
-	>
+        <span> {getCaseName(staticData)} </span>
+	<TwistyPlayer {alg} {setupRotation} {setupAlg} {stickeringString} {cameraLongitude} />
+	<span> {alg} </span>
+	<Button onclick={() => (caseState.mirrored = !caseState.mirrored)}>Mirror</Button>
 </div>
