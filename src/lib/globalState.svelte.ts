@@ -8,14 +8,14 @@ const createCollapsedCategories = (): Record<GroupId, boolean[]> =>
     Object.fromEntries(
         GROUP_IDS.map((groupId) => [
             groupId,
-            GROUP_DEFINITIONS[groupId].categories.map(() => false),
+            GROUP_DEFINITIONS[groupId].categories.map(() => true),
         ]),
     ) as Record<GroupId, boolean[]>
 
 const createDefaultGlobalState = (): GlobalState => ({
     crossColor: "white",
     frontColor: "red",
-    collapsedCategories: createCollapsedCategories(),
+    categoriesOpenedObj: createCollapsedCategories(),
 })
 
 export const globalState: GlobalState = $state(createDefaultGlobalState())

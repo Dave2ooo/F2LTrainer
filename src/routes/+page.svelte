@@ -39,4 +39,3 @@
 <Button class="fixed right-4 bottom-4 z-50">Start Training</Button>
 
 <Toast />
-)

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
-	import { GROUP_SCRAMBLES, GROUP_ALGORITHMS } from '$lib/data';
 	import CategoryComponent from '$lib/components/CategoryComponent.svelte';
 	import { Accordion, AccordionItem } from 'flowbite-svelte';
+	import { globalState } from '$lib/globalState.svelte';
 
 	let {
 		groupId
@@ -12,11 +12,12 @@
 
 	const groupDefinition = GROUP_DEFINITIONS[groupId];
 	const categories = groupDefinition.categories;
+	const categoriesOpenedArr = globalState.categoriesOpenedObj[groupId];
 </script>
 
 <Accordion multiple>
 	{#each categories as category, categoryIndex}
-		<AccordionItem open>
+		<AccordionItem bind:open={categoriesOpenedArr[categoryIndex]}>
 			{#snippet header()}
 				{category.name}
 			{/snippet}

@@ -4,5 +4,5 @@ import type { GroupId } from "./group";
 export interface GlobalState {
     crossColor: StickerColor,
     frontColor: StickerColor,
-    collapsedCategories: Record<GroupId, boolean[]>,
+    categoriesOpenedObj: Record<GroupId, boolean[]>,
 }
