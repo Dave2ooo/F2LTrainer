@@ -3,9 +3,12 @@ import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
-	test: {
-		expect: { requireAssertions: true },
+        plugins: [tailwindcss(), sveltekit()],
+        build: {
+                chunkSizeWarningLimit: 1024
+        },
+        test: {
+                expect: { requireAssertions: true },
 		projects: [
 			{
 				extends: './vite.config.ts',
