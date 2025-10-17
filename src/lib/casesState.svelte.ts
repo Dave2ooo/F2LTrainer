@@ -1,6 +1,5 @@
-import { browser } from "$app/environment";
 import { casesStatic } from "./casesStatic";
-import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage";
+import { loadFromLocalStorage } from "./utils/localStorage";
 import type { CaseState } from "./types/caseState";
 import { GROUP_IDS, type CaseId, type GroupId } from "./types/group";
 
@@ -28,7 +27,7 @@ const createDefaultCasesState = (): Record<GroupId, Record<CaseId, CaseState>> =
         Record<CaseId, CaseState>
     >;
 
-const CASES_STATE_STORAGE_KEY = "casesState";
+export const CASES_STATE_STORAGE_KEY = "casesState";
 
 type PersistedCasesState = Partial<
     Record<GroupId, Partial<Record<CaseId, Partial<CaseState>>>>
@@ -56,8 +55,3 @@ if (persistedCasesState) {
     }
 }
 
-if (browser) {
-    $effect(() => {
-        saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
-    });
-}

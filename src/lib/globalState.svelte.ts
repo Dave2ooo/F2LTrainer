@@ -1,8 +1,7 @@
 import type { GlobalState } from "$lib/types/globalState"
-import { browser } from "$app/environment"
-import { loadFromLocalStorage, saveToLocalStorage } from "./utils/localStorage"
+import { loadFromLocalStorage } from "./utils/localStorage"
 
-const GLOBAL_STATE_STORAGE_KEY = "globalState"
+export const GLOBAL_STATE_STORAGE_KEY = "globalState"
 
 const createDefaultGlobalState = (): GlobalState => ({
     crossColor: "white",
@@ -17,8 +16,3 @@ if (persistedGlobalState) {
     Object.assign(globalState, persistedGlobalState)
 }
 
-if (browser) {
-    $effect(() => {
-        saveToLocalStorage(GLOBAL_STATE_STORAGE_KEY, globalState)
-    })
-}
