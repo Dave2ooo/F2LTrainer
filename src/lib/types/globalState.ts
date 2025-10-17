@@ -8,4 +8,5 @@ export interface GlobalState {
     frontColor: StickerColor,
     categoriesOpenedObj: Record<GroupId, boolean[]>,
     view: View,
+    selectedGroup: GroupId
 }

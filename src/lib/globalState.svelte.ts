@@ -17,6 +17,7 @@ const createDefaultGlobalState = (): GlobalState => ({
     frontColor: "red",
     categoriesOpenedObj: createCollapsedCategories(),
     view: "select",
+    selectedGroup: "basic",
 })
 
 export const globalState: GlobalState = $state(createDefaultGlobalState())
