@@ -2,10 +2,8 @@
 	import { Button, Heading, Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 	import Toast from '$lib/components/Toast.svelte';
-	import { casesStatic, globalState } from '$lib/globalState.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView.svelte';
-
-	console.log('casesStatic', casesStatic);
 </script>
 
 <Heading>F2L Trainer</Heading>
