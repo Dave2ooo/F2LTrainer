@@ -5,6 +5,7 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
+	import Settings from '$lib/components/Settings.svelte';
 </script>
 
 <Heading>F2L Trainer</Heading>
@@ -34,6 +35,8 @@
 		}}>Blue</DropdownItem
 	>
 </Dropdown>
+
+<Settings />
 
 <SelectView />
 
