@@ -18,6 +18,9 @@ const createDefaultGlobalState = (): GlobalState => ({
     categoriesOpenedObj: createCollapsedCategories(),
     view: "select",
     selectedGroup: "basic",
+    trainStateSelection: { unlearned: false, learning: true, finished: false },
+    trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true },
+    trainSideSelection : { left: true, right: true },
 })
 
 export const globalState: GlobalState = $state(createDefaultGlobalState())
@@ -27,4 +30,3 @@ const persistedGlobalState = loadFromLocalStorage<Partial<GlobalState>>(GLOBAL_S
 if (persistedGlobalState) {
     Object.assign(globalState, persistedGlobalState)
 }
-

@@ -3,9 +3,6 @@ import type { CaseState } from "./caseState";
 export type GroupId = "basic" | "basicBack" | "advanced" | "expert";
 export const GROUP_IDS: readonly GroupId[] = ["basic", "basicBack", "advanced", "expert"];
 
-export type TrainState = "unlearned" | "learning" | "finished";
-export const TRAIN_STATES: readonly TrainState[] = ["unlearned", "learning", "finished"];
-
 export type CaseId = number; // 1-based, matches existing assets
 
 export interface GroupState {
@@ -21,29 +18,6 @@ export interface GroupState {
 //     trainSideSelection: Record<"left" | "right", boolean>;
 //     colorSelection: Record<"cross" | "front", string>;
 // }
-
-const defaultTrainStateSelection = {
-    unlearned: false,
-    learning: true,
-    finished: false,
-} as const satisfies Record<TrainState, boolean>;
-
-const defaultTrainGroupSelection = {
-    basic: true,
-    basicBack: true,
-    advanced: true,
-    expert: true,
-} as const satisfies Record<GroupId, boolean>;
-
-const defaultTrainSideSelection = {
-    left: true,
-    right: true,
-} as const satisfies Record<"left" | "right", boolean>;
-
-const defaultColorSelection = {
-    cross: "white",
-    front: "red",
-} as const satisfies Record<"cross" | "front", string>;
 
 export interface GroupDefinition {
     readonly id: GroupId;

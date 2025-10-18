@@ -1,26 +1,13 @@
-import type { CaseStatic, Side } from "./casesStatic";
-import type { TrainState } from "./group";
+import type { GroupId } from "./group";
+
+export type TrainState = "unlearned" | "learning" | "finished";
+export const TRAIN_STATES: readonly TrainState[] = ["unlearned", "learning", "finished"];
 
 export interface CaseState {
-    status: TrainState;
+    trainState: TrainState;
     algorithmSelection: { left: number | null; right: number | null };
     customAlgorithm: { left: string; right: string };
     identicalAlgorithm: boolean;
     // mirrored: boolean;
     solveCount: number;
-}
-
-export function getCaseAlg(staticData: CaseStatic, caseState: CaseState, side: Side ){
-    const algorithmSelection = caseState.algorithmSelection[side];
-    const customAlgorithm = caseState.customAlgorithm[side];
-
-    if (algorithmSelection === null) return customAlgorithm
-
-    const algorithmPool = staticData.algPool;
-
-    return algorithmPool[algorithmSelection];
-}
-
-export function getCaseName(staticData: CaseStatic) {
-    return staticData.caseName || staticData.caseId.toString();
 }

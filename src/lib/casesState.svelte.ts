@@ -1,14 +1,14 @@
 import { casesStatic } from "./casesStatic";
 import { loadFromLocalStorage } from "./utils/localStorage";
-import type { CaseState } from "./types/caseState";
+import type { CaseState, TrainState } from "./types/caseState";
 import { GROUP_IDS, type CaseId, type GroupId } from "./types/group";
+import type { CaseStatic, Side } from "./types/casesStatic";
 
 export const createCaseState = (): CaseState => ({
-    status: "unlearned",
+    trainState: "unlearned",
     algorithmSelection: { left: 0, right: 0 },
     customAlgorithm: { left: "", right: "" },
     identicalAlgorithm: true,
-    // mirrored: false,
     solveCount: 0,
 });
 
@@ -55,3 +55,23 @@ if (persistedCasesState) {
     }
 }
 
+export function getCaseAlg(staticData: CaseStatic, caseState: CaseState, side: Side) {
+    const algorithmSelection = caseState.algorithmSelection[side];
+    const customAlgorithm = caseState.customAlgorithm[side];
+
+    if (algorithmSelection === null) return customAlgorithm
+
+    const algorithmPool = staticData.algPool;
+
+    return algorithmPool[algorithmSelection];
+}
+
+export function getCaseName(staticData: CaseStatic) {
+    return staticData.caseName || staticData.caseId.toString();
+}
+
+export const TrainStateColors: Record<TrainState, string> = {
+    unlearned: "rgba(0, 0, 0, 0)",
+    learning: "rgb(236 236 0)",
+    finished: "rgb(0, 223, 0)",
+};
