@@ -10,7 +10,7 @@
 		stickeringString = 'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
-		size = 160
+		size = 25
 	}: {
 		alg: string;
 		setupAlg: string;
@@ -43,6 +43,7 @@
   Only include an attribute when its value is defined.
 -->
 <twisty-player
+	class="size-{size} aspect-[0.9]"
 	bind:this={el}
 	{alg}
 	puzzle="3x3x3"
@@ -54,5 +55,6 @@
 	experimental-drag-input={experimentalDragInput}
 	background="none"
 	hint-facelets="none"
-	style="width: 145px; height: 160px"
 ></twisty-player>
+
+<!-- style="width: 145px; height: 160px" -->
