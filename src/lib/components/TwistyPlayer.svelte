@@ -55,6 +55,7 @@
 	experimental-drag-input={experimentalDragInput}
 	background="none"
 	hint-facelets="none"
+	viewer-link="none"
 ></twisty-player>
 
 <!-- style="width: 145px; height: 160px" -->
