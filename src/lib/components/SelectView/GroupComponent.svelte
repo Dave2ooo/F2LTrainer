@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
-	import CategoryComponent from '$lib/components/CategoryComponent.svelte';
+	import CategoryComponent from '$lib/components/SelectView/CategoryComponent.svelte';
 	import { Accordion, AccordionItem } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 

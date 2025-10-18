@@ -1,6 +1,6 @@
 <script lang="ts">
         import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
-        import CaseCard from '$lib/components/CaseCard.svelte';
+        import CaseCard from '$lib/components/SelectView/CaseCard.svelte';
 
         let {
                 groupId,
