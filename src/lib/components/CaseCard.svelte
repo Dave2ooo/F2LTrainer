@@ -55,7 +55,7 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	class="flex items-center rounded-2xl border-2 outline-1 transition-all hover:shadow-xl"
+	class="flex items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
 	<span> {getCaseName(staticData)} </span>
