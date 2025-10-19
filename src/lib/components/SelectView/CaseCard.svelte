@@ -7,7 +7,7 @@
 	import getStickeringString from '$lib/stickering';
 	import type { CaseId, GroupId } from '$lib/types/group';
 	import { Button } from 'flowbite-svelte';
-	import { mirrorAlg } from '$lib/mirrorAlg';
+	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 
 	let {
