@@ -14,4 +14,5 @@ export interface GlobalState {
     trainStateSelection: Record<TrainState, boolean>,
     trainGroupSelection: Record<GroupId, boolean>,
     trainSideSelection : Record<Side, boolean>,
+    trainAddAuf : boolean
 }
