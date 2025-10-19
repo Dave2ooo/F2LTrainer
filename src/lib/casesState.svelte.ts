@@ -66,6 +66,10 @@ export function getCaseAlg(staticData: CaseStatic, caseState: CaseState, side: S
     return algorithmPool[algorithmSelection];
 }
 
+export function getCaseScramblePool(staticData: CaseStatic) {
+    return staticData.scramblePool;
+}
+
 export function getCaseName(staticData: CaseStatic) {
     return staticData.caseName || staticData.caseId.toString();
 }
