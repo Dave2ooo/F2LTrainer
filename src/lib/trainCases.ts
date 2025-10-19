@@ -1,6 +1,5 @@
-import { GROUP_SCRAMBLES } from "./data"
 import { mirrorAlg } from "./utils/mirrorAlg"
-import type { GroupId } from "./types/group"
+import { GROUP_DEFINITIONS, type GroupId } from "./types/group"
 import type { StickerColor, StickerHidden } from "./types/stickering"
 import { casesStatic } from "./casesStatic"
 import { casesState, getCaseAlg, getCaseScramblePool } from "./casesState.svelte"
@@ -9,16 +8,62 @@ import { globalState } from "./globalState.svelte"
 import type { Auf } from "./types/trainCase"
 import { addAuf } from "./utils/addAuf"
 
+export function gernerateTrainCases(): TrainCase[] {
+    const result: TrainCase[] = [];
+
+    const trainGroupSelection = globalState.trainGroupSelection;
+    const trainStateSelection = globalState.trainStateSelection;
+    const trainSideSelection = globalState.trainSideSelection;
+    // console.log("trainGroupSelection", trainGroupSelection, "trainStateSelection", trainStateSelection, "trainSideSelection", trainSideSelection);
+
+    const crossColor = globalState.crossColor;
+    const frontColor = globalState.frontColor;
+
+    for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
+        // 1. check if this group is selected
+        if (!trainGroupSelection[groupId]) {
+            // console.log("groupId", groupId, "not selected");
+            continue;
+        }
+
+        const groupCaseStates = casesState[groupId];
+
+
+        for (const caseIdStr of Object.keys(groupCaseStates)) {
+            const caseId = Number(caseIdStr);
+            // console.log("groupId", groupId, "caseId", caseId);
+            if (Number.isNaN(caseId))
+                continue;
+
+            const caseState = groupCaseStates[caseId];
+            const caseTrainState = caseState.trainState;
+
+            if (!trainStateSelection[caseTrainState])
+                continue;
+
+            const stickerHidden = casesStatic[groupId][caseId].pieceToHide;
+            // console.log("groupId", groupId, "caseId", caseId);
+            if (trainSideSelection.right)
+                result.push(new TrainCase(groupId, caseId, "right", crossColor, frontColor, stickerHidden));
+            if (trainSideSelection.left)
+                result.push(new TrainCase(groupId, caseId, "left", crossColor, frontColor, stickerHidden));
+            // console.log("result temp", result);
+        }
+
+    }
+    return result;
+}
+
 export default class TrainCase {
     #groupId: GroupId
-     #caseId: number
-     #side: Side
-     #crossColor: StickerColor | "random"
-     #frontColor: StickerColor | "random"
-     #stickerHidden: StickerHidden
-     #scramble: string
-     #alg: string
-     #auf: Auf
+    #caseId: number
+    #side: Side
+    #crossColor: StickerColor | "random"
+    #frontColor: StickerColor | "random"
+    #stickerHidden: StickerHidden
+    #scramble: string
+    #alg: string
+    #auf: Auf
 
     constructor(groupId: GroupId, caseId: number, side: Side, crossColor: StickerColor | "random", frontColor: StickerColor | "random", stickerHidden: StickerHidden) {
         this.#groupId = groupId;

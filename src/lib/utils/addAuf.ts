@@ -18,11 +18,11 @@ export function addAuf(scramble: string, alg: string): [string, string, Auf] {
     const [finalScramble, finalAlg] = concatinateAuf(scramble, alg, aufScramble);
 
 
-    console.log("Scramble before: ", scramble);
-    console.log("Alg before: ", alg);
-    console.log("aufScramble", aufScramble);
-    console.log("Scramble after: ", finalScramble);
-    console.log("Alg after: ", finalAlg);
+    // console.log("Scramble before: ", scramble);
+    // console.log("Alg before: ", alg);
+    // console.log("aufScramble", aufScramble);
+    // console.log("Scramble after: ", finalScramble);
+    // console.log("Alg after: ", finalAlg);
 
     return [
         finalScramble,

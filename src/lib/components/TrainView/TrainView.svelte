@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TrainCase from '$lib/trainCases';
+	import TrainCase, { gernerateTrainCases } from '$lib/trainCases';
 	import type { Side } from '$lib/types/casesStatic';
 	import type { GroupId } from '$lib/types/group';
 	import type { StickerColor, StickerHidden } from '$lib/types/stickering';
@@ -13,6 +13,9 @@
 	const stickerHidden: StickerHidden = undefined;
 
 	const trainCase = new TrainCase(groupId, caseId, side, crossColor, frontColor, stickerHidden);
+
+	const trainCaseListArr = gernerateTrainCases();
+	console.log("trainCaseList", trainCaseListArr);
 </script>
 
 <h2>Scramble Case {caseId}</h2>
