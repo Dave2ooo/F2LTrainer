@@ -99,6 +99,10 @@ export default class TrainCase {
         const caseState = casesState[this.#groupId][this.#caseId];
 
         this.#alg = getCaseAlg(staticData, caseState, this.#side);
+
+        if (this.#side === "left") {
+            this.#alg = mirrorAlg(this.#alg);
+        }
     }
 
     private addAuf() {

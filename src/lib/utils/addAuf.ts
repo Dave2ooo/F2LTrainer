@@ -8,6 +8,13 @@ const DUPLICATES: Record<Auf, Record<Auf, Auf>> = {
     "": { "": "", "U": "U", "U2": "U2", "U'": "U'" }
 } as const;
 
+const MIRROR_AUF: Record<Auf, Auf> = {
+    "U": "U'",
+    "U2": "U2",
+    "U'": "U",
+    "": ""
+} as const;
+
 export function addAuf(scramble: string, alg: string): [string, string, Auf] {
     const aufIndex = Math.floor(Math.random() * AUF.length);
     const aufScramble = AUF[aufIndex];
@@ -18,11 +25,11 @@ export function addAuf(scramble: string, alg: string): [string, string, Auf] {
     const [finalScramble, finalAlg] = concatinateAuf(scramble, alg, aufScramble);
 
 
-    // console.log("Scramble before: ", scramble);
-    // console.log("Alg before: ", alg);
-    // console.log("aufScramble", aufScramble);
-    // console.log("Scramble after: ", finalScramble);
-    // console.log("Alg after: ", finalAlg);
+    console.log("Scramble before: ", scramble);
+    console.log("Alg before: ", alg);
+    console.log("aufScramble", aufScramble);
+    console.log("Scramble after: ", finalScramble);
+    console.log("Alg after: ", finalAlg);
 
     return [
         finalScramble,
@@ -56,14 +63,16 @@ function concatinateAuf(scramble: string, alg: string, auf: Auf): [string, strin
     const firstMoveAlg = algList.at(0);
 
     if (firstMoveAlg && isAuf(firstMoveAlg)) {
+        console.log("First move is Auf:", firstMoveAlg);
         algList.shift();
-        const mergedAufAlg = DUPLICATES[firstMoveAlg][auf];
+        const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];
         if (mergedAufAlg !== "")
-            algList.unshift(mirrorAlg(mergedAufAlg));
+            algList.unshift(mergedAufAlg);
     } else {
-        const mergedAufAlg = DUPLICATES[""][auf];
+        console.log("First move is not Auf:", firstMoveAlg);
+        const mergedAufAlg = DUPLICATES[""][MIRROR_AUF[auf]];
         if (mergedAufAlg !== "")
-            algList.unshift(mirrorAlg(mergedAufAlg));
+            algList.unshift(mergedAufAlg);
     }
 
     return [scrambleList.join(" "), algList.join(" ")]
