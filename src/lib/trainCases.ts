@@ -7,6 +7,7 @@ import type { Side } from "./types/casesStatic"
 import { globalState } from "./globalState.svelte"
 import type { Auf } from "./types/trainCase"
 import { addAuf } from "./utils/addAuf"
+import shuffleArray from "./utils/shuffleArray"
 
 export function gernerateTrainCases(): TrainCase[] {
     const result: TrainCase[] = [];
@@ -51,19 +52,20 @@ export function gernerateTrainCases(): TrainCase[] {
         }
 
     }
+    shuffleArray(result);
     return result;
 }
 
 export default class TrainCase {
-    #groupId: GroupId
-    #caseId: number
-    #side: Side
-    #crossColor: StickerColor | "random"
-    #frontColor: StickerColor | "random"
-    #stickerHidden: StickerHidden
-    #scramble: string
-    #alg: string
-    #auf: Auf
+    #groupId: GroupId;
+    #caseId: number;
+    #side: Side;
+    #crossColor: StickerColor | "random";
+    #frontColor: StickerColor | "random";
+    #stickerHidden: StickerHidden;
+    #scramble: string;
+    #alg: string;
+    #auf: Auf;
 
     constructor(groupId: GroupId, caseId: number, side: Side, crossColor: StickerColor | "random", frontColor: StickerColor | "random", stickerHidden: StickerHidden) {
         this.#groupId = groupId;
