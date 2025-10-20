@@ -22,6 +22,7 @@ export interface GroupState {
 export interface GroupDefinition {
     readonly id: GroupId;
     readonly name: string;
+    readonly editName: string;
     readonly numberCases: number;
     readonly categories: readonly { name: string; cases: readonly CaseId[] }[];
     readonly ignoreAUF?: readonly CaseId[];
@@ -33,6 +34,7 @@ export interface GroupDefinition {
 const BASIC_DEFINITION: GroupDefinition = {
     id: "basic",
     name: "Basic Cases",
+    editName: "Basic",
     numberCases: 41,
     categories: [
         { name: "Basic Inserts", cases: [4, 3, 1, 2] },
@@ -53,6 +55,7 @@ const BASIC_DEFINITION: GroupDefinition = {
 const BASIC_BACK_DEFINITION: GroupDefinition = {
     id: "basicBack",
     name: "Basic Backslot",
+    editName: "Basic Backslot",
     numberCases: 41,
     categories: [
         { name: "Basic Inserts", cases: [4, 3, 1, 2] },
@@ -73,6 +76,7 @@ const BASIC_BACK_DEFINITION: GroupDefinition = {
 const ADVANCED_DEFINITION: GroupDefinition = {
     id: "advanced",
     name: "Advanced Cases",
+    editName: "Advanced",
     numberCases: 60, // 42,
     categories: [
         { name: "Slot in Front  / White facing Up", cases: [1, 2, 3, 4] },
@@ -176,6 +180,7 @@ const ADVANCED_DEFINITION: GroupDefinition = {
 const EXPERT_DEFINITION: GroupDefinition = {
     id: "expert",
     name: "Expert Cases",
+    editName: "Expert",
     numberCases: 17,
     categories: [
         { name: "Corner is solved", cases: [1, 2, 3, 4, 5, 6] },

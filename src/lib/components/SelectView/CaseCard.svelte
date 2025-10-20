@@ -10,6 +10,9 @@
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
+	import EditAlg from '../EditAlg.svelte';
+
+	let editAlgRef: EditAlg;
 
 	let {
 		groupId,
@@ -33,10 +36,9 @@
 		mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
 	);
 
-	const [crossColor, frontColor] = $derived(resolveStickerColors(
-		globalState.crossColor,
-		globalState.frontColor
-	));
+	const [crossColor, frontColor] = $derived(
+		resolveStickerColors(globalState.crossColor, globalState.frontColor)
+	);
 
 	let stickeringString = $derived(
 		getStickeringString(crossColor, frontColor, staticData.pieceToHide, mirrored)
@@ -62,7 +64,12 @@
 	<span> {getCaseName(staticData)} </span>
 	<TwistyPlayer {alg} {setupRotation} {setupAlg} {stickeringString} {cameraLongitude} />
 	<span> {alg} </span>
-	<Button onclick={() => (mirrored = !mirrored)}>Mirror</Button>
+	<div class="flex flex-col gap-1">
+		<Button onclick={() => (mirrored = !mirrored)}>Mirror</Button>
+		<Button onclick={() => editAlgRef.openModal()}>Edit Algorithm</Button>
+	</div>
 </button>
+
+<EditAlg bind:this={editAlgRef} {groupId} {caseId} />
 
 <!-- </Button> -->
