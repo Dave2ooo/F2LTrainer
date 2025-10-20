@@ -1,4 +1,4 @@
-import { OPPOSITE_COLOR, SIDE_COLOR, STICKERING, type StickerColor, type StickerHidden } from "$lib/types/stickering";
+import { OPPOSITE_COLOR, SIDE_COLOR, STICKERING, type StickerColor, type StickerColorsWithRandom, type StickerHidden } from "$lib/types/stickering";
 
 function getStickeringString(crossColor: StickerColor, frontColor: StickerColor, stickering: StickerHidden, mirrored: boolean) {
     const edgesArr = Array(12).fill("-");

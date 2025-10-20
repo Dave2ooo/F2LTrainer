@@ -2,6 +2,8 @@
 
 export const STICKER_COLORS = ["white", "yellow", "red", "orange", "blue", "green"] as const;
 export type StickerColor = typeof STICKER_COLORS[number];
+export const STICKER_COLORS_WITH_RANDOM = [...STICKER_COLORS, "random"] as const;
+export type StickerColorsWithRandom = StickerColor | "random";
 
 export type StickerHidden = "fr" | "fl" | "br" | "bl" | undefined;
 

@@ -9,6 +9,7 @@
 	import { Button } from 'flowbite-svelte';
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import { TRAIN_STATES } from '$lib/types/caseState';
+	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 
 	let {
 		groupId,
@@ -32,15 +33,15 @@
 		mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
 	);
 
+	const [crossColor, frontColor] = $derived(resolveStickerColors(
+		globalState.crossColor,
+		globalState.frontColor
+	));
+
 	let stickeringString = $derived(
-		getStickeringString(
-			globalState.crossColor,
-			globalState.frontColor,
-			staticData.pieceToHide,
-			mirrored
-		)
+		getStickeringString(crossColor, frontColor, staticData.pieceToHide, mirrored)
 	);
-	const setupRotation = $derived(getRotationAlg(globalState.crossColor, globalState.frontColor));
+	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
 	const cameraLongitude = $derived(mirrored ? -25 : 25);
 
 	function cycleTrainStates() {
