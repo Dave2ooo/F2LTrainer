@@ -10,15 +10,13 @@
 
 	const currentTrainState = trainState; // Keep at +page to keep global
 
-	let open = $state(false);
+	let settingsRef: Settings;
 </script>
 
 <Heading>F2L Trainer</Heading>
 
-<Button onclick={() => (open = true)}>Open SettingsNew</Button>
-<Modal bind:open title="Settings" size="md" outsideclose={true} autoclose={true}>
-	<Settings />
-</Modal>
+<Button onclick={() => settingsRef.openModal()}>Open Settings</Button>
+<Settings bind:this={settingsRef} />
 
 {#if globalState.view === 'select'}
 	<SelectView />
