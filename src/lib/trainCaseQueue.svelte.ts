@@ -1,93 +1,59 @@
 import TrainCase, { gernerateTrainCases } from "./trainCases";
 
-export const trainCaseQueue = gernerateTrainCases();
+export let trainCaseQueue: TrainCase[] = [];
 
-function createInitialTrainCase(): TrainCase | null {
-    return trainCaseQueue.length > 0 ? trainCaseQueue[0] : null;
+function createInitialTrainCase(): TrainCase {
+    trainCaseQueue = gernerateTrainCases();
+    // If no train cases were generated, throw a clear error or return a fallback.
+    if (trainCaseQueue.length === 0) {
+        console.warn("createInitialTrainCase found no train cases");
+        console.log("trainCaseQueue", trainCaseQueue)
+    }
+    return trainCaseQueue[0];
 }
 
 // Export a single $state object — mutate its properties instead of reassigning the variable.
-export const trainState = $state({
+export const trainState: { index: number; current: TrainCase } = $state({
     index: 0,
-    current: createInitialTrainCase() as TrainCase | null,
+    current: createInitialTrainCase(),
 });
+
+export function regenerateTrainCaseQueue() {
+    trainCaseQueue = gernerateTrainCases();
+    trainState.index = 0;
+    if (trainCaseQueue.length > 0) {
+        trainState.current = trainCaseQueue[0];
+    } else {
+        // keep current unchanged or set to a known fallback
+        console.warn("regenerateTrainCaseQueue produced no cases");
+    }
+}
 
 export function advanceToNextTrainCase() {
     const next = trainState.index + 1;
-    // bounds-check
-    if (next > trainCaseQueue.length) {
+    if (next >= trainCaseQueue.length) {
         const newTrainCases = gernerateTrainCases();
         if (newTrainCases.length > 0) {
             trainCaseQueue.push(...newTrainCases);
+            trainState.index = next;
+        } else {
+            // No further cases; clamp to last valid index
+            trainState.index = Math.max(0, trainCaseQueue.length - 1);
+            return;
         }
+    } else {
+        trainState.index = next;
     }
-    trainState.index = next;                 // mutate property — OK
-    trainState.current = trainCaseQueue[next]; // mutate property — OK
+    trainState.current = trainCaseQueue[trainState.index];
 }
 
-
-
-// import TrainCase, { gernerateTrainCases } from "./trainCases";
-
-
-// export const trainCaseQueue = gernerateTrainCases();
-
-// function createInitialTrainCase() {
-//     return trainCaseQueue.length > 0 ? trainCaseQueue[0] : null;
-// }
-
-// export let currentTrainIndex: number = 0;
-// export let currentTrainCase: TrainCase | null = $state(createInitialTrainCase());
-
-// export function advanceToNextTrainCase() {
-//     currentTrainIndex++;
-//     currentTrainCase = trainCaseQueue[currentTrainIndex];
-// }
-
-// class TrainCaseQueue {
-//     #trainCaseQueue: TrainCase[];
-
-//     constructor() {
-//         this.#trainCaseQueue = gernerateTrainCases();
-//     }
-
-//     public getCurrentTrainCase(): TrainCase {
-//         if (currentTrainIndex >= this.#trainCaseQueue.length) { }
-//         return this.#trainCaseQueue[currentTrainIndex];
-//     }
-
-//     public getNextTrainCase(): TrainCase | undefined {
-//         // Ensure there's at least one train case available
-//         if (this.#trainCaseQueue.length === 0) {
-//             this.generateNewTrainCases();
-//             if (this.#trainCaseQueue.length === 0) return undefined;
-//         }
-
-//         // advance index
-//         currentTrainIndex++;
-
-//         // if we've passed the end, try to generate more and clamp if still out of range
-//         if (currentTrainIndex >= this.#trainCaseQueue.length) {
-//             this.generateNewTrainCases();
-//             if (currentTrainIndex >= this.#trainCaseQueue.length) {
-//                 currentTrainIndex = this.#trainCaseQueue.length - 1;
-//             }
-//         }
-
-//         return this.#trainCaseQueue[currentTrainIndex];
-//     }
-
-//     generateNewTrainCases() {
-//         const newTrainCases = gernerateTrainCases();
-//         if (newTrainCases.length > 0) {
-//             this.#trainCaseQueue.push(...newTrainCases);
-//         }
-//     }
-
-//     public resetQueue() {
-//         this.#trainCaseQueue = gernerateTrainCases();
-//         currentTrainIndex = 0;
-//     }
-// }
-
-// export const trainCaseQueue = new TrainCaseQueue();
+export function advanceToPreviousTrainCase() {
+    const prev = trainState.index - 1;
+    if (prev >= 0) {
+        trainState.index = prev;
+        trainState.current = trainCaseQueue[trainState.index];
+    } else {
+        // already at start, no-op
+        trainState.index = 0;
+    }
+}

@@ -10,6 +10,7 @@ import { addAuf } from "./utils/addAuf"
 import shuffleArray from "./utils/shuffleArray"
 
 export function gernerateTrainCases(): TrainCase[] {
+    console.log("gernerateTrainCases() called");
     const result: TrainCase[] = [];
 
     const trainGroupSelection = globalState.trainGroupSelection;

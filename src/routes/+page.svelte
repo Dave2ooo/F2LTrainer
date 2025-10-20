@@ -5,6 +5,9 @@
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';
+	import { trainState } from '$lib/trainCaseQueue.svelte';
+
+	const currentTrainState = trainState; // Keep at +page to keep global
 </script>
 
 <Heading>F2L Trainer</Heading>
