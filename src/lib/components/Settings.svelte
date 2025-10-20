@@ -120,7 +120,7 @@
 
 				<div class="mb-3">
 					<Label for="algorithm" class="mb-1 block">Algorithm</Label>
-					<Select bind:value={workingState.trainHintAlgorithm} id="algorithm">
+					<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
 						<option value="step">Reveal step-by-step</option>
 						<option value="allAtOnce">Reveal all at once</option>
 						<option value="always">Show all time</option>
@@ -129,7 +129,7 @@
 
 				<div>
 					<Label for="stickering" class="mb-1 block">Stickering</Label>
-					<Select bind:value={workingState.trainHintStickering} id="stickering">
+					<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
 						<option value="f2l">F2L Stickering</option>
 						<option value="fully">Fully stickered</option>
 					</Select>
@@ -140,7 +140,7 @@
 			<div>
 				<div class="mb-3">
 					<Label for="crossColor" class="mb-1 block">Cross color</Label>
-					<Select bind:value={workingState.crossColor} id="crossColor">
+					<Select bind:value={workingState.crossColor} id="crossColor" placeholder="">
 						{#each STICKER_COLORS_WITH_RANDOM as color}
 							<option value={color}>
 								<!-- Make first letter uppercase -->
@@ -152,7 +152,7 @@
 
 				<div>
 					<Label for="frontColor" class="mb-1 block">Front color</Label>
-					<Select bind:value={workingState.frontColor} id="frontColor">
+					<Select bind:value={workingState.frontColor} id="frontColor" placeholder="">
 						{#each STICKER_COLORS_WITH_RANDOM as color}
 							<option value={color}>
 								<!-- Make first letter uppercase -->
