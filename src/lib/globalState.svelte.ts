@@ -20,8 +20,11 @@ const createDefaultGlobalState = (): GlobalState => ({
     selectedGroup: "basic",
     trainStateSelection: { unlearned: false, learning: true, finished: false },
     trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true },
-    trainSideSelection : { left: true, right: true },
-    trainAddAuf: true
+    trainSideSelection: { left: true, right: true },
+    trainAddAuf: true,
+    trainHintShowCube: true,
+    trainHintAlgorithm: "step",
+    trainHintStickering: "f2l",
 })
 
 export const globalState: GlobalState = $state(createDefaultGlobalState())
