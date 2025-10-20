@@ -46,18 +46,9 @@
 			<div class="mb-4">
 				<p class="mb-2 font-medium">Statuses</p>
 				<div class="flex flex-wrap gap-4">
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainStateSelection.unlearned} id="unlearned" />
-						<Label for="unlearned" class="ml-2">Unlearned</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainStateSelection.learning} id="learning" />
-						<Label for="learning" class="ml-2">Learning</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainStateSelection.finished} id="finished" />
-						<Label for="finished" class="ml-2">Finished</Label>
-					</div>
+					<Checkbox bind:checked={workingState.trainStateSelection.unlearned}>Unlearned</Checkbox>
+					<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
+					<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 				</div>
 			</div>
 
@@ -65,22 +56,10 @@
 			<div class="mb-4">
 				<p class="mb-2 font-medium">Group</p>
 				<div class="flex flex-wrap gap-4">
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainGroupSelection.basic} id="basic" />
-						<Label for="basic" class="ml-2">Basic</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainGroupSelection.basicBack} id="basicBack" />
-						<Label for="basicBack" class="ml-2">Basic Back</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainGroupSelection.advanced} id="advanced" />
-						<Label for="advanced" class="ml-2">Advanced</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainGroupSelection.expert} id="expert" />
-						<Label for="expert" class="ml-2">Expert</Label>
-					</div>
+					<Checkbox bind:checked={workingState.trainGroupSelection.basic}>Basic</Checkbox>
+					<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}>Basic Back</Checkbox>
+					<Checkbox bind:checked={workingState.trainGroupSelection.advanced}>Advanced</Checkbox>
+					<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
 				</div>
 			</div>
 
@@ -88,14 +67,8 @@
 			<div class="mb-4">
 				<p class="mb-2 font-medium">Side</p>
 				<div class="flex flex-wrap gap-4">
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainSideSelection.left} id="left" />
-						<Label for="left" class="ml-2">Left</Label>
-					</div>
-					<div class="flex items-center">
-						<Checkbox bind:checked={workingState.trainSideSelection.right} id="right" />
-						<Label for="right" class="ml-2">Right</Label>
-					</div>
+					<Checkbox bind:checked={workingState.trainSideSelection.left}>Left</Checkbox>
+					<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
 				</div>
 			</div>
 
@@ -105,8 +78,7 @@
 					<p class="mb-2 font-medium">AUF</p>
 					<div class="flex flex-wrap gap-4">
 						<div class="flex items-center">
-							<Checkbox bind:checked={workingState.trainAddAuf} id="addAuf" />
-							<Label for="addAuf" class="ml-2">Add AUF</Label>
+							<Checkbox bind:checked={workingState.trainAddAuf}>Add AUF</Checkbox>
 						</div>
 					</div>
 				</div>
@@ -121,8 +93,9 @@
 				<!-- Left Column -->
 				<div>
 					<div class="mb-3 flex items-center">
-						<Checkbox bind:checked={workingState.trainHintShowCube} id="showHint" />
-						<Label for="showHint" class="ml-2">Show hint</Label>
+						<Checkbox bind:checked={workingState.trainHintShowCube} id="showHint"
+							>Show Hint</Checkbox
+						>
 					</div>
 
 					<div class="mb-3">
