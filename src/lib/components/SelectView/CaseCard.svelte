@@ -10,7 +10,7 @@
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
-	import EditAlg from '../EditAlg.svelte';
+	import EditAlg from '../Modals/EditAlgModal.svelte';
 
 	let editAlgRef: EditAlg;
 
@@ -27,8 +27,12 @@
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
-	const selectedAlgRight = $derived(getCaseAlg(staticData, caseState, 'right'));
-	const selectedAlgLeft = $derived(getCaseAlg(staticData, caseState, 'left'));
+	const selectedAlgRight = $derived(
+		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'right')
+	);
+	const selectedAlgLeft = $derived(
+		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'left')
+	);
 
 	const alg = $derived(mirrored ? mirrorAlg(selectedAlgLeft) : selectedAlgRight);
 

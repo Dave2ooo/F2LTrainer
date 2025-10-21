@@ -99,7 +99,7 @@ export default class TrainCase {
         const staticData = casesStatic[this.#groupId][this.#caseId];
         const caseState = casesState[this.#groupId][this.#caseId];
 
-        this.#alg = getCaseAlg(staticData, caseState, this.#side);
+        this.#alg = getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, this.#side);
 
         if (this.#side === "left") {
             this.#alg = mirrorAlg(this.#alg);

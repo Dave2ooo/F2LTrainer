@@ -1,6 +1,6 @@
 import { casesStatic } from "./casesStatic";
 import { loadFromLocalStorage } from "./utils/localStorage";
-import type { CaseState, TrainState } from "./types/caseState";
+import type { AlgorithmSelection, CaseState, CustomAlgorithm, TrainState } from "./types/caseState";
 import { GROUP_IDS, type CaseId, type GroupId } from "./types/group";
 import type { CaseStatic, Side } from "./types/casesStatic";
 
@@ -55,15 +55,15 @@ if (persistedCasesState) {
     }
 }
 
-export function getCaseAlg(staticData: CaseStatic, caseState: CaseState, side: Side) {
-    const algorithmSelection = caseState.algorithmSelection[side];
-    const customAlgorithm = caseState.customAlgorithm[side];
+export function getCaseAlg(staticData: CaseStatic, algorithmSelection: AlgorithmSelection, customAlgorithm: CustomAlgorithm, side: Side) {
+    const algorithmSelectionSide = algorithmSelection[side];
+    const customAlgorithmSide = customAlgorithm[side];
 
-    if (algorithmSelection === null) return customAlgorithm
+    if (algorithmSelectionSide === null) return customAlgorithmSide
 
     const algorithmPool = staticData.algPool;
 
-    return algorithmPool[algorithmSelection];
+    return algorithmPool[algorithmSelectionSide];
 }
 
 export function getCaseScramblePool(staticData: CaseStatic) {
