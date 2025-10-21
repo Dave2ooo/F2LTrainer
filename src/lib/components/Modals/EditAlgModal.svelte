@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
-	import { Modal, Tabs, TabItem, Listgroup, ListgroupItem } from 'flowbite-svelte';
+	import { Modal, Tabs, TabItem, Listgroup, ListgroupItem, Checkbox } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { casesState, getCaseAlg } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
@@ -11,18 +11,36 @@
 	import getRotationAlg from '$lib/rotation';
 	import EditAlgListGroup from './EditAlgListGroup.svelte';
 	import type { Side } from '$lib/types/casesStatic';
+	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
 
-	let { groupId, caseId }: { groupId: GroupId; caseId: CaseId } = $props();
+	let { groupId, caseId, mirrored }: { groupId: GroupId; caseId: CaseId; mirrored: boolean } =
+		$props();
 
 	let open = $state(false);
+	let selectedTab: Side = $state('right');
 
+	// $effect(() => {
+	// 	if (open) selectedTab = mirrored ? 'left' : 'right';
+	// 	selectedTab = selectedTab; // Needs to be here to make Svelte happy
+	// });
 	export function openModal() {
 		open = true;
 	}
 
 	let onSelectionChange = (algorithmSelection: number | null, side: Side) => {
-		console.log('Selection ' + side + ' changed to ', algorithmSelection);
+		// console.log('Selection ' + side + ' changed to ', algorithmSelection);
 		workingState.algorithmSelection[side] = algorithmSelection;
+		if (workingState.identicalAlgorithm) {
+			workingState.algorithmSelection = syncAlgorithms(
+				workingState.algorithmSelection,
+				selectedTab
+			);
+		}
+	};
+
+	let onCustomAlgChange = (customAlgorithm: string, side: Side) => {
+		// console.log('Custom Alg ' + side + ' changed to ', customAlgorithm);
+		workingState.customAlgorithm[side] = customAlgorithm;
 	};
 
 	const title = GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId;
@@ -42,18 +60,27 @@
 		identicalAlgorithm: caseState.identicalAlgorithm
 	});
 
+	$effect(() => {
+		$inspect(workingState);
+	});
+
+	function onCheckboxChange(event: Event) {
+		const target = event.target as HTMLInputElement;
+		console.log('Checked:', target.checked);
+		workingState.identicalAlgorithm = target.checked;
+		if (target.checked) {
+			workingState.algorithmSelection = syncAlgorithms(
+				workingState.algorithmSelection,
+				selectedTab
+			);
+		}
+	}
 	let selectedAlgRight = $derived(
 		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'right')
 	);
 	let selectedAlgLeft = $derived(
-		mirrorAlg(
-			getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'left')
-		)
+		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'left')
 	);
-
-	$effect(() => {
-		console.log(selectedAlgRight);
-	});
 
 	const setupAlgRight = $derived(staticData.scramblePool[0]);
 	const setupAlgLeft = $derived(mirrorAlg(staticData.scramblePool[0]));
@@ -61,7 +88,6 @@
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
-
 	const stickeringStringRight = $derived(
 		getStickeringString(crossColor, frontColor, staticData.pieceToHide, false)
 	);
@@ -78,8 +104,8 @@
 </script>
 
 <Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
-	<Tabs tabStyle="underline">
-		<TabItem open title="Left">
+	<Tabs bind:selected={selectedTab} tabStyle="underline">
+		<TabItem key="left" title="Left">
 			<TwistyPlayer
 				alg={selectedAlgLeft}
 				stickeringString={stickeringStringLeft}
@@ -89,10 +115,18 @@
 				{controlPanel}
 				{experimentalDragInput}
 			/>
-			<EditAlgListGroup {groupId} {caseId} side="left" {onSelectionChange} />
+			<EditAlgListGroup
+				{groupId}
+				{caseId}
+				side="left"
+				algorithmSelectionInitial={workingState.algorithmSelection}
+				customAlgInitial={workingState.customAlgorithm}
+				{onSelectionChange}
+				{onCustomAlgChange}
+			/>
 		</TabItem>
 
-		<TabItem title="Right">
+		<TabItem key="right" title="Right">
 			<TwistyPlayer
 				alg={selectedAlgRight}
 				stickeringString={stickeringStringRight}
@@ -102,7 +136,18 @@
 				{controlPanel}
 				{experimentalDragInput}
 			/>
-			<EditAlgListGroup {groupId} {caseId} side="right" {onSelectionChange} />
+			<EditAlgListGroup
+				{groupId}
+				{caseId}
+				side="right"
+				algorithmSelectionInitial={workingState.algorithmSelection}
+				customAlgInitial={workingState.customAlgorithm}
+				{onSelectionChange}
+				{onCustomAlgChange}
+			/>
 		</TabItem>
 	</Tabs>
+	<Checkbox checked={workingState.identicalAlgorithm} onchange={onCheckboxChange}
+		>Same Algorithm for Left and Right slot (mirrored)</Checkbox
+	>
 </Modal>

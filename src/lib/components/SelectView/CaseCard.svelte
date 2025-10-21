@@ -34,7 +34,7 @@
 		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'left')
 	);
 
-	const alg = $derived(mirrored ? mirrorAlg(selectedAlgLeft) : selectedAlgRight);
+	const alg = $derived(mirrored ? selectedAlgLeft : selectedAlgRight);
 
 	const setupAlg = $derived(
 		mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
@@ -74,6 +74,6 @@
 	</div>
 </button>
 
-<EditAlg bind:this={editAlgRef} {groupId} {caseId} />
+<EditAlg bind:this={editAlgRef} {groupId} {caseId} {mirrored} />
 
 <!-- </Button> -->
