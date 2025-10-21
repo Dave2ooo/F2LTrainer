@@ -3,6 +3,7 @@ import { loadFromLocalStorage } from "./utils/localStorage";
 import type { AlgorithmSelection, CaseState, CustomAlgorithm, TrainState } from "./types/caseState";
 import { GROUP_IDS, type CaseId, type GroupId } from "./types/group";
 import type { CaseStatic, Side } from "./types/casesStatic";
+import { mirrorAlg } from "./utils/mirrorAlg";
 
 export const createCaseState = (): CaseState => ({
     trainState: "unlearned",
@@ -63,7 +64,9 @@ export function getCaseAlg(staticData: CaseStatic, algorithmSelection: Algorithm
 
     const algorithmPool = staticData.algPool;
 
-    return algorithmPool[algorithmSelectionSide];
+    const alg = algorithmPool[algorithmSelectionSide];
+
+    return side === 'left' ? mirrorAlg(alg) : alg;
 }
 
 export function getCaseScramblePool(staticData: CaseStatic) {
