@@ -6,7 +6,7 @@
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';
 	import { trainState } from '$lib/trainCaseQueue.svelte';
-	import Settings from '$lib/components/Settings.svelte';
+	import Settings from '$lib/components/Modals/Settings.svelte';
 
 	const currentTrainState = trainState; // Keep at +page to keep global
 

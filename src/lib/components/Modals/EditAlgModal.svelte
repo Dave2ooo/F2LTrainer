@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
 	import { Modal, Tabs, TabItem, Listgroup, ListgroupItem } from 'flowbite-svelte';
-	import TwistyPlayer from './TwistyPlayer.svelte';
+	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { casesState, getCaseAlg } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { globalState } from '$lib/globalState.svelte';
@@ -9,6 +9,8 @@
 	import getStickeringString from '$lib/stickering';
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import getRotationAlg from '$lib/rotation';
+	import EditAlgListGroup from './EditAlgListGroup.svelte';
+	import type { Side } from '$lib/types/casesStatic';
 
 	let { groupId, caseId }: { groupId: GroupId; caseId: CaseId } = $props();
 
@@ -18,13 +20,40 @@
 		open = true;
 	}
 
+	let onSelectionChange = (algorithmSelection: number | null, side: Side) => {
+		console.log('Selection ' + side + ' changed to ', algorithmSelection);
+		workingState.algorithmSelection[side] = algorithmSelection;
+	};
+
 	const title = GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId;
 
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
-	const selectedAlgRight = $derived(getCaseAlg(staticData, caseState, 'right'));
-	const selectedAlgLeft = $derived(getCaseAlg(staticData, caseState, 'left'));
+	let workingState = $state({
+		algorithmSelection: {
+			right: caseState.algorithmSelection.right,
+			left: caseState.algorithmSelection.left
+		},
+		customAlgorithm: {
+			right: caseState.customAlgorithm.right,
+			left: caseState.customAlgorithm.left
+		},
+		identicalAlgorithm: caseState.identicalAlgorithm
+	});
+
+	let selectedAlgRight = $derived(
+		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'right')
+	);
+	let selectedAlgLeft = $derived(
+		mirrorAlg(
+			getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'left')
+		)
+	);
+
+	$effect(() => {
+		console.log(selectedAlgRight);
+	});
 
 	const setupAlgRight = $derived(staticData.scramblePool[0]);
 	const setupAlgLeft = $derived(mirrorAlg(staticData.scramblePool[0]));
@@ -41,14 +70,11 @@
 	);
 
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
-	const cameraLongitudeRight = $derived(25);
-	const cameraLongitudeLeft = $derived(-25);
+	const cameraLongitudeRight = 25;
+	const cameraLongitudeLeft = -25;
 
 	const controlPanel = 'bottom-row';
 	const experimentalDragInput = 'auto';
-
-	const algorithmPool = staticData.algPool;
-	console.log(algorithmPool);
 </script>
 
 <Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
@@ -63,12 +89,7 @@
 				{controlPanel}
 				{experimentalDragInput}
 			/>
-
-			<Listgroup active>
-				<ListgroupItem current>Profile</ListgroupItem>
-				<ListgroupItem>Settings</ListgroupItem>
-				<ListgroupItem>Messages</ListgroupItem>
-			</Listgroup>
+			<EditAlgListGroup {groupId} {caseId} side="left" {onSelectionChange} />
 		</TabItem>
 
 		<TabItem title="Right">
@@ -81,6 +102,7 @@
 				{controlPanel}
 				{experimentalDragInput}
 			/>
+			<EditAlgListGroup {groupId} {caseId} side="right" {onSelectionChange} />
 		</TabItem>
 	</Tabs>
 </Modal>
