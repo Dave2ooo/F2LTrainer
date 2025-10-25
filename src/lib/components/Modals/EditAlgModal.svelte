@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
-	import { Modal, Tabs, TabItem, Listgroup, ListgroupItem, Checkbox } from 'flowbite-svelte';
+	import { Modal, Tabs, TabItem, Checkbox, Button } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { casesState, getCaseAlg } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
@@ -25,6 +25,18 @@
 	// });
 	export function openModal() {
 		open = true;
+		// Reset working state when modal opens
+		workingState = {
+			algorithmSelection: {
+				right: caseState.algorithmSelection.right,
+				left: caseState.algorithmSelection.left
+			},
+			customAlgorithm: {
+				right: caseState.customAlgorithm.right,
+				left: caseState.customAlgorithm.left
+			},
+			identicalAlgorithm: caseState.identicalAlgorithm
+		};
 	}
 
 	let onSelectionChange = (algorithmSelection: number | null, side: Side) => {
@@ -64,16 +76,29 @@
 		$inspect(workingState);
 	});
 
-	function onCheckboxChange(event: Event) {
-		const target = event.target as HTMLInputElement;
-		console.log('Checked:', target.checked);
-		workingState.identicalAlgorithm = target.checked;
-		if (target.checked) {
+	$effect(() => {
+		// Sync algorithms when identicalAlgorithm changes to true
+		if (workingState.identicalAlgorithm) {
 			workingState.algorithmSelection = syncAlgorithms(
 				workingState.algorithmSelection,
 				selectedTab
 			);
 		}
+	});
+
+	function onUpdate() {
+		// Copy workingState back to casesState
+		caseState.algorithmSelection.right = workingState.algorithmSelection.right;
+		caseState.algorithmSelection.left = workingState.algorithmSelection.left;
+		caseState.customAlgorithm.right = workingState.customAlgorithm.right;
+		caseState.customAlgorithm.left = workingState.customAlgorithm.left;
+		caseState.identicalAlgorithm = workingState.identicalAlgorithm;
+		open = false;
+	}
+
+	function onCancel() {
+		// Discard changes by closing the modal without updating casesState
+		open = false;
 	}
 	let selectedAlgRight = $derived(
 		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'right')
@@ -103,51 +128,63 @@
 	const experimentalDragInput = 'auto';
 </script>
 
-<Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
-	<Tabs bind:selected={selectedTab} tabStyle="underline">
-		<TabItem key="left" title="Left">
-			<TwistyPlayer
-				alg={selectedAlgLeft}
-				stickeringString={stickeringStringLeft}
-				setupAlg={setupAlgLeft}
-				{setupRotation}
-				cameraLongitude={cameraLongitudeLeft}
-				{controlPanel}
-				{experimentalDragInput}
-			/>
-			<EditAlgListGroup
-				{groupId}
-				{caseId}
-				side="left"
-				algorithmSelectionInitial={workingState.algorithmSelection}
-				customAlgInitial={workingState.customAlgorithm}
-				{onSelectionChange}
-				{onCustomAlgChange}
-			/>
-		</TabItem>
-
-		<TabItem key="right" title="Right">
-			<TwistyPlayer
-				alg={selectedAlgRight}
-				stickeringString={stickeringStringRight}
-				setupAlg={setupAlgRight}
-				{setupRotation}
-				cameraLongitude={cameraLongitudeRight}
-				{controlPanel}
-				{experimentalDragInput}
-			/>
-			<EditAlgListGroup
-				{groupId}
-				{caseId}
-				side="right"
-				algorithmSelectionInitial={workingState.algorithmSelection}
-				customAlgInitial={workingState.customAlgorithm}
-				{onSelectionChange}
-				{onCustomAlgChange}
-			/>
-		</TabItem>
-	</Tabs>
-	<Checkbox checked={workingState.identicalAlgorithm} onchange={onCheckboxChange}
-		>Same Algorithm for Left and Right slot (mirrored)</Checkbox
+<Modal bind:open {title} size="md" outsideclose={false} autoclose={false}>
+	<form
+		onsubmit={(e) => {
+			e.preventDefault();
+			onUpdate();
+		}}
 	>
+		<Tabs bind:selected={selectedTab} tabStyle="underline">
+			<TabItem key="left" title="Left">
+				<TwistyPlayer
+					alg={selectedAlgLeft}
+					stickeringString={stickeringStringLeft}
+					setupAlg={setupAlgLeft}
+					{setupRotation}
+					cameraLongitude={cameraLongitudeLeft}
+					{controlPanel}
+					{experimentalDragInput}
+				/>
+				<EditAlgListGroup
+					{groupId}
+					{caseId}
+					side="left"
+					algorithmSelectionInitial={workingState.algorithmSelection}
+					customAlgInitial={workingState.customAlgorithm}
+					{onSelectionChange}
+					{onCustomAlgChange}
+				/>
+			</TabItem>
+
+			<TabItem key="right" title="Right">
+				<TwistyPlayer
+					alg={selectedAlgRight}
+					stickeringString={stickeringStringRight}
+					setupAlg={setupAlgRight}
+					{setupRotation}
+					cameraLongitude={cameraLongitudeRight}
+					{controlPanel}
+					{experimentalDragInput}
+				/>
+				<EditAlgListGroup
+					{groupId}
+					{caseId}
+					side="right"
+					algorithmSelectionInitial={workingState.algorithmSelection}
+					customAlgInitial={workingState.customAlgorithm}
+					{onSelectionChange}
+					{onCustomAlgChange}
+				/>
+			</TabItem>
+		</Tabs>
+		<Checkbox bind:checked={workingState.identicalAlgorithm}
+			>Same Algorithm for Left and Right slot (mirrored)</Checkbox
+		>
+
+		<div class="mt-4 flex w-full justify-end gap-3">
+			<Button type="button" color="gray" outline onclick={onCancel}>Cancel</Button>
+			<Button type="submit">Update</Button>
+		</div>
+	</form>
 </Modal>
