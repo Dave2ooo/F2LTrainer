@@ -1,3 +1,4 @@
+<!-- https://js.cubing.net/cubing/api/classes/twisty.TwistyPlayer.html -->
 <script lang="ts">
 	import { onMount } from 'svelte';
 
