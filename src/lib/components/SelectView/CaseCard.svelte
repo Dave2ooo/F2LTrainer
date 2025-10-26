@@ -70,6 +70,18 @@
 		}
 	}
 
+	function handlePause() {
+		if (twistyPlayerRef) {
+			twistyPlayerRef.pause();
+		}
+	}
+
+	function handleTogglePlay() {
+		if (twistyPlayerRef) {
+			twistyPlayerRef.togglePlay();
+		}
+	}
+
 	function handleJumpToStartClick(e: MouseEvent) {
 		e.stopPropagation();
 		handleJumpToStart();
@@ -78,6 +90,16 @@
 	function handlePlayClick(e: MouseEvent) {
 		e.stopPropagation();
 		handlePlay();
+	}
+
+	function handlePauseClick(e: MouseEvent) {
+		e.stopPropagation();
+		handlePause();
+	}
+
+	function handleTogglePlayClick(e: MouseEvent) {
+		e.stopPropagation();
+		handleTogglePlay();
 	}
 
 	function handleMirrorClick(e: MouseEvent) {
@@ -114,6 +136,8 @@
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
 		<Button onclick={handleJumpToStartClick}>Reset</Button>
 		<Button onclick={handlePlayClick}>Play</Button>
+		<Button onclick={handlePauseClick}>Pause</Button>
+		<Button onclick={handleTogglePlayClick}>Toggle Play</Button>
 	</div>
 </button>
 
