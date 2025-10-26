@@ -37,12 +37,8 @@
 	export function jumpToStart() {
 		if (el) {
 			const player = el as any;
-			if (player.experimentalModel?.timelineController) {
-				player.experimentalModel.timelineController.jumpToStart();
-			} else if (player.timeline) {
-				player.timeline.jumpToStart();
-			} else {
-				player.timestamp = 0;
+			if (typeof player.jumpToStart === 'function') {
+				player.jumpToStart();
 			}
 		}
 	}
@@ -50,13 +46,36 @@
 	export function play() {
 		if (el) {
 			const player = el as any;
-			if (player.experimentalModel?.timelineController) {
-				player.experimentalModel.timelineController.play();
-			} else if (player.timeline) {
-				player.timeline.play();
-			} else if (typeof player.play === 'function') {
+			if (typeof player.play === 'function') {
 				player.play();
 			}
+		}
+	}
+
+	export function pause() {
+		if (el) {
+			const player = el as any;
+			if (typeof player.pause === 'function') {
+				player.pause();
+			}
+		}
+	}
+
+	export function togglePlay() {
+		if (el) {
+			const player = el as any;
+			// Use the native togglePlay method from the TwistyPlayer API
+			if (typeof player.togglePlay === 'function') {
+				player.togglePlay();
+			}
+		}
+	}
+
+	export function resetView() {
+		if (el) {
+			const player = el as any;
+			player.cameraLongitude = cameraLongitude;
+			player.cameraLatitude = cameraLatitude;
 		}
 	}
 
