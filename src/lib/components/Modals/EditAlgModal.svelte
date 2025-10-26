@@ -86,7 +86,7 @@
 		}
 	});
 
-	function onUpdate() {
+	function onConfirm() {
 		// Copy workingState back to casesState
 		caseState.algorithmSelection.right = workingState.algorithmSelection.right;
 		caseState.algorithmSelection.left = workingState.algorithmSelection.left;
@@ -128,11 +128,11 @@
 	const experimentalDragInput = 'auto';
 </script>
 
-<Modal bind:open {title} size="md" outsideclose={false} autoclose={false}>
+<Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
 	<form
 		onsubmit={(e) => {
 			e.preventDefault();
-			onUpdate();
+			onConfirm();
 		}}
 	>
 		<Tabs bind:selected={selectedTab} tabStyle="underline">
