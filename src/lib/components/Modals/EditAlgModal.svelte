@@ -13,6 +13,9 @@
 	import type { Side } from '$lib/types/casesStatic';
 	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
 
+	let twistyPlayerRightRef: any;
+	let twistyPlayerLeftRef: any;
+
 	let { groupId, caseId, mirrored }: { groupId: GroupId; caseId: CaseId; mirrored: boolean } =
 		$props();
 
@@ -48,7 +51,15 @@
 				selectedTab
 			);
 		}
+		animateTwistyPlayer(side);
 	};
+
+	function animateTwistyPlayer(side: Side) {
+		const twistyPlayerRef = side === 'left' ? twistyPlayerLeftRef : twistyPlayerRightRef;
+		twistyPlayerRef.resetView();
+		twistyPlayerRef.jumpToStart();
+		twistyPlayerRef.play();
+	}
 
 	let onCustomAlgChange = (customAlgorithm: string, side: Side) => {
 		// console.log('Custom Alg ' + side + ' changed to ', customAlgorithm);
@@ -136,6 +147,7 @@
 		<Tabs bind:selected={selectedTab} tabStyle="underline">
 			<TabItem key="left" title="Left">
 				<TwistyPlayer
+					bind:this={twistyPlayerLeftRef}
 					alg={selectedAlgLeft}
 					stickeringString={stickeringStringLeft}
 					setupAlg={setupAlgLeft}
@@ -157,6 +169,7 @@
 
 			<TabItem key="right" title="Right">
 				<TwistyPlayer
+					bind:this={twistyPlayerRightRef}
 					alg={selectedAlgRight}
 					stickeringString={stickeringStringRight}
 					setupAlg={setupAlgRight}
