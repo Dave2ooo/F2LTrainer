@@ -13,6 +13,7 @@
 	import EditAlg from '../Modals/EditAlgModal.svelte';
 
 	let editAlgRef: EditAlg;
+	let twistyPlayerRef: any;
 
 	let {
 		groupId,
@@ -56,6 +57,38 @@
 		const nextIndex = (currentIndex + 1) % TRAIN_STATES.length;
 		caseState.trainState = TRAIN_STATES[nextIndex];
 	}
+
+	function handleJumpToStart() {
+		if (twistyPlayerRef) {
+			twistyPlayerRef.jumpToStart();
+		}
+	}
+
+	function handlePlay() {
+		if (twistyPlayerRef) {
+			twistyPlayerRef.play();
+		}
+	}
+
+	function handleJumpToStartClick(e: MouseEvent) {
+		e.stopPropagation();
+		handleJumpToStart();
+	}
+
+	function handlePlayClick(e: MouseEvent) {
+		e.stopPropagation();
+		handlePlay();
+	}
+
+	function handleMirrorClick(e: MouseEvent) {
+		e.stopPropagation();
+		mirrored = !mirrored;
+	}
+
+	function handleEditAlgClick(e: MouseEvent) {
+		e.stopPropagation();
+		editAlgRef.openModal();
+	}
 </script>
 
 <!-- <Button outline onclick={toggleLearningState} class="flex items-center"> -->
@@ -66,11 +99,21 @@
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
 	<span> {getCaseName(staticData)} </span>
-	<TwistyPlayer {alg} {setupRotation} {setupAlg} {stickeringString} {cameraLongitude} />
+	<TwistyPlayer
+		bind:this={twistyPlayerRef}
+		{alg}
+		{setupRotation}
+		{setupAlg}
+		{stickeringString}
+		{cameraLongitude}
+		controlPanel="bottom-row"
+	/>
 	<span> {alg} </span>
 	<div class="flex flex-col gap-1">
-		<Button onclick={() => (mirrored = !mirrored)}>Mirror</Button>
-		<Button onclick={() => editAlgRef.openModal()}>Edit Algorithm</Button>
+		<Button onclick={handleMirrorClick}>Mirror</Button>
+		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
+		<Button onclick={handleJumpToStartClick}>Reset</Button>
+		<Button onclick={handlePlayClick}>Play</Button>
 	</div>
 </button>
 

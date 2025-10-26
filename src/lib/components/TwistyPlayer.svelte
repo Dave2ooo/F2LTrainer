@@ -28,8 +28,36 @@
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
+
 	export function getElement() {
 		return el as HTMLElement;
+	}
+
+	// Expose animation controls
+	export function jumpToStart() {
+		if (el) {
+			const player = el as any;
+			if (player.experimentalModel?.timelineController) {
+				player.experimentalModel.timelineController.jumpToStart();
+			} else if (player.timeline) {
+				player.timeline.jumpToStart();
+			} else {
+				player.timestamp = 0;
+			}
+		}
+	}
+
+	export function play() {
+		if (el) {
+			const player = el as any;
+			if (player.experimentalModel?.timelineController) {
+				player.experimentalModel.timelineController.play();
+			} else if (player.timeline) {
+				player.timeline.play();
+			} else if (typeof player.play === 'function') {
+				player.play();
+			}
+		}
 	}
 
 	// Register the custom element only on the client (avoids SSR issues)
