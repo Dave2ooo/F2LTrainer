@@ -72,9 +72,7 @@
 		identicalAlgorithm: caseState.identicalAlgorithm
 	});
 
-	$effect(() => {
-		$inspect(workingState);
-	});
+	$inspect(workingState);
 
 	$effect(() => {
 		// Sync algorithms when identicalAlgorithm changes to true
