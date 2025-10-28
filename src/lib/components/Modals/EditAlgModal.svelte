@@ -16,6 +16,9 @@
 	let twistyPlayerRightRef: any;
 	let twistyPlayerLeftRef: any;
 
+	// Track pending timeouts so we can clear them if a new animation is requested
+	let animationTimeouts: { left?: any; right?: any } = {};
+
 	let { groupId, caseId, mirrored }: { groupId: GroupId; caseId: CaseId; mirrored: boolean } =
 		$props();
 
@@ -58,7 +61,28 @@
 		const twistyPlayerRef = side === 'left' ? twistyPlayerLeftRef : twistyPlayerRightRef;
 		twistyPlayerRef.resetView();
 		twistyPlayerRef.jumpToStart();
-		twistyPlayerRef.play();
+
+		if (!globalState.playOnAlgChange) return;
+
+		// Clear any previously scheduled play for this side
+		if (animationTimeouts[side]) {
+			clearTimeout(animationTimeouts[side]);
+			animationTimeouts[side] = null;
+		}
+
+		// Schedule play after 500ms
+		animationTimeouts[side] = setTimeout(() => {
+			twistyPlayerRef.play();
+			animationTimeouts[side] = null;
+		}, 200);
+
+		// Return a cleanup function (not strictly required if not used elsewhere)
+		return () => {
+			if (animationTimeouts[side]) {
+				clearTimeout(animationTimeouts[side]);
+				animationTimeouts[side] = null;
+			}
+		};
 	}
 
 	let onCustomAlgChange = (customAlgorithm: string, side: Side) => {
@@ -144,6 +168,7 @@
 			onConfirm();
 		}}
 	>
+		<Checkbox bind:checked={globalState.playOnAlgChange}>Autoplay when changing Algorithm</Checkbox>
 		<Tabs bind:selected={selectedTab} tabStyle="underline">
 			<TabItem key="left" title="Left">
 				<TwistyPlayer
