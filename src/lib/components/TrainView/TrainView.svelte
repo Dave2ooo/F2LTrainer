@@ -8,7 +8,7 @@
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
-	import { casesState } from '$lib/casesState.svelte';
+	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -19,6 +19,12 @@
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
+
+	let currentTrainCaseTrainState = $derived(
+		currentTrainCase
+			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState
+			: 'unlearned'
+	);
 
 	async function onNext() {
 		advanceToNextTrainCase();
@@ -100,11 +106,19 @@
 		controlPanel="bottom-row"
 	/>
 	<Select
-		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
+		bind:value={currentTrainCaseTrainState}
+		style="background: {TrainStateColors[currentTrainCaseTrainState]}; color: {TrainStateTextColors[
+			currentTrainCaseTrainState
+		]}"
 		placeholder=""
 	>
 		{#each TRAIN_STATES as trainState}
-			<option value={trainState}>{trainState}</option>
+			<option
+				value={trainState}
+				style="background: {TrainStateColors[trainState]}; color: {TrainStateTextColors[
+					trainState
+				]}">{trainState}</option
+			>
 		{/each}
 	</Select>
 {:else}
