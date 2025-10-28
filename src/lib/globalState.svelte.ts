@@ -25,6 +25,7 @@ const createDefaultGlobalState = (): GlobalState => ({
     trainHintShowCube: true,
     trainHintAlgorithm: "step",
     trainHintStickering: "f2l",
+    playOnAlgChange: true,
 })
 
 export const globalState: GlobalState = $state(createDefaultGlobalState())

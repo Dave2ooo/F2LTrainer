@@ -21,4 +21,5 @@ export interface GlobalState {
     trainHintShowCube: boolean,
     trainHintAlgorithm: HintAlgorithm,
     trainHintStickering: HintStickering,
+	playOnAlgChange: boolean,
 }
