@@ -1,15 +1,19 @@
 <script lang="ts">
 	import { globalState } from '$lib/globalState.svelte';
 	import { Button } from 'flowbite-svelte';
+	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
 
-	let buttonText = $derived(globalState.view == 'select' ? 'Start Training' : 'Select Cases');
+	let buttonText = $derived(
+		globalState.view == 'select'
+			? `Start Training (${getNumberOfSelectedCases()} cases)`
+			: 'Select Cases'
+	);
+
+	function onToggleView() {
+		globalState.view == 'select' ? (globalState.view = 'train') : (globalState.view = 'select');
+	}
 </script>
 
-<Button
-	onclick={() => {
-		globalState.view == 'select' ? (globalState.view = 'train') : (globalState.view = 'select');
-	}}
-	class="fixed right-4 bottom-4 z-50"
->
+<Button onclick={onToggleView} class="fixed right-4 bottom-4 z-50">
 	{buttonText}
 </Button>
