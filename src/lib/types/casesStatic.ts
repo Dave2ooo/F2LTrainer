@@ -1,17 +1,17 @@
-import type { GroupId } from "./group"
-import type { StickerHidden } from "./stickering"
+import type { GroupId } from './group';
+import type { StickerHidden } from './stickering';
 
 export interface CaseStatic {
-    groupId: GroupId
-    caseId: number
-    algPool: string[]
-    scramblePool: string[]
-    categoryName: string | undefined
-    categoryIndex: number | undefined
-    groupName: string
-    ignoreAUF: boolean
-    pieceToHide: StickerHidden
-    caseName: string | undefined
+	groupId: GroupId;
+	caseId: number;
+	algPool: string[];
+	scramblePool: string[];
+	categoryName: string | undefined;
+	categoryIndex: number | undefined;
+	groupName: string;
+	ignoreAUF: boolean;
+	pieceToHide: StickerHidden;
+	caseName: string | undefined;
 }
 
-export type Side = "left" | "right"
+export type Side = 'left' | 'right';

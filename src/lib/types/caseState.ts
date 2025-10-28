@@ -1,21 +1,21 @@
-import type { GroupId } from "./group";
+import type { GroupId } from './group';
 
-export type TrainState = "unlearned" | "learning" | "finished";
-export const TRAIN_STATES: readonly TrainState[] = ["unlearned", "learning", "finished"];
+export type TrainState = 'unlearned' | 'learning' | 'finished';
+export const TRAIN_STATES: readonly TrainState[] = ['unlearned', 'learning', 'finished'];
 
 export interface AlgorithmSelection {
-    left: number | null;
-    right: number | null;
+	left: number | null;
+	right: number | null;
 }
 export interface CustomAlgorithm {
-    left: string;
-    right: string;
+	left: string;
+	right: string;
 }
 export interface CaseState {
-    trainState: TrainState;
-    algorithmSelection: AlgorithmSelection;
-    customAlgorithm: CustomAlgorithm;
-    identicalAlgorithm: boolean;
-    // mirrored: boolean;
-    solveCount: number;
+	trainState: TrainState;
+	algorithmSelection: AlgorithmSelection;
+	customAlgorithm: CustomAlgorithm;
+	identicalAlgorithm: boolean;
+	// mirrored: boolean;
+	solveCount: number;
 }
