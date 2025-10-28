@@ -8,6 +8,9 @@
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 
+	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
+	const TWISTY_PLAYER_INIT_DELAY = 100;
+
 	let twistyPlayerRef: any;
 	let algViewerContainer: HTMLElement;
 	let twistyAlgViewerLoaded = $state(false);
@@ -47,13 +50,10 @@
 				return;
 			}
 
-			const [{ TwistyAlgViewer }, { Alg }] = await Promise.all([
+			const [{ TwistyAlgViewer }] = await Promise.all([
 				import('cubing/twisty'),
 				import('cubing/alg')
 			]);
-
-			// stash Alg somewhere global if you need it later
-			(window as any).Alg = Alg;
 
 			const twistyPlayerElement = twistyPlayerRef?.getElement();
 			if (twistyPlayerElement && algViewerContainer) {
@@ -77,7 +77,7 @@
 		// Small delay to ensure TwistyPlayer's onMount has completed
 		setTimeout(() => {
 			loadTwistyAlgViewer();
-		}, 100);
+		}, TWISTY_PLAYER_INIT_DELAY);
 	});
 </script>
 
