@@ -2,11 +2,7 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import { Button } from 'flowbite-svelte';
 
-	let buttonText = $state();
-
-	$effect(() => {
-		buttonText = globalState.view == 'select' ? 'Start Training' : 'Select Cases';
-	});
+	let buttonText = $derived(globalState.view == 'select' ? 'Start Training' : 'Select Cases');
 </script>
 
 <Button
