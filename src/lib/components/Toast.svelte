@@ -7,7 +7,7 @@
 
 	setInterval(() => {
 		toastStatus = toastStatus = false;
-	}, duration * 1000);
+	}, duration*1000);
 </script>
 
 <div class="flex gap-10">
