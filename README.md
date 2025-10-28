@@ -1,58 +1,75 @@
-# Svelte library
+## 🧰 Getting Started (Development Setup)
 
-Everything you need to build a Svelte library, powered by [`sv`](https://npmjs.com/package/sv).
+Follow these steps to set up the project on a **fresh Windows 11** machine.
 
-Read more about creating a library [in the docs](https://svelte.dev/docs/kit/packaging).
+### 1️⃣ Install Node.js (LTS)
 
-## Creating a project
+Download and install the **LTS version** of Node.js from:  
+👉 [https://nodejs.org/en/download](https://nodejs.org/en/download)
 
-If you're seeing this, you've probably already done this step. Congrats!
+During installation, make sure to **check**  
+> ✅ *“Automatically install necessary tools”*
 
-```sh
-# create a new project in the current directory
-npx sv create
+This ensures required build tools are set up.
 
-# create a new project in my-app
-npx sv create my-app
+> 💡 **Note:** A restart of your PC may be required after installation for Node.js to work correctly in the terminal.
+
+---
+
+### 2️⃣ Verify Installation
+
+Open a terminal (PowerShell or Windows Terminal) and check:
+
+```bash
+node -v
+pnpm -v
 ```
 
-## Developing
+You should see versions printed for both commands.  
+If pnpm is not installed, install it with:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+```bash
+npm install -g pnpm
 ```
 
-Everything inside `src/lib` is part of your library, everything inside `src/routes` can be used as a showcase or preview app.
+---
 
-## Building
+### 3️⃣ Clone the Repository
 
-To build your library:
+Clone this project from GitHub and navigate into it:
 
-```sh
-npm pack
+```bash
+git clone https://github.com/Dave2ooo/F2LTrainer-Svelte.git
+cd F2LTrainer-Svelte
 ```
 
-To create a production version of your showcase app:
+---
 
-```sh
-npm run build
+### 4️⃣ Install Dependencies
+
+Run:
+
+```bash
+pnpm install
 ```
 
-You can preview the production build with `npm run preview`.
+This installs all required packages defined in the project’s `pnpm-lock.yaml`.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+---
 
-## Publishing
+### 5️⃣ Start the Development Server
 
-Go into the `package.json` and give your package the desired name through the `"name"` option. Also consider adding a `"license"` field and point it to a `LICENSE` file which you can create from a template (one popular option is the [MIT license](https://opensource.org/license/mit/)).
+Launch the app locally with:
 
-To publish your library to [npm](https://www.npmjs.com):
-
-```sh
-npm publish
+```bash
+pnpm run dev
 ```
+
+Then open your browser at the address shown in the terminal (usually [http://localhost:5173](http://localhost:5173)).
+
+---
+
+### ✅ Done!
+
+You’re ready to start developing!  
+The project uses **SvelteKit**, **TypeScript**, **TailwindCSS**, and **Flowbite** — all preconfigured.
