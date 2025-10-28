@@ -5,18 +5,19 @@ import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 
 export let trainCaseQueue: TrainCase[] = [];
 
-function createInitialTrainCase(): TrainCase {
+function createInitialTrainCase(): TrainCase | undefined {
 	trainCaseQueue = gernerateTrainCases();
 	// If no train cases were generated, throw a clear error or return a fallback.
 	if (trainCaseQueue.length === 0) {
 		console.warn('createInitialTrainCase found no train cases');
 		console.log('trainCaseQueue', trainCaseQueue);
+		return undefined;
 	}
 	return trainCaseQueue[0];
 }
 
 // Export a single $state object — mutate its properties instead of reassigning the variable.
-export const trainState: { index: number; current: TrainCase } = $state({
+export const trainState: { index: number; current: TrainCase | undefined } = $state({
 	index: 0,
 	current: createInitialTrainCase()
 });

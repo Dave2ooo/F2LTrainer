@@ -43,7 +43,7 @@
 		try {
 			// Wait for the TwistyPlayer element to be ready
 			await tick();
-			
+
 			// Check if twistyPlayerRef is available
 			if (!twistyPlayerRef) {
 				console.warn('TwistyPlayer ref not available yet');
@@ -83,22 +83,26 @@
 
 <svelte:window onkeydown={handleKeydown} />
 
-<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
-<span>{currentTrainCase.scramble}</span>
-<h2>Algorithm</h2>
-<div bind:this={algViewerContainer}></div>
-{#if !twistyAlgViewerLoaded}
-	<span>{currentTrainCase.alg}</span>
+{#if currentTrainCase}
+	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
+	<span>{currentTrainCase.scramble}</span>
+	<h2>Algorithm</h2>
+	<div bind:this={algViewerContainer}></div>
+	{#if !twistyAlgViewerLoaded}
+		<span>{currentTrainCase.alg}</span>
+	{/if}
+
+	<Button onclick={advanceToPreviousTrainCase}>Previous</Button>
+	<Button onclick={onNext}>Next</Button>
+
+	<TwistyPlayer
+		bind:this={twistyPlayerRef}
+		alg={currentTrainCase.alg}
+		setupAlg={currentTrainCase.scramble}
+		experimentalDragInput="auto"
+		size={80}
+		controlPanel="bottom-row"
+	/>
+{:else}
+	<p>No training cases available. Please select some cases first.</p>
 {/if}
-
-<Button onclick={advanceToPreviousTrainCase}>Previous</Button>
-<Button onclick={onNext}>Next</Button>
-
-<TwistyPlayer
-	bind:this={twistyPlayerRef}
-	alg={currentTrainCase?.alg}
-	setupAlg={currentTrainCase.scramble}
-	experimentalDragInput="auto"
-	size={80}
-	controlPanel="bottom-row"
-/>
