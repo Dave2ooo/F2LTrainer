@@ -6,9 +6,14 @@
 		advanceToPreviousTrainCase,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
-	import { tick } from 'svelte';
+	import { tick, onMount } from 'svelte';
+
+	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
+	const TWISTY_PLAYER_INIT_DELAY = 100;
 
 	let twistyPlayerRef: any;
+	let algViewerContainer: HTMLElement;
+	let twistyAlgViewerLoaded = $state(false);
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $state(trainState.current);
@@ -33,6 +38,47 @@
 			onNext();
 		}
 	}
+
+	async function loadTwistyAlgViewer() {
+		try {
+			// Wait for the TwistyPlayer element to be ready
+			await tick();
+			
+			// Check if twistyPlayerRef is available
+			if (!twistyPlayerRef) {
+				console.warn('TwistyPlayer ref not available yet');
+				return;
+			}
+
+			const [{ TwistyAlgViewer }] = await Promise.all([
+				import('cubing/twisty'),
+				import('cubing/alg')
+			]);
+
+			const twistyPlayerElement = twistyPlayerRef?.getElement();
+			if (twistyPlayerElement && algViewerContainer) {
+				// Clear any existing content
+				algViewerContainer.innerHTML = '';
+				// Create and append the TwistyAlgViewer
+				const algViewer = new TwistyAlgViewer({ twistyPlayer: twistyPlayerElement });
+				algViewerContainer.appendChild(algViewer);
+				twistyAlgViewerLoaded = true;
+				console.log('TwistyAlgViewer loaded successfully');
+			}
+		} catch (error) {
+			console.error('Failed to load TwistyAlgViewer:', error);
+			twistyAlgViewerLoaded = false;
+		}
+	}
+
+	onMount(async () => {
+		// Wait a bit for TwistyPlayer to fully initialize
+		await tick();
+		// Small delay to ensure TwistyPlayer's onMount has completed
+		setTimeout(() => {
+			loadTwistyAlgViewer();
+		}, TWISTY_PLAYER_INIT_DELAY);
+	});
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -40,7 +86,10 @@
 <h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
 <span>{currentTrainCase.scramble}</span>
 <h2>Algorithm</h2>
-<span>{currentTrainCase.alg}</span>
+<div bind:this={algViewerContainer}></div>
+{#if !twistyAlgViewerLoaded}
+	<span>{currentTrainCase.alg}</span>
+{/if}
 
 <Button onclick={advanceToPreviousTrainCase}>Previous</Button>
 <Button onclick={onNext}>Next</Button>
