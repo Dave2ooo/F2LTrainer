@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button } from 'flowbite-svelte';
+	import { Button, Select } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
@@ -7,6 +7,8 @@
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
+	import { TRAIN_STATES } from '$lib/types/caseState';
+	import { casesState } from '$lib/casesState.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -16,13 +18,7 @@
 	let twistyAlgViewerLoaded = $state(false);
 
 	// local reactive mirror of the global state.current
-	let currentTrainCase = $state(trainState.current);
-
-	$effect(() => {
-		// optional debug: comment out in production
-		// console.log('Current Train Case:', trainState.current);
-		currentTrainCase = trainState.current;
-	});
+	let currentTrainCase = $derived(trainState.current);
 
 	async function onNext() {
 		advanceToNextTrainCase();
@@ -103,6 +99,14 @@
 		size={80}
 		controlPanel="bottom-row"
 	/>
+	<Select
+		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
+		placeholder=""
+	>
+		{#each TRAIN_STATES as trainState}
+			<option value={trainState}>{trainState}</option>
+		{/each}
+	</Select>
 {:else}
 	<p>No training cases available. Please select some cases first.</p>
 {/if}
