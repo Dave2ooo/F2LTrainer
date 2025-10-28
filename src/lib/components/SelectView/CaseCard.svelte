@@ -64,6 +64,12 @@
 		}
 	}
 
+	function handleJumpToEnd() {
+		if (twistyPlayerRef) {
+			twistyPlayerRef.jumpToEnd();
+		}
+	}
+
 	function handlePlay() {
 		if (twistyPlayerRef) {
 			twistyPlayerRef.play();
@@ -85,6 +91,11 @@
 	function handleJumpToStartClick(e: MouseEvent) {
 		e.stopPropagation();
 		handleJumpToStart();
+	}
+
+	function handleJumpToEndClick(e: MouseEvent) {
+		e.stopPropagation();
+		handleJumpToEnd();
 	}
 
 	function handlePlayClick(e: MouseEvent) {
@@ -134,7 +145,8 @@
 	<div class="flex flex-col gap-1">
 		<Button onclick={handleMirrorClick}>Mirror</Button>
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
-		<Button onclick={handleJumpToStartClick}>Reset</Button>
+		<Button onclick={handleJumpToStartClick}>Jump to Start</Button>
+		<Button onclick={handleJumpToEndClick}>Jump to End</Button>
 		<Button onclick={handlePlayClick}>Play</Button>
 		<Button onclick={handlePauseClick}>Pause</Button>
 		<Button onclick={handleTogglePlayClick}>Toggle Play</Button>

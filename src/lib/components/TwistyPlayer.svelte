@@ -44,6 +44,15 @@
 		}
 	}
 
+	export function jumpToEnd() {
+		if (el) {
+			const player = el as any;
+			if (typeof player.jumpToEnd === 'function') {
+				player.jumpToEnd();
+			}
+		}
+	}
+
 	export function play() {
 		if (el) {
 			const player = el as any;
