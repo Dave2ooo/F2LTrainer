@@ -2,10 +2,13 @@
 	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { STICKER_COLORS_WITH_RANDOM } from '$lib/types/stickering';
+	import { areTrainSettingsUnchanged, saveTrainSettings } from '$lib/utils/trainSettings';
+	import { regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
 
 	let open = false;
 
 	export function openModal() {
+		if (globalState.view === 'train') saveTrainSettings();
 		open = true;
 	}
 
@@ -33,6 +36,7 @@
 		globalState.trainHintShowCube = workingState.trainHintShowCube;
 		globalState.trainHintAlgorithm = workingState.trainHintAlgorithm;
 		globalState.trainHintStickering = workingState.trainHintStickering;
+		if (globalState.view === 'train') if (!areTrainSettingsUnchanged()) regenerateTrainCaseQueue();
 		open = false;
 	}
 

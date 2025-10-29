@@ -5,12 +5,14 @@
 		advanceToNextTrainCase,
 		advanceToPreviousTrainCase,
 		getNumberOfSelectedCases,
+		regenerateTrainCaseQueue,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
+	import { areTrainSettingsUnchanged, saveTrainSettings } from '$lib/utils/trainSettings';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -67,7 +69,7 @@
 				const algViewer = new TwistyAlgViewer({ twistyPlayer: twistyPlayerElement });
 				algViewerContainer.appendChild(algViewer);
 				twistyAlgViewerLoaded = true;
-				console.log('TwistyAlgViewer loaded successfully');
+				// console.log('TwistyAlgViewer loaded successfully');
 			}
 		} catch (error) {
 			console.error('Failed to load TwistyAlgViewer:', error);
@@ -82,6 +84,18 @@
 		setTimeout(() => {
 			loadTwistyAlgViewer();
 		}, TWISTY_PLAYER_INIT_DELAY);
+	});
+
+	onMount(() => {
+		// console.log('TrainView mounted');
+		if (!areTrainSettingsUnchanged()) {
+			// console.log('Train settings changed, regenerating train case queue');
+			regenerateTrainCaseQueue();
+		}
+		return () => {
+			// console.log('TrainView unmounted, saving train settings');
+			saveTrainSettings();
+		};
 	});
 
 	let settingsRef: Settings;
