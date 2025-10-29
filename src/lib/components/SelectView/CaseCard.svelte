@@ -26,8 +26,6 @@
 
 	let side = $state<Side>('right');
 
-	const CAMERA_ANGLE = { right: 25, left: -25 };
-
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
@@ -52,7 +50,6 @@
 		getStickeringString(crossColor, frontColor, staticData.pieceToHide, side)
 	);
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
-	const cameraLongitude = $derived(CAMERA_ANGLE[side]);
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
@@ -141,7 +138,7 @@
 		{setupRotation}
 		{setupAlg}
 		{stickeringString}
-		{cameraLongitude}
+		{side}
 		controlPanel="bottom-row"
 	/>
 	<span> {alg} </span>

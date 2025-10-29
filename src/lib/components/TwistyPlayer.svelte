@@ -1,13 +1,13 @@
 <!-- https://js.cubing.net/cubing/api/classes/twisty.TwistyPlayer.html -->
 <script lang="ts">
+	import type { Side } from '$lib/types/Side';
 	import { onMount } from 'svelte';
 
 	let {
 		alg,
 		setupAlg,
 		setupRotation = "z2 y'",
-		cameraLongitude = 25,
-		cameraLatitude = 25,
+		side = 'right',
 		stickeringString = 'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
@@ -16,8 +16,7 @@
 		alg: string;
 		setupAlg: string;
 		setupRotation?: string;
-		cameraLongitude?: number;
-		cameraLatitude?: number;
+		side?: Side;
 		stickeringString?: string;
 		controlPanel?: 'bottom-row' | 'none';
 		experimentalDragInput?: 'auto' | 'none';
@@ -29,6 +28,11 @@
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
+
+	const CAMERA_ANGLE = { right: 25, left: -25 };
+
+	let cameraLongitude = $derived(CAMERA_ANGLE[side]);
+	let cameraLatitude = $state(25);
 
 	export function getElement() {
 		return el as HTMLElement;

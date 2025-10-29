@@ -14,6 +14,7 @@
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
+	import { getCurrentRotationAlg } from '$lib/rotation';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -122,6 +123,8 @@
 		bind:this={twistyPlayerRef}
 		alg={currentTrainCase.alg}
 		setupAlg={currentTrainCase.scramble}
+		setupRotation={getCurrentRotationAlg()}
+		side={currentTrainCase.side}
 		experimentalDragInput="auto"
 		size={80}
 		controlPanel="bottom-row"
