@@ -1,14 +1,16 @@
 <script lang="ts">
-	import { Button, Select } from 'flowbite-svelte';
+	import { Button, P, Select } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
 		advanceToPreviousTrainCase,
+		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
+	import Settings from '$lib/components/Modals/Settings.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -81,6 +83,8 @@
 			loadTwistyAlgViewer();
 		}, TWISTY_PLAYER_INIT_DELAY);
 	});
+
+	let settingsRef: Settings;
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -121,6 +125,11 @@
 			>
 		{/each}
 	</Select>
+
+	<Button onclick={() => settingsRef.openModal()}
+		>{getNumberOfSelectedCases()} cases selected</Button
+	>
+	<Settings bind:this={settingsRef} />
 {:else}
-	<p>No training cases available. Please select some cases first.</p>
+	<P>No training cases available. Please select some cases first.</P>
 {/if}
