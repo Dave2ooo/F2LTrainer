@@ -13,9 +13,12 @@
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
+	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
+
+	let editAlgRef: EditAlg;
 
 	let twistyPlayerRef: any;
 	let algViewerContainer: HTMLElement;
@@ -144,6 +147,18 @@
 		>{getNumberOfSelectedCases()} cases selected</Button
 	>
 	<Settings bind:this={settingsRef} />
+
+	<Button
+		onclick={() => {
+			editAlgRef.openModal();
+		}}>Edit Algorithm</Button
+	>
+	<EditAlg
+		bind:this={editAlgRef}
+		groupId={currentTrainCase.groupId}
+		caseId={currentTrainCase.caseId}
+		side={currentTrainCase.side}
+	/>
 {:else}
 	<P>No training cases available. Please select some cases first.</P>
 {/if}
