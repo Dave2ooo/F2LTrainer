@@ -30,6 +30,8 @@ class TrainSettingsManager {
 			trainStateSelection: { ...globalState.trainStateSelection },
 			trainGroupSelection: { ...globalState.trainStateSelection },
 			trainSideSelection: { ...globalState.trainStateSelection },
+			crossColor: globalState.crossColor,
+			frontColor: globalState.frontColor,
 			trainState
 		};
 	}
