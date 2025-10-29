@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { casesState } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
-	import type { Side } from '$lib/types/casesStatic';
+	import type { Side } from '$lib/types/Side';
 	import type { AlgorithmSelection, CustomAlgorithm } from '$lib/types/caseState';
 	import type { CaseId, GroupId } from '$lib/types/group';
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';

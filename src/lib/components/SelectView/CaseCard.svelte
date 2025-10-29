@@ -11,7 +11,7 @@
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';
-	import { OPPOSITE_SIDE, type Side } from '$lib/types/casesStatic';
+	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 
 	let editAlgRef: EditAlg;
 	let twistyPlayerRef: any;

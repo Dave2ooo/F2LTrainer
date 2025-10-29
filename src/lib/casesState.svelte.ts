@@ -2,7 +2,8 @@ import { casesStatic } from './casesStatic';
 import { loadFromLocalStorage } from './utils/localStorage';
 import type { AlgorithmSelection, CaseState, CustomAlgorithm, TrainState } from './types/caseState';
 import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
-import type { CaseStatic, Side } from './types/casesStatic';
+import type { CaseStatic } from './types/casesStatic';
+import type { Side } from '$lib/types/Side';
 import { mirrorAlg } from './utils/mirrorAlg';
 
 export const createCaseState = (): CaseState => ({

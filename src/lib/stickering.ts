@@ -6,7 +6,7 @@ import {
 	type StickerColorsWithRandom,
 	type StickerHidden
 } from '$lib/types/stickering';
-import { OPPOSITE_SIDE, type Side } from './types/casesStatic';
+import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 
 function getStickeringString(
 	crossColor: StickerColor,

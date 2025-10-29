@@ -3,7 +3,7 @@ import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import type { StickerColor, StickerHidden } from './types/stickering';
 import { casesStatic } from './casesStatic';
 import { casesState, getCaseAlg, getCaseScramblePool } from './casesState.svelte';
-import type { Side } from './types/casesStatic';
+import type { Side } from '$lib/types/Side';
 import { globalState } from './globalState.svelte';
 import type { Auf } from './types/trainCase';
 import { addAuf } from './utils/addAuf';

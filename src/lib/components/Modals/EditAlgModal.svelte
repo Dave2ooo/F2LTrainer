@@ -10,7 +10,7 @@
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import getRotationAlg from '$lib/rotation';
 	import EditAlgListGroup from './EditAlgListGroup.svelte';
-	import type { Side } from '$lib/types/casesStatic';
+	import type { Side } from '$lib/types/Side';
 	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
 
 	let twistyPlayerRightRef: any;
