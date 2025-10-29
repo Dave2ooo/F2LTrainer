@@ -47,7 +47,7 @@
 	);
 
 	let stickeringString = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, side)
+		getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
 	);
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
 

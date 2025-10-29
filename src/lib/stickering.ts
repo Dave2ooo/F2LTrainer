@@ -3,19 +3,22 @@ import {
 	SIDE_COLOR,
 	STICKERING,
 	type StickerColor,
-	type StickerColorsWithRandom,
 	type StickerHidden
 } from '$lib/types/stickering';
 import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 
 function getStickeringString(
-	crossColor: StickerColor,
-	frontColor: StickerColor,
 	stickering: StickerHidden,
-	side: Side
+	side?: Side,
+	crossColor?: StickerColor,
+	frontColor?: StickerColor
 ) {
 	const edgesArr = Array(12).fill('-');
 	const cornersArr = Array(8).fill('-');
+
+	if (side === undefined) side = 'right';
+	if (crossColor === undefined) crossColor = 'white';
+	if (frontColor === undefined) frontColor = 'red';
 
 	// Hide F2L slot *only if stickering is set*
 	if (stickering !== undefined) {
@@ -30,10 +33,10 @@ function getStickeringString(
 			sideSticker = 'left';
 		} else if (stickering === 'br') {
 			facing = 'back';
-			sideSticker = 'left';
+			sideSticker = 'right';
 		} else if (stickering === 'bl') {
 			facing = 'back';
-			sideSticker = 'right';
+			sideSticker = 'left';
 		} else throw new Error('Invalid stickering: ' + stickering);
 
 		// If left, swap left and right
@@ -48,11 +51,11 @@ function getStickeringString(
 		if (facing === 'front') {
 			f2lFace = frontColor;
 			const entry = SIDE_COLOR[crossColor][frontColor];
-			f2lSideColor = entry?.[side];
+			f2lSideColor = entry?.[sideSticker];
 		} else if (facing === 'back') {
 			f2lFace = backColor;
 			const entry = SIDE_COLOR[crossColor][backColor];
-			f2lSideColor = entry?.[side];
+			f2lSideColor = entry?.[OPPOSITE_SIDE[sideSticker]]; // Opposite side because of back face
 		}
 
 		if (f2lSideColor === undefined) throw new Error('Invalid stickering: ' + stickering);

@@ -14,7 +14,8 @@
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
-	import { getCurrentRotationAlg } from '$lib/rotation';
+	import getRotationAlg, { getCurrentRotationAlg } from '$lib/rotation';
+	import getStickeringString from '$lib/stickering';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -103,6 +104,16 @@
 	});
 
 	let settingsRef: Settings;
+
+	let stickeringString = $derived(
+		getStickeringString(
+			currentTrainCase?.stickerHidden,
+			currentTrainCase?.side,
+			currentTrainCase?.crossColor,
+			currentTrainCase?.frontColor
+		)
+	);
+	$inspect(stickeringString);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -123,8 +134,9 @@
 		bind:this={twistyPlayerRef}
 		alg={currentTrainCase.alg}
 		setupAlg={currentTrainCase.scramble}
-		setupRotation={getCurrentRotationAlg()}
+		setupRotation={getRotationAlg(currentTrainCase.crossColor, currentTrainCase.frontColor)}
 		side={currentTrainCase.side}
+		{stickeringString}
 		experimentalDragInput="auto"
 		size={80}
 		controlPanel="bottom-row"

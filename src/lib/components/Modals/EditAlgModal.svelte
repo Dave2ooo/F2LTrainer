@@ -143,10 +143,10 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 	const stickeringStringRight = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, selectedTab)
+		getStickeringString(staticData.pieceToHide, 'right', crossColor, frontColor)
 	);
 	const stickeringStringLeft = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, selectedTab)
+		getStickeringString(staticData.pieceToHide, 'left', crossColor, frontColor)
 	);
 
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
@@ -172,8 +172,8 @@
 					alg={selectedAlgLeft}
 					stickeringString={stickeringStringLeft}
 					setupAlg={setupAlgLeft}
+					side="left"
 					{setupRotation}
-					cameraLongitude={cameraLongitudeLeft}
 					{controlPanel}
 					{experimentalDragInput}
 				/>
@@ -195,7 +195,7 @@
 					stickeringString={stickeringStringRight}
 					setupAlg={setupAlgRight}
 					{setupRotation}
-					cameraLongitude={cameraLongitudeRight}
+					side="right"
 					{controlPanel}
 					{experimentalDragInput}
 				/>

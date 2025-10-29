@@ -1,6 +1,11 @@
 import { mirrorAlg } from './utils/mirrorAlg';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
-import type { StickerColor, StickerHidden } from './types/stickering';
+import {
+	OPPOSITE_COLOR,
+	STICKER_COLORS,
+	type StickerColor,
+	type StickerHidden
+} from './types/stickering';
 import { casesStatic } from './casesStatic';
 import { casesState, getCaseAlg, getCaseScramblePool } from './casesState.svelte';
 import type { Side } from '$lib/types/Side';
@@ -57,8 +62,8 @@ export default class TrainCase {
 	#groupId: GroupId;
 	#caseId: number;
 	#side: Side;
-	#crossColor: StickerColor | 'random';
-	#frontColor: StickerColor | 'random';
+	#crossColor: StickerColor;
+	#frontColor: StickerColor;
 	#stickerHidden: StickerHidden;
 	#scramble: string;
 	#alg: string;
@@ -75,8 +80,8 @@ export default class TrainCase {
 		this.#groupId = groupId;
 		this.#caseId = caseId;
 		this.#side = side;
-		this.#crossColor = crossColor;
-		this.#frontColor = frontColor;
+		this.#crossColor = 'white';
+		this.#frontColor = 'red';
 		this.#stickerHidden = stickerHidden;
 		this.#scramble = '';
 		this.#alg = '';
@@ -85,6 +90,7 @@ export default class TrainCase {
 		this.setRandomScramble();
 		this.setAlg();
 		this.addAuf();
+		this.setCrossAndFrontColor(crossColor, frontColor);
 	}
 
 	private setRandomScramble() {
@@ -117,6 +123,29 @@ export default class TrainCase {
 		if (staticData.ignoreAUF) return; // Do nothing if case doesn't need AUF
 
 		[this.#scramble, this.#alg, this.#auf] = addAuf(this.scramble, this.alg);
+	}
+
+	private setCrossAndFrontColor(
+		crossColor: StickerColor | 'random',
+		frontColor: StickerColor | 'random'
+	) {
+		// Set cross color
+		this.#crossColor =
+			crossColor === 'random'
+				? STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)]
+				: crossColor;
+
+		// Set front color
+		if (frontColor === 'random') {
+			// Get all colors except cross color and its opposite
+			const validColors = STICKER_COLORS.filter(
+				(color) => color !== this.#crossColor && color !== OPPOSITE_COLOR[this.#crossColor]
+			);
+			this.#frontColor = validColors[Math.floor(Math.random() * validColors.length)];
+		} else {
+			this.#frontColor = frontColor;
+		}
+		// console.log('crossColor:', this.#crossColor, 'frontColor:', this.#frontColor);
 	}
 
 	get groupId() {
