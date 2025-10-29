@@ -113,7 +113,6 @@
 			currentTrainCase?.frontColor
 		)
 	);
-	$inspect(stickeringString);
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
