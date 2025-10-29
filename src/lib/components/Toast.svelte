@@ -41,13 +41,13 @@
 		{color}
 		class="fixed right-4 bottom-4 z-50"
 	>
-		<svelte:fragment slot="icon">
+		{#snippet icon()}
 			{#if type === 'success'}
 				<CheckCircleSolid class="h-5 w-5" />
 			{:else}
 				<CloseCircleSolid class="h-5 w-5" />
 			{/if}
-		</svelte:fragment>
+		{/snippet}
 		{message}
 	</Toast>
 {/if}

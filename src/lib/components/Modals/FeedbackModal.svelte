@@ -143,7 +143,7 @@
 					id="message"
 					bind:value={formData.message}
 					placeholder="Your feedback here..."
-					rows="4"
+					rows={4}
 					required
 					disabled={isSubmitting}
 				/>
