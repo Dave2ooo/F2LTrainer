@@ -1,17 +1,53 @@
 <script lang="ts">
-	import { Alert, Button, Popover, Toast } from 'flowbite-svelte';
+	import { Toast } from 'flowbite-svelte';
+	import { CheckCircleSolid, CloseCircleSolid } from 'flowbite-svelte-icons';
 	import { slide } from 'svelte/transition';
 
-	let toastStatus = $state(true);
-	let duration = 2;
+	let {
+		message,
+		type = 'success',
+		duration = 3000,
+		onClose
+	}: {
+		message: string;
+		type?: 'success' | 'error';
+		duration?: number;
+		onClose?: () => void;
+	} = $props();
 
-	setInterval(() => {
-		toastStatus = toastStatus = false;
-	}, duration*1000);
+	let toastStatus = $state(true);
+
+	// Auto-close after duration
+	$effect(() => {
+		if (toastStatus) {
+			const timer = setTimeout(() => {
+				toastStatus = false;
+				if (onClose) onClose();
+			}, duration);
+
+			return () => clearTimeout(timer);
+		}
+	});
+
+	const color = type === 'success' ? 'green' : 'red';
 </script>
 
-<div class="flex gap-10">
-	<Toast position="bottom-left" dismissable={false} transition={slide} bind:toastStatus>
-		Set State to Unlearned
+{#if toastStatus}
+	<Toast
+		position="bottom-right"
+		dismissable={true}
+		transition={slide}
+		bind:toastStatus
+		{color}
+		class="fixed right-4 bottom-4 z-50"
+	>
+		{#snippet icon()}
+			{#if type === 'success'}
+				<CheckCircleSolid class="h-5 w-5" />
+			{:else}
+				<CloseCircleSolid class="h-5 w-5" />
+			{/if}
+		{/snippet}
+		{message}
 	</Toast>
-</div>
+{/if}
