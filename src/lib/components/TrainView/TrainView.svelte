@@ -12,7 +12,7 @@
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
-	import { areTrainSettingsUnchanged, saveTrainSettings } from '$lib/utils/trainSettings';
+	import { trainSettingsManager } from '$lib/utils/trainSettings';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -88,13 +88,13 @@
 
 	onMount(() => {
 		// console.log('TrainView mounted');
-		if (!areTrainSettingsUnchanged()) {
+		if (!trainSettingsManager.areTrainSettingsUnchanged()) {
 			// console.log('Train settings changed, regenerating train case queue');
 			regenerateTrainCaseQueue();
 		}
 		return () => {
 			// console.log('TrainView unmounted, saving train settings');
-			saveTrainSettings();
+			trainSettingsManager.saveTrainSettings();
 		};
 	});
 

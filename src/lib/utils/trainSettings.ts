@@ -5,35 +5,43 @@ import { globalState } from '$lib/globalState.svelte';
 import { casesState } from '$lib/casesState.svelte';
 import { GROUP_IDS } from '$lib/types/group';
 
-let savedTrainSettings: TrainSettings | null = null;
+class TrainSettingsManager {
+	savedTrainSettings: TrainSettings | null = null;
 
-function getTrainSettings(): TrainSettings {
-	// Create a mapping of case IDs to their train states for each group
-	const trainState: Record<GroupId, Record<number, TrainState>> = {} as Record<
-		GroupId,
-		Record<number, TrainState>
-	>;
-
-	for (const groupId of GROUP_IDS) {
-		trainState[groupId] = {};
-		for (const [caseId, caseState] of Object.entries(casesState[groupId])) {
-			trainState[groupId][Number(caseId)] = caseState.trainState;
-		}
+	constructor() {
+		this.savedTrainSettings = null;
 	}
 
-	return {
-		trainStateSelection: { ...globalState.trainStateSelection },
-		trainGroupSelection: { ...globalState.trainStateSelection },
-		trainSideSelection: { ...globalState.trainStateSelection },
-		trainState
-	};
+	getTrainSettings(): TrainSettings {
+		// Create a mapping of case IDs to their train states for each group
+		const trainState: Record<GroupId, Record<number, TrainState>> = {} as Record<
+			GroupId,
+			Record<number, TrainState>
+		>;
+
+		for (const groupId of GROUP_IDS) {
+			trainState[groupId] = {};
+			for (const [caseId, caseState] of Object.entries(casesState[groupId])) {
+				trainState[groupId][Number(caseId)] = caseState.trainState;
+			}
+		}
+
+		return {
+			trainStateSelection: { ...globalState.trainStateSelection },
+			trainGroupSelection: { ...globalState.trainStateSelection },
+			trainSideSelection: { ...globalState.trainStateSelection },
+			trainState
+		};
+	}
+
+	public saveTrainSettings() {
+		this.savedTrainSettings = this.getTrainSettings();
+	}
+
+	public areTrainSettingsUnchanged(): boolean {
+		if (!this.savedTrainSettings) return false;
+		return JSON.stringify(this.savedTrainSettings) === JSON.stringify(this.getTrainSettings());
+	}
 }
 
-export function saveTrainSettings() {
-	savedTrainSettings = getTrainSettings();
-}
-
-export function areTrainSettingsUnchanged(): boolean {
-	if (!savedTrainSettings) return false;
-	return JSON.stringify(savedTrainSettings) === JSON.stringify(getTrainSettings());
-}
+export const trainSettingsManager = new TrainSettingsManager();
