@@ -23,14 +23,11 @@
 		$props();
 
 	let open = $state(false);
-	let selectedTab: Side = $state('right');
+	let selectedTab: Side = $state(mirrored ? 'left' : 'right');
 
-	// $effect(() => {
-	// 	if (open) selectedTab = mirrored ? 'left' : 'right';
-	// 	selectedTab = selectedTab; // Needs to be here to make Svelte happy
-	// });
 	export function openModal() {
 		open = true;
+		selectedTab = mirrored ? 'left' : 'right'; // Add this line
 		// Reset working state when modal opens
 		workingState = {
 			algorithmSelection: {
