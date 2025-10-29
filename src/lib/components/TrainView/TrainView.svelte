@@ -106,7 +106,7 @@
 		controlPanel="bottom-row"
 	/>
 	<Select
-		bind:value={currentTrainCaseTrainState}
+		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
 		style="background: {TrainStateColors[currentTrainCaseTrainState]}; color: {TrainStateTextColors[
 			currentTrainCaseTrainState
 		]}"
