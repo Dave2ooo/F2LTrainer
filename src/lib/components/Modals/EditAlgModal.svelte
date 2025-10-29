@@ -19,15 +19,14 @@
 	// Track pending timeouts so we can clear them if a new animation is requested
 	let animationTimeouts: { left?: any; right?: any } = {};
 
-	let { groupId, caseId, mirrored }: { groupId: GroupId; caseId: CaseId; mirrored: boolean } =
-		$props();
+	let { groupId, caseId, side }: { groupId: GroupId; caseId: CaseId; side: Side } = $props();
 
 	let open = $state(false);
-	let selectedTab: Side = $state(mirrored ? 'left' : 'right');
+	let selectedTab: Side = $state(side);
 
 	export function openModal() {
 		open = true;
-		selectedTab = mirrored ? 'left' : 'right'; // Add this line
+		selectedTab = side; // Add this line
 		// Reset working state when modal opens
 		workingState = {
 			algorithmSelection: {
@@ -144,10 +143,10 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 	const stickeringStringRight = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, false)
+		getStickeringString(crossColor, frontColor, staticData.pieceToHide, selectedTab)
 	);
 	const stickeringStringLeft = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, true)
+		getStickeringString(crossColor, frontColor, staticData.pieceToHide, selectedTab)
 	);
 
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));

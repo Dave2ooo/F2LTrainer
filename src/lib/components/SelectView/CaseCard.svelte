@@ -6,11 +6,12 @@
 	import getRotationAlg from '$lib/rotation';
 	import getStickeringString from '$lib/stickering';
 	import type { CaseId, GroupId } from '$lib/types/group';
-	import { Button } from 'flowbite-svelte';
+	import { Button, Sidebar } from 'flowbite-svelte';
 	import { mirrorAlg } from '$lib/utils/mirrorAlg';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';
+	import { OPPOSITE_SIDE, type Side } from '$lib/types/casesStatic';
 
 	let editAlgRef: EditAlg;
 	let twistyPlayerRef: any;
@@ -23,7 +24,9 @@
 		caseId: CaseId;
 	} = $props();
 
-	let mirrored = $state(false);
+	let side = $state<Side>('right');
+
+	const CAMERA_ANGLE = { right: 25, left: -25 };
 
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
@@ -35,10 +38,10 @@
 		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'left')
 	);
 
-	const alg = $derived(mirrored ? selectedAlgLeft : selectedAlgRight);
+	const alg = $derived(side === 'left' ? selectedAlgLeft : selectedAlgRight);
 
 	const setupAlg = $derived(
-		mirrored ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
+		side === 'left' ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
 	);
 
 	const [crossColor, frontColor] = $derived(
@@ -46,10 +49,10 @@
 	);
 
 	let stickeringString = $derived(
-		getStickeringString(crossColor, frontColor, staticData.pieceToHide, mirrored)
+		getStickeringString(crossColor, frontColor, staticData.pieceToHide, side)
 	);
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
-	const cameraLongitude = $derived(mirrored ? -25 : 25);
+	const cameraLongitude = $derived(CAMERA_ANGLE[side]);
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
@@ -115,7 +118,7 @@
 
 	function handleMirrorClick(e: MouseEvent) {
 		e.stopPropagation();
-		mirrored = !mirrored;
+		side = OPPOSITE_SIDE[side];
 	}
 
 	function handleEditAlgClick(e: MouseEvent) {
@@ -153,6 +156,6 @@
 	</div>
 </button>
 
-<EditAlg bind:this={editAlgRef} {groupId} {caseId} {mirrored} />
+<EditAlg bind:this={editAlgRef} {groupId} {caseId} {side} />
 
 <!-- </Button> -->
