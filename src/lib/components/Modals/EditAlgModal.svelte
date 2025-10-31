@@ -122,6 +122,11 @@
 		caseState.customAlgorithm.right = workingState.customAlgorithm.right;
 		caseState.customAlgorithm.left = workingState.customAlgorithm.left;
 		caseState.identicalAlgorithm = workingState.identicalAlgorithm;
+
+		// Trigger reactivity by reassigning the entire casesState object
+		casesState[groupId][caseId] = { ...caseState };
+
+		// console.log('Updated caseState:', $state.snapshot(caseState));
 		open = false;
 	}
 
@@ -129,29 +134,10 @@
 		// Discard changes by closing the modal without updating casesState
 		open = false;
 	}
-	let selectedAlgRight = $derived(
-		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'right')
-	);
-	let selectedAlgLeft = $derived(
-		getCaseAlg(staticData, workingState.algorithmSelection, workingState.customAlgorithm, 'left')
-	);
-
-	const setupAlgRight = $derived(staticData.scramblePool[0]);
-	const setupAlgLeft = $derived(mirrorAlg(staticData.scramblePool[0]));
 
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
-	const stickeringStringRight = $derived(
-		getStickeringString(staticData.pieceToHide, 'right', crossColor, frontColor)
-	);
-	const stickeringStringLeft = $derived(
-		getStickeringString(staticData.pieceToHide, 'left', crossColor, frontColor)
-	);
-
-	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
-	const cameraLongitudeRight = 25;
-	const cameraLongitudeLeft = -25;
 
 	const controlPanel = 'bottom-row';
 	const experimentalDragInput = 'auto';
@@ -169,11 +155,13 @@
 			<TabItem key="left" title="Left">
 				<TwistyPlayer
 					bind:this={twistyPlayerLeftRef}
-					alg={selectedAlgLeft}
-					stickeringString={stickeringStringLeft}
-					setupAlg={setupAlgLeft}
+					{groupId}
+					{caseId}
+					algorithmSelection={workingState.algorithmSelection}
+					customAlgorithm={workingState.customAlgorithm}
 					side="left"
-					{setupRotation}
+					{crossColor}
+					{frontColor}
 					{controlPanel}
 					{experimentalDragInput}
 				/>
@@ -191,11 +179,13 @@
 			<TabItem key="right" title="Right">
 				<TwistyPlayer
 					bind:this={twistyPlayerRightRef}
-					alg={selectedAlgRight}
-					stickeringString={stickeringStringRight}
-					setupAlg={setupAlgRight}
-					{setupRotation}
+					{groupId}
+					{caseId}
+					algorithmSelection={workingState.algorithmSelection}
+					customAlgorithm={workingState.customAlgorithm}
 					side="right"
+					{crossColor}
+					{frontColor}
 					{controlPanel}
 					{experimentalDragInput}
 				/>

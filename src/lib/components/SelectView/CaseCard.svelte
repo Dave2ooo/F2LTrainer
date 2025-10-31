@@ -15,6 +15,8 @@
 
 	let editAlgRef: EditAlg;
 	let twistyPlayerRef: any;
+	let scramble = $state('');
+	let alg = $state('');
 
 	let {
 		groupId,
@@ -29,27 +31,9 @@
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
-	const selectedAlgRight = $derived(
-		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'right')
-	);
-	const selectedAlgLeft = $derived(
-		getCaseAlg(staticData, caseState.algorithmSelection, caseState.customAlgorithm, 'left')
-	);
-
-	const alg = $derived(side === 'left' ? selectedAlgLeft : selectedAlgRight);
-
-	const setupAlg = $derived(
-		side === 'left' ? mirrorAlg(staticData.scramblePool[0]) : staticData.scramblePool[0]
-	);
-
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
-
-	let stickeringString = $derived(
-		getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
-	);
-	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
@@ -134,11 +118,14 @@
 	<span> {getCaseName(staticData)} </span>
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
-		{alg}
-		{setupRotation}
-		{setupAlg}
-		{stickeringString}
+		bind:scramble
+		bind:alg
+		{groupId}
+		{caseId}
+		algorithmSelection={caseState.algorithmSelection}
 		{side}
+		{crossColor}
+		{frontColor}
 		controlPanel="bottom-row"
 	/>
 	<span> {alg} </span>

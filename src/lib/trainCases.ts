@@ -3,6 +3,7 @@ import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import {
 	OPPOSITE_COLOR,
 	STICKER_COLORS,
+	SIDE_COLOR,
 	type StickerColor,
 	type StickerHidden
 } from './types/stickering';
@@ -10,7 +11,7 @@ import { casesStatic } from './casesStatic';
 import { casesState, getCaseAlg, getCaseScramblePool } from './casesState.svelte';
 import type { Side } from '$lib/types/Side';
 import { globalState } from './globalState.svelte';
-import type { Auf } from './types/trainCase';
+import { AUF, type Auf } from './types/trainCase';
 import { addAuf } from './utils/addAuf';
 import shuffleArray from './utils/shuffleArray';
 
@@ -45,12 +46,11 @@ export function gernerateTrainCases(): TrainCase[] {
 
 			if (!trainStateSelection[caseTrainState]) continue;
 
-			const stickerHidden = casesStatic[groupId][caseId].pieceToHide;
 			// console.log("groupId", groupId, "caseId", caseId);
 			if (trainSideSelection.right)
-				result.push(new TrainCase(groupId, caseId, 'right', crossColor, frontColor, stickerHidden));
+				result.push(new TrainCase(groupId, caseId, 'right', crossColor, frontColor));
 			if (trainSideSelection.left)
-				result.push(new TrainCase(groupId, caseId, 'left', crossColor, frontColor, stickerHidden));
+				result.push(new TrainCase(groupId, caseId, 'left', crossColor, frontColor));
 			// console.log("result temp", result);
 		}
 	}
@@ -65,8 +65,7 @@ export default class TrainCase {
 	#crossColor: StickerColor;
 	#frontColor: StickerColor;
 	#stickerHidden: StickerHidden;
-	#scramble: string;
-	#alg: string;
+	#scrambleSelection: number;
 	#auf: Auf;
 
 	constructor(
@@ -74,78 +73,95 @@ export default class TrainCase {
 		caseId: number,
 		side: Side,
 		crossColor: StickerColor | 'random',
-		frontColor: StickerColor | 'random',
-		stickerHidden: StickerHidden
+		frontColor: StickerColor | 'random'
 	) {
 		this.#groupId = groupId;
 		this.#caseId = caseId;
 		this.#side = side;
 		this.#crossColor = 'white';
 		this.#frontColor = 'red';
-		this.#stickerHidden = stickerHidden;
-		this.#scramble = '';
-		this.#alg = '';
+		this.#scrambleSelection = 0;
 		this.#auf = '';
 
+		this.#stickerHidden = casesStatic[groupId][caseId].pieceToHide;
+
 		this.setRandomScramble();
-		this.setAlg();
-		this.addAuf();
+		this.setAuf();
 		this.setCrossAndFrontColor(crossColor, frontColor);
 	}
 
 	private setRandomScramble() {
 		const staticData = casesStatic[this.#groupId][this.#caseId];
-
 		const scramblePool = getCaseScramblePool(staticData);
-		this.#scramble = scramblePool[Math.floor(Math.random() * scramblePool.length)];
-
-		if (this.#side === 'left') {
-			this.#scramble = mirrorAlg(this.scramble);
-		}
+		this.#scrambleSelection = Math.floor(Math.random() * scramblePool.length);
 	}
 
-	private setAlg() {
-		const staticData = casesStatic[this.#groupId][this.#caseId];
-		const caseState = casesState[this.#groupId][this.#caseId];
-
-		this.#alg = getCaseAlg(
-			staticData,
-			caseState.algorithmSelection,
-			caseState.customAlgorithm,
-			this.#side
-		);
-	}
-
-	private addAuf() {
+	private setAuf() {
 		if (globalState.trainAddAuf === false) return; // Do nothing if user selected no AUF
 
 		const staticData = casesStatic[this.#groupId][this.#caseId];
 		if (staticData.ignoreAUF) return; // Do nothing if case doesn't need AUF
 
-		[this.#scramble, this.#alg, this.#auf] = addAuf(this.scramble, this.alg);
+		const aufIndex = Math.floor(Math.random() * AUF.length);
+		this.#auf = AUF[aufIndex];
 	}
 
 	private setCrossAndFrontColor(
 		crossColor: StickerColor | 'random',
 		frontColor: StickerColor | 'random'
 	) {
-		// Set cross color
-		this.#crossColor =
-			crossColor === 'random'
-				? STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)]
-				: crossColor;
+		if (crossColor === 'random' && frontColor !== 'random') {
+			// If front color is specific but cross color is random,
+			// we need to find a valid cross color that works with the specified front color
+			const validCrossColors = STICKER_COLORS.filter((color) => {
+				return SIDE_COLOR[color]?.[frontColor] !== undefined;
+			});
 
-		// Set front color
-		if (frontColor === 'random') {
-			// Get all colors except cross color and its opposite
-			const validColors = STICKER_COLORS.filter(
-				(color) => color !== this.#crossColor && color !== OPPOSITE_COLOR[this.#crossColor]
-			);
-			this.#frontColor = validColors[Math.floor(Math.random() * validColors.length)];
+			if (validCrossColors.length > 0) {
+				this.#crossColor = validCrossColors[Math.floor(Math.random() * validCrossColors.length)];
+				this.#frontColor = frontColor;
+			} else {
+				// If no valid combination found (shouldn't happen with correct color names)
+				this.#crossColor = 'white';
+				this.#frontColor = 'red';
+			}
 		} else {
-			this.#frontColor = frontColor;
+			// Set cross color first if it's not random or if front color is also random
+			this.#crossColor =
+				crossColor === 'random'
+					? STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)]
+					: crossColor;
+
+			// Then set front color
+			if (frontColor === 'random') {
+				// Get valid colors that work with the selected cross color
+				const validColors = STICKER_COLORS.filter((color) => {
+					return SIDE_COLOR[this.#crossColor]?.[color] !== undefined;
+				});
+
+				if (validColors.length > 0) {
+					this.#frontColor = validColors[Math.floor(Math.random() * validColors.length)];
+				} else {
+					// Fallback to a safe default if no valid colors found
+					this.#frontColor = 'red';
+					if (this.#crossColor === 'red' || this.#crossColor === OPPOSITE_COLOR['red']) {
+						this.#frontColor = 'blue';
+					}
+				}
+			} else {
+				// If specific front color requested, verify it's valid
+				const sideColorEntry = SIDE_COLOR[this.#crossColor]?.[frontColor];
+				if (sideColorEntry !== undefined) {
+					this.#frontColor = frontColor;
+				} else {
+					// If not valid with current cross color, fall back to a safe default
+					this.#frontColor = 'red';
+					if (this.#crossColor === 'red' || this.#crossColor === OPPOSITE_COLOR['red']) {
+						this.#frontColor = 'blue';
+					}
+				}
+			}
 		}
-		// console.log('crossColor:', this.#crossColor, 'frontColor:', this.#frontColor);
 	}
 
 	get groupId() {
@@ -167,10 +183,7 @@ export default class TrainCase {
 		return this.#stickerHidden;
 	}
 	get scramble() {
-		return this.#scramble;
-	}
-	get alg() {
-		return this.#alg;
+		return this.#scrambleSelection;
 	}
 	get auf() {
 		return this.#auf;

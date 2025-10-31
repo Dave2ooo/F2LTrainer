@@ -14,8 +14,8 @@
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
-	import getRotationAlg, { getCurrentRotationAlg } from '$lib/rotation';
 	import getStickeringString from '$lib/stickering';
+	import { casesStatic } from '$lib/casesStatic';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -26,13 +26,29 @@
 	let algViewerContainer: HTMLElement;
 	let twistyAlgViewerLoaded = $state(false);
 
+	let scramble = $state('');
+	let alg = $state('');
+
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
+
+	let staticData = $derived(
+		currentTrainCase ? casesStatic[currentTrainCase.groupId][currentTrainCase.caseId] : undefined
+	);
+	let caseState = $derived(
+		currentTrainCase ? casesState[currentTrainCase.groupId][currentTrainCase.caseId] : undefined
+	);
 
 	let currentTrainCaseTrainState = $derived(
 		currentTrainCase
 			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState
 			: 'unlearned'
+	);
+
+	let currentAlgorithmSelection = $derived(
+		currentTrainCase
+			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].algorithmSelection
+			: undefined
 	);
 
 	async function onNext() {
@@ -44,6 +60,18 @@
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
+		// Don't handle keyboard shortcuts if user is typing or modal is open
+		const activeElement = document.activeElement;
+		const isTyping =
+			activeElement?.tagName === 'INPUT' ||
+			activeElement?.tagName === 'TEXTAREA' ||
+			activeElement?.hasAttribute('contenteditable') ||
+			document.querySelector('.modal[style*="display: block"]') !== null;
+
+		if (isTyping) {
+			return;
+		}
+
 		if (event.code === 'Space') {
 			event.preventDefault();
 			onNext();
@@ -119,11 +147,11 @@
 
 {#if currentTrainCase}
 	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
-	<span>{currentTrainCase.scramble}</span>
+	<span>{scramble}</span>
 	<h2>Algorithm</h2>
 	<div bind:this={algViewerContainer}></div>
 	{#if !twistyAlgViewerLoaded}
-		<span>{currentTrainCase.alg}</span>
+		<span>{alg}</span>
 	{/if}
 
 	<Button onclick={advanceToPreviousTrainCase}>Previous</Button>
@@ -131,11 +159,14 @@
 
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
-		alg={currentTrainCase.alg}
-		setupAlg={currentTrainCase.scramble}
-		setupRotation={getRotationAlg(currentTrainCase.crossColor, currentTrainCase.frontColor)}
+		bind:scramble
+		bind:alg
+		groupId={currentTrainCase.groupId}
+		caseId={currentTrainCase.caseId}
+		algorithmSelection={currentAlgorithmSelection}
 		side={currentTrainCase.side}
-		{stickeringString}
+		crossColor={currentTrainCase.crossColor}
+		frontColor={currentTrainCase.frontColor}
 		experimentalDragInput="auto"
 		size={80}
 		controlPanel="bottom-row"
