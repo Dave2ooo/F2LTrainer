@@ -1,4 +1,3 @@
-import type { n } from 'vitest/dist/chunks/reporters.d.BFLkQcL6.js';
 import { casesState } from './casesState.svelte';
 import { globalState } from './globalState.svelte';
 import TrainCase, { gernerateTrainCases } from './trainCases';
