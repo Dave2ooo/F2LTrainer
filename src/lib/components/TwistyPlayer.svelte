@@ -12,6 +12,7 @@
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { onMount } from 'svelte';
+	import { RefreshOutline } from 'flowbite-svelte-icons';
 
 	interface Props {
 		groupId: GroupId;
@@ -82,6 +83,9 @@
 		getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
 	);
 
+	// Track whether the reset button should be visible
+	let showResetButton = $state(false);
+
 	export function getElement() {
 		return el as HTMLElement;
 	}
@@ -144,6 +148,31 @@
 	// Register the custom element only on the client (avoids SSR issues)
 	onMount(async () => {
 		await import('cubing/twisty');
+
+		// Set up event listener to track camera position changes
+		// Wait a tick for the element to be fully initialized
+		setTimeout(() => {
+			if (el) {
+				try {
+					const player = el as any;
+					// Listen for camera position changes
+					if (player.experimentalModel?.twistySceneModel?.orbitCoordinatesRequest) {
+						player.experimentalModel.twistySceneModel.orbitCoordinatesRequest.addFreshListener(
+							(coords: any) => {
+								// Show reset button if camera is not at default position
+								// Check both latitude and longitude
+								const isAtDefaultPosition =
+									Math.abs(coords.latitude - cameraLatitude) < 0.1 &&
+									Math.abs(coords.longitude - cameraLongitude) < 0.1;
+								showResetButton = !isAtDefaultPosition;
+							}
+						);
+					}
+				} catch (e) {
+					console.warn('Could not set up camera position listener:', e);
+				}
+			}
+		}, 100);
 	});
 </script>
 
@@ -151,20 +180,33 @@
   Note: custom-element attributes are kebab-case.
   Only include an attribute when its value is defined.
 -->
-<twisty-player
-	class="size-{size} aspect-[0.9]"
-	bind:this={el}
-	puzzle="3x3x3"
-	{alg}
-	experimental-setup-alg={[setupRotation, scramble].join(' ')}
-	camera-longitude={cameraLongitude}
-	camera-latitude={cameraLatitude}
-	experimental-stickering-mask-orbits={stickeringString}
-	control-panel={controlPanel}
-	experimental-drag-input={experimentalDragInput}
-	background="none"
-	hint-facelets="none"
-	viewer-link="none"
-></twisty-player>
+<div class="relative">
+	<twisty-player
+		class="size-{size} aspect-[0.9]"
+		bind:this={el}
+		puzzle="3x3x3"
+		{alg}
+		experimental-setup-alg={[setupRotation, scramble].join(' ')}
+		camera-longitude={cameraLongitude}
+		camera-latitude={cameraLatitude}
+		experimental-stickering-mask-orbits={stickeringString}
+		control-panel={controlPanel}
+		experimental-drag-input={experimentalDragInput}
+		background="none"
+		hint-facelets="none"
+		viewer-link="none"
+	></twisty-player>
+
+	{#if showResetButton}
+		<button
+			onclick={resetView}
+			class="absolute right-1 top-1 rounded-full bg-gray-800 bg-opacity-70 p-2 text-white hover:bg-opacity-90 transition-all duration-200"
+			title="Reset View"
+			aria-label="Reset camera view"
+		>
+			<RefreshOutline class="h-4 w-4" />
+		</button>
+	{/if}
+</div>
 
 <!-- style="width: 145px; height: 160px" -->
