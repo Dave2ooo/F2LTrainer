@@ -1,9 +1,11 @@
-import type { StickerColorsWithRandom, StickerColor } from "$lib/types/stickering";
+import type { StickerColor } from '$lib/types/stickering';
 
-export default function resolveStickerColors(crossColor: StickerColorsWithRandom, frontColor: StickerColorsWithRandom): [StickerColor, StickerColor] {
-    if (crossColor === 'random' || frontColor === 'random') {
-        return ['white', 'red'];
-    }
-    return [crossColor, frontColor];
-
+export default function resolveStickerColors(
+	crossColor: StickerColor | 'random',
+	frontColor: StickerColor | 'random'
+): [StickerColor, StickerColor] {
+	if (crossColor === 'random' || frontColor === 'random') {
+		return ['white', 'red'];
+	}
+	return [crossColor, frontColor];
 }

@@ -1,4 +1,4 @@
-import type { StickerColor, StickerColorsWithRandom } from './stickering';
+import type { StickerColor } from './stickering';
 import type { GroupId } from './group';
 import type { TrainState } from './caseState';
 import type { Side } from '$lib/types/Side';
@@ -9,8 +9,8 @@ export type HintAlgorithm = 'step' | 'allAtOnce' | 'always';
 export type HintStickering = 'f2l' | 'fully';
 
 export interface GlobalState {
-	crossColor: StickerColorsWithRandom;
-	frontColor: StickerColorsWithRandom;
+	crossColor: StickerColor | 'random';
+	frontColor: StickerColor | 'random';
 	categoriesOpenedObj: Record<GroupId, boolean[]>;
 	view: View;
 	selectedGroup: GroupId;
