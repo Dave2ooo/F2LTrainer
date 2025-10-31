@@ -79,6 +79,10 @@
 	let cameraLongitude = $derived(CAMERA_ANGLE[side]);
 	let cameraLatitude = $state(25);
 
+	// Constants for camera position tracking
+	const CAMERA_POSITION_TOLERANCE = 0.1; // Tolerance for comparing camera positions
+	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
+
 	let stickeringString = $derived(
 		getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
 	);
@@ -162,8 +166,8 @@
 								// Show reset button if camera is not at default position
 								// Check both latitude and longitude
 								const isAtDefaultPosition =
-									Math.abs(coords.latitude - cameraLatitude) < 0.1 &&
-									Math.abs(coords.longitude - cameraLongitude) < 0.1;
+									Math.abs(coords.latitude - cameraLatitude) < CAMERA_POSITION_TOLERANCE &&
+									Math.abs(coords.longitude - cameraLongitude) < CAMERA_POSITION_TOLERANCE;
 								showResetButton = !isAtDefaultPosition;
 							}
 						);
@@ -172,7 +176,7 @@
 					console.warn('Could not set up camera position listener:', e);
 				}
 			}
-		}, 100);
+		}, TWISTY_PLAYER_INIT_DELAY);
 	});
 </script>
 
