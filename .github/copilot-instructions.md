@@ -144,8 +144,9 @@ The application is deployed to GitHub Pages with:
 ## Important Notes
 
 ### Dependencies
-- The `cubing` library requires Node.js >=22.3.0 or Bun >=1.2.7
-- Use GitHub Actions with Node 22 for CI/CD (configured in `.github/workflows/deploy.yml`)
+- **Node.js Version**: The `cubing` library dependency requires Node.js >=22.3.0 or Bun >=1.2.7
+- While `package.json` doesn't specify an `engines` field, ensure you're using Node 22+ for development
+- GitHub Actions deployment workflow uses Node 22 (configured in `.github/workflows/deploy.yml`)
 
 ### Local Storage
 - User preferences and case states are stored in localStorage
