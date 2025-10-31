@@ -203,6 +203,7 @@
 
 	{#if showResetButton}
 		<button
+			type="button"
 			onclick={resetView}
 			class="absolute right-1 top-1 rounded-full bg-gray-800 bg-opacity-70 p-2 text-white hover:bg-opacity-90 transition-all duration-200"
 			title="Reset View"
