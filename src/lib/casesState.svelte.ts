@@ -59,7 +59,7 @@ export function getCaseAlg(
 	algorithmSelection: AlgorithmSelection,
 	customAlgorithm: CustomAlgorithm,
 	side: Side
-) {
+): string {
 	const algorithmSelectionSide = algorithmSelection[side];
 	const customAlgorithmSide = customAlgorithm[side];
 
@@ -70,6 +70,20 @@ export function getCaseAlg(
 	const alg = algorithmPool[algorithmSelectionSide];
 
 	return side === 'left' ? mirrorAlg(alg) : alg;
+}
+
+export function getCaseScramble(staticData: CaseStatic, side: Side, scrambleSelection?: number) {
+	const scramblePool = staticData.scramblePool;
+
+	let scramble: string;
+
+	if (scrambleSelection !== undefined) {
+		scramble = scramblePool[scrambleSelection];
+	} else {
+		scramble = scramblePool[0];
+	}
+
+	return side === 'left' ? mirrorAlg(scramble) : scramble;
 }
 
 export function getCaseScramblePool(staticData: CaseStatic) {
