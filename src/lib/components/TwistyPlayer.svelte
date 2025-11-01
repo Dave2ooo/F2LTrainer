@@ -50,6 +50,7 @@
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
+	let isPlayerInitialized = $state(false);
 
 	const staticData = $derived(casesStatic[groupId][caseId]);
 	const caseState = $derived(casesState[groupId][caseId]);
@@ -71,6 +72,33 @@
 
 	$effect(() => {
 		[scramble, alg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+	});
+
+	// Auto-reset animation when key props change
+	// In Svelte 5, referencing reactive values inside $effect automatically tracks them as dependencies
+	// Note: When multiple props change in the same tick, Svelte batches updates and runs the effect once
+	$effect(() => {
+		// Reference props to track them as dependencies (Svelte 5 pattern)
+		// These trigger the effect when they change:
+		void groupId;
+		void caseId;
+		void side;
+		void scrambleSelection;
+		void algorithmSelection;
+		void customAlgorithm;
+		void auf;
+		void crossColor;
+		void frontColor;
+
+		// Call jumpToStart and resetView when any tracked prop changes
+		// Wait for the player to be initialized and add a small delay to ensure it's ready
+		if (el && isPlayerInitialized) {
+			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
+			setTimeout(() => {
+				jumpToStart();
+				resetView();
+			}, 10);
+		}
 	});
 
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
@@ -157,6 +185,9 @@
 		// Wait a tick for the element to be fully initialized
 		setTimeout(() => {
 			if (el) {
+				// Mark player as initialized
+				isPlayerInitialized = true;
+				
 				try {
 					const player = el as any;
 					// Listen for camera position changes

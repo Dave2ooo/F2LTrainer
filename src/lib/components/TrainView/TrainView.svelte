@@ -53,10 +53,6 @@
 
 	async function onNext() {
 		advanceToNextTrainCase();
-		// wait for state/DOM to settle so TwistyPlayer receives the new props
-		await tick();
-		twistyPlayerRef?.jumpToStart();
-		twistyPlayerRef?.resetView();
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
