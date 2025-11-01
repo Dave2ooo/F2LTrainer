@@ -50,6 +50,7 @@
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
+	let isPlayerInitialized = $state(false);
 
 	const staticData = $derived(casesStatic[groupId][caseId]);
 	const caseState = $derived(casesState[groupId][caseId]);
@@ -90,10 +91,13 @@
 		void frontColor;
 
 		// Call jumpToStart and resetView when any tracked prop changes
-		// Skip on initial mount (el won't be ready yet)
-		if (el) {
-			jumpToStart();
-			resetView();
+		// Wait for the player to be initialized and add a small delay to ensure it's ready
+		if (el && isPlayerInitialized) {
+			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
+			setTimeout(() => {
+				jumpToStart();
+				resetView();
+			}, 10);
 		}
 	});
 
@@ -181,6 +185,9 @@
 		// Wait a tick for the element to be fully initialized
 		setTimeout(() => {
 			if (el) {
+				// Mark player as initialized
+				isPlayerInitialized = true;
+				
 				try {
 					const player = el as any;
 					// Listen for camera position changes
