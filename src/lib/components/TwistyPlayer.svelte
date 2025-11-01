@@ -73,18 +73,20 @@
 		[scramble, alg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
 	});
 
-	// Auto-reset when key props change
+	// Auto-reset animation when key props change
+	// In Svelte 5, referencing reactive values inside $effect automatically tracks them as dependencies
 	$effect(() => {
-		// Track prop changes that should trigger reset
-		groupId;
-		caseId;
-		side;
-		scrambleSelection;
-		algorithmSelection;
-		customAlgorithm;
-		auf;
-		crossColor;
-		frontColor;
+		// Reference props to track them as dependencies (Svelte 5 pattern)
+		// These trigger the effect when they change:
+		void groupId;
+		void caseId;
+		void side;
+		void scrambleSelection;
+		void algorithmSelection;
+		void customAlgorithm;
+		void auf;
+		void crossColor;
+		void frontColor;
 
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Skip on initial mount (el won't be ready yet)
