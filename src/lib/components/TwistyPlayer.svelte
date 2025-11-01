@@ -75,6 +75,7 @@
 
 	// Auto-reset animation when key props change
 	// In Svelte 5, referencing reactive values inside $effect automatically tracks them as dependencies
+	// Note: When multiple props change in the same tick, Svelte batches updates and runs the effect once
 	$effect(() => {
 		// Reference props to track them as dependencies (Svelte 5 pattern)
 		// These trigger the effect when they change:
