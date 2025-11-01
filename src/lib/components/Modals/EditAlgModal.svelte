@@ -55,8 +55,6 @@
 
 	function animateTwistyPlayer(side: Side) {
 		const twistyPlayerRef = side === 'left' ? twistyPlayerLeftRef : twistyPlayerRightRef;
-		twistyPlayerRef.resetView();
-		twistyPlayerRef.jumpToStart();
 
 		if (!globalState.playOnAlgChange) return;
 

@@ -85,8 +85,6 @@
 		auf;
 		crossColor;
 		frontColor;
-		scramble;
-		alg;
 
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Skip on initial mount (el won't be ready yet)
