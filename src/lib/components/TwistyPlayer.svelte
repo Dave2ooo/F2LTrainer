@@ -89,6 +89,8 @@
 		void auf;
 		void crossColor;
 		void frontColor;
+		void scramble;
+		void alg;
 
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Wait for the player to be initialized and add a small delay to ensure it's ready
@@ -187,7 +189,7 @@
 			if (el) {
 				// Mark player as initialized
 				isPlayerInitialized = true;
-				
+
 				try {
 					const player = el as any;
 					// Listen for camera position changes
@@ -236,7 +238,7 @@
 		<button
 			type="button"
 			onclick={resetView}
-			class="absolute right-1 top-1 rounded-full bg-gray-800 bg-opacity-70 p-2 text-white hover:bg-opacity-90 transition-all duration-200"
+			class="bg-opacity-70 hover:bg-opacity-90 absolute top-1 right-1 rounded-full bg-gray-800 p-2 text-white transition-all duration-200"
 			title="Reset View"
 			aria-label="Reset camera view"
 		>
