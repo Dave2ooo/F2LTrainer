@@ -73,6 +73,29 @@
 		[scramble, alg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
 	});
 
+	// Auto-reset when key props change
+	$effect(() => {
+		// Track prop changes that should trigger reset
+		groupId;
+		caseId;
+		side;
+		scrambleSelection;
+		algorithmSelection;
+		customAlgorithm;
+		auf;
+		crossColor;
+		frontColor;
+		scramble;
+		alg;
+
+		// Call jumpToStart and resetView when any tracked prop changes
+		// Skip on initial mount (el won't be ready yet)
+		if (el) {
+			jumpToStart();
+			resetView();
+		}
+	});
+
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
 
 	const CAMERA_ANGLE = { right: 25, left: -25 };
