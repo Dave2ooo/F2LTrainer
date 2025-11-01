@@ -67,7 +67,21 @@ export function getCaseAlg(
 
 	const algorithmPool = staticData.algPool;
 
-	const alg = algorithmPool[algorithmSelectionSide];
+	let alg: string | undefined = undefined;
+	if (
+		typeof algorithmSelectionSide === 'number' &&
+		algorithmSelectionSide >= 0 &&
+		algorithmSelectionSide < algorithmPool.length
+	) {
+		alg = algorithmPool[algorithmSelectionSide];
+	}
+	if (!alg) {
+		console.error(
+			`Algorithm index out of bounds or missing: group/case=${staticData.caseId}, side=${side}, selection=${algorithmSelectionSide}, pool=`,
+			algorithmPool
+		);
+		alg = algorithmPool[0] || '';
+	}
 
 	return side === 'left' ? mirrorAlg(alg) : alg;
 }
