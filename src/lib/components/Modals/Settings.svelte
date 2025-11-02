@@ -189,7 +189,7 @@
 
 		<!-- <svelte:fragment slot="footer"> -->
 		<div class="flex w-full justify-end gap-3">
-			<Button type="button" color="gray" outline onclick={onCancel}>Cancel</Button>
+			<Button type="button" color="alternative" outline onclick={onCancel}>Cancel</Button>
 			<Button type="submit">Update</Button>
 		</div>
 	</form>
