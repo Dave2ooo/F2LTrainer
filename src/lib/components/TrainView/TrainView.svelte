@@ -20,10 +20,10 @@
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
 
-	let editAlgRef: EditAlg;
+	let editAlgRef = $state<EditAlg>();
 
-	let twistyPlayerRef: any;
-	let algViewerContainer: HTMLElement;
+	let twistyPlayerRef = $state<any>();
+	let algViewerContainer = $state<HTMLElement>();
 	let twistyAlgViewerLoaded = $state(false);
 
 	let scramble = $state('');
@@ -127,16 +127,7 @@
 		};
 	});
 
-	let settingsRef: Settings;
-
-	let stickeringString = $derived(
-		getStickeringString(
-			currentTrainCase?.stickerHidden,
-			currentTrainCase?.side,
-			currentTrainCase?.crossColor,
-			currentTrainCase?.frontColor
-		)
-	);
+	let settingsRef = $state<Settings>();
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -184,14 +175,14 @@
 		{/each}
 	</Select>
 
-	<Button onclick={() => settingsRef.openModal()}
+	<Button onclick={() => settingsRef?.openModal()}
 		>{getNumberOfSelectedCases()} cases selected</Button
 	>
 	<Settings bind:this={settingsRef} />
 
 	<Button
 		onclick={() => {
-			editAlgRef.openModal();
+			editAlgRef?.openModal();
 		}}>Edit Algorithm</Button
 	>
 	<EditAlg
