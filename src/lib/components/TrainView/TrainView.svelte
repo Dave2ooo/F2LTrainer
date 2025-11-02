@@ -16,6 +16,7 @@
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import getStickeringString from '$lib/stickering';
 	import { casesStatic } from '$lib/casesStatic';
+	import HintButton from './HintButton.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -137,9 +138,7 @@
 	<span>{scramble}</span>
 	<h2>Algorithm</h2>
 	<div bind:this={algViewerContainer}></div>
-	{#if !twistyAlgViewerLoaded}
-		<span>{alg}</span>
-	{/if}
+	<HintButton {alg} visible={!twistyAlgViewerLoaded} />
 
 	<Button onclick={advanceToPreviousTrainCase}>Previous</Button>
 	<Button onclick={onNext}>Next</Button>
