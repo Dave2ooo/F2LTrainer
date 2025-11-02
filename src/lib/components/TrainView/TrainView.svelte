@@ -17,6 +17,8 @@
 	import getStickeringString from '$lib/stickering';
 	import { casesStatic } from '$lib/casesStatic';
 	import HintButton from './HintButton.svelte';
+	import { globalState } from '$lib/globalState.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -29,6 +31,9 @@
 
 	let scramble = $state('');
 	let alg = $state('');
+	
+	// Create hint manager instance
+	const hintManager = createHintManager();
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
@@ -54,6 +59,27 @@
 
 	async function onNext() {
 		advanceToNextTrainCase();
+		hintManager.reset();
+		// Wait for next tick to ensure DOM is updated
+		await tick();
+		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+	}
+
+	async function onPrevious() {
+		advanceToPreviousTrainCase();
+		hintManager.reset();
+		// Wait for next tick to ensure DOM is updated
+		await tick();
+		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+	}
+
+	function showHintAlg() {
+		hintManager.revealHint(
+			globalState.trainHintAlgorithm,
+			alg,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -116,6 +142,21 @@
 		}, TWISTY_PLAYER_INIT_DELAY);
 	});
 
+	// Initialize hint display when TwistyAlgViewer loads or case changes
+	$effect(() => {
+		// Track dependencies
+		void twistyAlgViewerLoaded;
+		void currentTrainCase;
+		
+		if (twistyAlgViewerLoaded && currentTrainCase) {
+			// Small delay to ensure AlgViewer is fully rendered
+			setTimeout(() => {
+				hintManager.reset();
+				hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+			}, 50);
+		}
+	});
+
 	onMount(() => {
 		// console.log('TrainView mounted');
 		if (!trainSettingsManager.areTrainSettingsUnchanged()) {
@@ -137,10 +178,24 @@
 	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
 	<span>{scramble}</span>
 	<h2>Algorithm</h2>
-	<div bind:this={algViewerContainer}></div>
-	<HintButton {alg} visible={!twistyAlgViewerLoaded} />
+	<div 
+		bind:this={algViewerContainer} 
+		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
+		onclick={showHintAlg}
+		role="button"
+		tabindex="0"
+		onkeydown={(e) => e.key === 'Enter' && showHintAlg()}
+		class="cursor-pointer"
+	></div>
+	<HintButton 
+		{alg} 
+		visible={hintManager.showHintButton}
+		hintCounter={hintManager.counter}
+		hintMode={globalState.trainHintAlgorithm}
+		onclick={showHintAlg}
+	/>
 
-	<Button onclick={advanceToPreviousTrainCase}>Previous</Button>
+	<Button onclick={onPrevious}>Previous</Button>
 	<Button onclick={onNext}>Next</Button>
 
 	<TwistyPlayer
