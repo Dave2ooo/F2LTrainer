@@ -34,18 +34,30 @@
 
 	let showPlaceholder = $derived(visible && hintCounter === -1 && hintMode !== 'always');
 	let showAlgorithm = $derived(visible && displayedAlg !== '');
+
+	// Parse the algorithm into individual moves for consistent display
+	let algMoves = $derived.by(() => {
+		if (!showAlgorithm) return [];
+		return displayedAlg.split(' ').filter(move => move.trim() !== '');
+	});
 </script>
 
 {#if visible}
-	<button 
-		type="button"
-		onclick={onclick} 
-		class="w-full cursor-pointer rounded border border-gray-300 bg-gray-50 p-4 text-center hover:bg-gray-100"
+	<div 
+		onclick={onclick}
+		role="button"
+		tabindex="0"
+		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onclick()}
+		class="cursor-pointer rounded border border-gray-300 bg-white p-3 text-center shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
 	>
 		{#if showPlaceholder}
-			<span class="text-gray-600">Press to show hint</span>
+			<span class="text-sm text-gray-500">Press to show hint</span>
 		{:else if showAlgorithm}
-			<span class="font-mono">{displayedAlg}</span>
+			<div class="inline-flex flex-wrap items-center justify-center gap-1 font-mono text-base">
+				{#each algMoves as move}
+					<span class="rounded bg-gray-100 px-2 py-1 text-gray-800">{move}</span>
+				{/each}
+			</div>
 		{/if}
-	</button>
+	</div>
 {/if}

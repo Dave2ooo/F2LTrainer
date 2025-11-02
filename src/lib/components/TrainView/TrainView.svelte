@@ -18,6 +18,7 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import HintButton from './HintButton.svelte';
 	import { globalState } from '$lib/globalState.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -30,11 +31,9 @@
 
 	let scramble = $state('');
 	let alg = $state('');
-	let hintCounter = $state(-1);
 	
-	// Control visibility of the algorithm viewer container and hint button
-	let showAlgViewer = $state(false);
-	let showHintButton = $state(false);
+	// Create hint manager instance
+	const hintManager = createHintManager();
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
@@ -60,98 +59,27 @@
 
 	async function onNext() {
 		advanceToNextTrainCase();
-		hintCounter = -1;
+		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		initializeHintDisplay();
+		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
 	}
 
 	async function onPrevious() {
 		advanceToPreviousTrainCase();
-		hintCounter = -1;
+		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		initializeHintDisplay();
+		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
 	}
 
 	function showHintAlg() {
-		const algViewerElement = algViewerContainer?.querySelector('twisty-alg-viewer');
-		const algMoveElements = algViewerElement?.querySelectorAll('.twisty-alg-move');
-
-		// If hintCounter is -1, this is called from user clicking the button for the first time
-		// We need to increment to 0 and continue processing
-		if (hintCounter === -1) {
-			hintCounter = 0;
-		}
-
-		// Do nothing if mode is "always" (already visible)
-		if (globalState.trainHintAlgorithm === 'always') return;
-
-		// Get algorithm and convert to list
-		const algList = alg.split(' ').filter(move => move.trim() !== '');
-
-		if (twistyAlgViewerLoaded && algMoveElements) {
-			// Show the AlgViewer and hide the HintButton
-			showAlgViewer = true;
-			showHintButton = false;
-			
-			if (globalState.trainHintAlgorithm === 'step') {
-				// "Reveal step-by-step"
-				// Hide all moves if hintCounter is 0
-				if (hintCounter === 0) {
-					algMoveElements.forEach((element: Element) => {
-						(element as HTMLElement).style.visibility = 'hidden';
-					});
-				}
-
-				// Show one move at a time
-				const maxViewerMoves = algMoveElements.length;
-				const maxMoves = Math.max(algList.length, maxViewerMoves);
-				if (hintCounter < maxMoves && algMoveElements[hintCounter]) {
-					(algMoveElements[hintCounter] as HTMLElement).style.visibility = 'visible';
-					hintCounter++;
-				}
-			} else if (globalState.trainHintAlgorithm === 'allAtOnce') {
-				// "Reveal all at once"
-				algMoveElements.forEach((element: Element) => {
-					(element as HTMLElement).style.visibility = 'visible';
-				});
-				hintCounter++;
-			}
-		} else {
-			// TwistyAlgViewer not loaded, continue to use HintButton
-			// The HintButton component will handle the display internally
-			showAlgViewer = false;
-			showHintButton = true;
-			hintCounter++;
-		}
-	}
-
-	function initializeHintDisplay() {
-		const algViewerElement = algViewerContainer?.querySelector('twisty-alg-viewer');
-		const algMoveElements = algViewerElement?.querySelectorAll('.twisty-alg-move');
-
-		if (twistyAlgViewerLoaded && algMoveElements) {
-			if (globalState.trainHintAlgorithm === 'always') {
-				// "Show all time" - make all moves visible
-				algMoveElements.forEach((element: Element) => {
-					(element as HTMLElement).style.visibility = 'visible';
-				});
-				showAlgViewer = true;
-				showHintButton = false;
-			} else {
-				// "step" or "allAtOnce" - hide all moves initially and show placeholder
-				algMoveElements.forEach((element: Element) => {
-					(element as HTMLElement).style.visibility = 'hidden';
-				});
-				showAlgViewer = false;
-				showHintButton = true;
-			}
-		} else {
-			// TwistyAlgViewer not loaded, use HintButton for display
-			showAlgViewer = false;
-			showHintButton = true;
-		}
+		hintManager.revealHint(
+			globalState.trainHintAlgorithm,
+			alg,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
 	}
 
 	function handleKeydown(event: KeyboardEvent) {
@@ -223,8 +151,8 @@
 		if (twistyAlgViewerLoaded && currentTrainCase) {
 			// Small delay to ensure AlgViewer is fully rendered
 			setTimeout(() => {
-				hintCounter = -1;
-				initializeHintDisplay();
+				hintManager.reset();
+				hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
 			}, 50);
 		}
 	});
@@ -252,7 +180,7 @@
 	<h2>Algorithm</h2>
 	<div 
 		bind:this={algViewerContainer} 
-		style:display={showAlgViewer ? 'block' : 'none'}
+		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
 		onclick={showHintAlg}
 		role="button"
 		tabindex="0"
@@ -261,8 +189,8 @@
 	></div>
 	<HintButton 
 		{alg} 
-		visible={showHintButton}
-		{hintCounter}
+		visible={hintManager.showHintButton}
+		hintCounter={hintManager.counter}
 		hintMode={globalState.trainHintAlgorithm}
 		onclick={showHintAlg}
 	/>
