@@ -1,3 +1,22 @@
+export function getNumberOfSelectedCasesFromSelections(
+	trainGroupSelection: Record<string, boolean>,
+	trainStateSelection: Record<string, boolean>
+): number {
+	let count = 0;
+	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
+		if (!trainGroupSelection[groupId]) continue;
+		const groupCaseStates = casesState[groupId];
+		for (const caseIdStr of Object.keys(groupCaseStates)) {
+			const caseId = Number(caseIdStr);
+			if (Number.isNaN(caseId)) continue;
+			const caseState = groupCaseStates[caseId];
+			const caseTrainState = caseState.trainState;
+			// Optionally, filter by side if needed (not present in original logic)
+			if (trainStateSelection[caseTrainState]) count++;
+		}
+	}
+	return count;
+}
 import { casesState } from './casesState.svelte';
 import { globalState } from './globalState.svelte';
 import TrainCase, { gernerateTrainCases } from './trainCases';

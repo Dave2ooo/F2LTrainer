@@ -2,18 +2,16 @@
 	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { STICKER_COLORS_WITH_RANDOM } from '$lib/types/stickering';
-	import { regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
+	import {
+		getNumberOfSelectedCasesFromSelections,
+		regenerateTrainCaseQueue
+	} from '$lib/trainCaseQueue.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 
-	let open = false;
+	let open = $state(false);
 
-	export function openModal() {
-		if (globalState.view === 'train') trainSettingsManager.saveTrainSettings();
-		open = true;
-	}
-
-	// Working copy for editing
-	let workingState = {
+	// Working copy for editing (reactive)
+	let workingState = $state({
 		crossColor: globalState.crossColor,
 		frontColor: globalState.frontColor,
 		trainStateSelection: { ...globalState.trainStateSelection },
@@ -23,7 +21,24 @@
 		trainHintShowCube: globalState.trainHintShowCube,
 		trainHintAlgorithm: globalState.trainHintAlgorithm,
 		trainHintStickering: globalState.trainHintStickering
-	};
+	});
+
+	export function openModal() {
+		if (globalState.view === 'train') trainSettingsManager.saveTrainSettings();
+		// Reset workingState when opening modal
+		workingState = {
+			crossColor: globalState.crossColor,
+			frontColor: globalState.frontColor,
+			trainStateSelection: { ...globalState.trainStateSelection },
+			trainGroupSelection: { ...globalState.trainGroupSelection },
+			trainSideSelection: { ...globalState.trainSideSelection },
+			trainAddAuf: globalState.trainAddAuf,
+			trainHintShowCube: globalState.trainHintShowCube,
+			trainHintAlgorithm: globalState.trainHintAlgorithm,
+			trainHintStickering: globalState.trainHintStickering
+		};
+		open = true;
+	}
 
 	function onConfirm() {
 		// Copy workingState back to globalState
@@ -44,6 +59,13 @@
 	function onCancel() {
 		open = false;
 	}
+
+	let numberOfSelectedCases = $derived(
+		getNumberOfSelectedCasesFromSelections(
+			workingState.trainGroupSelection,
+			workingState.trainStateSelection
+		)
+	);
 </script>
 
 <Modal bind:open title="Settings" size="md" outsideclose={true} autoclose={false}>
@@ -79,6 +101,8 @@
 						<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
 					</div>
 				</div>
+
+				<p>{numberOfSelectedCases} cases selected</p>
 
 				<!-- Side -->
 				<div class="mb-4">
