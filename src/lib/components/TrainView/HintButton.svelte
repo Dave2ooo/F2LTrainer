@@ -14,7 +14,7 @@
 	// Compute the displayed algorithm based on hint mode and counter
 	let displayedAlg = $derived.by(() => {
 		if (!visible) return '';
-		
+
 		if (hintMode === 'always') {
 			// Always show the full algorithm
 			return alg;
@@ -26,7 +26,7 @@
 			return alg;
 		} else if (hintMode === 'step') {
 			// Show step-by-step
-			const algList = alg.split(' ').filter(move => move.trim() !== '');
+			const algList = alg.split(' ').filter((move) => move.trim() !== '');
 			return algList.slice(0, hintCounter).join(' ');
 		}
 		return '';
@@ -38,17 +38,17 @@
 	// Parse the algorithm into individual moves for consistent display
 	let algMoves = $derived.by(() => {
 		if (!showAlgorithm) return [];
-		return displayedAlg.split(' ').filter(move => move.trim() !== '');
+		return displayedAlg.split(' ').filter((move) => move.trim() !== '');
 	});
 </script>
 
 {#if visible}
-	<div 
-		onclick={onclick}
+	<div
+		{onclick}
 		role="button"
 		tabindex="0"
 		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onclick()}
-		class="cursor-pointer rounded border border-gray-300 bg-white p-3 text-center shadow-sm transition-colors hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+		class="cursor-pointer rounded border border-gray-300 bg-white p-3 text-center shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
 	>
 		{#if showPlaceholder}
 			<span class="text-sm text-gray-500">Press to show hint</span>

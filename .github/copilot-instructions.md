@@ -18,6 +18,7 @@ F2LTrainer-Svelte is a web-based training application for learning F2L (First Tw
 ## Code Style & Formatting
 
 ### Prettier Configuration
+
 - **Indentation**: Tabs (not spaces)
 - **Quotes**: Single quotes
 - **Trailing Commas**: None
@@ -25,12 +26,14 @@ F2LTrainer-Svelte is a web-based training application for learning F2L (First Tw
 - **Plugins**: prettier-plugin-svelte, prettier-plugin-tailwindcss
 
 ### ESLint Rules
+
 - TypeScript recommended rules enabled
 - Svelte recommended rules enabled
 - `no-undef` rule disabled for TypeScript files (TypeScript handles this)
 - Browser and Node globals available
 
 ### Code Formatting Commands
+
 - Format code: `npm run format`
 - Check formatting: `npm run lint`
 - Type checking: `npm run check`
@@ -69,6 +72,7 @@ This project uses **Svelte 5 runes** for state management:
 - `.svelte.ts` files for shared state modules
 
 **Key State Files:**
+
 - `globalState.svelte.ts`: Application-wide settings and UI state
 - `casesState.svelte.ts`: F2L case states (unlearned, learning, finished)
 - `trainCaseQueue.svelte.ts`: Training session queue and progress
@@ -78,12 +82,14 @@ State is persisted to localStorage using utility functions in `utils/localStorag
 ## Development Workflow
 
 ### Setup
+
 ```bash
 npm install          # Install dependencies (requires Node.js >=22.3.0)
 npm run dev          # Start development server (http://localhost:5173)
 ```
 
 ### Build & Deploy
+
 ```bash
 npm run build        # Production build
 npm run preview      # Preview production build
@@ -91,16 +97,17 @@ npm run pages:prepare # Prepare for GitHub Pages deployment
 ```
 
 ### Testing
+
 - **Unit Tests**: Vitest with browser environment for Svelte component tests
   - Client tests: `src/**/*.svelte.{test,spec}.{js,ts}`
   - Server tests: `src/**/*.{test,spec}.{js,ts}` (excluding .svelte tests)
   - Run: `npm run test:unit`
-  
 - **E2E Tests**: Playwright tests in the `e2e/` directory
   - Run: `npm run test:e2e`
   - Full test suite: `npm test`
 
 ### Quality Checks
+
 ```bash
 npm run check        # Type check with svelte-check
 npm run lint         # Prettier + ESLint checks
@@ -110,25 +117,30 @@ npm run format       # Auto-format all files
 ## Key Architectural Patterns
 
 ### Svelte 5 Runes
+
 Always use Svelte 5 syntax and runes:
+
 - Use `$state()` instead of `let` for reactive variables
 - Use `$derived()` for computed values
 - Use `$effect()` for side effects
 - Use `$props()` for component props
 
 ### Component Structure
+
 - Use `<script lang="ts">` for TypeScript in components
 - Follow single-file component structure
 - Use Flowbite-Svelte components for UI consistency
 - Keep components focused and composable
 
 ### Type Safety
+
 - Define types in `src/lib/types/` directory
 - Use TypeScript strict mode
 - Avoid `any` types where possible
 - Export and reuse type definitions
 
 ### Naming Conventions
+
 - Components: PascalCase (e.g., `SelectView.svelte`)
 - Files: camelCase for utilities, PascalCase for components
 - State files: `*.svelte.ts` for shared state modules
@@ -137,6 +149,7 @@ Always use Svelte 5 syntax and runes:
 ## GitHub Pages Deployment
 
 The application is deployed to GitHub Pages with:
+
 - Base path: `/F2LTrainer-Svelte` (configured in `svelte.config.js`)
 - Adapter: `@sveltejs/adapter-auto` with SPA fallback
 - Deployment: Automated via GitHub Actions on push to `main`
@@ -144,16 +157,19 @@ The application is deployed to GitHub Pages with:
 ## Important Notes
 
 ### Dependencies
+
 - **Node.js Version**: The `cubing` library dependency requires Node.js >=22.3.0 or Bun >=1.2.7
 - While `package.json` doesn't specify an `engines` field, ensure you're using Node 22+ for development
 - GitHub Actions deployment workflow uses Node 22 (configured in `.github/workflows/deploy.yml`)
 
 ### Local Storage
+
 - User preferences and case states are stored in localStorage
 - Use utilities from `utils/localStorage.ts` for persistence
 - Handle cases where localStorage might not be available
 
 ### Cube Algorithms
+
 - Algorithms use standard cube notation
 - Support for AUF (Adjust U Face) additions
 - Algorithm mirroring for left/right cases
@@ -173,24 +189,28 @@ The application is deployed to GitHub Pages with:
 ## Common Tasks
 
 ### Adding a New F2L Case
+
 1. Add case definition to appropriate data file in `src/lib/data/`
 2. Update types if needed in `src/lib/types/`
 3. Add to case selection UI in `SelectView` components
 4. Test visualization with TwistyPlayer component
 
 ### Adding a New Component
+
 1. Create in appropriate subdirectory under `src/lib/components/`
 2. Use TypeScript with proper prop types
 3. Follow Flowbite-Svelte component patterns
 4. Add unit test in `*.svelte.spec.ts` file
 
 ### Modifying State
+
 1. Update state definition in appropriate `.svelte.ts` file
 2. Update TypeScript types in `src/lib/types/`
 3. Update localStorage persistence if needed
 4. Test state changes with unit tests
 
 ### Adding New Settings
+
 1. Update `GlobalState` type in `src/lib/types/globalState.ts`
 2. Add to default state in `globalState.svelte.ts`
 3. Add UI controls in Settings modal

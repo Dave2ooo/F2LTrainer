@@ -36,6 +36,17 @@ export const casesState: Record<GroupId, Record<CaseId, CaseState>> = $state(
 	createDefaultCasesState()
 );
 
+const validateAlgorithmSelection = (
+	selection: number | null,
+	algPoolLength: number
+): number | null => {
+	if (selection === null) return null;
+	if (typeof selection !== 'number') return 0;
+	if (selection < 0) return 0;
+	if (selection >= algPoolLength) return Math.max(0, algPoolLength - 1);
+	return selection;
+};
+
 const persistedCasesState = loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
 
 if (persistedCasesState) {
@@ -48,6 +59,18 @@ if (persistedCasesState) {
 			const persistedCase = persistedGroup[caseId];
 
 			if (!persistedCase) continue;
+
+			// Validate algorithm selection indices before assigning
+			const staticData = casesStatic[groupId][caseId];
+			const algPoolLength = staticData?.algPool?.length ?? 0;
+
+			if (persistedCase.algorithmSelection && algPoolLength > 0) {
+				const validated: AlgorithmSelection = {
+					left: validateAlgorithmSelection(persistedCase.algorithmSelection.left, algPoolLength),
+					right: validateAlgorithmSelection(persistedCase.algorithmSelection.right, algPoolLength)
+				};
+				persistedCase.algorithmSelection = validated;
+			}
 
 			Object.assign(caseState, persistedCase);
 		}
