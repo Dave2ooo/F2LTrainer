@@ -13,7 +13,7 @@
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { onMount, onDestroy } from 'svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
-	import { createClickDetector } from '$lib/utils/clickDetection';
+	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 
 	interface Props {
 		groupId: GroupId;
@@ -123,15 +123,8 @@
 	// Track whether the reset button should be visible
 	let showResetButton = $state(false);
 
-	// Create click detector instance for handling click vs drag
-	const clickDetector = createClickDetector();
-
 	// Store event listeners for cleanup
-	let eventListeners: Array<{
-		element: HTMLElement;
-		event: string;
-		handler: (event: Event) => void;
-	}> = [];
+	let cleanupClickHandlers: (() => void) | null = null;
 
 	export function getElement() {
 		return el as HTMLElement;
@@ -220,59 +213,9 @@
 					}
 
 					// Add click detection event listeners if onclick handler is provided
-					if (onclick && player.contentWrapper?.firstChild) {
-						const playerBody = player.contentWrapper.firstChild as HTMLElement;
-
-						// Create handler functions
-						const handleMouseDown = (event: MouseEvent) => {
-							clickDetector.onPointerDown(event);
-						};
-
-						const handleMouseUp = (event: MouseEvent) => {
-							if (clickDetector.onPointerUp(event)) {
-								onclick();
-							}
-						};
-
-						const handleTouchStart = (event: TouchEvent) => {
-							clickDetector.onPointerDown(event);
-						};
-
-						const handleTouchEnd = (event: TouchEvent) => {
-							if (clickDetector.onPointerUp(event)) {
-								onclick();
-							}
-						};
-
-						// Add event listeners
-						playerBody.addEventListener('mousedown', handleMouseDown);
-						playerBody.addEventListener('mouseup', handleMouseUp);
-						playerBody.addEventListener('touchstart', handleTouchStart);
-						playerBody.addEventListener('touchend', handleTouchEnd);
-
-						// Store for cleanup
-						eventListeners.push(
-							{
-								element: playerBody,
-								event: 'mousedown',
-								handler: handleMouseDown as (event: Event) => void
-							},
-							{
-								element: playerBody,
-								event: 'mouseup',
-								handler: handleMouseUp as (event: Event) => void
-							},
-							{
-								element: playerBody,
-								event: 'touchstart',
-								handler: handleTouchStart as (event: Event) => void
-							},
-							{
-								element: playerBody,
-								event: 'touchend',
-								handler: handleTouchEnd as (event: Event) => void
-							}
-						);
+					if (onclick) {
+						const { cleanup } = setupTwistyPlayerClickHandlers(player, onclick);
+						cleanupClickHandlers = cleanup;
 					}
 				} catch (e) {
 					console.warn('Could not set up camera position listener:', e);
@@ -283,10 +226,9 @@
 
 	// Cleanup event listeners when component is destroyed
 	onDestroy(() => {
-		for (const { element, event, handler } of eventListeners) {
-			element.removeEventListener(event, handler);
+		if (cleanupClickHandlers) {
+			cleanupClickHandlers();
 		}
-		eventListeners = [];
 	});
 </script>
 

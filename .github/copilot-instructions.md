@@ -4,6 +4,39 @@
 
 F2LTrainer-Svelte is a web-based training application for learning F2L (First Two Layers) algorithms for Rubik's cube solving. The application helps users practice and master various F2L cases through interactive training sessions.
 
+## Critical Rules
+
+### NO Unnecessary Refactoring
+
+**IMPORTANT**: When making changes to implement a feature or fix a bug:
+
+- **ONLY modify files directly related to the functional change**
+- **DO NOT reformat or refactor unrelated files**
+- **DO NOT apply code style changes to files that don't need functional modifications**
+- **DO NOT run formatters or linters on the entire codebase** - only on files you're actively changing
+- If a file is working and doesn't need functional changes, **leave it untouched**
+
+Examples of what NOT to do:
+
+- ❌ Reformatting algorithm or scramble data files when adding a UI feature
+- ❌ Changing whitespace or code style in files you're not functionally modifying
+- ❌ Refactoring utility functions when fixing an unrelated bug
+- ❌ Updating type definitions that don't need changes for your feature
+
+Examples of acceptable changes:
+
+- ✅ Adding a new prop to a component that needs the feature
+- ✅ Creating new utility functions for new functionality
+- ✅ Updating types when the feature requires new or modified types
+- ✅ Formatting **only** the lines you are adding or modifying
+
+### Keep Changes Minimal and Focused
+
+- Make the smallest possible change to achieve the goal
+- If adding a feature requires changes to 3 files, your PR should touch exactly 3 files (plus tests)
+- Before committing, review **every file** that was modified and ask: "Did this file need a functional change?"
+- If the answer is no, revert that file
+
 ## Technology Stack
 
 - **Framework**: SvelteKit with Svelte 5 (using Svelte 5 runes for reactivity)

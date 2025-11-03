@@ -7,9 +7,8 @@ Follow these steps to set up the project on a **fresh Windows 11** machine.
 Download and install the **LTS version** of Node.js from:  
 👉 [https://nodejs.org/en/download](https://nodejs.org/en/download)
 
-During installation, make sure to **check**
-
-> ✅ _“Automatically install necessary tools”_
+During installation, make sure to **check**  
+> ✅ *“Automatically install necessary tools”*
 
 This ensures required build tools are set up.
 
