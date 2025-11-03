@@ -9,6 +9,9 @@ interface Point {
 	y: number;
 }
 
+// Tolerance in pixels for click detection - allows for slight movement during a click
+const CLICK_TOLERANCE_PX = 5;
+
 /**
  * Creates a click detector that tracks mouse/touch coordinates to distinguish
  * between clicks and drags.
@@ -57,8 +60,11 @@ export function createClickDetector() {
 				endPoint = { x: touch.clientX, y: touch.clientY };
 			}
 
-			// Check if start and end points are the same
-			const isClick = startPoint.x === endPoint.x && startPoint.y === endPoint.y;
+			// Check if start and end points are within tolerance
+			const distance = Math.sqrt(
+				Math.pow(endPoint.x - startPoint.x, 2) + Math.pow(endPoint.y - startPoint.y, 2)
+			);
+			const isClick = distance <= CLICK_TOLERANCE_PX;
 
 			// Reset for next interaction
 			startPoint = null;

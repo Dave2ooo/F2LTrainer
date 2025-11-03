@@ -11,7 +11,7 @@
 	import type { StickerColor } from '$lib/types/stickering';
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { createClickDetector } from '$lib/utils/clickDetection';
 
@@ -126,6 +126,13 @@
 	// Create click detector instance for handling click vs drag
 	const clickDetector = createClickDetector();
 
+	// Store event listeners for cleanup
+	let eventListeners: Array<{
+		element: HTMLElement;
+		event: string;
+		handler: (event: Event) => void;
+	}> = [];
+
 	export function getElement() {
 		return el as HTMLElement;
 	}
@@ -214,33 +221,72 @@
 
 					// Add click detection event listeners if onclick handler is provided
 					if (onclick && player.contentWrapper?.firstChild) {
-						const playerBody = player.contentWrapper.firstChild;
+						const playerBody = player.contentWrapper.firstChild as HTMLElement;
 
-						playerBody.addEventListener('mousedown', (event: MouseEvent) => {
+						// Create handler functions
+						const handleMouseDown = (event: MouseEvent) => {
 							clickDetector.onPointerDown(event);
-						});
+						};
 
-						playerBody.addEventListener('mouseup', (event: MouseEvent) => {
+						const handleMouseUp = (event: MouseEvent) => {
 							if (clickDetector.onPointerUp(event)) {
 								onclick();
 							}
-						});
+						};
 
-						playerBody.addEventListener('touchstart', (event: TouchEvent) => {
+						const handleTouchStart = (event: TouchEvent) => {
 							clickDetector.onPointerDown(event);
-						});
+						};
 
-						playerBody.addEventListener('touchend', (event: TouchEvent) => {
+						const handleTouchEnd = (event: TouchEvent) => {
 							if (clickDetector.onPointerUp(event)) {
 								onclick();
 							}
-						});
+						};
+
+						// Add event listeners
+						playerBody.addEventListener('mousedown', handleMouseDown);
+						playerBody.addEventListener('mouseup', handleMouseUp);
+						playerBody.addEventListener('touchstart', handleTouchStart);
+						playerBody.addEventListener('touchend', handleTouchEnd);
+
+						// Store for cleanup
+						eventListeners.push(
+							{
+								element: playerBody,
+								event: 'mousedown',
+								handler: handleMouseDown as (event: Event) => void
+							},
+							{
+								element: playerBody,
+								event: 'mouseup',
+								handler: handleMouseUp as (event: Event) => void
+							},
+							{
+								element: playerBody,
+								event: 'touchstart',
+								handler: handleTouchStart as (event: Event) => void
+							},
+							{
+								element: playerBody,
+								event: 'touchend',
+								handler: handleTouchEnd as (event: Event) => void
+							}
+						);
 					}
 				} catch (e) {
 					console.warn('Could not set up camera position listener:', e);
 				}
 			}
 		}, TWISTY_PLAYER_INIT_DELAY);
+	});
+
+	// Cleanup event listeners when component is destroyed
+	onDestroy(() => {
+		for (const { element, event, handler } of eventListeners) {
+			element.removeEventListener(event, handler);
+		}
+		eventListeners = [];
 	});
 </script>
 
