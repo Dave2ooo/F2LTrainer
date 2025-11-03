@@ -11,8 +11,9 @@
 	import type { StickerColor } from '$lib/types/stickering';
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
-	import { onMount } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
+	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 
 	interface Props {
 		groupId: GroupId;
@@ -29,6 +30,7 @@
 		size?: number;
 		scramble?: string;
 		alg?: string;
+		onclick?: () => void;
 	}
 
 	let {
@@ -45,7 +47,8 @@
 		experimentalDragInput = 'none',
 		size = 25,
 		scramble = $bindable(''),
-		alg = $bindable('')
+		alg = $bindable(''),
+		onclick
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -119,6 +122,9 @@
 
 	// Track whether the reset button should be visible
 	let showResetButton = $state(false);
+
+	// Store event listeners for cleanup
+	let cleanupClickHandlers: (() => void) | null = null;
 
 	export function getElement() {
 		return el as HTMLElement;
@@ -205,11 +211,24 @@
 							}
 						);
 					}
+
+					// Add click detection event listeners if onclick handler is provided
+					if (onclick) {
+						const { cleanup } = setupTwistyPlayerClickHandlers(player, onclick);
+						cleanupClickHandlers = cleanup;
+					}
 				} catch (e) {
 					console.warn('Could not set up camera position listener:', e);
 				}
 			}
 		}, TWISTY_PLAYER_INIT_DELAY);
+	});
+
+	// Cleanup event listeners when component is destroyed
+	onDestroy(() => {
+		if (cleanupClickHandlers) {
+			cleanupClickHandlers();
+		}
 	});
 </script>
 

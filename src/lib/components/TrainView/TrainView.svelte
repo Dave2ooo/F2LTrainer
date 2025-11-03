@@ -211,6 +211,7 @@
 		experimentalDragInput="auto"
 		size={80}
 		controlPanel="bottom-row"
+		onclick={onNext}
 	/>
 	<Select
 		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
