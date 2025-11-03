@@ -13,6 +13,7 @@
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { onMount } from 'svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
+	import { createClickDetector } from '$lib/utils/clickDetection';
 
 	interface Props {
 		groupId: GroupId;
@@ -29,6 +30,7 @@
 		size?: number;
 		scramble?: string;
 		alg?: string;
+		onclick?: () => void;
 	}
 
 	let {
@@ -45,7 +47,8 @@
 		experimentalDragInput = 'none',
 		size = 25,
 		scramble = $bindable(''),
-		alg = $bindable('')
+		alg = $bindable(''),
+		onclick
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -119,6 +122,9 @@
 
 	// Track whether the reset button should be visible
 	let showResetButton = $state(false);
+
+	// Create click detector instance for handling click vs drag
+	const clickDetector = createClickDetector();
 
 	export function getElement() {
 		return el as HTMLElement;
@@ -204,6 +210,31 @@
 								showResetButton = !isAtDefaultPosition;
 							}
 						);
+					}
+
+					// Add click detection event listeners if onclick handler is provided
+					if (onclick && player.contentWrapper?.firstChild) {
+						const playerBody = player.contentWrapper.firstChild;
+
+						playerBody.addEventListener('mousedown', (event: MouseEvent) => {
+							clickDetector.onPointerDown(event);
+						});
+
+						playerBody.addEventListener('mouseup', (event: MouseEvent) => {
+							if (clickDetector.onPointerUp(event)) {
+								onclick();
+							}
+						});
+
+						playerBody.addEventListener('touchstart', (event: TouchEvent) => {
+							clickDetector.onPointerDown(event);
+						});
+
+						playerBody.addEventListener('touchend', (event: TouchEvent) => {
+							if (clickDetector.onPointerUp(event)) {
+								onclick();
+							}
+						});
 					}
 				} catch (e) {
 					console.warn('Could not set up camera position listener:', e);
