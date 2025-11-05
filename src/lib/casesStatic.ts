@@ -1,7 +1,6 @@
 import { GROUP_ALGORITHMS, GROUP_SCRAMBLES } from './data';
 import type { CaseStatic } from './types/casesStatic';
 import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from './types/group';
-import type { StickerHidden } from './types/stickering';
 
 const collectCaseIds = (groupId: GroupId): number[] => {
 	const definition = GROUP_DEFINITIONS[groupId];

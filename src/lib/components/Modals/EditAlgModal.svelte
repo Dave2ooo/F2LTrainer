@@ -3,19 +3,16 @@
 	import { Modal, Checkbox, Button } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import ToggleSwitch from '../ToggleSwitch.svelte';
-	import { casesState, getCaseAlg } from '$lib/casesState.svelte';
+	import { casesState } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { globalState } from '$lib/globalState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
-	import getStickeringString from '$lib/stickering';
-	import { mirrorAlg } from '$lib/utils/mirrorAlg';
-	import getRotationAlg from '$lib/rotation';
 	import EditAlgListGroup from './EditAlgListGroup.svelte';
 	import type { Side } from '$lib/types/Side';
 	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
 
-	let twistyPlayerRightRef: any;
-	let twistyPlayerLeftRef: any;
+	let twistyPlayerRightRef: any = $state();
+	let twistyPlayerLeftRef: any = $state();
 
 	// Track pending timeouts so we can clear them if a new animation is requested
 	let animationTimeouts: { left?: any; right?: any } = {};

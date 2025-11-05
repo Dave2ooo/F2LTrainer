@@ -1,4 +1,3 @@
-import type { GroupId } from './group';
 
 export type TrainState = 'unlearned' | 'learning' | 'finished';
 export const TRAIN_STATES: readonly TrainState[] = ['unlearned', 'learning', 'finished'];

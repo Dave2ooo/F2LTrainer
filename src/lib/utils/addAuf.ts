@@ -1,5 +1,4 @@
 import { AUF, type Auf } from '$lib/types/trainCase';
-import { mirrorAlg } from './mirrorAlg';
 
 const DUPLICATES: Record<Auf, Record<Auf, Auf>> = {
 	U: { '': 'U', U: 'U2', U2: "U'", "U'": '' },

@@ -1,4 +1,3 @@
-import { mirrorAlg } from './utils/mirrorAlg';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import {
 	OPPOSITE_COLOR,
@@ -8,11 +7,10 @@ import {
 	type StickerHidden
 } from './types/stickering';
 import { casesStatic } from './casesStatic';
-import { casesState, getCaseAlg, getCaseScramblePool } from './casesState.svelte';
+import { casesState, getCaseScramblePool } from './casesState.svelte';
 import type { Side } from '$lib/types/Side';
 import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
-import { addAuf } from './utils/addAuf';
 import shuffleArray from './utils/shuffleArray';
 
 export function gernerateTrainCases(): TrainCase[] {

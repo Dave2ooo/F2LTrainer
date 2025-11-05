@@ -14,7 +14,6 @@
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
-	import getStickeringString from '$lib/stickering';
 	import { casesStatic } from '$lib/casesStatic';
 	import HintButton from './HintButton.svelte';
 	import { globalState } from '$lib/globalState.svelte';
@@ -31,7 +30,7 @@
 
 	let scramble = $state('');
 	let alg = $state('');
-	
+
 	// Create hint manager instance
 	const hintManager = createHintManager();
 
@@ -62,7 +61,11 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+		hintManager.initialize(
+			globalState.trainHintAlgorithm,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
 	}
 
 	async function onPrevious() {
@@ -70,7 +73,11 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+		hintManager.initialize(
+			globalState.trainHintAlgorithm,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
 	}
 
 	function showHintAlg() {
@@ -147,12 +154,16 @@
 		// Track dependencies
 		void twistyAlgViewerLoaded;
 		void currentTrainCase;
-		
+
 		if (twistyAlgViewerLoaded && currentTrainCase) {
 			// Small delay to ensure AlgViewer is fully rendered
 			setTimeout(() => {
 				hintManager.reset();
-				hintManager.initialize(globalState.trainHintAlgorithm, twistyAlgViewerLoaded, algViewerContainer);
+				hintManager.initialize(
+					globalState.trainHintAlgorithm,
+					twistyAlgViewerLoaded,
+					algViewerContainer
+				);
 			}, 50);
 		}
 	});
@@ -178,8 +189,8 @@
 	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
 	<span>{scramble}</span>
 	<h2>Algorithm</h2>
-	<div 
-		bind:this={algViewerContainer} 
+	<div
+		bind:this={algViewerContainer}
 		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
 		onclick={showHintAlg}
 		role="button"
@@ -187,8 +198,8 @@
 		onkeydown={(e) => e.key === 'Enter' && showHintAlg()}
 		class="cursor-pointer"
 	></div>
-	<HintButton 
-		{alg} 
+	<HintButton
+		{alg}
 		visible={hintManager.showHintButton}
 		hintCounter={hintManager.counter}
 		hintMode={globalState.trainHintAlgorithm}

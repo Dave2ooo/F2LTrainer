@@ -1,13 +1,10 @@
 <script lang="ts">
 	import TwistyPlayer from '$lib/components/TwistyPlayer.svelte';
 	import { casesStatic } from '$lib/casesStatic';
-	import { casesState, getCaseAlg, getCaseName, TrainStateColors } from '$lib/casesState.svelte';
+	import { casesState, getCaseName, TrainStateColors } from '$lib/casesState.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import getRotationAlg from '$lib/rotation';
-	import getStickeringString from '$lib/stickering';
 	import type { CaseId, GroupId } from '$lib/types/group';
-	import { Button, Sidebar } from 'flowbite-svelte';
-	import { mirrorAlg } from '$lib/utils/mirrorAlg';
+	import { Button } from 'flowbite-svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';

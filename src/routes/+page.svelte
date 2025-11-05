@@ -1,6 +1,5 @@
 <script lang="ts">
-	import { Button, Heading, Dropdown, DropdownItem, Modal } from 'flowbite-svelte';
-	import { ChevronDownOutline } from 'flowbite-svelte-icons';
+	import { Button, Heading } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
