@@ -1,3 +1,4 @@
+<!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
 	import { Button, Heading } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
