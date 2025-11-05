@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
-	import { Modal, Tabs, TabItem, Checkbox, Button } from 'flowbite-svelte';
+	import { Modal, Checkbox, Button } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
+	import ToggleSwitch from '../ToggleSwitch.svelte';
 	import { casesState, getCaseAlg } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { globalState } from '$lib/globalState.svelte';
@@ -149,55 +150,56 @@
 		}}
 	>
 		<Checkbox bind:checked={globalState.playOnAlgChange}>Autoplay when changing Algorithm</Checkbox>
-		<Tabs bind:selected={selectedTab} tabStyle="underline">
-			<TabItem key="left" title="Left">
-				<TwistyPlayer
-					bind:this={twistyPlayerLeftRef}
-					{groupId}
-					{caseId}
-					algorithmSelection={workingState.algorithmSelection}
-					customAlgorithm={workingState.customAlgorithm}
-					side="left"
-					{crossColor}
-					{frontColor}
-					{controlPanel}
-					{experimentalDragInput}
-				/>
-				<EditAlgListGroup
-					{groupId}
-					{caseId}
-					side="left"
-					algorithmSelectionInitial={workingState.algorithmSelection}
-					customAlgInitial={workingState.customAlgorithm}
-					{onSelectionChange}
-					{onCustomAlgChange}
-				/>
-			</TabItem>
 
-			<TabItem key="right" title="Right">
-				<TwistyPlayer
-					bind:this={twistyPlayerRightRef}
-					{groupId}
-					{caseId}
-					algorithmSelection={workingState.algorithmSelection}
-					customAlgorithm={workingState.customAlgorithm}
-					side="right"
-					{crossColor}
-					{frontColor}
-					{controlPanel}
-					{experimentalDragInput}
-				/>
-				<EditAlgListGroup
-					{groupId}
-					{caseId}
-					side="right"
-					algorithmSelectionInitial={workingState.algorithmSelection}
-					customAlgInitial={workingState.customAlgorithm}
-					{onSelectionChange}
-					{onCustomAlgChange}
-				/>
-			</TabItem>
-		</Tabs>
+		<div class="my-4 flex justify-center">
+			<ToggleSwitch bind:selected={selectedTab} leftLabel="Left" rightLabel="Right" />
+		</div>
+
+		{#if selectedTab === 'left'}
+			<TwistyPlayer
+				bind:this={twistyPlayerLeftRef}
+				{groupId}
+				{caseId}
+				algorithmSelection={workingState.algorithmSelection}
+				customAlgorithm={workingState.customAlgorithm}
+				side="left"
+				{crossColor}
+				{frontColor}
+				{controlPanel}
+				{experimentalDragInput}
+			/>
+			<EditAlgListGroup
+				{groupId}
+				{caseId}
+				side="left"
+				algorithmSelectionInitial={workingState.algorithmSelection}
+				customAlgInitial={workingState.customAlgorithm}
+				{onSelectionChange}
+				{onCustomAlgChange}
+			/>
+		{:else}
+			<TwistyPlayer
+				bind:this={twistyPlayerRightRef}
+				{groupId}
+				{caseId}
+				algorithmSelection={workingState.algorithmSelection}
+				customAlgorithm={workingState.customAlgorithm}
+				side="right"
+				{crossColor}
+				{frontColor}
+				{controlPanel}
+				{experimentalDragInput}
+			/>
+			<EditAlgListGroup
+				{groupId}
+				{caseId}
+				side="right"
+				algorithmSelectionInitial={workingState.algorithmSelection}
+				customAlgInitial={workingState.customAlgorithm}
+				{onSelectionChange}
+				{onCustomAlgChange}
+			/>
+		{/if}
 		<Checkbox bind:checked={workingState.identicalAlgorithm}
 			>Same Algorithm for Left and Right slot (mirrored)</Checkbox
 		>
