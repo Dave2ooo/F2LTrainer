@@ -13,7 +13,7 @@
 </script>
 
 <div class="switch-container">
-	<div class="switch">
+	<div class="switch" role="radiogroup" aria-label="Select side">
 		<input
 			type="radio"
 			id="switch-left"
@@ -21,6 +21,7 @@
 			value="left"
 			checked={selected === 'left'}
 			onchange={() => handleChange('left')}
+			aria-label="Left side"
 		/>
 		<label for="switch-left">{leftLabel}</label>
 		<input
@@ -30,6 +31,7 @@
 			value="right"
 			checked={selected === 'right'}
 			onchange={() => handleChange('right')}
+			aria-label="Right side"
 		/>
 		<label for="switch-right">{rightLabel}</label>
 		<div class="indicator" class:right={selected === 'right'}></div>
@@ -51,7 +53,6 @@
 		overflow: hidden;
 		align-items: center;
 		justify-content: space-around;
-		position: relative;
 	}
 
 	.switch input {
@@ -66,20 +67,20 @@
 		cursor: pointer;
 		position: relative;
 		z-index: 1;
-		color: #777;
+		color: rgb(119 119 119 / 1);
 		transition: color 0.3s ease;
 	}
 
 	.switch input:checked + label {
-		color: #000;
+		color: rgb(0 0 0 / 1);
 	}
 
 	:global(.dark) .switch input:checked + label {
-		color: #fff;
+		color: rgb(255 255 255 / 1);
 	}
 
 	:global(.dark) .switch label {
-		color: #aaa;
+		color: rgb(170 170 170 / 1);
 	}
 
 	.indicator {
@@ -87,13 +88,13 @@
 		bottom: 0;
 		height: 4px;
 		width: 50%;
-		background-color: #000;
+		background-color: rgb(0 0 0 / 1);
 		transition: transform 0.15s;
 		left: 0;
 	}
 
 	:global(.dark) .indicator {
-		background-color: #fff;
+		background-color: rgb(255 255 255 / 1);
 	}
 
 	.indicator.right {
