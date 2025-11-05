@@ -39,38 +39,52 @@
 	const allFinished = $derived(counts.finishedCount === totalCases);
 </script>
 
-<div class="flex gap-1">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+	class="flex items-center gap-1"
+	onclick={(e) => e.stopPropagation()}
+	onkeydown={(e) => e.stopPropagation()}
+>
 	<button
 		type="button"
-		class="border border-gray-300 dark:border-gray-600"
+		class="border-black-300 rounded border-5 dark:border-gray-600"
 		class:w-6={!allUnlearned}
 		class:h-6={!allUnlearned}
 		class:w-8={allUnlearned}
 		class:h-8={allUnlearned}
 		style="background-color: {TrainStateColors.unlearned}"
-		onclick={() => setCategoryState('unlearned')}
+		onclick={(e) => {
+			e.stopPropagation();
+			setCategoryState('unlearned');
+		}}
 		aria-label="Set all cases to unlearned"
 	></button>
 	<button
 		type="button"
-		class="border border-gray-300 dark:border-gray-600"
+		class="rounded"
 		class:w-6={!allLearning}
 		class:h-6={!allLearning}
 		class:w-8={allLearning}
 		class:h-8={allLearning}
 		style="background-color: {TrainStateColors.learning}"
-		onclick={() => setCategoryState('learning')}
+		onclick={(e) => {
+			e.stopPropagation();
+			setCategoryState('learning');
+		}}
 		aria-label="Set all cases to learning"
 	></button>
 	<button
 		type="button"
-		class="border border-gray-300 dark:border-gray-600"
+		class="rounded"
 		class:w-6={!allFinished}
 		class:h-6={!allFinished}
 		class:w-8={allFinished}
 		class:h-8={allFinished}
 		style="background-color: {TrainStateColors.finished}"
-		onclick={() => setCategoryState('finished')}
+		onclick={(e) => {
+			e.stopPropagation();
+			setCategoryState('finished');
+		}}
 		aria-label="Set all cases to finished"
 	></button>
 </div>
