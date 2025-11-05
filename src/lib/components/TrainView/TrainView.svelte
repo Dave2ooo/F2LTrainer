@@ -219,6 +219,7 @@
 		side={currentTrainCase.side}
 		crossColor={currentTrainCase.crossColor}
 		frontColor={currentTrainCase.frontColor}
+		stickering={globalState.trainHintStickering}
 		experimentalDragInput="auto"
 		size={80}
 		controlPanel="bottom-row"

@@ -4,6 +4,8 @@ export const STICKER_COLORS_WITH_RANDOM = [...STICKER_COLORS, 'random'] as const
 
 export type StickerHidden = 'fr' | 'fl' | 'br' | 'bl' | undefined;
 
+// export const DEFAULT_STICKERING_STRING = 'EDGES:------------,CORNERS:--------,CENTERS:------';
+
 export const OPPOSITE_COLOR = {
 	yellow: 'white',
 	white: 'yellow',
