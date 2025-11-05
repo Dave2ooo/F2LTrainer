@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
 	import CategoryComponent from '$lib/components/SelectView/CategoryComponent.svelte';
+	import CategoryStateButtons from '$lib/components/SelectView/CategoryStateButtons.svelte';
 	import { Accordion, AccordionItem } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 
@@ -19,7 +20,10 @@
 	{#each categories as category, categoryIndex}
 		<AccordionItem bind:open={categoriesOpenedArr[categoryIndex]}>
 			{#snippet header()}
-				{category.name}
+				<div class="flex items-center gap-2">
+					<span>{category.name}</span>
+					<CategoryStateButtons {groupId} categoryCases={category.cases} />
+				</div>
 			{/snippet}
 			<CategoryComponent {groupId} {categoryIndex} />
 		</AccordionItem>
