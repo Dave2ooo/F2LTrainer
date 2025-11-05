@@ -12,7 +12,7 @@
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { onMount, onDestroy } from 'svelte';
-	import { RefreshOutline } from 'flowbite-svelte-icons';
+	import { RotateCw } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 
@@ -266,7 +266,7 @@
 			title="Reset View"
 			aria-label="Reset camera view"
 		>
-			<RefreshOutline class="h-4 w-4" />
+			<RotateCw class="h-4 w-4" />
 		</button>
 	{/if}
 </div>

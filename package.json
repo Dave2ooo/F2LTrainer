@@ -75,6 +75,7 @@
 		"svelte"
 	],
 	"dependencies": {
+		"@lucide/svelte": "^0.552.0",
 		"cubing": "^0.58.2",
 		"flowbite-svelte-blocks": "^2.1.0"
 	}
