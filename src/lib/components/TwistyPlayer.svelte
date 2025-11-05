@@ -14,6 +14,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { RefreshOutline } from 'flowbite-svelte-icons';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
+	import type { HintStickering } from '$lib/types/globalState';
 
 	interface Props {
 		groupId: GroupId;
@@ -25,6 +26,7 @@
 		side: Side;
 		crossColor: StickerColor;
 		frontColor: StickerColor;
+		stickering?: HintStickering;
 		controlPanel?: 'bottom-row' | 'none';
 		experimentalDragInput?: 'auto' | 'none';
 		size?: number;
@@ -43,6 +45,7 @@
 		side,
 		crossColor = 'white',
 		frontColor = 'red',
+		stickering = 'f2l',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
 		size = 25,
@@ -117,7 +120,9 @@
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
 	let stickeringString = $derived(
-		getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
+		stickering === 'f2l'
+			? getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
+			: undefined
 	);
 
 	// Track whether the reset button should be visible
