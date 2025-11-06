@@ -33,14 +33,7 @@
 </script>
 
 {#if toastStatus}
-	<Toast
-		position="bottom-right"
-		dismissable={true}
-		transition={slide}
-		bind:toastStatus
-		{color}
-		class="fixed right-4 bottom-4 z-50"
-	>
+	<Toast dismissable={true} transition={slide} bind:toastStatus {color}>
 		{#snippet icon()}
 			{#if type === 'success'}
 				<CheckCircleSolid class="h-5 w-5" />

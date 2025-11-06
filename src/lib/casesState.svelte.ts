@@ -142,3 +142,9 @@ export const TrainStateTextColors: Record<TrainState, string> = {
 	learning: 'black',
 	finished: 'black'
 };
+
+export const TrainStateLabels: Record<TrainState, string> = {
+	unlearned: 'Unlearned',
+	learning: 'Learning',
+	finished: 'Finished'
+};
