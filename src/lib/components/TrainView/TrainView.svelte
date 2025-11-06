@@ -207,7 +207,7 @@
 		frontColor={currentTrainCase.frontColor}
 		stickering={globalState.trainHintStickering}
 		experimentalDragInput="auto"
-		size={80}
+		size={250}
 		controlPanel="bottom-row"
 		onclick={onNext}
 	/>

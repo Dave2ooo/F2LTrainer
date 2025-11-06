@@ -48,7 +48,7 @@
 		stickering = 'f2l',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
-		size = 25,
+		size = 150,
 		scramble = $bindable(''),
 		alg = $bindable(''),
 		onclick
@@ -57,6 +57,11 @@
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
 	let isPlayerInitialized = $state(false);
+
+	// Compute width/height based on size and control panel configuration
+	const aspectRatio = $derived(controlPanel === 'bottom-row' ? 1.15 : 1);
+	const computedWidth = $derived(size);
+	const computedHeight = $derived(size * aspectRatio);
 
 	const staticData = $derived(casesStatic[groupId][caseId]);
 	const caseState = $derived(casesState[groupId][caseId]);
@@ -243,7 +248,9 @@
 -->
 <div class="relative">
 	<twisty-player
-		class="size-{size} aspect-[0.9]"
+		class="border-2 border-red-500"
+		style:width={`${computedWidth}px`}
+		style:height={`${computedHeight}px`}
 		bind:this={el}
 		puzzle="3x3x3"
 		{alg}
@@ -256,6 +263,7 @@
 		background="none"
 		hint-facelets="none"
 		viewer-link="none"
+		camera-distance="4.7"
 	></twisty-player>
 
 	{#if showResetButton}

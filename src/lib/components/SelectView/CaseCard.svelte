@@ -123,7 +123,7 @@
 		{side}
 		{crossColor}
 		{frontColor}
-		controlPanel="bottom-row"
+		controlPanel="none"
 	/>
 	<span> {alg} </span>
 	<div class="flex flex-col gap-1">
