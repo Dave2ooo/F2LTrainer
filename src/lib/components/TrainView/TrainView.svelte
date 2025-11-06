@@ -18,6 +18,7 @@
 	import HintButton from './HintButton.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { createHintManager } from '$lib/utils/hintManager.svelte';
+	import { ArrowLeft, ArrowRight } from '@lucide/svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -186,28 +187,13 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if currentTrainCase}
-	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
-	<span>{scramble}</span>
-	<h2>Algorithm</h2>
-	<div
-		bind:this={algViewerContainer}
-		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
-		onclick={showHintAlg}
-		role="button"
-		tabindex="0"
-		onkeydown={(e) => e.key === 'Enter' && showHintAlg()}
-		class="cursor-pointer"
-	></div>
-	<HintButton
-		{alg}
-		visible={hintManager.showHintButton}
-		hintCounter={hintManager.counter}
-		hintMode={globalState.trainHintAlgorithm}
-		onclick={showHintAlg}
-	/>
-
-	<Button onclick={onPrevious}>Previous</Button>
-	<Button onclick={onNext}>Next</Button>
+	<div class="my-4 flex items-center justify-center gap-4">
+		<Button onclick={onPrevious}><ArrowLeft /></Button>
+		<div class="min-w-48 text-center font-mono text-lg font-semibold">
+			{scramble}
+		</div>
+		<Button onclick={onNext}><ArrowRight /></Button>
+	</div>
 
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
@@ -225,6 +211,24 @@
 		controlPanel="bottom-row"
 		onclick={onNext}
 	/>
+
+	<div
+		bind:this={algViewerContainer}
+		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
+		onclick={showHintAlg}
+		role="button"
+		tabindex="0"
+		onkeydown={(e) => e.key === 'Enter' && showHintAlg()}
+		class="cursor-pointer"
+	></div>
+	<HintButton
+		{alg}
+		visible={hintManager.showHintButton}
+		hintCounter={hintManager.counter}
+		hintMode={globalState.trainHintAlgorithm}
+		onclick={showHintAlg}
+	/>
+
 	<Select
 		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
 		style="background: {TrainStateColors[currentTrainCaseTrainState]}; color: {TrainStateTextColors[
@@ -258,6 +262,8 @@
 		caseId={currentTrainCase.caseId}
 		side={currentTrainCase.side}
 	/>
+
+	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
 {:else}
 	<P>No training cases available. Please select some cases first.</P>
 {/if}
