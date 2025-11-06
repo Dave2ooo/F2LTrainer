@@ -165,6 +165,7 @@
 				{frontColor}
 				{controlPanel}
 				{experimentalDragInput}
+				size={250}
 			/>
 			<EditAlgListGroup
 				{groupId}
@@ -187,6 +188,7 @@
 				{frontColor}
 				{controlPanel}
 				{experimentalDragInput}
+				size={250}
 			/>
 			<EditAlgListGroup
 				{groupId}
