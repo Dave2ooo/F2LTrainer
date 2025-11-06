@@ -1,3 +1,5 @@
+export const DEFAULT_TOAST_DURATION = 3000;
+
 export interface ToastNotification {
 	id: number;
 	message: string;
@@ -14,7 +16,7 @@ export const toastState = $state<{ notifications: ToastNotification[] }>({
 export function addToast(
 	message: string,
 	type: 'success' | 'error' = 'success',
-	duration: number = 3000
+	duration: number = DEFAULT_TOAST_DURATION
 ) {
 	const id = nextId++;
 	const toast: ToastNotification = { id, message, type, duration };

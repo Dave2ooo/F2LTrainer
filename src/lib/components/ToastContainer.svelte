@@ -1,6 +1,11 @@
 <script lang="ts">
 	import Toast from './Toast.svelte';
-	import { toastState, removeToast, addToast } from '$lib/toastState.svelte';
+	import {
+		toastState,
+		removeToast,
+		addToast,
+		DEFAULT_TOAST_DURATION
+	} from '$lib/toastState.svelte';
 	import { casesState, TrainStateLabels, getCaseName } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { GROUP_IDS } from '$lib/types/group';
@@ -8,16 +13,6 @@
 
 	// Track previous trainState values to detect changes
 	const previousTrainStates = $state(new Map<string, string>());
-
-	// Initialize tracking with current states
-	if (browser) {
-		for (const groupId of GROUP_IDS) {
-			for (const [caseIdStr, caseState] of Object.entries(casesState[groupId])) {
-				const key = `${groupId}-${caseIdStr}`;
-				previousTrainStates.set(key, caseState.trainState);
-			}
-		}
-	}
 
 	// Watch for trainState changes using $effect
 	if (browser) {
@@ -28,19 +23,28 @@
 					const currentState = caseState.trainState;
 					const previousState = previousTrainStates.get(key);
 
-					// If state changed, show a toast
-					if (previousState !== undefined && previousState !== currentState) {
-						const caseId = Number(caseIdStr);
-						const staticData = casesStatic[groupId][caseId];
-						const caseName = getCaseName(staticData);
-						const stateLabel = TrainStateLabels[currentState];
-
-						const message = `${caseName} → ${stateLabel}`;
-
-						addToast(message, 'success', 3000);
-
-						// Update tracking
+					// Initialize tracking on first run
+					if (previousState === undefined) {
 						previousTrainStates.set(key, currentState);
+						continue;
+					}
+
+					// If state changed, show a toast
+					if (previousState !== currentState) {
+						const caseId = Number(caseIdStr);
+						const staticData = casesStatic[groupId]?.[caseId];
+
+						// Check if staticData exists before using it
+						if (staticData) {
+							const caseName = getCaseName(staticData);
+							const stateLabel = TrainStateLabels[currentState];
+							const message = `${caseName} → ${stateLabel}`;
+
+							addToast(message, 'success', DEFAULT_TOAST_DURATION);
+
+							// Update tracking
+							previousTrainStates.set(key, currentState);
+						}
 					}
 				}
 			}
