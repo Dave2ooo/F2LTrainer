@@ -7,6 +7,7 @@
 		regenerateTrainCaseQueue
 	} from '$lib/trainCaseQueue.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
+	import Update from './Buttons/Update.svelte';
 
 	let open = $state(false);
 
@@ -188,10 +189,8 @@
 		</div>
 
 		<!-- <svelte:fragment slot="footer"> -->
-		<div class="flex w-full justify-end gap-3">
-			<Button type="button" color="alternative" outline onclick={onCancel}>Cancel</Button>
-			<Button type="submit">Update</Button>
-		</div>
+		<Update {onCancel} />
+		<!-- </svelte:fragment> -->
 	</form>
 </Modal>
 

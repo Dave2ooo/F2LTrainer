@@ -2,6 +2,7 @@
 	import { Button, Input, Label, Modal, Textarea } from 'flowbite-svelte';
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';
+	import Send from './Buttons/Send.svelte';
 
 	const FEEDBACK_STORAGE_KEY = 'feedback-form-data';
 
@@ -150,13 +151,10 @@
 			</div>
 		</div>
 
-		<div class="mt-6 flex w-full justify-end gap-3">
-			<Button type="button" color="gray" outline onclick={onCancel} disabled={isSubmitting}>
-				Cancel
-			</Button>
-			<Button type="submit" disabled={isSubmitting}>
-				{isSubmitting ? 'Sending...' : 'Send Feedback'}
-			</Button>
-		</div>
+		<Send
+			{onCancel}
+			disabled={isSubmitting}
+			submitText={isSubmitting ? 'Sending...' : 'Send Feedback'}
+		/>
 	</form>
 </Modal>

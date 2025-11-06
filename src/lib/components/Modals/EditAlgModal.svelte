@@ -10,7 +10,7 @@
 	import EditAlgListGroup from './EditAlgListGroup.svelte';
 	import type { Side } from '$lib/types/Side';
 	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
-	import ButtonsModal from './ButtonsModal.svelte';
+	import Update from './Buttons/Update.svelte';
 
 	let twistyPlayerRightRef: any = $state();
 	let twistyPlayerLeftRef: any = $state();
@@ -202,6 +202,6 @@
 			>Same Algorithm for Left and Right slot (mirrored)</Checkbox
 		>
 
-		<ButtonsModal {onCancel} />
+		<Update {onCancel} />
 	</form>
 </Modal>
