@@ -193,9 +193,11 @@ export function exportToURL(): string {
 		// Encode to Base62
 		const base62String = encodeBase3ToBase62(trainStateString);
 
-		// Add to URL parameters
+		// Add to URL parameters only if non-zero (omit groups with all zeros)
 		const identifier = TRAIN_STATE_IDENTIFIER[groupId];
-		urlParams.set(identifier, base62String);
+		if (base62String !== '0') {
+			urlParams.set(identifier, base62String);
+		}
 
 		// Export algorithm selections (only non-default values)
 		const algorithmSelections: string[] = [];
