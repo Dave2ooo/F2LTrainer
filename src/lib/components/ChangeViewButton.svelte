@@ -17,3 +17,8 @@
 <Button onclick={onToggleView} class="fixed right-4 bottom-4 z-50">
 	{buttonText}
 </Button>
+
+<!-- Spacer to allow scrolling past the fixed button; matches button height -->
+<Button aria-hidden="true" tabindex={-1} class="pointer-events-none invisible select-none">
+	{buttonText}
+</Button>
