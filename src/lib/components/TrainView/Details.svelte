@@ -3,8 +3,7 @@
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
-
-	let showDetails = $state(false);
+	import { globalState } from '$lib/globalState.svelte';
 
 	let currentTrainCase = $derived(trainState.current);
 	let caseState = $derived(
@@ -28,11 +27,11 @@
 </script>
 
 {#if currentTrainCase && caseState}
-	<Button onclick={() => (showDetails = !showDetails)}>
-		{showDetails ? 'Hide Details' : 'Show Details'}
+	<Button onclick={() => (globalState.showDetails = !globalState.showDetails)}>
+		{globalState.showDetails ? 'Hide Details' : 'Show Details'}
 	</Button>
 
-	{#if showDetails}
+	{#if globalState.showDetails}
 		<P size="lg" weight="semibold">
 			{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
 			{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {caseState.solveCount}

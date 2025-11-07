@@ -22,4 +22,5 @@ export interface GlobalState {
 	trainHintAlgorithm: HintAlgorithm;
 	trainHintStickering: HintStickering;
 	playOnAlgChange: boolean;
+	showDetails: boolean;
 }
