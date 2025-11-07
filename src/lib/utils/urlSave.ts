@@ -18,6 +18,13 @@ const TRAIN_STATE_IDENTIFIER: Readonly<Record<GroupId, string>> = {
 	expert: 'se'
 };
 
+const ALGORITHM_SELECTION_IDENTIFIER: Readonly<Record<GroupId, string>> = {
+	basic: 'ab',
+	basicBack: 'abb',
+	advanced: 'aa',
+	expert: 'ae'
+};
+
 const BASE = 62;
 const BASE62_CHARSET = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -106,6 +113,32 @@ export function exportToURL(): string {
 		// Add to URL parameters
 		const identifier = TRAIN_STATE_IDENTIFIER[groupId];
 		urlParams.set(identifier, base62String);
+
+		// Export algorithm selections (only non-default values)
+		const algorithmSelections: string[] = [];
+		caseIds.forEach((caseId) => {
+			const state = casesState[groupId][caseId];
+			const algSelection = state.algorithmSelection;
+
+			// Only save if not default (left: 0, right: 0)
+			// Note: null is intentional and should be saved
+			const isDefault = algSelection.left === 0 && algSelection.right === 0;
+
+			if (!isDefault) {
+				// Format: caseId.left.right (using . to separate values, - to separate cases)
+				// Use 'n' to represent null values
+				const left = algSelection.left === null ? 'n' : algSelection.left.toString();
+				const right = algSelection.right === null ? 'n' : algSelection.right.toString();
+				algorithmSelections.push(`${caseId}.${left}.${right}`);
+			}
+		});
+
+		// Only add algorithm selection parameter if there are non-default values
+		console.log('algorithmSelections', algorithmSelections.join('-'));
+		if (algorithmSelections.length > 0) {
+			const algIdentifier = ALGORITHM_SELECTION_IDENTIFIER[groupId];
+			urlParams.set(algIdentifier, algorithmSelections.join('-'));
+		}
 	});
 
 	return baseURL + '?' + urlParams.toString();
@@ -164,6 +197,31 @@ export function importFromURL(): void {
 					}
 				}
 			});
+
+			// Import algorithm selections
+			const algIdentifier = ALGORITHM_SELECTION_IDENTIFIER[groupId];
+			const algSelectionString = urlParams.get(algIdentifier);
+
+			if (algSelectionString) {
+				const algSelections = algSelectionString.split('-');
+
+				algSelections.forEach((selection) => {
+					const parts = selection.split('.');
+					if (parts.length === 3) {
+						const caseId = parseInt(parts[0]);
+						// Parse 'n' as null, otherwise parse as number
+						const left = parts[1] === 'n' ? null : parseInt(parts[1]);
+						const right = parts[2] === 'n' ? null : parseInt(parts[2]);
+
+						if (casesState[groupId][caseId]) {
+							casesState[groupId][caseId].algorithmSelection = {
+								left: left,
+								right: right
+							};
+						}
+					}
+				});
+			}
 		});
 
 		// Save to localStorage
