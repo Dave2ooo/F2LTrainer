@@ -52,7 +52,7 @@
 	}
 </script>
 
-<div class="toast-container fixed right-4 bottom-4 z-50 flex flex-col gap-2">
+<div class="toast-container fixed bottom-4 left-4 z-50 flex flex-col gap-2">
 	{#each toastState.notifications as toast (toast.id)}
 		<Toast
 			message={toast.message}
