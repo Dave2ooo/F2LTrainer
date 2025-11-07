@@ -8,6 +8,8 @@
 	} from '$lib/trainCaseQueue.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import Update from './Buttons/Update.svelte';
+	import { CircleQuestionMark } from '@lucide/svelte';
+	import TooltipButton from './TooltipButton.svelte';
 
 	let open = $state(false);
 
@@ -79,13 +81,22 @@
 		<div class="space-y-6">
 			<!-- Train Settings Section -->
 			<section class="rounded-lg border border-gray-200 p-4">
-				<h3 class="mb-3 text-lg font-medium">Train Settings</h3>
+				<div class="mb-3 flex items-center gap-0">
+					<h3 class="text-lg font-medium">Train Settings</h3>
+					<TooltipButton
+						id="btn-train-settings-1"
+						tooltip="Select the cases you want to practice"
+						icon={CircleQuestionMark}
+					/>
+				</div>
 
 				<!-- Statuses -->
 				<div class="mb-4">
 					<p class="mb-2 font-medium">Statuses</p>
 					<div class="flex flex-wrap gap-4">
-						<Checkbox bind:checked={workingState.trainStateSelection.unlearned}>Unlearned</Checkbox>
+						<Checkbox autofocus bind:checked={workingState.trainStateSelection.unlearned}
+							>Unlearned</Checkbox
+						>
 						<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
 						<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 					</div>
@@ -107,7 +118,14 @@
 
 				<!-- Side -->
 				<div class="mb-4">
-					<p class="mb-2 font-medium">Side</p>
+					<div class="mb-2 flex items-center gap-0">
+						<p class="mb-0 font-medium">Side</p>
+						<TooltipButton
+							id="btn-train-settings-2"
+							tooltip="Chose if you want to left or right slot"
+							icon={CircleQuestionMark}
+						/>
+					</div>
 					<div class="flex flex-wrap gap-4">
 						<Checkbox bind:checked={workingState.trainSideSelection.left}>Left</Checkbox>
 						<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
@@ -117,7 +135,14 @@
 				<!-- Add AUF -->
 				<div>
 					<div class="mb-4">
-						<p class="mb-2 font-medium">AUF</p>
+						<div class="mb-2 flex items-center gap-0">
+							<p class="mb-0 font-medium">AUF</p>
+							<TooltipButton
+								id="btn-train-settings-3"
+								tooltip="Adds random U move to the scramble"
+								icon={CircleQuestionMark}
+							/>
+						</div>
 						<div class="flex flex-wrap gap-4">
 							<div class="flex items-center">
 								<Checkbox bind:checked={workingState.trainAddAuf}>Add AUF</Checkbox>
