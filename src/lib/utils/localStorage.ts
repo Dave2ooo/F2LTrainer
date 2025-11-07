@@ -27,3 +27,15 @@ export const saveToLocalStorage = <T>(key: string, value: T): void => {
 		console.error(`Failed to save localStorage item "${key}"`, error);
 	}
 };
+
+export const clearAllLocalStorage = (): void => {
+	if (typeof localStorage === 'undefined') {
+		return;
+	}
+
+	try {
+		localStorage.clear();
+	} catch (error) {
+		console.error('Failed to clear localStorage', error);
+	}
+};

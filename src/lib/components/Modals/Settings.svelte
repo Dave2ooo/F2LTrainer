@@ -8,10 +8,13 @@
 	} from '$lib/trainCaseQueue.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import Update from './Buttons/Update.svelte';
-	import { CircleQuestionMark } from '@lucide/svelte';
+	import { CircleQuestionMark, Trash2 } from '@lucide/svelte';
 	import TooltipButton from './TooltipButton.svelte';
+	import ClearStorageModal from './ClearStorageModal.svelte';
+	import { clearAllLocalStorage } from '$lib/utils/localStorage';
 
 	let open = $state(false);
+	let clearStorageModal: ClearStorageModal;
 
 	// Working copy for editing (reactive)
 	let workingState = $state({
@@ -69,6 +72,15 @@
 			workingState.trainStateSelection
 		)
 	);
+
+	async function handleClearStorage() {
+		const confirmed = await clearStorageModal.confirm();
+		if (confirmed) {
+			clearAllLocalStorage();
+			// Reload the page to reset all state
+			window.location.reload();
+		}
+	}
 </script>
 
 <Modal bind:open title="Settings" size="md" outsideclose={true} autoclose={false}>
@@ -211,6 +223,23 @@
 					</div>
 				</div>
 			</section>
+
+			<!-- Danger Zone Section -->
+			<section class="rounded-lg border border-red-300 bg-red-50 p-4">
+				<h3 class="mb-3 text-lg font-medium text-red-700">Danger Zone</h3>
+				<div class="flex items-center justify-between">
+					<div>
+						<p class="font-medium text-gray-900">Clear All Data</p>
+						<p class="text-sm text-gray-600">
+							Delete all saved settings, case states, and progress
+						</p>
+					</div>
+					<Button color="red" outline onclick={handleClearStorage} class="gap-2">
+						<Trash2 size={16} />
+						Clear Data
+					</Button>
+				</div>
+			</section>
 		</div>
 
 		<!-- <svelte:fragment slot="footer"> -->
@@ -218,6 +247,8 @@
 		<!-- </svelte:fragment> -->
 	</form>
 </Modal>
+
+<ClearStorageModal bind:this={clearStorageModal} />
 
 <!-- </svelte:fragment> -->
 
