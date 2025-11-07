@@ -9,6 +9,7 @@
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
+	import ExportUrlModal from '$lib/components/Modals/ExportUrlModal.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
 	import { MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
@@ -17,10 +18,11 @@
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;
 	let importConfirmModalRef: ImportConfirmModal;
+	let exportUrlModalRef: ExportUrlModal;
 
 	function handleExportURL() {
 		const url = exportToURL();
-		console.log('Exported URL:', url);
+		exportUrlModalRef.openModal(url);
 	}
 
 	onMount(() => {
@@ -43,6 +45,7 @@
 <Settings bind:this={settingsRef} />
 <FeedbackModal bind:this={feedbackRef} />
 <ImportConfirmModal bind:this={importConfirmModalRef} />
+<ExportUrlModal bind:this={exportUrlModalRef} />
 
 {#if globalState.view === 'select'}
 	<SelectView />
