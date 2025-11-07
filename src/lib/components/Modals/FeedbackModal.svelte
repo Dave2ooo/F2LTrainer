@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { ButtonGroup, Input, InputAddon, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { A, ButtonGroup, Input, InputAddon, Label, Modal, Textarea } from 'flowbite-svelte';
 	import { AtSign, UserRound } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';
@@ -111,14 +111,16 @@
 <Modal bind:open title="Send Feedback" size="md" outsideclose={true} autoclose={false}>
 	<form onsubmit={handleSubmit}>
 		<div class="space-y-4">
-			<div class="text-gray-700">
+			<div>
 				Send your feedback via this form or create an issue on
-				<a
+				<A
 					href="https://github.com/Dave2ooo/F2LTrainer-Svelte"
 					target="_blank"
 					rel="noopener noreferrer"
-					class="text-blue-600 hover:underline">GitHub</a
-				>.
+					class="text-blue-600 hover:underline"
+				>
+					GitHub
+				</A>.
 			</div>
 
 			<div>
