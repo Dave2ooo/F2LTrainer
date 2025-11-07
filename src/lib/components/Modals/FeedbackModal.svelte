@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, Input, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { ButtonGroup, Input, InputAddon, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { AtSign, UserRound } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';
 	import Send from './Buttons/Send.svelte';
@@ -121,27 +122,37 @@
 			</div>
 
 			<div>
-				<Label for="name" class="mb-2">Your Name</Label>
-				<Input
-					id="name"
-					type="text"
-					bind:value={formData.name}
-					placeholder="Your Name"
-					required
-					disabled={isSubmitting}
-				/>
+				<Label for="name" class="mb-2 block">Your Name</Label>
+				<ButtonGroup class="w-full">
+					<InputAddon>
+						<UserRound class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+					</InputAddon>
+					<Input
+						id="name"
+						type="text"
+						bind:value={formData.name}
+						placeholder="Your Name"
+						required
+						disabled={isSubmitting}
+					/>
+				</ButtonGroup>
 			</div>
 
 			<div>
-				<Label for="email" class="mb-2">Your Email</Label>
-				<Input
-					id="email"
-					type="email"
-					bind:value={formData.email}
-					placeholder="your.email@example.com"
-					required
-					disabled={isSubmitting}
-				/>
+				<Label for="email" class="mb-2 block">Your Email</Label>
+				<ButtonGroup class="w-full">
+					<InputAddon>
+						<AtSign class="h-4 w-4 text-gray-500 dark:text-gray-400" />
+					</InputAddon>
+					<Input
+						id="email"
+						type="email"
+						bind:value={formData.email}
+						placeholder="your.email@example.com"
+						required
+						disabled={isSubmitting}
+					/>
+				</ButtonGroup>
 			</div>
 
 			<div>
@@ -153,10 +164,10 @@
 					rows={4}
 					required
 					disabled={isSubmitting}
+					class="w-full"
 				/>
 			</div>
 		</div>
-
 		<Send
 			{onCancel}
 			disabled={isSubmitting}
