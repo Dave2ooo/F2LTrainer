@@ -19,6 +19,7 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import { ArrowLeft, ArrowRight } from '@lucide/svelte';
+	import Details from './Details.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -202,6 +203,7 @@
 		groupId={currentTrainCase.groupId}
 		caseId={currentTrainCase.caseId}
 		algorithmSelection={currentAlgorithmSelection}
+		auf={currentTrainCase.auf}
 		side={currentTrainCase.side}
 		crossColor={currentTrainCase.crossColor}
 		frontColor={currentTrainCase.frontColor}
@@ -263,7 +265,7 @@
 		side={currentTrainCase.side}
 	/>
 
-	<h2>Group: {currentTrainCase.groupId}, Case: {currentTrainCase.caseId}</h2>
+	<Details />
 {:else}
 	<P>No training cases available. Please select some cases first.</P>
 {/if}
