@@ -1,6 +1,6 @@
 <!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
-	import { Button, Heading } from 'flowbite-svelte';
+	import { Button, Heading, Tooltip } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
@@ -11,7 +11,7 @@
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
-	import { Settings as SettingsIcon } from '@lucide/svelte';
+	import { MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
 	const currentTrainState = trainState; // Keep at +page to keep global
 
 	let settingsRef: Settings;
@@ -33,8 +33,11 @@
 
 <div class="flex gap-2">
 	<Button onclick={() => settingsRef.openModal()}><SettingsIcon /></Button>
-	<Button onclick={() => feedbackRef.openModal()}>Send Feedback</Button>
-	<Button onclick={handleExportURL}>Export to URL</Button>
+	<Tooltip placement="bottom">Settings</Tooltip>
+	<Button onclick={() => feedbackRef.openModal()}><MessageCircle /></Button>
+	<Tooltip placement="bottom">Send Feedback</Tooltip>
+	<Button onclick={handleExportURL}><Share2 /></Button>
+	<Tooltip placement="bottom">Export to URL</Tooltip>
 </div>
 
 <Settings bind:this={settingsRef} />
