@@ -48,7 +48,7 @@
 		stickering = 'f2l',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
-		size = 150,
+		size = 75,
 		scramble = $bindable(''),
 		alg = $bindable(''),
 		onclick
@@ -246,9 +246,9 @@
   Note: custom-element attributes are kebab-case.
   Only include an attribute when its value is defined.
 -->
+		<!-- class="border-2 border-red-500" -->
 <div class="relative">
 	<twisty-player
-		class="border-2 border-red-500"
 		style:width={`${computedWidth}px`}
 		style:height={`${computedHeight}px`}
 		bind:this={el}

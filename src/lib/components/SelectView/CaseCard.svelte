@@ -109,10 +109,10 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	class="flex items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
-	style="background-color: {TrainStateColors[caseState.trainState]};"
+	 class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
+   style="background-color: {TrainStateColors[caseState.trainState]};"
 >
-	<span> {getCaseName(staticData)} </span>
+	<span class="font-arial px-1"> {getCaseName(staticData)} </span>
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
 		bind:scramble
@@ -125,8 +125,9 @@
 		{frontColor}
 		controlPanel="none"
 	/>
-	<span> {alg} </span>
-	<div class="flex flex-col gap-1">
+    <span 
+    class="flex-1 px-2 text-center font-arial font-bold text-pretty"> {alg} </span>
+<!-- 	<div class="flex flex-col gap-1">
 		<Button onclick={handleMirrorClick}>Mirror</Button>
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
 		<Button onclick={handleJumpToStartClick}>Jump to Start</Button>
@@ -134,7 +135,7 @@
 		<Button onclick={handlePlayClick}>Play</Button>
 		<Button onclick={handlePauseClick}>Pause</Button>
 		<Button onclick={handleTogglePlayClick}>Toggle Play</Button>
-	</div>
+	</div> -->
 </button>
 
 <EditAlg bind:this={editAlgRef} {groupId} {caseId} {side} />
