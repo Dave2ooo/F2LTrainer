@@ -8,12 +8,14 @@
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import FeedbackButton from '$lib/components/FeedbackButton.svelte';
+	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
 
 	const currentTrainState = trainState; // Keep at +page to keep global
 
 	let settingsRef: Settings;
+	let importConfirmModalRef: ImportConfirmModal;
 
 	function handleExportURL() {
 		const url = exportToURL();
@@ -22,7 +24,7 @@
 
 	onMount(() => {
 		// Automatically check for import data on page load
-		importFromURL();
+		importFromURL(importConfirmModalRef);
 	});
 </script>
 
@@ -35,6 +37,7 @@
 </div>
 
 <Settings bind:this={settingsRef} />
+<ImportConfirmModal bind:this={importConfirmModalRef} />
 
 {#if globalState.view === 'select'}
 	<SelectView />

@@ -5,6 +5,7 @@ import { casesStatic } from '$lib/casesStatic';
 import { GROUP_IDS } from '$lib/types/group';
 import { saveToLocalStorage } from './localStorage';
 import { MOVE_CHARS } from '$lib/types/moves';
+import { pushState } from '$app/navigation';
 
 const TRAIN_STATES_TRANSLATION: Readonly<Record<TrainState, number>> = {
 	unlearned: 0,
@@ -244,8 +245,8 @@ export function exportToURL(): string {
 				const rightEncoded = hasCustomRight ? encodeCustomAlgorithm(customAlg.right) : '';
 
 				// Format: caseId.leftEncoded.rightEncoded
-				// If both are the same, only save once
-				if (hasCustomLeft && hasCustomRight && customAlg.left === customAlg.right) {
+				// If identicalAlgorithm is true, only save once (they are mirrored)
+				if (hasCustomLeft && hasCustomRight && state.identicalAlgorithm) {
 					customAlgorithms.push(`${caseId}.${leftEncoded}`);
 				} else if (hasCustomLeft && hasCustomRight) {
 					customAlgorithms.push(`${caseId}.${leftEncoded}.${rightEncoded}`);
@@ -273,7 +274,9 @@ export function exportToURL(): string {
  * If no URL parameters are found, the function does nothing.
  * If the user confirms the import, the case selection is imported and the URL is reset.
  */
-export function importFromURL(): void {
+export async function importFromURL(confirmModal: {
+	confirm: () => Promise<boolean>;
+}): Promise<void> {
 	const urlParams = new URLSearchParams(window.location.search);
 
 	// Check if any of our identifiers are present in the URL
@@ -285,7 +288,9 @@ export function importFromURL(): void {
 	// If no URL parameters found, return
 	if (!hasImportData) return;
 
-	if (confirm('Import data from URL?')) {
+	const confirmed = await confirmModal.confirm();
+
+	if (confirmed) {
 		GROUP_IDS.forEach((groupId) => {
 			const identifier = TRAIN_STATE_IDENTIFIER[groupId];
 			const base62String = urlParams.get(identifier);
@@ -400,5 +405,5 @@ export function importFromURL(): void {
 	}
 
 	// Reset URL in addressbar
-	window.history.pushState({}, document.title, window.location.pathname);
+	pushState(window.location.pathname, {});
 }
