@@ -3,6 +3,7 @@
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';
 	import Send from './Buttons/Send.svelte';
+	import ToastNotification from '../Toast.svelte';
 
 	const FEEDBACK_STORAGE_KEY = 'feedback-form-data';
 
@@ -16,9 +17,10 @@
 		message: ''
 	});
 
-	// Props for toast callback
-	let { onFeedbackResult }: { onFeedbackResult?: (success: boolean, message: string) => void } =
-		$props();
+	// Toast state
+	let toastMessage = $state('');
+	let toastType: 'success' | 'error' = $state('success');
+	let showToast = $state(false);
 
 	export function openModal() {
 		open = true;
@@ -26,6 +28,10 @@
 
 	export function closeModal() {
 		open = false;
+	}
+
+	function handleToastClose() {
+		showToast = false;
 	}
 
 	// Load form data from localStorage on mount
@@ -75,22 +81,22 @@
 				formData = { name: '', email: '', message: '' };
 				localStorage.removeItem(FEEDBACK_STORAGE_KEY);
 
-				if (onFeedbackResult) {
-					onFeedbackResult(true, result.message || 'Feedback sent successfully!');
-				}
+				toastMessage = result.message || 'Feedback sent successfully!';
+				toastType = 'success';
+				showToast = true;
 				open = false;
 			} else {
 				// Error from API
 				console.error('Feedback submission error:', result);
-				if (onFeedbackResult) {
-					onFeedbackResult(false, result.message || 'Failed to send feedback.');
-				}
+				toastMessage = result.message || 'Failed to send feedback.';
+				toastType = 'error';
+				showToast = true;
 			}
 		} catch (error) {
 			console.error('Feedback submission error:', error);
-			if (onFeedbackResult) {
-				onFeedbackResult(false, 'Something went wrong! Please try again.');
-			}
+			toastMessage = 'Something went wrong! Please try again.';
+			toastType = 'error';
+			showToast = true;
 		} finally {
 			isSubmitting = false;
 		}
@@ -158,3 +164,9 @@
 		/>
 	</form>
 </Modal>
+
+{#if showToast}
+	<div class="fixed bottom-4 left-4 z-50">
+		<ToastNotification message={toastMessage} type={toastType} onClose={handleToastClose} />
+	</div>
+{/if}

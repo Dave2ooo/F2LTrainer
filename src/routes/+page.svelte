@@ -7,14 +7,15 @@
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
-	import FeedbackButton from '$lib/components/FeedbackButton.svelte';
+	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
-
+	import { Settings as SettingsIcon } from '@lucide/svelte';
 	const currentTrainState = trainState; // Keep at +page to keep global
 
 	let settingsRef: Settings;
+	let feedbackRef: FeedbackModal;
 	let importConfirmModalRef: ImportConfirmModal;
 
 	function handleExportURL() {
@@ -31,12 +32,13 @@
 <Heading>F2L Trainer</Heading>
 
 <div class="flex gap-2">
-	<Button onclick={() => settingsRef.openModal()}>Open Settings</Button>
-	<FeedbackButton />
+	<Button onclick={() => settingsRef.openModal()}><SettingsIcon /></Button>
+	<Button onclick={() => feedbackRef.openModal()}>Send Feedback</Button>
 	<Button onclick={handleExportURL}>Export to URL</Button>
 </div>
 
 <Settings bind:this={settingsRef} />
+<FeedbackModal bind:this={feedbackRef} />
 <ImportConfirmModal bind:this={importConfirmModalRef} />
 
 {#if globalState.view === 'select'}
