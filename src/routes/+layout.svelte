@@ -9,13 +9,20 @@
 	let { children } = $props();
 
 	if (browser) {
-		$effect(() => {
-			saveToLocalStorage(GLOBAL_STATE_STORAGE_KEY, globalState);
-		});
+	   $effect(() => {
+		   saveToLocalStorage(GLOBAL_STATE_STORAGE_KEY, globalState);
+	   });
 
-		$effect(() => {
-			saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
-		});
+	   $effect(() => {
+		   saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
+	   });
+
+	   // Register service worker for PWA
+	   if ('serviceWorker' in navigator) {
+		   window.addEventListener('load', () => {
+			   navigator.serviceWorker.register('/service-worker.js');
+		   });
+	   }
 	}
 </script>
 
