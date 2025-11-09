@@ -1,7 +1,7 @@
 const CACHE_NAME = 'f2l-trainer-cache-v1';
 const urlsToCache = [
-	'/',
-	'/manifest.json',
+    './',
+    './manifest.json',
 ];
 
 self.addEventListener('install', event => {
