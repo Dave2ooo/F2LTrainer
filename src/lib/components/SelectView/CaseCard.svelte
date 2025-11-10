@@ -109,8 +109,8 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	 class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
-   style="background-color: {TrainStateColors[caseState.trainState]};"
+	class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
+	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
 	<span class="font-arial px-1"> {getCaseName(staticData)} </span>
 	<TwistyPlayer
@@ -125,9 +125,8 @@
 		{frontColor}
 		controlPanel="none"
 	/>
-    <span 
-    class="flex-1 px-2 text-center font-arial font-bold text-pretty"> {alg} </span>
-<!-- 	<div class="flex flex-col gap-1">
+	<span class="font-arial flex-1 px-2 text-center font-bold text-pretty"> {alg} </span>
+	<!-- 	<div class="flex flex-col gap-1">
 		<Button onclick={handleMirrorClick}>Mirror</Button>
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
 		<Button onclick={handleJumpToStartClick}>Jump to Start</Button>

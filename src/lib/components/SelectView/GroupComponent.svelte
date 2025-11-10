@@ -2,7 +2,7 @@
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
 	import CategoryComponent from '$lib/components/SelectView/CategoryComponent.svelte';
 	import CategoryStateButtons from '$lib/components/SelectView/CategoryStateButtons.svelte';
-	import { Accordion, AccordionItem } from 'flowbite-svelte';
+	import { Accordion, AccordionItem } from '$lib/components/Accordion';
 	import { globalState } from '$lib/globalState.svelte';
 
 	let {

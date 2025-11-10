@@ -246,7 +246,7 @@
   Note: custom-element attributes are kebab-case.
   Only include an attribute when its value is defined.
 -->
-		<!-- class="border-2 border-red-500" -->
+<!-- class="border-2 border-red-500" -->
 <div class="relative">
 	<twisty-player
 		style:width={`${computedWidth}px`}
