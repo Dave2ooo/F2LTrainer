@@ -11,7 +11,11 @@
 	});
 </script>
 
-<Tabs bind:selected={selectedGroup} tabStyle="underline">
+<Tabs
+	bind:selected={selectedGroup}
+	tabStyle="underline"
+	classes={{ content: 'p-2 bg-gray-50 rounded-lg dark:bg-gray-800 mt-4' }}
+>
 	{#each GROUP_IDS as groupId}
 		<TabItem key={groupId} title={GROUP_DEFINITIONS[groupId].name}>
 			<GroupComponent {groupId} />
