@@ -3,46 +3,187 @@
 import type { AlgorithmCollection } from '..';
 
 export const expertScrambles: AlgorithmCollection = {
-	1: ["R2 U' R2' U R2", "L2' U' L2 U L2'", "F' R' F2 R F"],
-	2: ["f' R' U R f", "R' u' R u R", "L' u' L u L", "f' D' L D f"],
-	3: ["L2' U L2 U' L2'", "R2 U R2' U' R2", "F L F2' L' F'"],
-	4: ["f L U' L' f'", "L u L' u' L'", "R u R' u' R'", "f D R' D' f'"],
-	5: ["L2' u' L2 u L2'", "R2 u R2' u' R2", "L2' u L2 u' L2'", "R2 u' R2' u R2"],
+	1: [
+		"R D' F2 U F2 D R'",
+		"L R F2 R2 F2 L' R'",
+		"B' D' R2 D R B R'",
+		"D B2 U2 B2 D' U' R2",
+		"D2 L2 U' L2 D2 U' R2",
+		"R' U' R' U2 R2 U2 R2",
+		"B D2 F' U2 F D2 B'",
+		"L' B2 D2 R' D2 L B2",
+		"R' U' B' R2 B R"
+	],
+	2: [
+		"B' R2 B U R' U' R2",
+		"R2 U' R' F' U F R2",
+		"R' U' B' R' B U R",
+		"F D R' D' R' F' R",
+		"F L2 D R' D' L2 F'",
+		"D' F D R' D' F' D",
+		"D' B R U' R' B' D",
+		"L' B' D' R' D B L",
+		"L' R' B' R' B L U R"
+	],
+	3: [
+		"B2 D2 L' F2 D2 B2 R'",
+		"D' F2 D U R2 U2 R2",
+		"B F L F2 L' B' F'",
+		"D R2 U2 R2 D' U' F2",
+		"B' F2 U F2 U' B F2",
+		"L D F2 D' F' L' F",
+		"F2 D' U' L2 U2 L2 D",
+		"B' L D2 R' D2 L' B",
+		"F2 U' B' D R2 D' B"
+	],
+	4: [
+		"R B F U B' F' R'",
+		"R' B2 D' F D B2 R",
+		"L' U' L R F U F' R'",
+		"F U F' R F U F' R'",
+		"D R U2 R' D' F U' F'",
+		"F L U F U' L' U' F'",
+		"B F L F L' B' U' F'",
+		"D R U' R' D' F U2 F'",
+		"F2 U F U' R' F' R F'"
+	],
+	5: [
+		"R U2 F2 R F2 U2 R'",
+		"R2 D' U' F2 D U R2",
+		"F R F R F' R' F'",
+		"F D B U2 B' D' F'",
+		"B F R U2 R' B' F'",
+		"F2 D U R2 D' U' F2",
+		"D2 R2 D' F2 D R2 D2",
+		"L F2 D2 R D2 F2 L'",
+		"L B2 U L' U' B2 L'"
+	],
 	6: [
-		"(L' u' L) U (L' u L)",
-		"(R u R') U' (R u' R')",
-		"(L u L') U' (L u' L')",
-		"(R' u' R) U (R' u R)"
+		"R' F U R' F' R2",
+		"B L' U' B L B2",
+		"R' U' F U2 R' F' R2",
+		"F2 D R' D' F' U F'",
+		"F D R' U R D' F'",
+		"L2 D' B D L U' L",
+		"L' D' B U' B' D L",
+		"B U L' U2 B L B2",
+		"R F' R D R' D' F R'"
 	],
 	7: [
-		"R' F R2 U' R2' F' R",
-		"L F' L2' U' L2 F L'",
-		"(f' L' f) U' (L' U L)",
-		"(R U R') U' (f R' f')",
-		"(f R f') (L U2 L')"
+		"R U F' L F L' U R'",
+		"L' R U' L F U2 F' R'",
+		"R F R U' R' U F' R' ",
+		"R U2 F R U' R' F' R'",
+		"R B U2 F U' B' F' R'",
+		"R B U' F U2 B' F' R'",
+		"R U2 L2 D' B' D L2 R'",
+		"R U' L2 D' B D L2 R'"
 	],
 	8: [
-		"L F' L2' U L2 F L'",
-		"R' F R2 U R2' F' R",
-		"(f R f') U (R U' R')",
-		"(L' U' L) U (f' L f)",
-		"(f' L' f) (R' U2' R)"
+		"R D U2 L' B L D' R'",
+		"R U R' U2 B' R B R'",
+		"R U2 R' U B' R B R'",
+		"R U R U2 F' U2 F R2",
+		"R U R' U2 B' R2 B R2",
+		"R U2 R' U B' R2 B R2",
+		"F R' D' F D F2 U' R",
+		"B' R2 B R2 U' R' U2 R"
 	],
-	9: ["R (L U2 L') R'", "L' (R' U2 R) L"],
-	10: ["L F2' L' F U' F", "(L F' L' U' F) U' (R U R')", "(L U' F' L' F) (L' U L)"],
-	11: ["R' F2 R F' U F'", "(R' F R U F') U (L' U' L)", "(R' U F R F') (R U' R')"],
-	12: ["(R' F R U' F') (R U' R')", "(L' U' L) U (S' L' S)"],
-	13: ["(L F' L' U F) (L' U L)", "(R U R') U' (S R S')"],
+	9: [
+		"F2 L2 F L2 B' F U' B",
+		"L R U2 L' R' B' U' B",
+		"R2 B2 R' B2 R' B' U' B",
+		"F2 L2 F L2 B' F U2 B",
+		"L R U2 L' R' B' U2 B",
+		"L F2 L F2 L2 B' U2 B",
+		"L' B2 L B2 R' U2 R2 U2 R'",
+		"L2 R' F2 L' F2 L' R2 U2 R'"
+	],
+	10: [
+		"R' F D' F D R F2",
+		"F' U2 F2 U' F' R U2 R'",
+		"L' F' U F R U2 L R'",
+		"F' U' F R' F R U F'",
+		"R' D' F' D F R U F'",
+		"F2 L F' D F2 D' L' F",
+		"F U' F2 U F' L F2 L'",
+		"F' U B F' L F2 L' B'"
+	],
+	11: [
+		"R U' R B' R2 B",
+		"F R' D R' D' F' R2",
+		"R2 B' R D' R2 D B R'",
+		"R U R' F R' F' U' R",
+		"F D R D' R' F' U' R",
+		"R U R2 U2 R F' U2 F",
+		"R U2 R2 U R F' U2 F",
+		"R U' L' R B' R2 B L",
+		"R' U' R2 U' R B' R2 B"
+	],
+	12: [
+		"F' U F L D F2 D' L'",
+		"R U L R' D F D' L'",
+		"R F U' R U R' F' U' R'",
+		"F' U F L' U L R U2 R'",
+		"R F2 R' F' R U F' U2 R'",
+		"L2 R2 D B D' L2 R' U R'",
+		"L2 R2 D' B D L2 R' U R'",
+		"L' F' U F U L R U R'",
+		"R F U F D R D' F2 R'"
+	],
+	13: [
+		"R F R' F' U' R2 U' R",
+		"F' U F R U2 R2 U2 R",
+		"F' U' F R' U' F R F'",
+		"F' U' B' R B R' U2 F",
+		"R U' R' F' R' U2 R F",
+		"F' U' B' F D' R' D B",
+		"R U' R' B' D' R2 D B",
+		"B F' U' B' F U R U' R'",
+		"L F' R F' R' F L' U' R'"
+	],
 	14: [
-		"(L' U L) (M' U R U' r') (R U' R')",
-		"(L U F' L' F) U2 (L' U' L)",
-		"(L U L') (F U F') U' (L' U L)"
+		"F' U F2 L F' L' U F'",
+		"F' R' F R U L F L'",
+		"R' D R' B R' B' R D' R2",
+		"F' U F U2 R' F R U' F'",
+		"L D F D' F2 L' F' U' F'",
+		"R' F D' F D F' R U2 F'",
+		"R U' R' U F' U F2 U F'",
+		"F' U F' L F L' F2 U F'",
+		"F' U' F R' F R2 U2 R' F'"
 	],
 	15: [
-		"(R U' R') (M' U' L' U l) (L' U L)",
-		"(R' U' F R F') U2 (R U R')",
-		"(R' U' R) (F' U' F) U (R U' R')"
+		"R U' R2 B' R B U' R",
+		"R F R' F' U' B' R' B",
+		"B F' U F U' B' R U' R'",
+		"F' U B F U' B' R U' R'",
+		"F' U' B F U B' R U' R'",
+		"F' U F U' B' R B U' R'",
+		"R D U' R B' R' B D' R'",
+		"R U' R U2 R' B U2 B' R2",
+		"F' U F U' R U' R2 U' R"
 	],
-	16: ["(R' F R U' F') U (R U' R')", "R U' R2' u' R' u R", "L U' L2' u' L' u L"],
-	17: ["(L F' L' U F) U' (L' U L)", "L' U L2 u L u' L'", "R' U R2 u R u' R'"]
+	16: [
+		"R' D' F D R2 U R'",
+		"L' F' U F L R U R'",
+		"R' D' U' F' U F2 D R",
+		"L' F' U F2 R' F' L R",
+		"R U2 R' F' U2 F2 U F'",
+		"L F2 L' F U2 F2 U F' ",
+		"L' F' U L2 F' L2 F2 L",
+		"L' B' F' U' B U2 F L",
+		"L' F' L' U2 L U' F L "
+	],
+	17: [
+		"F D R' D' F2 U' F",
+		"B' R2 B R' U2 R2 U' R",
+		"F' U2 F R U2 R2 U' R",
+		"F D U R U' R2 D' F'",
+		"B R U' R2 F R B' F'",
+		"B R U' R' B' F' U' F",
+		"B L R U L' U2 R' B'",
+		"B R B U2 B' U R' B'",
+		"B R U' B2 R B2 R2 B'"
+	]
 };
