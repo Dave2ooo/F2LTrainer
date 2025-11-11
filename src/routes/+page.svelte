@@ -1,6 +1,6 @@
 <!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
-	import { Button, DarkMode, Heading, Tooltip } from 'flowbite-svelte';
+	import { Button, Heading, Tooltip } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
@@ -40,7 +40,6 @@
 	<Tooltip placement="bottom">Send Feedback</Tooltip>
 	<Button onclick={handleExportURL}><Share2 /></Button>
 	<Tooltip placement="bottom">Export to URL</Tooltip>
-	<DarkMode />
 </div>
 
 <Settings bind:this={settingsRef} />

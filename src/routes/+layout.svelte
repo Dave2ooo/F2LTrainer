@@ -5,7 +5,6 @@
 	import { globalState, GLOBAL_STATE_STORAGE_KEY } from '$lib/globalState.svelte';
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
-
 	let { children } = $props();
 
 	if (browser) {
