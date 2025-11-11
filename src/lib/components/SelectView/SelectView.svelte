@@ -22,17 +22,9 @@
 	{#each GROUP_IDS as groupId}
 		<TabItem key={groupId}>
 			{#snippet titleSlot()}
-				<span class="tab-heading">{GROUP_DEFINITIONS[groupId].name}</span>
+				<span class="text-base font-bold md:text-lg">{GROUP_DEFINITIONS[groupId].name}</span>
 			{/snippet}
 			<GroupComponent {groupId} />
 		</TabItem>
 	{/each}
 </Tabs>
-
-<style>
-	/* Increase font size for tab headings */
-	.tab-heading {
-		font-size: 1.5rem;
-		font-weight: bold;
-	}
-</style>
