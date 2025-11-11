@@ -47,8 +47,8 @@
 	<button
 		type="button"
 		onclick={handleToggle}
-		class={`flex w-full items-center justify-between border-b border-gray-200 px-2 py-2 text-left font-medium text-gray-500 group-first:rounded-t-xl group-first:border-t hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800 dark:focus:ring-gray-800 ${
-			open ? 'bg-gray-100 text-gray-900 dark:bg-gray-800 dark:text-white' : ''
+		class={`flex w-full items-center justify-between border-b border-gray-200 px-2 py-2 text-left font-medium text-gray-900 group-first:rounded-t-xl group-first:border-t hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:ring-gray-800 ${
+			open ? 'bg-gray-100 dark:bg-gray-800' : ''
 		} ${headerClass}`}
 		aria-expanded={open}
 	>
