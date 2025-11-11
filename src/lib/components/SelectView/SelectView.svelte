@@ -14,11 +14,25 @@
 <Tabs
 	bind:selected={selectedGroup}
 	tabStyle="underline"
-	classes={{ content: 'p-2 bg-gray-50 rounded-lg dark:bg-gray-800 mt-4' }}
+	classes={{
+		content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-4'
+	}}
+	class="tabs-header"
 >
 	{#each GROUP_IDS as groupId}
-		<TabItem key={groupId} title={GROUP_DEFINITIONS[groupId].name}>
+		<TabItem key={groupId}>
+			{#snippet titleSlot()}
+				<span class="tab-heading">{GROUP_DEFINITIONS[groupId].name}</span>
+			{/snippet}
 			<GroupComponent {groupId} />
 		</TabItem>
 	{/each}
 </Tabs>
+
+<style>
+	/* Increase font size for tab headings */
+	.tab-heading {
+		font-size: 1.5rem;
+		font-weight: bold;
+	}
+</style>
