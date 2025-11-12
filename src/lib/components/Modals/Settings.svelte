@@ -12,6 +12,7 @@
 	import TooltipButton from './TooltipButton.svelte';
 	import ClearStorageModal from './ClearStorageModal.svelte';
 	import { clearAllLocalStorage } from '$lib/utils/localStorage';
+	import ThemeSwitch from '../ThemeSwitch.svelte';
 
 	let open = $state(false);
 	let clearStorageModal: ClearStorageModal;
@@ -90,6 +91,7 @@
 			onConfirm();
 		}}
 	>
+		<ThemeSwitch />
 		<div class="space-y-6">
 			<!-- Train Settings Section -->
 			<section class="rounded-lg border border-gray-200 p-4">
