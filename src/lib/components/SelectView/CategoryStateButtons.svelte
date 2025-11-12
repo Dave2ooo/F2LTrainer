@@ -47,7 +47,7 @@
 >
 	<button
 		type="button"
-		class="rounded border-3 md:border-4 border-theme-border"
+		class="rounded border-3 border-theme-border md:border-4"
 		class:size-5={!allUnlearned}
 		class:size-7={allUnlearned}
 		class:md:size-6={!allUnlearned}
