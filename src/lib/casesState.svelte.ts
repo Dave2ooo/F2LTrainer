@@ -137,6 +137,28 @@ export const TrainStateColors: Record<TrainState, string> = {
 	finished: 'rgb(0, 223, 0)'
 };
 
+export function getCaseBorderClass(trainState: TrainState): string {
+	switch (trainState) {
+		case 'unlearned':
+			return 'border-theme-border';
+		case 'learning':
+			return 'border-black';
+		case 'finished':
+			return 'border-black';
+	}
+}	
+
+export function getCaseTextClass(trainState: TrainState): string {
+	switch (trainState) {
+		case 'unlearned':
+			return 'text-theme-border';
+		case 'learning':
+			return 'text-black';
+		case 'finished':
+			return 'text-black';
+	}
+}
+
 export const TrainStateTextColors: Record<TrainState, string> = {
 	unlearned: '',
 	learning: 'black',

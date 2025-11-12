@@ -1,10 +1,9 @@
 <script lang="ts">
 	import TwistyPlayer from '$lib/components/TwistyPlayer.svelte';
 	import { casesStatic } from '$lib/casesStatic';
-	import { casesState, getCaseName, TrainStateColors } from '$lib/casesState.svelte';
+	import { casesState, getCaseBorderClass, getCaseName, getCaseTextClass, TrainStateColors } from '$lib/casesState.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import type { CaseId, GroupId } from '$lib/types/group';
-	import { Button } from 'flowbite-svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';
@@ -109,10 +108,10 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl"
+	class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl {getCaseBorderClass(caseState.trainState)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
-	<span class="font-arial px-1"> {getCaseName(staticData)} </span>
+	<span class="font-arial px-1 {getCaseTextClass(caseState.trainState)}"> {getCaseName(staticData)} </span>
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
 		bind:scramble
@@ -125,7 +124,7 @@
 		{frontColor}
 		controlPanel="none"
 	/>
-	<span class="font-arial flex-1 px-2 text-center font-bold text-pretty text-theme-text">
+	<span class="font-arial flex-1 px-2 text-center font-bold text-pretty {getCaseTextClass(caseState.trainState)}">
 		{alg}
 	</span>
 	<!-- 	<div class="flex flex-col gap-1">
