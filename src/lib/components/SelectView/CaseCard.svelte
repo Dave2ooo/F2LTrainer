@@ -125,7 +125,9 @@
 		{frontColor}
 		controlPanel="none"
 	/>
-	<span class="font-arial flex-1 px-2 text-center font-bold text-pretty"> {alg} </span>
+	<span class="font-arial flex-1 px-2 text-center font-bold text-pretty text-theme-text">
+		{alg}
+	</span>
 	<!-- 	<div class="flex flex-col gap-1">
 		<Button onclick={handleMirrorClick}>Mirror</Button>
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>
