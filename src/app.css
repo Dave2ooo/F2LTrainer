@@ -36,23 +36,13 @@
 	--color-secondary-800: #075985;
 	--color-secondary-900: #0c4a6e;
 
-	/* Semantic theme colors - Light mode */
-	--color-theme-bg: #ffffff;
-	--color-theme-bg-secondary: #f3f4f6;
-	--color-theme-text: #111827;
-	--color-theme-text-secondary: #6b7280;
-	--color-theme-border: #e5e7eb;
-	--color-theme-accent: #0ea5e9;
-}
-
-@theme dark {
-	/* Semantic theme colors - Dark mode */
-	--color-theme-bg: #1f2937;
-	--color-theme-bg-secondary: #374151;
-	--color-theme-text: #f9fafb;
-	--color-theme-text-secondary: #d1d5db;
-	--color-theme-border: #4b5563;
-	--color-theme-accent: #38bdf8;
+	/* Semantic theme colors */
+	--color-theme-bg: var(--color-theme-bg);
+	--color-theme-bg-secondary: var(--color-theme-bg-secondary);
+	--color-theme-text: var(--color-theme-text);
+	--color-theme-text-secondary: var(--color-theme-text-secondary);
+	--color-theme-border: var(--color-theme-border);
+	--color-theme-accent: var(--color-theme-accent);
 }
 
 @source "../node_modules/flowbite-svelte/dist";
@@ -66,6 +56,25 @@
 	button,
 	[role='button'] {
 		cursor: pointer;
+	}
+
+	/* Semantic theme colors */
+	:root {
+		--color-theme-bg: #ffffff;
+		--color-theme-bg-secondary: #f3f4f6;
+		--color-theme-text: #111827;
+		--color-theme-text-secondary: #6b7280;
+		--color-theme-border: #e5e7eb;
+		--color-theme-accent: #0ea5e9;
+	}
+
+	:root.dark {
+		--color-theme-bg: #1f2937;
+		--color-theme-bg-secondary: #374151;
+		--color-theme-text: #f9fafb;
+		--color-theme-text-secondary: #d1d5db;
+		--color-theme-border: #4b5563;
+		--color-theme-accent: #38bdf8;
 	}
 }
 
