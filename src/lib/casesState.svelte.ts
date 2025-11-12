@@ -47,11 +47,19 @@ const validateAlgorithmSelection = (
 	return selection;
 };
 
-const persistedCasesState = loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
+// Check if there's migrated data from legacy format
+const migratedCasesState =
+	loadFromLocalStorage<PersistedCasesState>('_migratedCasesState') ||
+	loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
 
-if (persistedCasesState) {
+if (migratedCasesState) {
+	// Clear the temporary migration key if it exists
+	if (typeof localStorage !== 'undefined' && localStorage.getItem('_migratedCasesState')) {
+		localStorage.removeItem('_migratedCasesState');
+	}
+
 	for (const groupId of GROUP_IDS) {
-		const persistedGroup = persistedCasesState[groupId];
+		const persistedGroup = migratedCasesState[groupId];
 		if (!persistedGroup) continue;
 
 		for (const [caseIdString, caseState] of Object.entries(casesState[groupId])) {
