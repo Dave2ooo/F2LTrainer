@@ -108,7 +108,7 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	class="flex w-full items-center rounded-2xl border-2 outline-1 transition-shadow hover:shadow-xl {getCaseBorderClass(caseState.trainState)}"
+	class="flex w-full items-center rounded-2xl border-2 transition-shadow hover:shadow-xl {getCaseBorderClass(caseState.trainState)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
 	<span class="font-arial px-1 {getCaseTextClass(caseState.trainState)}"> {getCaseName(staticData)} </span>
