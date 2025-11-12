@@ -31,26 +31,29 @@
 	});
 </script>
 
-<Heading>F2L Trainer</Heading>
 
-<div class="flex gap-2">
-	<Button onclick={() => settingsRef.openModal()}><SettingsIcon /></Button>
-	<Tooltip placement="bottom">Settings</Tooltip>
-	<Button onclick={() => feedbackRef.openModal()}><MessageCircle /></Button>
-	<Tooltip placement="bottom">Send Feedback</Tooltip>
-	<Button onclick={handleExportURL}><Share2 /></Button>
-	<Tooltip placement="bottom">Export to URL</Tooltip>
+<div style="background-color: var(--color-theme-bg); min-height: 100vh;">
+	<Heading>F2L Trainer</Heading>
+
+	<div class="flex gap-2">
+		 <Button onclick={() => settingsRef.openModal()}><SettingsIcon /></Button>
+		 <Tooltip placement="bottom">Settings</Tooltip>
+		 <Button onclick={() => feedbackRef.openModal()}><MessageCircle /></Button>
+		 <Tooltip placement="bottom">Send Feedback</Tooltip>
+		 <Button onclick={handleExportURL}><Share2 /></Button>
+		 <Tooltip placement="bottom">Export to URL</Tooltip>
+	</div>
+
+	<Settings bind:this={settingsRef} />
+	<FeedbackModal bind:this={feedbackRef} />
+	<ImportConfirmModal bind:this={importConfirmModalRef} />
+	<ExportUrlModal bind:this={exportUrlModalRef} />
+
+	{#if globalState.view === 'select'}
+		 <SelectView />
+	{:else}
+		 <TrainView />
+	{/if}
+
+	<ChangeViewButton />
 </div>
-
-<Settings bind:this={settingsRef} />
-<FeedbackModal bind:this={feedbackRef} />
-<ImportConfirmModal bind:this={importConfirmModalRef} />
-<ExportUrlModal bind:this={exportUrlModalRef} />
-
-{#if globalState.view === 'select'}
-	<SelectView />
-{:else}
-	<TrainView />
-{/if}
-
-<ChangeViewButton />
