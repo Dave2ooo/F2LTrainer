@@ -47,11 +47,11 @@
 >
 	<button
 		type="button"
-		class="border-black-300 rounded border-5 dark:border-gray-600"
-		class:w-6={!allUnlearned}
-		class:h-6={!allUnlearned}
-		class:w-8={allUnlearned}
-		class:h-8={allUnlearned}
+		class="rounded border-3 md:border-4 border-theme-border"
+		class:size-5={!allUnlearned}
+		class:size-7={allUnlearned}
+		class:md:size-6={!allUnlearned}
+		class:md:size-8={allUnlearned}
 		style="background-color: {TrainStateColors.unlearned}"
 		onclick={(e) => {
 			e.stopPropagation();
@@ -62,10 +62,10 @@
 	<button
 		type="button"
 		class="rounded"
-		class:w-6={!allLearning}
-		class:h-6={!allLearning}
-		class:w-8={allLearning}
-		class:h-8={allLearning}
+		class:size-5={!allLearning}
+		class:size-7={allLearning}
+		class:md:size-6={!allLearning}
+		class:md:size-8={allLearning}
 		style="background-color: {TrainStateColors.learning}"
 		onclick={(e) => {
 			e.stopPropagation();
@@ -76,10 +76,10 @@
 	<button
 		type="button"
 		class="rounded"
-		class:w-6={!allFinished}
-		class:h-6={!allFinished}
-		class:w-8={allFinished}
-		class:h-8={allFinished}
+		class:size-5={!allFinished}
+		class:size-7={allFinished}
+		class:md:size-6={!allFinished}
+		class:md:size-8={allFinished}
 		style="background-color: {TrainStateColors.finished}"
 		onclick={(e) => {
 			e.stopPropagation();

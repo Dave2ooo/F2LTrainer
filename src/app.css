@@ -64,7 +64,7 @@
 		--color-theme-bg-secondary: #f3f4f6;
 		--color-theme-text: #111827;
 		--color-theme-text-secondary: #6b7280;
-		--color-theme-border: #e5e7eb;
+		--color-theme-border: #000000;
 		--color-theme-accent: #0ea5e9;
 	}
 
@@ -73,7 +73,7 @@
 		--color-theme-bg-secondary: #374151;
 		--color-theme-text: #f9fafb;
 		--color-theme-text-secondary: #d1d5db;
-		--color-theme-border: #4b5563;
+		--color-theme-border: #ffffff;
 		--color-theme-accent: #38bdf8;
 	}
 }
