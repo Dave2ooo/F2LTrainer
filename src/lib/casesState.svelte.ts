@@ -146,7 +146,7 @@ export function getCaseBorderClass(trainState: TrainState): string {
 		case 'finished':
 			return 'border-black';
 	}
-}	
+}
 
 export function getCaseTextClass(trainState: TrainState): string {
 	switch (trainState) {
