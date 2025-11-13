@@ -119,7 +119,7 @@
 	)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
-	<span class="font-arial px-1 {getCaseTextClass(caseState.trainState)}">
+	<span class="font-arial px-1 md:text-lg {getCaseTextClass(caseState.trainState)}">
 		{getCaseName(staticData)}
 	</span>
 	<TwistyPlayer
@@ -135,7 +135,7 @@
 		controlPanel="none"
 	/>
 	<span
-		class="font-arial flex-1 px-2 text-center font-bold text-pretty {getCaseTextClass(
+		class="font-arial flex-1 px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
 			caseState.trainState
 		)}"
 	>

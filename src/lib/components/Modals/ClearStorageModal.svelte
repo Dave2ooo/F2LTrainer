@@ -31,7 +31,7 @@
 
 <Modal bind:open title="Clear All Data?" size="sm" outsideclose={false} autoclose={false}>
 	<div class="space-y-4">
-		<p class="text-gray-700">
+		<p>
 			Are you sure you want to clear all data? This will delete all your saved settings, case
 			states, and progress. This action cannot be undone.
 		</p>

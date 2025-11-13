@@ -21,7 +21,7 @@
 		<AccordionItem bind:open={categoriesOpenedArr[categoryIndex]}>
 			{#snippet header()}
 				<div class="flex h-8 items-center gap-3">
-					<span class="text-lg">{category.name}</span>
+					<span class="text-lg md:text-xl">{category.name}</span>
 					<CategoryStateButtons {groupId} categoryCases={category.cases} />
 				</div>
 			{/snippet}

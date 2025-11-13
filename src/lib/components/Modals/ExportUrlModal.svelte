@@ -33,7 +33,7 @@
 
 <Modal bind:open title="Share Link" size="md" outsideclose={true} autoclose={false}>
 	<div class="space-y-4">
-		<p class="text-gray-700">
+		<p>
 			This link includes the Train State, Selected Algorithm, and any Custom Algorithm for each
 			case. Use it to share your progress or load these case settings on another device.
 		</p>

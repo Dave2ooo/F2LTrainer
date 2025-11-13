@@ -31,7 +31,7 @@
 
 <Modal bind:open title="Import Data from URL?" size="sm" outsideclose={false} autoclose={false}>
 	<div class="space-y-4">
-		<p class="text-gray-700">
+		<p>
 			The URL contains saved data. Would you like to import it? This will overwrite your current
 			settings.
 		</p>
