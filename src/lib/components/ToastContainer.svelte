@@ -53,11 +53,12 @@
 </script>
 
 <div class="toast-container fixed bottom-4 left-4 z-50 flex flex-col gap-2">
-	{#each toastState.notifications as toast (toast.id)}
+	{#each toastState.notifications.slice(-1) as toast (toast.id)}
 		<Toast
 			message={toast.message}
 			type={toast.type}
 			duration={toast.duration}
+			showIcon={false}
 			onClose={() => removeToast(toast.id)}
 		/>
 	{/each}

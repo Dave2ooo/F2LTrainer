@@ -7,11 +7,13 @@
 		message,
 		type = 'success',
 		duration = 3000,
+		showIcon = true,
 		onClose
 	}: {
 		message: string;
 		type?: 'success' | 'error';
 		duration?: number;
+		showIcon?: boolean;
 		onClose?: () => void;
 	} = $props();
 
@@ -34,13 +36,15 @@
 
 {#if toastStatus}
 	<Toast dismissable={true} transition={slide} bind:toastStatus {color}>
-		{#snippet icon()}
-			{#if type === 'success'}
-				<CheckCircleSolid class="h-5 w-5" />
-			{:else}
-				<CloseCircleSolid class="h-5 w-5" />
-			{/if}
-		{/snippet}
+		{#if showIcon}
+			{#snippet icon()}
+				{#if type === 'success'}
+					<CheckCircleSolid class="h-5 w-5" />
+				{:else}
+					<CloseCircleSolid class="h-5 w-5" />
+				{/if}
+			{/snippet}
+		{/if}
 		{message}
 	</Toast>
 {/if}
