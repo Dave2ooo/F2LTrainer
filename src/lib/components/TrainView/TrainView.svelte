@@ -189,11 +189,19 @@
 
 {#if currentTrainCase}
 	<div class="my-4 flex items-center justify-center gap-4">
-		<Button onclick={onPrevious}><ArrowLeft /></Button>
-		<div class="min-w-48 text-center font-mono text-lg font-semibold">
+		<Button
+			class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+			type="button"
+			onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+		>
+		<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
 			{scramble}
 		</div>
-		<Button onclick={onNext}><ArrowRight /></Button>
+		<Button
+			class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+			type="button"
+			onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+		>
 	</div>
 
 	<TwistyPlayer
