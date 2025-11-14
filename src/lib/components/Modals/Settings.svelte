@@ -12,7 +12,7 @@
 	import TooltipButton from './TooltipButton.svelte';
 	import ClearStorageModal from './ClearStorageModal.svelte';
 	import { clearAllLocalStorage } from '$lib/utils/localStorage';
-	import ThemeSwitch from '../ThemeSwitch.svelte';
+	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
 
 	let open = $state(false);
 	let clearStorageModal: ClearStorageModal;
