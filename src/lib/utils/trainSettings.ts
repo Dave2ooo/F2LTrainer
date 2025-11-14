@@ -28,8 +28,8 @@ class TrainSettingsManager {
 
 		return {
 			trainStateSelection: { ...globalState.trainStateSelection },
-			trainGroupSelection: { ...globalState.trainStateSelection },
-			trainSideSelection: { ...globalState.trainStateSelection },
+			trainGroupSelection: { ...globalState.trainGroupSelection },
+			trainSideSelection: { ...globalState.trainSideSelection },
 			crossColor: globalState.crossColor,
 			frontColor: globalState.frontColor,
 			trainState
@@ -42,7 +42,10 @@ class TrainSettingsManager {
 
 	public areTrainSettingsUnchanged(): boolean {
 		if (!this.savedTrainSettings) return false;
-		return JSON.stringify(this.savedTrainSettings) === JSON.stringify(this.getTrainSettings());
+		const temp =
+			JSON.stringify(this.savedTrainSettings) === JSON.stringify(this.getTrainSettings());
+		console.log('Train settings unchanged:', temp);
+		return temp;
 	}
 }
 
