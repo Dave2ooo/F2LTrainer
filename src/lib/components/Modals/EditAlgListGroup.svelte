@@ -43,7 +43,7 @@
 	});
 </script>
 
-<Listgroup active>
+<Listgroup active class="mt-4 mb-4">
 	{#each algorithmPool as alg, index}
 		<ListgroupItem
 			current={algorithmSelection === index}
@@ -51,8 +51,11 @@
 				algorithmSelection = index;
 				onSelectionChange(algorithmSelection, side);
 			}}
+			class="text-center"
 		>
-			{side === 'left' ? mirrorAlg(alg) : alg}
+			<div class="w-full text-center md:text-xl">
+				{side === 'left' ? mirrorAlg(alg) : alg}
+			</div>
 		</ListgroupItem>
 	{/each}
 	<ListgroupItem
@@ -61,7 +64,12 @@
 			algorithmSelection = null;
 			onSelectionChange(algorithmSelection, side);
 		}}
+		class="text-center"
 	>
-		<Input placeholder="Enter custom algorithm" bind:value={customAlg}></Input>
+		<Input
+			class="text-center md:text-xl"
+			placeholder="Enter custom algorithm"
+			bind:value={customAlg}
+		></Input>
 	</ListgroupItem>
 </Listgroup>

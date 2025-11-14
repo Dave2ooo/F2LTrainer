@@ -14,6 +14,8 @@
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';
 	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
+	import { Button } from 'flowbite-svelte';
+	import { Ellipsis } from '@lucide/svelte';
 
 	let editAlgRef: EditAlg;
 	let twistyPlayerRef: any;
@@ -114,7 +116,7 @@
 <button
 	type="button"
 	onclick={cycleTrainStates}
-	class="flex w-full items-center rounded-2xl border-2 transition-shadow hover:shadow-xl {getCaseBorderClass(
+	class="group relative flex w-full items-center rounded-2xl border-2 transition-shadow hover:shadow-xl {getCaseBorderClass(
 		caseState.trainState
 	)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
@@ -141,6 +143,11 @@
 	>
 		{alg}
 	</span>
+	<Button
+		class="pointer-events-none absolute top-1 right-1 z-10 bg-transparent p-1 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-transparent focus:pointer-events-auto focus:bg-transparent focus:opacity-100 focus:ring-2 focus:ring-primary-600 focus:outline-none sm:top-0 sm:right-0 dark:bg-transparent dark:hover:bg-transparent"
+		type="button"
+		onclick={handleEditAlgClick}><Ellipsis class="size-6 text-primary-600 md:size-7" /></Button
+	>
 	<!-- 	<div class="flex flex-col gap-1">
 		<Button onclick={handleMirrorClick}>Mirror</Button>
 		<Button onclick={handleEditAlgClick}>Edit Algorithm</Button>

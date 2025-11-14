@@ -10,5 +10,5 @@
 </script>
 
 <div class="mt-4 flex w-full justify-center">
-	<Button type="button" onclick={onClose} class="gap-2"><X />Close</Button>
+	<Button type="button" onclick={onClose} class="gap-2 md:text-lg"><X />Close</Button>
 </div>

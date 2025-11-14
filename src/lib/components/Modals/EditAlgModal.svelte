@@ -147,7 +147,9 @@
 			onConfirm();
 		}}
 	>
-		<Checkbox bind:checked={globalState.playOnAlgChange}>Autoplay when changing Algorithm</Checkbox>
+		<Checkbox bind:checked={globalState.playOnAlgChange}
+			><span class="md:text-lg">Autoplay when changing Algorithm</span></Checkbox
+		>
 
 		<div class="my-4 flex justify-center">
 			<ToggleSwitch bind:selected={selectedTab} leftLabel="Left" rightLabel="Right" />
@@ -201,7 +203,7 @@
 			/>
 		{/if}
 		<Checkbox bind:checked={workingState.identicalAlgorithm}
-			>Same Algorithm for Left and Right slot (mirrored)</Checkbox
+			><span class="md:text-lg">Same Algorithm for Left and Right slot (mirrored)</span></Checkbox
 		>
 
 		<Update {onCancel} />
