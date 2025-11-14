@@ -41,6 +41,18 @@
 	$effect(() => {
 		onCustomAlgChange(customAlg, side);
 	});
+
+	// const selectedClass =
+	// 	'bg-[var(--color-primary-700)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)]';
+	// // input should also show orange background in light mode when selected
+	// const selectedInputClass =
+	// 	'bg-[var(--color-primary-700)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)] placeholder:text-white/80 ';
+
+	// selected item/input should show orange background and white text in both themes
+	const selectedClass =
+		'bg-[var(--color-primary-700)] text-white dark:bg-[var(--color-primary-700)] dark:text-white';
+	const selectedInputClass =
+		'bg-[var(--color-primary-700)] text-white placeholder:text-white/80 dark:bg-[var(--color-primary-700)] dark:text-white dark:placeholder:text-white/80';
 </script>
 
 <Listgroup active class="mt-4 mb-4">
@@ -51,7 +63,7 @@
 				algorithmSelection = index;
 				onSelectionChange(algorithmSelection, side);
 			}}
-			class="text-center"
+			class={'text-center ' + (algorithmSelection === index ? selectedClass : '')}
 		>
 			<div class="w-full text-center md:text-xl">
 				{side === 'left' ? mirrorAlg(alg) : alg}
@@ -64,10 +76,11 @@
 			algorithmSelection = null;
 			onSelectionChange(algorithmSelection, side);
 		}}
-		class="text-center"
+		class={'text-center ' + (algorithmSelection === null ? selectedClass : '')}
 	>
 		<Input
-			class="text-center md:text-xl"
+			class={'border-0 bg-transparent p-1 text-center md:text-xl dark:bg-transparent ' +
+				(algorithmSelection === null ? selectedInputClass : '')}
 			placeholder="Enter custom algorithm"
 			bind:value={customAlg}
 		></Input>

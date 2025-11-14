@@ -88,16 +88,17 @@
 		bottom: 0;
 		height: 4px;
 		width: 50%;
-		background-color: rgb(0 0 0 / 1);
+		background-color: var(--color-primary-700);
 		transition: transform 0.15s;
 		left: 0;
 	}
 
 	:global(.dark) .indicator {
-		background-color: rgb(255 255 255 / 1);
+		background-color: var(--color-primary-700);
 	}
 
 	.indicator.right {
 		transform: translateX(100%);
+		background-color: var(--color-primary-700);
 	}
 </style>

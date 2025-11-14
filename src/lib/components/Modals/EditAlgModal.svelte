@@ -140,7 +140,7 @@
 	const experimentalDragInput = 'auto';
 </script>
 
-<Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
+<Modal bind:open {title} size="sm" outsideclose={true} autoclose={false}>
 	<form
 		onsubmit={(e) => {
 			e.preventDefault();
