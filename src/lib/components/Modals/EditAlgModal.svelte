@@ -147,14 +147,6 @@
 			onConfirm();
 		}}
 	>
-		<Checkbox bind:checked={globalState.playOnAlgChange}
-			><span class="md:text-lg">Autoplay when changing Algorithm</span></Checkbox
-		>
-
-		<div class="my-4 flex justify-center">
-			<ToggleSwitch bind:selected={selectedTab} leftLabel="Left" rightLabel="Right" />
-		</div>
-
 		{#if selectedTab === 'left'}
 			<TwistyPlayer
 				bind:this={twistyPlayerLeftRef}
@@ -168,15 +160,6 @@
 				{controlPanel}
 				{experimentalDragInput}
 				size={250}
-			/>
-			<EditAlgListGroup
-				{groupId}
-				{caseId}
-				side="left"
-				algorithmSelectionInitial={workingState.algorithmSelection}
-				customAlgInitial={workingState.customAlgorithm}
-				{onSelectionChange}
-				{onCustomAlgChange}
 			/>
 		{:else}
 			<TwistyPlayer
@@ -192,6 +175,25 @@
 				{experimentalDragInput}
 				size={250}
 			/>
+		{/if}
+		<Checkbox bind:checked={globalState.playOnAlgChange}
+			><span class="m-1 md:text-lg">Autoplay</span></Checkbox
+		>
+		<div class="flex justify-center">
+			<ToggleSwitch bind:selected={selectedTab} leftLabel="Left" rightLabel="Right" />
+		</div>
+
+		{#if selectedTab === 'left'}
+			<EditAlgListGroup
+				{groupId}
+				{caseId}
+				side="left"
+				algorithmSelectionInitial={workingState.algorithmSelection}
+				customAlgInitial={workingState.customAlgorithm}
+				{onSelectionChange}
+				{onCustomAlgChange}
+			/>
+		{:else}
 			<EditAlgListGroup
 				{groupId}
 				{caseId}
@@ -202,8 +204,10 @@
 				{onCustomAlgChange}
 			/>
 		{/if}
+
 		<Checkbox bind:checked={workingState.identicalAlgorithm}
-			><span class="md:text-lg">Same Algorithm for Left and Right slot (mirrored)</span></Checkbox
+			><span class="m-1 md:text-lg">Same Algorithm for Left and Right slot (mirrored)</span
+			></Checkbox
 		>
 
 		<Update {onCancel} />
