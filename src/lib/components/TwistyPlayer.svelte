@@ -247,7 +247,7 @@
   Only include an attribute when its value is defined.
 -->
 <!-- class="border-2 border-red-500" -->
-<div class="relative">
+<div class="relative mx-auto" style="width: {computedWidth}px; height: {computedHeight}px;">
 	<twisty-player
 		style:width={`${computedWidth}px`}
 		style:height={`${computedHeight}px`}
@@ -270,11 +270,11 @@
 		<button
 			type="button"
 			onclick={resetView}
-			class="bg-opacity-70 hover:bg-opacity-90 absolute top-1 right-1 rounded-full bg-gray-800 p-2 text-white transition-all duration-200"
+			class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-500 transition-all duration-200"
 			title="Reset View"
 			aria-label="Reset camera view"
 		>
-			<RotateCw class="h-4 w-4" />
+			<RotateCw class="size-6" strokeWidth={3} />
 		</button>
 	{/if}
 </div>
