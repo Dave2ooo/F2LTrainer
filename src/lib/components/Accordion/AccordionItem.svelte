@@ -2,6 +2,7 @@
 	import { getContext } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import type { AccordionContext } from './types';
+	import type { SlideParams } from 'svelte/transition';
 
 	let {
 		header,
@@ -9,7 +10,8 @@
 		open = $bindable(false),
 		class: className = '',
 		headerClass = '',
-		contentClass = ''
+		contentClass = '',
+		transitionParams = {}
 	}: {
 		header: import('svelte').Snippet;
 		children: import('svelte').Snippet;
@@ -17,6 +19,7 @@
 		class?: string;
 		headerClass?: string;
 		contentClass?: string;
+		transitionParams?: SlideParams;
 	} = $props();
 
 	const context: AccordionContext | undefined = getContext('accordion');
@@ -77,11 +80,9 @@
 </h2>
 
 {#if open}
-	<div transition:slide>
-		<div>
-			<div class={`border-b border-gray-200 p-1 dark:border-gray-700 ${contentClass}`}>
-				{@render children()}
-			</div>
+	<div in:slide={{ delay: 200, duration: 400, ...transitionParams }} out:slide={{ duration: 400, ...transitionParams }}>
+		<div class={`border-b border-gray-200 p-1 dark:border-gray-700 ${contentClass}`}>
+			{@render children()}
 		</div>
 	</div>
 {/if}
