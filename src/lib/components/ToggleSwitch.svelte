@@ -72,11 +72,11 @@
 	}
 
 	.switch input:checked + label {
-		color: rgb(0 0 0 / 1);
+		color: var(--color-primary-700);
 	}
 
 	:global(.dark) .switch input:checked + label {
-		color: rgb(255 255 255 / 1);
+		color: var(--color-primary-700);
 	}
 
 	:global(.dark) .switch label {
