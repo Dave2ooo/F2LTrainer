@@ -42,10 +42,7 @@ class TrainSettingsManager {
 
 	public areTrainSettingsUnchanged(): boolean {
 		if (!this.savedTrainSettings) return false;
-		const temp =
-			JSON.stringify(this.savedTrainSettings) === JSON.stringify(this.getTrainSettings());
-		console.log('Train settings unchanged:', temp);
-		return temp;
+		return JSON.stringify(this.savedTrainSettings) === JSON.stringify(this.getTrainSettings());
 	}
 }
 
