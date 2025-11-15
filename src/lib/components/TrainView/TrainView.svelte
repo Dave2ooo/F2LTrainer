@@ -188,7 +188,7 @@
 <svelte:window onkeydown={handleKeydown} />
 
 {#if currentTrainCase}
-	<div class="my-4 flex items-center justify-center gap-4">
+	<div class="my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
 		<Button
 			class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 			type="button"
