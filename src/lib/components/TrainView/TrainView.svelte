@@ -222,21 +222,17 @@
 		onclick={onNext}
 	/>
 
-	<div
-		bind:this={algViewerContainer}
-		style:display={hintManager.showAlgViewer ? 'block' : 'none'}
-		onclick={showHintAlg}
-		role="button"
-		tabindex="0"
-		onkeydown={(e) => e.key === 'Enter' && showHintAlg()}
-		class="cursor-pointer"
-	></div>
 	<HintButton
 		{alg}
+		bind:algViewerContainer
+		showAlgViewer={hintManager.showAlgViewer}
 		visible={hintManager.showHintButton}
 		hintCounter={hintManager.counter}
 		hintMode={globalState.trainHintAlgorithm}
 		onclick={showHintAlg}
+		onEditAlg={() => {
+			editAlgRef?.openModal();
+		}}
 	/>
 
 	<Select

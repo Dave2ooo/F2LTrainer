@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { HintAlgorithm } from '$lib/types/globalState';
+	import { Pencil } from '@lucide/svelte';
 
 	interface Props {
 		alg: string;
@@ -7,9 +8,23 @@
 		hintCounter: number;
 		hintMode: HintAlgorithm;
 		onclick: () => void;
+		onEditAlg: () => void;
+		// element used by the TwistyAlgViewer (parent can bind to this)
+		algViewerContainer?: HTMLElement;
+		// whether to display the alg viewer element
+		showAlgViewer?: boolean;
 	}
 
-	let { alg, visible, hintCounter, hintMode, onclick }: Props = $props();
+	let {
+		alg,
+		visible,
+		hintCounter,
+		hintMode,
+		onclick,
+		onEditAlg,
+		algViewerContainer = $bindable(),
+		showAlgViewer
+	}: Props = $props();
 
 	// Compute the displayed algorithm based on hint mode and counter
 	let displayedAlg = $derived.by(() => {
@@ -40,24 +55,55 @@
 		if (!showAlgorithm) return [];
 		return displayedAlg.split(' ').filter((move) => move.trim() !== '');
 	});
+
+	const className =
+		'min-w-48 cursor-pointer rounded border border-gray-300 bg-transparent p-3 text-center text-xl md:text-2xl shadow-sm transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-primary-700 focus:outline-none';
 </script>
 
-{#if visible}
+<!-- Container holds both the alg viewer element (used by TwistyAlgViewer) and the hint button UI -->
+<div class="my-4 flex w-full flex-col items-center md:my-6">
 	<div
+		bind:this={algViewerContainer}
+		style:display={showAlgViewer ? 'block' : 'none'}
 		{onclick}
 		role="button"
 		tabindex="0"
 		onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onclick()}
-		class="cursor-pointer rounded border border-gray-300 bg-white p-3 text-center shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-	>
-		{#if showPlaceholder}
-			<span class="text-sm text-gray-500">Press to show hint</span>
-		{:else if showAlgorithm}
-			<div class="inline-flex flex-wrap items-center justify-center gap-1 font-mono text-base">
-				{#each algMoves as move}
-					<span class="rounded bg-gray-100 px-2 py-1 text-gray-800">{move}</span>
-				{/each}
-			</div>
-		{/if}
-	</div>
-{/if}
+		class={className}
+	></div>
+
+	{#if visible}
+		<div
+			{onclick}
+			role="button"
+			tabindex="0"
+			onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && onclick()}
+			class={className}
+		>
+			{#if showPlaceholder}
+				<span class="text-xl text-theme-text">Press to show hint</span>
+			{:else if showAlgorithm}
+				<div
+					class="inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold"
+				>
+					{#each algMoves as move}
+						<span class="rounded bg-gray-100 px-2 py-1 font-mono font-semibold text-theme-text"
+							>{move}</span
+						>
+					{/each}
+				</div>
+				<button
+					type="button"
+					onclick={onEditAlg}
+					class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-500 transition-all duration-200"
+					title="Reset View"
+					aria-label="Reset camera view"
+				>
+					<Pencil class="size-6" strokeWidth={3} />
+				</button>
+			{/if}
+		</div>
+	{/if}
+</div>
+
+<!-- min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl -->
