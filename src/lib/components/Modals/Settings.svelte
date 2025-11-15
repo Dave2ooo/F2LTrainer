@@ -94,7 +94,7 @@
 		<ThemeSwitch />
 		<div class="space-y-6">
 			<!-- Train Settings Section -->
-			<section class="rounded-lg border border-gray-200 p-4">
+			<section class="rounded-lg border border-gray-400 p-4">
 				<div class="mb-3 flex items-center gap-0">
 					<h3 class="text-lg font-medium">Train Settings</h3>
 					<TooltipButton
@@ -167,7 +167,7 @@
 			</section>
 
 			<!-- Hint Settings Section -->
-			<section class="rounded-lg border border-gray-200 p-4">
+			<section class="rounded-lg border border-gray-400 p-4">
 				<h3 class="mb-3 text-lg font-medium">Hint Settings</h3>
 
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -227,7 +227,7 @@
 			</section>
 
 			<!-- Danger Zone Section -->
-			<section class="rounded-lg border border-red-300 bg-red-50 p-4">
+			<section class="rounded-lg border border-red-400 bg-red-50 p-4">
 				<h3 class="mb-3 text-lg font-medium text-red-700">Danger Zone</h3>
 				<div class="flex items-center justify-between">
 					<div>
