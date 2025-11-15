@@ -204,6 +204,10 @@
 		>
 	</div>
 
+	<!-- Use responsive CSS classes — if `class` is provided, TwistyPlayer will
+	use the CSS size instead of the numeric `size` prop. Tune these values
+	to match your layout (Tailwind arbitrary values are used here). -->
+
 	<TwistyPlayer
 		bind:this={twistyPlayerRef}
 		bind:scramble
@@ -217,7 +221,7 @@
 		frontColor={currentTrainCase.frontColor}
 		stickering={globalState.trainHintStickering}
 		experimentalDragInput="auto"
-		size={250}
+		class="size-60 md:size-80"
 		controlPanel="bottom-row"
 		onclick={onNext}
 	/>

@@ -135,6 +135,7 @@
 		{crossColor}
 		{frontColor}
 		controlPanel="none"
+		class="size-20 md:size-25"
 	/>
 	<span
 		class="font-arial flex-1 px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(

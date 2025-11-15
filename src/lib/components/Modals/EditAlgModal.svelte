@@ -159,7 +159,7 @@
 				{frontColor}
 				{controlPanel}
 				{experimentalDragInput}
-				size={250}
+				class="size-50 md:size-70"
 			/>
 		{:else}
 			<TwistyPlayer
@@ -173,7 +173,7 @@
 				{frontColor}
 				{controlPanel}
 				{experimentalDragInput}
-				size={250}
+				class="size-50 md:size-70"
 			/>
 		{/if}
 		<Checkbox bind:checked={globalState.playOnAlgChange}

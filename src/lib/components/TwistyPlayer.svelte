@@ -29,10 +29,12 @@
 		stickering?: HintStickering;
 		controlPanel?: 'bottom-row' | 'none';
 		experimentalDragInput?: 'auto' | 'none';
-		size?: number;
+		// `size` removed: use `class` for responsive sizing instead
 		scramble?: string;
 		alg?: string;
 		onclick?: () => void;
+		// optional `class` prop allows parent components to set responsive sizing via CSS
+		class?: string;
 	}
 
 	let {
@@ -48,10 +50,10 @@
 		stickering = 'f2l',
 		controlPanel = 'none',
 		experimentalDragInput = 'none',
-		size = 75,
 		scramble = $bindable(''),
 		alg = $bindable(''),
-		onclick
+		onclick,
+		class: extraClass = ''
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -60,8 +62,11 @@
 
 	// Compute width/height based on size and control panel configuration
 	const aspectRatio = $derived(controlPanel === 'bottom-row' ? 1.15 : 1);
-	const computedWidth = $derived(size);
-	const computedHeight = $derived(size * aspectRatio);
+
+	// When the parent supplies a CSS class, the wrapper should let CSS handle sizing
+	// (use classes like `w-[20vw] md:w-[30vw] aspect-[5/6]`). Otherwise use numeric
+	// `size` prop for fixed pixel sizing.
+	const wrapperClass = $derived(['relative mx-auto', extraClass].filter(Boolean).join(' '));
 
 	const staticData = $derived(casesStatic[groupId][caseId]);
 	const caseState = $derived(casesState[groupId][caseId]);
@@ -247,10 +252,10 @@
   Only include an attribute when its value is defined.
 -->
 <!-- class="border-2 border-red-500" -->
-<div class="relative mx-auto" style="width: {computedWidth}px; height: {computedHeight}px;">
+<div class={wrapperClass}>
 	<twisty-player
-		style:width={`${computedWidth}px`}
-		style:height={`${computedHeight}px`}
+		style:width={'100%'}
+		style:height={'100%'}
 		bind:this={el}
 		puzzle="3x3x3"
 		{alg}
