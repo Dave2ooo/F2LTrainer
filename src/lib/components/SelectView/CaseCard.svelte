@@ -145,7 +145,7 @@
 		{alg}
 	</span>
 	<Button
-		class="pointer-events-none absolute top-1 right-1 z-10 bg-transparent p-1 opacity-0 transition-opacity group-hover:pointer-events-auto group-hover:opacity-100 hover:bg-transparent focus:pointer-events-auto focus:bg-transparent focus:opacity-100 focus:ring-2 focus:ring-primary-600 focus:outline-none sm:top-0 sm:right-0 dark:bg-transparent dark:hover:bg-transparent"
+		class="case-edit-btn absolute top-1 right-1 z-10 bg-transparent p-1 transition-opacity hover:bg-transparent focus:pointer-events-auto focus:bg-transparent focus:opacity-100 focus:ring-2 focus:ring-primary-600 focus:outline-none sm:top-0 sm:right-0 dark:bg-transparent dark:hover:bg-transparent"
 		type="button"
 		onclick={handleEditAlgClick}><Ellipsis class="size-6 text-primary-600 md:size-7" /></Button
 	>
@@ -163,3 +163,26 @@
 <EditAlg bind:this={editAlgRef} {groupId} {caseId} {side} />
 
 <!-- </Button> -->
+
+<style>
+	/* Default: hide the edit button for non-touch devices */
+	:global(.case-edit-btn) {
+		opacity: 0;
+		pointer-events: none;
+		transition: opacity 150ms ease-in-out;
+	}
+
+	/* Show for touch devices (no hover or coarse pointer) */
+	@media (hover: none), (pointer: coarse) {
+		:global(.case-edit-btn) {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
+	/* Allow keyboard focus to show the button even on non-touch devices */
+	:global(.case-edit-btn:focus) {
+		opacity: 1;
+		pointer-events: auto;
+	}
+</style>
