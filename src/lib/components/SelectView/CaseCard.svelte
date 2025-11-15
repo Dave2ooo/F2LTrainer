@@ -180,6 +180,14 @@
 		}
 	}
 
+	/* Show for desktop / mouse users when hovering the parent group */
+	@media (hover: hover) and (pointer: fine) {
+		:global(.group:hover) :global(.case-edit-btn) {
+			opacity: 1;
+			pointer-events: auto;
+		}
+	}
+
 	/* Allow keyboard focus to show the button even on non-touch devices */
 	:global(.case-edit-btn:focus) {
 		opacity: 1;
