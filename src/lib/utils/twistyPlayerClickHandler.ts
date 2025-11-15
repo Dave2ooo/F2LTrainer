@@ -29,6 +29,10 @@ export function setupTwistyPlayerClickHandlers(
 	const eventListeners: EventListenerInfo[] = [];
 	const clickDetector = createClickDetector();
 
+	// Timestamp of the last touchend event. Used to ignore synthetic mouse events
+	// that are fired by the browser after touch interactions on some devices.
+	let lastTouchTimestamp = 0;
+
 	if (onclick && player.contentWrapper?.firstChild) {
 		const playerBody = player.contentWrapper.firstChild as HTMLElement;
 
@@ -38,6 +42,15 @@ export function setupTwistyPlayerClickHandlers(
 		};
 
 		const handleMouseUp = (event: MouseEvent) => {
+			// Ignore mouse events that are generated shortly after a touch event
+			// to avoid triggering the click handler twice on touch-capable devices.
+			const now = Date.now();
+			if (now - lastTouchTimestamp < 500) {
+				// treat this as a synthetic mouse event following a touch; do nothing
+				clickDetector.reset?.();
+				return;
+			}
+
 			if (clickDetector.onPointerUp(event)) {
 				onclick();
 			}
@@ -48,6 +61,10 @@ export function setupTwistyPlayerClickHandlers(
 		};
 
 		const handleTouchEnd = (event: TouchEvent) => {
+			// record when the last touch finished so we can ignore the
+			// subsequently-fired synthetic mouse events
+			lastTouchTimestamp = Date.now();
+
 			if (clickDetector.onPointerUp(event)) {
 				onclick();
 			}
