@@ -257,11 +257,6 @@
 	>
 	<Settings bind:this={settingsRef} />
 
-	<Button
-		onclick={() => {
-			editAlgRef?.openModal();
-		}}>Edit Algorithm</Button
-	>
 	<EditAlg
 		bind:this={editAlgRef}
 		groupId={currentTrainCase.groupId}
