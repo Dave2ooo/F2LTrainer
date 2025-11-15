@@ -27,14 +27,19 @@
 </script>
 
 {#if currentTrainCase && caseState}
-	<Button onclick={() => (globalState.showDetails = !globalState.showDetails)}>
-		{globalState.showDetails ? 'Hide Details' : 'Show Details'}
-	</Button>
+	<div>
+		<Button
+			class="bg-transparent text-theme-text hover:bg-gray-200 dark:hover:bg-gray-700"
+			onclick={() => (globalState.showDetails = !globalState.showDetails)}
+		>
+			{globalState.showDetails ? 'Hide Details' : 'Show Details'}
+		</Button>
 
-	{#if globalState.showDetails}
-		<P size="lg" weight="semibold">
-			{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
-			{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {caseState.solveCount}
-		</P>
-	{/if}
+		{#if globalState.showDetails}
+			<P size="lg" weight="semibold">
+				{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
+				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {caseState.solveCount}
+			</P>
+		{/if}
+	</div>
 {/if}
