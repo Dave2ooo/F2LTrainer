@@ -35,5 +35,5 @@
   ],
   "background_color": "#1f3d52",
   "display": "standalone",
-  "orientation": "any"
+  "orientation": "natural"
 }
