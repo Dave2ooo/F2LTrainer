@@ -33,7 +33,6 @@
       "type": "image/png"
     }
   ],
-  "background_color": "#1f3d52",
-  "display": "standalone",
-  "orientation": "natural"
+  "background_color": "#1f2937",
+  "display": "standalone"
 }
