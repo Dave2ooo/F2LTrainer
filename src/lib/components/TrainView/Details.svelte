@@ -28,10 +28,7 @@
 
 {#if currentTrainCase && caseState}
 	<div>
-		<Button
-			class="bg-transparent text-theme-text hover:bg-gray-200 dark:hover:bg-gray-700"
-			onclick={() => (globalState.showDetails = !globalState.showDetails)}
-		>
+		<Button onclick={() => (globalState.showDetails = !globalState.showDetails)}>
 			{globalState.showDetails ? 'Hide Details' : 'Show Details'}
 		</Button>
 
