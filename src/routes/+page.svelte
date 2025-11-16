@@ -10,15 +10,17 @@
 	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import ExportUrlModal from '$lib/components/Modals/ExportUrlModal.svelte';
+	import PWAInstructions from '$lib/components/Modals/PWAInstructions.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
-	import { MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
+	import { Download, MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
 	const currentTrainState = trainState; // Keep at +page to keep global
 
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;
 	let importConfirmModalRef: ImportConfirmModal;
 	let exportUrlModalRef: ExportUrlModal;
+	let pwaInstructionsRef: PWAInstructions;
 
 	function handleExportURL() {
 		const url = exportToURL();
@@ -41,12 +43,15 @@
 		<Tooltip placement="bottom">Send Feedback</Tooltip>
 		<Button onclick={handleExportURL}><Share2 /></Button>
 		<Tooltip placement="bottom">Export to URL</Tooltip>
+		<Button onclick={() => pwaInstructionsRef.openModal()}><Download /></Button>
+		<Tooltip placement="bottom">PWA Install Instructions</Tooltip>
 	</div>
 
 	<Settings bind:this={settingsRef} />
 	<FeedbackModal bind:this={feedbackRef} />
 	<ImportConfirmModal bind:this={importConfirmModalRef} />
 	<ExportUrlModal bind:this={exportUrlModalRef} />
+	<PWAInstructions bind:this={pwaInstructionsRef} />
 
 	{#if globalState.view === 'select'}
 		<SelectView />
