@@ -20,6 +20,7 @@
 	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import { ArrowLeft, ArrowRight } from '@lucide/svelte';
 	import Details from './Details.svelte';
+	import TrainStateSelect from './TrainStateSelect.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -238,23 +239,7 @@
 			editAlgRef?.openModal();
 		}}
 	/>
-
-	<Select
-		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
-		style="background: {TrainStateColors[currentTrainCaseTrainState]}; color: {TrainStateTextColors[
-			currentTrainCaseTrainState
-		]}"
-		placeholder=""
-	>
-		{#each TRAIN_STATES as trainState}
-			<option
-				value={trainState}
-				style="background: {TrainStateColors[trainState]}; color: {TrainStateTextColors[
-					trainState
-				]}">{trainState}</option
-			>
-		{/each}
-	</Select>
+	<TrainStateSelect />
 
 	<Button onclick={() => settingsRef?.openModal()}
 		>{getNumberOfSelectedCases()} cases selected</Button
