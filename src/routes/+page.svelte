@@ -34,8 +34,6 @@
 		// We attach `beforeinstallprompt`/`appinstalled` at the layout, so nothing else to do here
 		return () => {};
 	});
-
-    
 </script>
 
 <div style="background-color: var(--color-theme-bg); min-height: 100vh;">

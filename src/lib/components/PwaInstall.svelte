@@ -46,7 +46,11 @@
 </script>
 
 <div class="flex gap-2">
-	<Button onclick={installPwa} disabled={!pwaPrompt.installAvailable} class={!pwaPrompt.installAvailable ? 'opacity-50' : ''}>
+	<Button
+		onclick={installPwa}
+		disabled={!pwaPrompt.installAvailable}
+		class={!pwaPrompt.installAvailable ? 'opacity-50' : ''}
+	>
 		<Download />
 	</Button>
 
@@ -55,18 +59,18 @@
 	{/if}
 
 	{#if showReloadPrompt}
-		<span class="text-sm text-theme-text">Reload the page (Ctrl+F5) to activate the service worker.</span>
+		<span class="text-sm text-theme-text"
+			>Reload the page (Ctrl+F5) to activate the service worker.</span
+		>
 	{/if}
 
 	<Tooltip placement="bottom">
 		{#if pwaPrompt.installAvailable}
 			Install App
+		{:else if pwaPrompt.deferredPrompt}
+			{'Install prompt captured — service worker has not activated. Click Retry or reload the page (Ctrl+F5).'}
 		{:else}
-			{#if pwaPrompt.deferredPrompt}
-				{"Install prompt captured — service worker has not activated. Click Retry or reload the page (Ctrl+F5)."}
-			{:else}
-				{"Install App (not available yet — open PWA instructions)"}
-			{/if}
+			{'Install App (not available yet — open PWA instructions)'}
 		{/if}
 	</Tooltip>
 </div>
