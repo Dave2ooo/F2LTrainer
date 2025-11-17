@@ -1,10 +1,7 @@
 <script lang="ts">
 	import { Button, Tooltip } from 'flowbite-svelte';
 	import { Download } from '@lucide/svelte';
-	import { createEventDispatcher } from 'svelte';
 	import { pwaPrompt, clearPwaPrompt } from '$lib/pwaPrompt.svelte';
-
-	const dispatch = createEventDispatcher();
 
 	let showReloadPrompt = $state(false);
 
@@ -25,9 +22,6 @@
 			clearPwaPrompt();
 			return;
 		}
-
-		// fallback — ask the page to open the instructions modal
-		dispatch('open-instructions');
 	}
 
 	async function tryActivateSw() {

@@ -10,7 +10,6 @@
 	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import ExportUrlModal from '$lib/components/Modals/ExportUrlModal.svelte';
-	import PWAInstructions from '$lib/components/Modals/PWAInstructions.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
 	import { Download, MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
@@ -20,7 +19,6 @@
 	let feedbackRef: FeedbackModal;
 	let importConfirmModalRef: ImportConfirmModal;
 	let exportUrlModalRef: ExportUrlModal;
-	let pwaInstructionsRef: PWAInstructions;
 	import PwaInstall from '$lib/components/PwaInstall.svelte';
 
 	function handleExportURL() {
@@ -46,9 +44,7 @@
 		<Tooltip placement="bottom">Send Feedback</Tooltip>
 		<Button onclick={handleExportURL}><Share2 /></Button>
 		<Tooltip placement="bottom">Export to URL</Tooltip>
-		<Button onclick={() => pwaInstructionsRef.openModal()}><Download /></Button>
-		<Tooltip placement="bottom">PWA Install Instructions</Tooltip>
-		<PwaInstall on:open-instructions={() => pwaInstructionsRef.openModal()} />
+		<PwaInstall />
 		<Tooltip placement="bottom">Install App</Tooltip>
 	</div>
 
@@ -56,7 +52,6 @@
 	<FeedbackModal bind:this={feedbackRef} />
 	<ImportConfirmModal bind:this={importConfirmModalRef} />
 	<ExportUrlModal bind:this={exportUrlModalRef} />
-	<PWAInstructions bind:this={pwaInstructionsRef} />
 
 	{#if globalState.view === 'select'}
 		<SelectView />
