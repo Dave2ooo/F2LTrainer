@@ -21,6 +21,7 @@
 	let importConfirmModalRef: ImportConfirmModal;
 	let exportUrlModalRef: ExportUrlModal;
 	let pwaInstructionsRef: PWAInstructions;
+	import PwaInstall from '$lib/components/PwaInstall.svelte';
 
 	function handleExportURL() {
 		const url = exportToURL();
@@ -30,7 +31,11 @@
 	onMount(() => {
 		// Automatically check for import data on page load
 		importFromURL(importConfirmModalRef);
+		// We attach `beforeinstallprompt`/`appinstalled` at the layout, so nothing else to do here
+		return () => {};
 	});
+
+    
 </script>
 
 <div style="background-color: var(--color-theme-bg); min-height: 100vh;">
@@ -45,6 +50,8 @@
 		<Tooltip placement="bottom">Export to URL</Tooltip>
 		<Button onclick={() => pwaInstructionsRef.openModal()}><Download /></Button>
 		<Tooltip placement="bottom">PWA Install Instructions</Tooltip>
+		<PwaInstall on:open-instructions={() => pwaInstructionsRef.openModal()} />
+		<Tooltip placement="bottom">Install App</Tooltip>
 	</div>
 
 	<Settings bind:this={settingsRef} />
