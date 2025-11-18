@@ -15,11 +15,49 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('fetch', event => {
-	event.respondWith(
-		caches.match(event.request).then(response => {
-			return response || fetch(event.request);
-		})
-	);
+	const { request } = event;
+	const url = new URL(request.url);
+
+	// For navigation requests (HTML) and app bundles, use network-first strategy
+	// This ensures we always get the latest version and avoid 404s for renamed chunks
+	if (request.mode === 'navigate' || 
+	    url.pathname.includes('/_app/') || 
+	    url.pathname.endsWith('.js') || 
+	    url.pathname.endsWith('.css')) {
+		event.respondWith(
+			fetch(request)
+				.then(response => {
+					// Cache successful responses for offline use
+					if (response && response.status === 200) {
+						const responseToCache = response.clone();
+						caches.open(CACHE_NAME).then(cache => {
+							cache.put(request, responseToCache);
+						});
+					}
+					return response;
+				})
+				.catch(() => {
+					// Fallback to cache if network fails (offline support)
+					return caches.match(request);
+				})
+		);
+	} else {
+		// For other resources (images, fonts, etc.), use cache-first strategy
+		event.respondWith(
+			caches.match(request).then(response => {
+				return response || fetch(request).then(fetchResponse => {
+					// Cache the fetched resource
+					if (fetchResponse && fetchResponse.status === 200) {
+						const responseToCache = fetchResponse.clone();
+						caches.open(CACHE_NAME).then(cache => {
+							cache.put(request, responseToCache);
+						});
+					}
+					return fetchResponse;
+				});
+			})
+		);
+	}
 });
 
 self.addEventListener('activate', event => {
