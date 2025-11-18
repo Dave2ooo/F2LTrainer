@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { STICKER_COLORS_WITH_RANDOM } from '$lib/types/stickering';
+	import { STICKER_COLORS_WITH_RANDOM, OPPOSITE_COLOR } from '$lib/types/stickering';
 	import {
 		getNumberOfSelectedCasesFromSelections,
 		regenerateTrainCaseQueue
@@ -16,6 +16,12 @@
 
 	let open = $state(false);
 	let clearStorageModal: ClearStorageModal;
+
+	// Flash states for validation feedback
+	let flashSelectedCount = $state(false);
+	let flashSides = $state(false);
+	let flashCrossColor = $state(false);
+	let flashFrontColor = $state(false);
 
 	// Working copy for editing (reactive)
 	let workingState = $state({
@@ -48,6 +54,15 @@
 	}
 
 	function onConfirm() {
+		// Run validation and don't continue if there are invalid fields
+		const valid = validateSettings();
+		if (!valid) return;
+
+		// Clear any previous flash states since settings are valid and will be applied
+		flashSelectedCount = false;
+		flashSides = false;
+		flashCrossColor = false;
+		flashFrontColor = false;
 		// Copy workingState back to globalState
 		globalState.crossColor = workingState.crossColor;
 		globalState.frontColor = workingState.frontColor;
@@ -65,6 +80,55 @@
 
 	function onCancel() {
 		open = false;
+	}
+
+	/**
+	 * Validate all Settings.
+	 * Returns true when all settings are valid (no errors). This function
+	 * also updates the `flash*` error flags — valid fields will have their
+	 * flash flags cleared, invalid fields will be set.
+	 */
+	function validateSettings(): boolean {
+		let hasErrors = false;
+
+		// 1. Ensure at least one case selected
+		if (numberOfSelectedCases === 0) {
+			flashSelectedCount = true;
+			hasErrors = true;
+		} else {
+			flashSelectedCount = false;
+		}
+
+		// 2. At least one side must be selected — keep error for group if still invalid
+		if (!workingState.trainSideSelection.left && !workingState.trainSideSelection.right) {
+			flashSides = true;
+			hasErrors = true;
+		} else {
+			flashSides = false;
+		}
+
+		// 3. Cross and Front color cannot be identical or opposite (must be adjacent)
+		// Only check when both are real sticker colors (not 'random')
+		const cross = workingState.crossColor;
+		const front = workingState.frontColor;
+		if (cross !== 'random' && front !== 'random') {
+			const isSame = cross === front;
+			const isOpposite = OPPOSITE_COLOR[cross as keyof typeof OPPOSITE_COLOR] === front;
+			if (isSame || isOpposite) {
+				flashCrossColor = true;
+				flashFrontColor = true;
+				hasErrors = true;
+			} else {
+				flashCrossColor = false;
+				flashFrontColor = false;
+			}
+		} else {
+			// if one of the colors is 'random', clear the cross/front errors because the field is valid
+			flashCrossColor = false;
+			flashFrontColor = false;
+		}
+
+		return !hasErrors;
 	}
 
 	let numberOfSelectedCases = $derived(
@@ -128,7 +192,14 @@
 					</div>
 				</div>
 
-				<p>{numberOfSelectedCases} cases selected</p>
+				<p class={flashSelectedCount ? 'flash flash-text' : ''}>
+					{numberOfSelectedCases} cases selected
+				</p>
+				{#if flashSelectedCount}
+					<p class="mt-1 text-sm text-red-600" role="alert">
+						Please select at least one case to train.
+					</p>
+				{/if}
 
 				<!-- Side -->
 				<div class="mb-4">
@@ -140,9 +211,19 @@
 							icon={CircleQuestionMark}
 						/>
 					</div>
-					<div class="flex flex-wrap gap-4">
+					<div
+						class="flex flex-wrap gap-4"
+						class:flash={flashSides}
+						role="group"
+						aria-describedby={flashSides ? 'side-error' : undefined}
+					>
 						<Checkbox bind:checked={workingState.trainSideSelection.left}>Left</Checkbox>
 						<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
+						{#if flashSides}
+							<p id="side-error" class="mt-1 text-sm text-red-600" role="alert">
+								Please select left or right side.
+							</p>
+						{/if}
 					</div>
 				</div>
 
@@ -188,7 +269,7 @@
 							</Select>
 						</div>
 
-						<div>
+						<div class="mb-3">
 							<Label for="stickering" class="mb-1 block">Stickering</Label>
 							<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
 								<option value="f2l">F2L Stickering</option>
@@ -199,7 +280,14 @@
 
 					<!-- Right Column -->
 					<div>
-						<div class="mb-3">
+						<div
+							class="mb-3"
+							class:flash={flashCrossColor}
+							aria-invalid={flashCrossColor}
+							aria-describedby={flashCrossColor || flashFrontColor
+								? 'cross-front-error'
+								: undefined}
+						>
 							<Label for="crossColor" class="mb-1 block">Cross color</Label>
 							<Select bind:value={workingState.crossColor} id="crossColor" placeholder="">
 								{#each STICKER_COLORS_WITH_RANDOM as color}
@@ -211,7 +299,14 @@
 							</Select>
 						</div>
 
-						<div>
+						<div
+							class="mb-3"
+							class:flash={flashFrontColor}
+							aria-invalid={flashFrontColor}
+							aria-describedby={flashCrossColor || flashFrontColor
+								? 'cross-front-error'
+								: undefined}
+						>
 							<Label for="frontColor" class="mb-1 block">Front color</Label>
 							<Select bind:value={workingState.frontColor} id="frontColor" placeholder="">
 								{#each STICKER_COLORS_WITH_RANDOM as color}
@@ -221,6 +316,11 @@
 									</option>
 								{/each}
 							</Select>
+							{#if flashCrossColor || flashFrontColor}
+								<p id="cross-front-error" class="mt-1 text-sm text-red-600" role="alert">
+									Cross and Front colors must be adjacent (not the same or opposite).
+								</p>
+							{/if}
 						</div>
 					</div>
 				</div>
@@ -256,4 +356,29 @@
 
 <style>
 	/* Optional: additional styling tweaks */
+
+	/* Flash animation for validation feedback */
+	@keyframes flash-ring {
+		0% {
+			box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.9);
+		}
+		60% {
+			box-shadow: 0 0 0 6px rgba(239, 68, 68, 0.2);
+		}
+		100% {
+			box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+		}
+	}
+
+	.flash {
+		animation: flash-ring 900ms ease-out;
+		border-radius: 0.375rem; /* match typical rounded input */
+	}
+
+	/* Slightly different look for text flash */
+	.flash-text {
+		animation: flash-ring 900ms ease-out;
+		color: #b91c1c; /* red-700 */
+		font-weight: 600;
+	}
 </style>
