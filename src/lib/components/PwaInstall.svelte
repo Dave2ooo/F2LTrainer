@@ -24,19 +24,19 @@
 		}
 	}
 
-	async function tryActivateSw() {
-		showReloadPrompt = false;
-		try {
-			await navigator.serviceWorker.ready;
-			if (navigator.serviceWorker && navigator.serviceWorker.controller) {
-				pwaPrompt.installAvailable = true;
-				return;
-			}
-			showReloadPrompt = true;
-		} catch (err) {
-			showReloadPrompt = true;
-		}
-	}
+	// async function tryActivateSw() {
+	// 	showReloadPrompt = false;
+	// 	try {
+	// 		await navigator.serviceWorker.ready;
+	// 		if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+	// 			pwaPrompt.installAvailable = true;
+	// 			return;
+	// 		}
+	// 		showReloadPrompt = true;
+	// 	} catch (err) {
+	// 		showReloadPrompt = true;
+	// 	}
+	// }
 </script>
 
 <div class="flex gap-2">
@@ -48,7 +48,7 @@
 		<Download />
 	</Button>
 
-	{#if pwaPrompt.deferredPrompt && !pwaPrompt.installAvailable}
+	<!-- {#if pwaPrompt.deferredPrompt && !pwaPrompt.installAvailable}
 		<Button color="gray" outline={true} onclick={tryActivateSw}>Retry activation</Button>
 	{/if}
 
@@ -56,9 +56,11 @@
 		<span class="text-sm text-theme-text"
 			>Reload the page (Ctrl+F5) to activate the service worker.</span
 		>
-	{/if}
+	{/if} -->
 
-	<Tooltip placement="bottom">
+	<Tooltip placement="bottom">Install App</Tooltip>
+
+	<!-- <Tooltip placement="bottom">
 		{#if pwaPrompt.installAvailable}
 			Install App
 		{:else if pwaPrompt.deferredPrompt}
@@ -66,5 +68,5 @@
 		{:else}
 			{'Install App (not available yet — open PWA instructions)'}
 		{/if}
-	</Tooltip>
+	</Tooltip> -->
 </div>
