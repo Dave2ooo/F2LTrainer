@@ -226,6 +226,7 @@
 		class="size-60 md:size-80"
 		controlPanel="bottom-row"
 		onclick={onNext}
+		showVisibilityToggle={true}
 	/>
 
 	<HintButton
