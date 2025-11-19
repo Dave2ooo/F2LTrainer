@@ -12,7 +12,7 @@
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { onMount, onDestroy } from 'svelte';
-	import { RotateCw } from '@lucide/svelte';
+	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 
@@ -35,6 +35,7 @@
 		onclick?: () => void;
 		// optional `class` prop allows parent components to set responsive sizing via CSS
 		class?: string;
+		hidePlayer?: boolean;
 	}
 
 	let {
@@ -53,7 +54,8 @@
 		scramble = $bindable(''),
 		alg = $bindable(''),
 		onclick,
-		class: extraClass = ''
+		class: extraClass = '',
+		hidePlayer = $bindable(false)
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -200,6 +202,10 @@
 		}
 	}
 
+	function toggleVisibility() {
+		hidePlayer = !hidePlayer;
+	}
+
 	// Register the custom element only on the client (avoids SSR issues)
 	onMount(async () => {
 		await import('cubing/twisty');
@@ -253,9 +259,28 @@
 -->
 <!-- class="border-2 border-red-500" -->
 <div class={wrapperClass}>
+	<!-- Clickable overlay to preserve onclick when player is hidden -->
+	{#if onclick && hidePlayer}
+		<div
+			role="button"
+			tabindex="0"
+			class="absolute inset-0 z-10 cursor-pointer"
+			{onclick}
+			onkeydown={(e) => {
+				if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					onclick?.();
+				}
+			}}
+			aria-label="Next case"
+		></div>
+	{/if}
+
 	<twisty-player
 		style:width={'100%'}
 		style:height={'100%'}
+		style:opacity={hidePlayer ? '0' : '1'}
+		style:pointer-events={hidePlayer ? 'none' : 'auto'}
 		bind:this={el}
 		puzzle="3x3x3"
 		{alg}
@@ -270,6 +295,21 @@
 		viewer-link="none"
 		camera-distance="4.7"
 	></twisty-player>
+
+	<!-- Visibility toggle button (top-left corner) -->
+	<button
+		type="button"
+		onclick={toggleVisibility}
+		class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-500 transition-all duration-200"
+		title={hidePlayer ? 'Show Cube' : 'Hide Cube'}
+		aria-label={hidePlayer ? 'Show Cube' : 'Hide Cube'}
+	>
+		{#if hidePlayer}
+			<Eye class="size-6" strokeWidth={3} />
+		{:else}
+			<EyeOff class="size-6" strokeWidth={3} />
+		{/if}
+	</button>
 
 	{#if showResetButton}
 		<button
