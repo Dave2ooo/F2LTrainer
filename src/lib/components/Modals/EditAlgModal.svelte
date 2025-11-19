@@ -44,8 +44,9 @@
 		// console.log('Selection ' + side + ' changed to ', algorithmSelection);
 		workingState.algorithmSelection[side] = algorithmSelection;
 		if (workingState.identicalAlgorithm) {
-			workingState.algorithmSelection = syncAlgorithms(
+			[workingState.algorithmSelection, workingState.customAlgorithm] = syncAlgorithms(
 				workingState.algorithmSelection,
+				workingState.customAlgorithm,
 				selectedTab
 			);
 		}
@@ -105,8 +106,9 @@
 	$effect(() => {
 		// Sync algorithms when identicalAlgorithm changes to true
 		if (workingState.identicalAlgorithm) {
-			workingState.algorithmSelection = syncAlgorithms(
+			[workingState.algorithmSelection, workingState.customAlgorithm] = syncAlgorithms(
 				workingState.algorithmSelection,
+				workingState.customAlgorithm,
 				selectedTab
 			);
 		}
