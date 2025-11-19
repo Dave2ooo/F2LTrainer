@@ -36,6 +36,7 @@
 		// optional `class` prop allows parent components to set responsive sizing via CSS
 		class?: string;
 		hidePlayer?: boolean;
+		showVisibilityToggle?: boolean;
 	}
 
 	let {
@@ -55,7 +56,8 @@
 		alg = $bindable(''),
 		onclick,
 		class: extraClass = '',
-		hidePlayer = $bindable(false)
+		hidePlayer = $bindable(false),
+		showVisibilityToggle = false
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -297,19 +299,21 @@
 	></twisty-player>
 
 	<!-- Visibility toggle button (top-left corner) -->
-	<button
-		type="button"
-		onclick={toggleVisibility}
-		class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-500 transition-all duration-200"
-		title={hidePlayer ? 'Show Cube' : 'Hide Cube'}
-		aria-label={hidePlayer ? 'Show Cube' : 'Hide Cube'}
-	>
-		{#if hidePlayer}
-			<Eye class="size-6" strokeWidth={3} />
-		{:else}
-			<EyeOff class="size-6" strokeWidth={3} />
-		{/if}
-	</button>
+	{#if showVisibilityToggle}
+		<button
+			type="button"
+			onclick={toggleVisibility}
+			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-500 transition-all duration-200"
+			title={hidePlayer ? 'Show Cube' : 'Hide Cube'}
+			aria-label={hidePlayer ? 'Show Cube' : 'Hide Cube'}
+		>
+			{#if hidePlayer}
+				<Eye class="size-6" strokeWidth={3} />
+			{:else}
+				<EyeOff class="size-6" strokeWidth={3} />
+			{/if}
+		</button>
+	{/if}
 
 	{#if showResetButton}
 		<button
