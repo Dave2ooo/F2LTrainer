@@ -315,7 +315,7 @@
 		</button>
 	{/if}
 
-	{#if showResetButton}
+	{#if showResetButton && !hidePlayer}
 		<button
 			type="button"
 			onclick={resetView}
