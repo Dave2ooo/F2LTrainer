@@ -1,8 +1,14 @@
 <script lang="ts">
-	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
+	import {
+		casesState,
+		TrainStateColors,
+		TrainStateTextColors,
+		TrainStateLabels
+	} from '$lib/casesState.svelte';
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
-	import { Select } from 'flowbite-svelte';
+	import { Button, Dropdown, DropdownItem } from 'flowbite-svelte';
+	import { ChevronDownOutline } from 'flowbite-svelte-icons';
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
@@ -15,20 +21,38 @@
 </script>
 
 {#if currentTrainCase}
-	<Select
-		bind:value={casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState}
-		style="background: {TrainStateColors[currentTrainCaseTrainState]}; color: {TrainStateTextColors[
-			currentTrainCaseTrainState
-		]}"
-		placeholder=""
-	>
-		{#each TRAIN_STATES as trainState}
-			<option
-				value={trainState}
-				style="background: {TrainStateColors[trainState]}; color: {TrainStateTextColors[
-					trainState
-				]}">{trainState}</option
-			>
-		{/each}
-	</Select>
+	<div>
+		<Button
+			id="train-state-dd"
+			class="text-left"
+			style="background: {TrainStateColors[
+				currentTrainCaseTrainState
+			]}; color: {TrainStateTextColors[currentTrainCaseTrainState]}; {currentTrainCaseTrainState ===
+			'unlearned'
+				? `box-shadow: inset 0 0 0 2px var(--color-theme-border);`
+				: ''}"
+			aria-haspopup="true"
+			aria-label={TrainStateLabels[currentTrainCaseTrainState]}
+			title={TrainStateLabels[currentTrainCaseTrainState]}
+			type="button"
+		>
+			<ChevronDownOutline class="ms-2 inline h-5 w-5" />
+		</Button>
+
+		<Dropdown simple class="w-44" triggeredBy="#train-state-dd">
+			{#each TRAIN_STATES as trainState}
+				<DropdownItem
+					onclick={() => {
+						casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState = trainState;
+					}}
+					class="w-full text-center"
+					style="background: {TrainStateColors[trainState]}; color: {TrainStateTextColors[
+						trainState
+					]};"
+				>
+					{TrainStateLabels[trainState]}
+				</DropdownItem>
+			{/each}
+		</Dropdown>
+	</div>
 {/if}
