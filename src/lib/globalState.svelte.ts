@@ -19,7 +19,6 @@ const createDefaultGlobalState = (): GlobalState => ({
 	trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true },
 	trainSideSelection: { left: true, right: true },
 	trainAddAuf: true,
-	trainHintShowCube: true,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
 	playOnAlgChange: true,

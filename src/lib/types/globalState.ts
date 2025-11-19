@@ -18,7 +18,6 @@ export interface GlobalState {
 	trainGroupSelection: Record<GroupId, boolean>;
 	trainSideSelection: Record<Side, boolean>;
 	trainAddAuf: boolean;
-	trainHintShowCube: boolean;
 	trainHintAlgorithm: HintAlgorithm;
 	trainHintStickering: HintStickering;
 	playOnAlgChange: boolean;

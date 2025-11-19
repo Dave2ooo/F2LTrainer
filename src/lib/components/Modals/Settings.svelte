@@ -31,7 +31,6 @@
 		trainGroupSelection: { ...globalState.trainGroupSelection },
 		trainSideSelection: { ...globalState.trainSideSelection },
 		trainAddAuf: globalState.trainAddAuf,
-		trainHintShowCube: globalState.trainHintShowCube,
 		trainHintAlgorithm: globalState.trainHintAlgorithm,
 		trainHintStickering: globalState.trainHintStickering
 	});
@@ -46,7 +45,6 @@
 			trainGroupSelection: { ...globalState.trainGroupSelection },
 			trainSideSelection: { ...globalState.trainSideSelection },
 			trainAddAuf: globalState.trainAddAuf,
-			trainHintShowCube: globalState.trainHintShowCube,
 			trainHintAlgorithm: globalState.trainHintAlgorithm,
 			trainHintStickering: globalState.trainHintStickering
 		};
@@ -70,7 +68,6 @@
 		globalState.trainGroupSelection = { ...workingState.trainGroupSelection };
 		globalState.trainSideSelection = { ...workingState.trainSideSelection };
 		globalState.trainAddAuf = workingState.trainAddAuf;
-		globalState.trainHintShowCube = workingState.trainHintShowCube;
 		globalState.trainHintAlgorithm = workingState.trainHintAlgorithm;
 		globalState.trainHintStickering = workingState.trainHintStickering;
 		if (globalState.view === 'train')
@@ -254,12 +251,6 @@
 				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<!-- Left Column -->
 					<div>
-						<div class="mb-3 flex items-center">
-							<Checkbox bind:checked={workingState.trainHintShowCube} id="showHint"
-								>Show Hint</Checkbox
-							>
-						</div>
-
 						<div class="mb-3">
 							<Label for="algorithm" class="mb-1 block">Algorithm</Label>
 							<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
