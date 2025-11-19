@@ -1,4 +1,7 @@
-const CACHE_NAME = 'f2l-trainer-cache-v1';
+// Use a single cache name - no manual versioning needed
+// The network-first strategy for critical resources ensures updates are fetched
+// Old entries are naturally replaced when new versions are fetched
+const CACHE_NAME = 'f2l-trainer-cache';
 const urlsToCache = [
     './',
     './manifest.json',
