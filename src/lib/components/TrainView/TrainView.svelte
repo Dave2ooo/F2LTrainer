@@ -213,6 +213,7 @@
 		bind:this={twistyPlayerRef}
 		bind:scramble
 		bind:alg
+		bind:hidePlayer={globalState.trainHideTwistyPlayer}
 		groupId={currentTrainCase.groupId}
 		caseId={currentTrainCase.caseId}
 		algorithmSelection={currentAlgorithmSelection}

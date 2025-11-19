@@ -23,4 +23,5 @@ export interface GlobalState {
 	trainHintStickering: HintStickering;
 	playOnAlgChange: boolean;
 	showDetails: boolean;
+	trainHideTwistyPlayer: boolean;
 }
