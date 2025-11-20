@@ -23,4 +23,5 @@ export interface GlobalState {
 	playOnAlgChange: boolean;
 	showDetails: boolean;
 	trainHideTwistyPlayer: boolean;
+	trainShowTimer: boolean;
 }

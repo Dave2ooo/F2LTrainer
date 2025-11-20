@@ -6,6 +6,7 @@
 	let startTime = $state(0);
 	let elapsedTime = $state(0);
 	let animationFrameId = $state<number | null>(null);
+	let isStopped = $state(false); // Track if timer was stopped (vs ready to start)
 
 	// Format time as XX.XX (e.g., 05.56)
 	let formattedTime = $derived.by(() => {
@@ -25,7 +26,7 @@
 	}
 
 	export function startTimer() {
-		if (!isRunning) {
+		if (!isRunning && !isStopped) {
 			isRunning = true;
 			startTime = Date.now() - elapsedTime;
 			updateTimer();
@@ -35,6 +36,7 @@
 	export function stopTimer() {
 		if (isRunning) {
 			isRunning = false;
+			isStopped = true; // Mark as stopped
 			if (animationFrameId !== null) {
 				cancelAnimationFrame(animationFrameId);
 				animationFrameId = null;
@@ -44,17 +46,23 @@
 
 	export function resetTimer() {
 		elapsedTime = 0;
+		isStopped = false; // Reset the stopped state
 	}
 
 	function handleTouchStart(event: TouchEvent) {
 		event.preventDefault();
-		stopTimer();
+		if (isRunning) {
+			stopTimer();
+		}
 	}
 
 	function handleTouchEnd(event: TouchEvent) {
 		event.preventDefault();
-		resetTimer();
-		startTimer();
+		if (!isRunning && isStopped) {
+			// Only start if we're in stopped state (not already running)
+			resetTimer();
+			startTimer();
+		}
 	}
 
 	onDestroy(() => {

@@ -112,9 +112,16 @@
 		if (event.code === 'Space') {
 			event.preventDefault();
 			if (!spacebarPressed) {
-				// Spacebar just pressed - stop timer
+				// Spacebar just pressed
 				spacebarPressed = true;
-				timerRef?.stopTimer();
+				if (globalState.trainShowTimer) {
+					// If timer is enabled, stop timer and advance to next case
+					timerRef?.stopTimer();
+					onNext();
+				} else {
+					// If timer is disabled, just advance to next case
+					onNext();
+				}
 			}
 		}
 	}
@@ -123,11 +130,14 @@
 		if (event.code === 'Space') {
 			event.preventDefault();
 			if (spacebarPressed) {
-				// Spacebar just released - reset and start timer, then advance
+				// Spacebar just released
 				spacebarPressed = false;
-				timerRef?.resetTimer();
-				timerRef?.startTimer();
-				onNext();
+				if (globalState.trainShowTimer) {
+					// If timer is enabled, reset and start timer (don't advance)
+					timerRef?.resetTimer();
+					timerRef?.startTimer();
+				}
+				// If timer is disabled, do nothing (already advanced on keydown)
 			}
 		}
 	}
@@ -262,7 +272,9 @@
 			editAlgRef?.openModal();
 		}}
 	/>
-	<Timer bind:this={timerRef} />
+	{#if globalState.trainShowTimer}
+		<Timer bind:this={timerRef} />
+	{/if}
 	<TrainStateSelect />
 
 	<Button onclick={() => settingsRef?.openModal()}
