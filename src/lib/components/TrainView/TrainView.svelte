@@ -21,11 +21,13 @@
 	import { ArrowLeft, ArrowRight } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
+	import Timer from './Timer.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
 
 	let editAlgRef = $state<EditAlg>();
+	let timerRef = $state<Timer>();
 
 	let twistyPlayerRef = $state<any>();
 	let algViewerContainer = $state<HTMLElement>();
@@ -92,6 +94,8 @@
 		);
 	}
 
+	let spacebarPressed = $state(false);
+
 	function handleKeydown(event: KeyboardEvent) {
 		// Don't handle keyboard shortcuts if user is typing or modal is open
 		const activeElement = document.activeElement;
@@ -107,7 +111,24 @@
 
 		if (event.code === 'Space') {
 			event.preventDefault();
-			onNext();
+			if (!spacebarPressed) {
+				// Spacebar just pressed - stop timer
+				spacebarPressed = true;
+				timerRef?.stopTimer();
+			}
+		}
+	}
+
+	function handleKeyup(event: KeyboardEvent) {
+		if (event.code === 'Space') {
+			event.preventDefault();
+			if (spacebarPressed) {
+				// Spacebar just released - reset and start timer, then advance
+				spacebarPressed = false;
+				timerRef?.resetTimer();
+				timerRef?.startTimer();
+				onNext();
+			}
 		}
 	}
 
@@ -186,7 +207,7 @@
 	let settingsRef = $state<Settings>();
 </script>
 
-<svelte:window onkeydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
 {#if currentTrainCase}
 	<div class="my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
@@ -241,6 +262,7 @@
 			editAlgRef?.openModal();
 		}}
 	/>
+	<Timer bind:this={timerRef} />
 	<TrainStateSelect />
 
 	<Button onclick={() => settingsRef?.openModal()}
