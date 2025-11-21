@@ -115,9 +115,11 @@
 				// Spacebar just pressed
 				spacebarPressed = true;
 				if (globalState.trainShowTimer) {
-					// If timer is enabled, stop timer and advance to next case
-					timerRef?.stopTimer();
-					onNext();
+					// If timer is enabled, try to stop timer and advance only if it was running
+					const wasRunning = timerRef?.stopTimer();
+					if (wasRunning) {
+						onNext();
+					}
 				} else {
 					// If timer is disabled, just advance to next case
 					onNext();
@@ -133,9 +135,12 @@
 				// Spacebar just released
 				spacebarPressed = false;
 				if (globalState.trainShowTimer) {
-					// If timer is enabled, reset and start timer (don't advance)
-					timerRef?.resetTimer();
-					timerRef?.startTimer();
+					// If timer is enabled and was stopped, reset and start timer
+					const isStopped = timerRef?.getIsStopped();
+					if (isStopped) {
+						timerRef?.resetTimer();
+						timerRef?.startTimer();
+					}
 				}
 				// If timer is disabled, do nothing (already advanced on keydown)
 			}

@@ -41,7 +41,9 @@
 				cancelAnimationFrame(animationFrameId);
 				animationFrameId = null;
 			}
+			return true; // Return true if timer was running and stopped
 		}
+		return false; // Return false if timer wasn't running
 	}
 
 	export function resetTimer() {
@@ -49,14 +51,22 @@
 		isStopped = false; // Reset the stopped state
 	}
 
-	function handleTouchStart(event: TouchEvent) {
+	export function getIsRunning() {
+		return isRunning;
+	}
+
+	export function getIsStopped() {
+		return isStopped;
+	}
+
+	function handlePointerDown(event: PointerEvent) {
 		event.preventDefault();
 		if (isRunning) {
 			stopTimer();
 		}
 	}
 
-	function handleTouchEnd(event: TouchEvent) {
+	function handlePointerUp(event: PointerEvent) {
 		event.preventDefault();
 		if (!isRunning && isStopped) {
 			// Only start if we're in stopped state (not already running)
@@ -75,8 +85,8 @@
 <div class="my-4 flex w-full flex-col items-center md:my-6">
 	<button
 		type="button"
-		ontouchstart={handleTouchStart}
-		ontouchend={handleTouchEnd}
+		onpointerdown={handlePointerDown}
+		onpointerup={handlePointerUp}
 		class="min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-700 focus:outline-none md:text-5xl dark:hover:bg-gray-700"
 		aria-label="Timer"
 	>
