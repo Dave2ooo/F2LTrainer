@@ -23,7 +23,8 @@ const createDefaultGlobalState = (): GlobalState => ({
 	trainHintStickering: 'f2l',
 	playOnAlgChange: true,
 	showDetails: false,
-	trainHideTwistyPlayer: false
+	trainHideTwistyPlayer: false,
+	trainShowTimer: false
 });
 
 export const globalState: GlobalState = $state(createDefaultGlobalState());

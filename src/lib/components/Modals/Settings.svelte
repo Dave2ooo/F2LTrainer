@@ -32,7 +32,8 @@
 		trainSideSelection: { ...globalState.trainSideSelection },
 		trainAddAuf: globalState.trainAddAuf,
 		trainHintAlgorithm: globalState.trainHintAlgorithm,
-		trainHintStickering: globalState.trainHintStickering
+		trainHintStickering: globalState.trainHintStickering,
+		trainShowTimer: globalState.trainShowTimer
 	});
 
 	export function openModal() {
@@ -46,7 +47,8 @@
 			trainSideSelection: { ...globalState.trainSideSelection },
 			trainAddAuf: globalState.trainAddAuf,
 			trainHintAlgorithm: globalState.trainHintAlgorithm,
-			trainHintStickering: globalState.trainHintStickering
+			trainHintStickering: globalState.trainHintStickering,
+			trainShowTimer: globalState.trainShowTimer
 		};
 		open = true;
 	}
@@ -70,6 +72,7 @@
 		globalState.trainAddAuf = workingState.trainAddAuf;
 		globalState.trainHintAlgorithm = workingState.trainHintAlgorithm;
 		globalState.trainHintStickering = workingState.trainHintStickering;
+		globalState.trainShowTimer = workingState.trainShowTimer;
 		if (globalState.view === 'train')
 			if (!trainSettingsManager.areTrainSettingsUnchanged()) regenerateTrainCaseQueue();
 		open = false;
@@ -238,6 +241,25 @@
 						<div class="flex flex-wrap gap-4">
 							<div class="flex items-center">
 								<Checkbox bind:checked={workingState.trainAddAuf}>Add AUF</Checkbox>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Show Timer -->
+				<div>
+					<div class="mb-4">
+						<div class="mb-2 flex items-center gap-0">
+							<p class="mb-0 font-medium">Timer</p>
+							<TooltipButton
+								id="btn-train-settings-timer"
+								tooltip="Show timer component for speedcubing practice"
+								icon={CircleQuestionMark}
+							/>
+						</div>
+						<div class="flex flex-wrap gap-4">
+							<div class="flex items-center">
+								<Checkbox bind:checked={workingState.trainShowTimer}>Show Timer</Checkbox>
 							</div>
 						</div>
 					</div>
