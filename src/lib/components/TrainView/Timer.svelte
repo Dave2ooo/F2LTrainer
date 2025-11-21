@@ -1,6 +1,12 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
 
+	// Props
+	interface Props {
+		onStop?: () => void;
+	}
+	let { onStop }: Props = $props();
+
 	// Timer state
 	let isRunning = $state(false);
 	let startTime = $state(0);
@@ -72,6 +78,8 @@
 		event.preventDefault();
 		if (isRunning) {
 			stopTimer();
+			// Notify parent that timer was stopped (to advance to next case)
+			onStop?.();
 		} else if (!isRunning) {
 			// Prepare to start timer
 			isReady = true;

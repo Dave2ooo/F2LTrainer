@@ -283,7 +283,7 @@
 		}}
 	/>
 	{#if globalState.trainShowTimer}
-		<Timer bind:this={timerRef} />
+		<Timer bind:this={timerRef} onStop={onNext} />
 	{/if}
 	<TrainStateSelect />
 
