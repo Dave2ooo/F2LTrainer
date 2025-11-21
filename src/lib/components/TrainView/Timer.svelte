@@ -108,7 +108,7 @@
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-700 focus:outline-none md:text-5xl dark:hover:bg-gray-700"
+		class="min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-700 focus:outline-none md:text-5xl dark:hover:bg-gray-700 select-none"
 		class:text-green-500={isReady}
 		aria-label="Timer"
 	>

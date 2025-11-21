@@ -22,6 +22,7 @@
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
+	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -94,63 +95,8 @@
 		);
 	}
 
-	let spacebarPressed = $state(false);
-
-	function handleKeydown(event: KeyboardEvent) {
-		// Don't handle keyboard shortcuts if user is typing or modal is open
-		const activeElement = document.activeElement;
-		const isTyping =
-			activeElement?.tagName === 'INPUT' ||
-			activeElement?.tagName === 'TEXTAREA' ||
-			activeElement?.hasAttribute('contenteditable') ||
-			document.querySelector('.modal[style*="display: block"]') !== null;
-
-		if (isTyping) {
-			return;
-		}
-
-		if (event.code === 'Space') {
-			event.preventDefault();
-			if (!spacebarPressed) {
-				// Spacebar just pressed
-				spacebarPressed = true;
-				if (globalState.trainShowTimer) {
-					const isRunning = timerRef?.getIsRunning();
-					if (isRunning) {
-						// If timer is running, stop it and advance to next case
-						timerRef?.stopTimer();
-						onNext();
-					} else {
-						// If timer is not running, enter ready state (will start on release)
-						timerRef?.setReady(true);
-					}
-				} else {
-					// If timer is disabled, just advance to next case
-					onNext();
-				}
-			}
-		}
-	}
-
-	function handleKeyup(event: KeyboardEvent) {
-		if (event.code === 'Space') {
-			event.preventDefault();
-			if (spacebarPressed) {
-				// Spacebar just released
-				spacebarPressed = false;
-				if (globalState.trainShowTimer) {
-					const isReady = timerRef?.getIsReady();
-					if (isReady) {
-						// If in ready state, reset and start timer
-						timerRef?.resetTimer();
-						timerRef?.startTimer();
-						timerRef?.setReady(false);
-					}
-				}
-				// If timer is disabled, do nothing (already advanced on keydown)
-			}
-		}
-	}
+	// Create keyboard event handlers
+	const { handleKeydown, handleKeyup } = createKeyboardHandlers(() => timerRef, onNext);
 
 	async function loadTwistyAlgViewer() {
 		try {
