@@ -27,10 +27,12 @@ const createDefaultGlobalState = (): GlobalState => ({
 	trainShowTimer: false
 });
 
-export const globalState: GlobalState = $state(createDefaultGlobalState());
-
+const defaultState = createDefaultGlobalState();
 const persistedGlobalState = loadFromLocalStorage<Partial<GlobalState>>(GLOBAL_STATE_STORAGE_KEY);
 
-if (persistedGlobalState) {
-	Object.assign(globalState, persistedGlobalState);
-}
+// Merge persisted state with defaults to ensure new properties get default values
+const initialState = persistedGlobalState 
+	? { ...defaultState, ...persistedGlobalState }
+	: defaultState;
+
+export const globalState: GlobalState = $state(initialState);
