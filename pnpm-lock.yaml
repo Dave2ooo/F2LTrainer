@@ -17,6 +17,9 @@ importers:
       flowbite-svelte-blocks:
         specifier: ^2.1.0
         version: 2.1.0(@sveltejs/kit@2.48.1(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(rollup@4.52.5)(svelte@5.42.3)(tailwindcss@4.1.16)
+      svelte-splitpanes:
+        specifier: ^8.0.9
+        version: 8.0.9(svelte@5.42.3)
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.0
@@ -1105,6 +1108,9 @@ packages:
       jiti:
         optional: true
 
+  esm-env-robust@0.0.3:
+    resolution: {integrity: sha512-90Gnuw2DALOqlL1581VxP3GHPUNHX9U+fQ+8FNcTTFClhY5gEggAAnJ3q1b2Oq23knRsjv8YpNeMRPaMLUymOA==}
+
   esm-env@1.2.2:
     resolution: {integrity: sha512-Epxrv+Nr/CaL4ZcFGPJIYLWFom+YeV1DqMLHJoEd9SYRxNbaFruBwfEX/kkHUJf55j2+TUbmDcmuilbP1TmXHA==}
 
@@ -1773,6 +1779,11 @@ packages:
     peerDependenciesMeta:
       svelte:
         optional: true
+
+  svelte-splitpanes@8.0.9:
+    resolution: {integrity: sha512-L3oLXTC99M191FInTXJ/f/2i0welRql1QuVbPaU8iy6nvCR6X9VyjHCsCpLqKGWHwqkWo/AM9CQ1c0nzlb+MkA==}
+    peerDependencies:
+      svelte: ^4.2.19 || ^5.1.0
 
   svelte2tsx@0.7.45:
     resolution: {integrity: sha512-cSci+mYGygYBHIZLHlm/jYlEc1acjAHqaQaDFHdEBpUueM9kSTnPpvPtSl5VkJOU1qSJ7h1K+6F/LIUYiqC8VA==}
@@ -2941,6 +2952,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  esm-env-robust@0.0.3:
+    dependencies:
+      esm-env: 1.2.2
+
   esm-env@1.2.2: {}
 
   espree@10.4.0:
@@ -3497,6 +3512,11 @@ snapshots:
       postcss-scss: 4.0.9(postcss@8.5.6)
       postcss-selector-parser: 7.1.0
     optionalDependencies:
+      svelte: 5.42.3
+
+  svelte-splitpanes@8.0.9(svelte@5.42.3):
+    dependencies:
+      esm-env-robust: 0.0.3
       svelte: 5.42.3
 
   svelte2tsx@0.7.45(svelte@5.42.3)(typescript@5.9.3):
