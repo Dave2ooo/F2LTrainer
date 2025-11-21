@@ -135,9 +135,9 @@
 				// Spacebar just released
 				spacebarPressed = false;
 				if (globalState.trainShowTimer) {
-					// If timer is enabled and was stopped, reset and start timer
-					const isStopped = timerRef?.getIsStopped();
-					if (isStopped) {
+					// If timer is enabled and not running, reset and start timer
+					const isRunning = timerRef?.getIsRunning();
+					if (!isRunning) {
 						timerRef?.resetTimer();
 						timerRef?.startTimer();
 					}

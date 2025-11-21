@@ -26,7 +26,7 @@
 	}
 
 	export function startTimer() {
-		if (!isRunning && !isStopped) {
+		if (!isRunning) {
 			isRunning = true;
 			startTime = Date.now() - elapsedTime;
 			updateTimer();
