@@ -65,6 +65,7 @@ export default class TrainCase {
 	#stickerHidden: StickerHidden;
 	#scrambleSelection: number;
 	#auf: Auf;
+	#solved: boolean = false;
 
 	constructor(
 		groupId: GroupId,
@@ -185,5 +186,11 @@ export default class TrainCase {
 	}
 	get auf() {
 		return this.#auf;
+	}
+	get solved() {
+		return this.#solved;
+	}
+	set solved(value: boolean) {
+		this.#solved = value;
 	}
 }

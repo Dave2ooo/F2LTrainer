@@ -9,7 +9,8 @@ import { globalState } from '$lib/globalState.svelte';
  */
 export function createKeyboardHandlers(
 	timerRef: () => Timer | undefined,
-	onNext: () => void
+	onNext: () => void,
+	onTimerStop?: (time: number) => void
 ) {
 	let spacebarPressed = $state(false);
 
@@ -35,8 +36,12 @@ export function createKeyboardHandlers(
 					const isRunning = timerRef()?.getIsRunning();
 					if (isRunning) {
 						// If timer is running, stop it and advance to next case
-						timerRef()?.stopTimer();
-						onNext();
+						const time = timerRef()?.stopTimer();
+						if (time !== undefined && onTimerStop) {
+							onTimerStop(time);
+						} else {
+							onNext();
+						}
 					} else {
 						// If timer is not running, enter ready state (will start on release)
 						timerRef()?.setReady(true);

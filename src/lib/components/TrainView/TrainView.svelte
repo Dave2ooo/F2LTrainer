@@ -12,6 +12,7 @@
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
+	import { statistics } from '$lib/statisticsState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
@@ -64,7 +65,16 @@
 			: undefined
 	);
 
+	function markAsSolved() {
+		if (currentTrainCase && !currentTrainCase.solved) {
+			const { groupId, caseId } = currentTrainCase;
+			statistics[groupId][caseId].solves++;
+			currentTrainCase.solved = true;
+		}
+	}
+
 	async function onNext() {
+		markAsSolved();
 		advanceToNextTrainCase();
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
@@ -97,8 +107,24 @@
 		);
 	}
 
+	function handleTimerStop(time: number) {
+		if (currentTrainCase) {
+			const { groupId, caseId } = currentTrainCase;
+			// Save time in seconds
+			statistics[groupId][caseId].times.push(time / 1000);
+			// Mark as solved (handles incrementing solves count)
+			markAsSolved();
+			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s`);
+		}
+		onNext();
+	}
+
 	// Create keyboard event handlers
-	const { handleKeydown, handleKeyup } = createKeyboardHandlers(() => timerRef, onNext);
+	const { handleKeydown, handleKeyup } = createKeyboardHandlers(
+		() => timerRef,
+		onNext,
+		handleTimerStop
+	);
 
 	async function loadTwistyAlgViewer() {
 		try {
@@ -232,7 +258,7 @@
 				}}
 			/>
 			{#if globalState.trainShowTimer}
-				<Timer bind:this={timerRef} onStop={onNext} />
+				<Timer bind:this={timerRef} onStop={handleTimerStop} />
 			{/if}
 			<TrainStateSelect />
 

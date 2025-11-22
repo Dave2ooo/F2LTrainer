@@ -3,7 +3,7 @@
 
 	// Props
 	interface Props {
-		onStop?: () => void;
+		onStop?: (time: number) => void;
 	}
 	let { onStop }: Props = $props();
 
@@ -48,9 +48,9 @@
 				cancelAnimationFrame(animationFrameId);
 				animationFrameId = null;
 			}
-			return true; // Return true if timer was running and stopped
+			return elapsedTime; // Return elapsed time
 		}
-		return false; // Return false if timer wasn't running
+		return undefined; // Return undefined if timer wasn't running
 	}
 
 	export function resetTimer() {
@@ -79,7 +79,7 @@
 		if (isRunning) {
 			stopTimer();
 			// Notify parent that timer was stopped (to advance to next case)
-			onStop?.();
+			onStop?.(elapsedTime);
 		} else if (!isRunning) {
 			// Prepare to start timer
 			isReady = true;

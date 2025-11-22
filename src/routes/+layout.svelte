@@ -6,6 +6,7 @@
 	import { startPwaManager } from '$lib/pwa/pwaManager.svelte';
 	import { casesState, CASES_STATE_STORAGE_KEY } from '$lib/casesState.svelte';
 	import { globalState, GLOBAL_STATE_STORAGE_KEY } from '$lib/globalState.svelte';
+	import { statistics, STATISTICS_STATE_STORAGE_KEY } from '$lib/statisticsState.svelte';
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 	let { children } = $props();
@@ -17,6 +18,10 @@
 
 		$effect(() => {
 			saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
+		});
+
+		$effect(() => {
+			saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, statistics);
 		});
 
 		// Initialize the PWA manager which centralizes service worker
