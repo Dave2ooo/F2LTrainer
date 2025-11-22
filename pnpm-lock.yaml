@@ -8,9 +8,15 @@ importers:
 
   .:
     dependencies:
+      '@flowbite-svelte-plugins/chart':
+        specifier: ^0.2.4
+        version: 0.2.4(svelte@5.42.3)(tailwindcss@4.1.16)
       '@lucide/svelte':
         specifier: ^0.552.0
         version: 0.552.0(svelte@5.42.3)
+      apexcharts:
+        specifier: ^5.3.6
+        version: 5.3.6
       cubing:
         specifier: ^0.58.2
         version: 0.58.2
@@ -346,6 +352,12 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@flowbite-svelte-plugins/chart@0.2.4':
+    resolution: {integrity: sha512-0+Cmw7m7QqlhzPOVU7zFH/qrp1X1zLEoTiBPws83EucDZCETru5eE5rlmbH+SZxPH9Id4EMahpZzXKIgZ0cyLA==}
+    peerDependencies:
+      svelte: ^5.0.0
+      tailwindcss: ^4.1.4
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -901,8 +913,11 @@ packages:
     resolution: {integrity: sha512-Cxwpt2SfTzTtXcfOlzGEee8O+c+MmUgGrNiBcXnuWxuFJHe6a5Hz7qwhwe5OgaSYI0IJvkLqWX1ASG+cJOkEiA==}
     engines: {node: '>=10'}
 
-  apexcharts@5.3.5:
-    resolution: {integrity: sha512-I04DY/WBZbJgJD2uixeV5EzyiL+J5LgKQXEu8rctqAwyRmKv44aDVeofJoLdTJe3ao4r2KEQfCgtVzXn6pqirg==}
+  apexcharts@4.7.0:
+    resolution: {integrity: sha512-iZSrrBGvVlL+nt2B1NpqfDuBZ9jX61X9I2+XV0hlYXHtTwhwLTHDKGXjNXAgFBDLuvSYCB/rq2nPWVPRv2DrGA==}
+
+  apexcharts@5.3.6:
+    resolution: {integrity: sha512-sVEPw+J0Gp0IHQabKu8cfdsxlfME0e36Wid7RIaPclGM2OUt+O7O4+6mfAmTUYhy5bDk8cNHzEhPfVtLCIXEJA==}
 
   argparse@2.0.1:
     resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
@@ -2173,6 +2188,12 @@ snapshots:
 
   '@floating-ui/utils@0.2.10': {}
 
+  '@flowbite-svelte-plugins/chart@0.2.4(svelte@5.42.3)(tailwindcss@4.1.16)':
+    dependencies:
+      apexcharts: 4.7.0
+      svelte: 5.42.3
+      tailwindcss: 4.1.16
+
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -2709,7 +2730,16 @@ snapshots:
 
   ansi-styles@5.2.0: {}
 
-  apexcharts@5.3.5:
+  apexcharts@4.7.0:
+    dependencies:
+      '@svgdotjs/svg.draggable.js': 3.0.6(@svgdotjs/svg.js@3.2.5)
+      '@svgdotjs/svg.filter.js': 3.0.9
+      '@svgdotjs/svg.js': 3.2.5
+      '@svgdotjs/svg.resize.js': 2.0.5(@svgdotjs/svg.js@3.2.5)(@svgdotjs/svg.select.js@4.0.3(@svgdotjs/svg.js@3.2.5))
+      '@svgdotjs/svg.select.js': 4.0.3(@svgdotjs/svg.js@3.2.5)
+      '@yr/monotone-cubic-spline': 1.0.3
+
+  apexcharts@5.3.6:
     dependencies:
       '@svgdotjs/svg.draggable.js': 3.0.6(@svgdotjs/svg.js@3.2.5)
       '@svgdotjs/svg.filter.js': 3.0.9
@@ -3067,7 +3097,7 @@ snapshots:
     dependencies:
       '@floating-ui/dom': 1.7.4
       '@floating-ui/utils': 0.2.10
-      apexcharts: 5.3.5
+      apexcharts: 5.3.6
       clsx: 2.1.1
       date-fns: 4.1.0
       esm-env: 1.2.2
