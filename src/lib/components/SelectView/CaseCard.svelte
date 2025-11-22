@@ -13,6 +13,7 @@
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import EditAlg from '../Modals/EditAlgModal.svelte';
+	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
 	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis } from '@lucide/svelte';
@@ -20,6 +21,7 @@
 	import { calculateBestTime, calculateAo5, formatTime } from '$lib/utils/statistics';
 
 	let editAlgRef: EditAlg;
+	let caseStatsRef: CaseStatsModal;
 	let twistyPlayerRef: any;
 	let scramble = $state('');
 	let alg = $state('');
@@ -116,6 +118,11 @@
 		e.stopPropagation();
 		editAlgRef.openModal();
 	}
+
+	function handleStatsClick(e: MouseEvent) {
+		e.stopPropagation();
+		caseStatsRef.openModal();
+	}
 </script>
 
 <!-- <Button outline onclick={toggleLearningState} class="flex items-center"> -->
@@ -162,7 +169,11 @@
 			</div>
 			<!-- Visible absolute positioned stats -->
 			<div
-				class="absolute bottom-0 left-0 right-0 mb-1 flex justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90"
+				role="button"
+				tabindex="0"
+				class="absolute bottom-0 left-0 right-0 mb-1 flex justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90 hover:underline hover:opacity-100 cursor-pointer"
+				onclick={handleStatsClick}
+				onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any)}
 			>
 				<span>Best: {formatTime(bestTime)}</span>
 				<span>Ao5: {formatTime(ao5)}</span>
@@ -186,6 +197,7 @@
 </button>
 
 <EditAlg bind:this={editAlgRef} {groupId} {caseId} {side} />
+<CaseStatsModal bind:this={caseStatsRef} {groupId} {caseId} />
 
 <!-- </Button> -->
 
