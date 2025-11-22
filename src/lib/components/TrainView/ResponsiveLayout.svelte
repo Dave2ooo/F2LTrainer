@@ -52,7 +52,7 @@
 	});
 </script>
 
-<div class="relative h-[calc(100vh-100px)] w-full">
+<div class="relative h-full w-full">
 	<!-- Desktop: Split Pane Layout -->
 	{#if isMdOrLarger}
 		<Splitpanes style="height: 100%">
