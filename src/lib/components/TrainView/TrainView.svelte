@@ -65,11 +65,13 @@
 			: undefined
 	);
 
-	function markAsSolved() {
-		if (currentTrainCase && !currentTrainCase.solved) {
-			const { groupId, caseId } = currentTrainCase;
-			statistics[groupId][caseId].solves++;
-			currentTrainCase.solved = true;
+	function markAsSolved(force: boolean = false) {
+		if (currentTrainCase) {
+			if (force || !currentTrainCase.solved) {
+				const { groupId, caseId } = currentTrainCase;
+				statistics[groupId][caseId].solves++;
+				currentTrainCase.solved = true;
+			}
 		}
 	}
 
@@ -113,7 +115,7 @@
 			// Save time in seconds
 			statistics[groupId][caseId].times.push(time / 1000);
 			// Mark as solved (handles incrementing solves count)
-			markAsSolved();
+			markAsSolved(true);
 			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s`);
 		}
 		onNext();
