@@ -75,7 +75,9 @@
 		"svelte"
 	],
 	"dependencies": {
+		"@flowbite-svelte-plugins/chart": "^0.2.4",
 		"@lucide/svelte": "^0.552.0",
+		"apexcharts": "^5.3.6",
 		"cubing": "^0.58.2",
 		"flowbite-svelte-blocks": "^2.1.0",
 		"svelte-splitpanes": "^8.0.9"
