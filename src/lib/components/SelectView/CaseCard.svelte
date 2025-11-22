@@ -16,6 +16,8 @@
 	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis } from '@lucide/svelte';
+	import { statistics } from '$lib/statisticsState.svelte';
+	import { calculateBestTime, calculateAo5, formatTime } from '$lib/utils/statistics';
 
 	let editAlgRef: EditAlg;
 	let twistyPlayerRef: any;
@@ -38,6 +40,10 @@
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
+
+	const times = $derived(statistics[groupId][caseId].times);
+	const bestTime = $derived(calculateBestTime(times));
+	const ao5 = $derived(calculateAo5(times));
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
@@ -137,13 +143,21 @@
 		controlPanel="none"
 		class="size-20 md:size-22"
 	/>
-	<span
-		class="font-arial flex-1 px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
+	<div
+		class="flex flex-1 flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
 			caseState.trainState
 		)}"
 	>
-		{alg}
-	</span>
+		<span class="font-arial">
+			{alg}
+		</span>
+		{#if bestTime !== null}
+			<div class="mt-1 flex gap-2 text-sm font-normal opacity-90">
+				<span>Best: {formatTime(bestTime)}</span>
+				<span>Ao5: {formatTime(ao5)}</span>
+			</div>
+		{/if}
+	</div>
 	<Button
 		class="case-edit-btn absolute top-1 right-1 z-10 bg-transparent p-1 transition-opacity hover:bg-transparent focus:pointer-events-auto focus:bg-transparent focus:opacity-100 focus:ring-2 focus:ring-primary-600 focus:outline-none sm:top-0 sm:right-0 dark:bg-transparent dark:hover:bg-transparent"
 		type="button"
