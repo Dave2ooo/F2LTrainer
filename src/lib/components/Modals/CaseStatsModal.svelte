@@ -35,7 +35,8 @@
 	const times = $derived(caseStats.times);
 	const bestTime = $derived(calculateBestTime(times));
 	const ao5 = $derived(calculateAo5(times));
-	const solves = $derived(caseStats.solves);
+	// const solves = $derived(caseStats.solves);
+	const solves = $derived(caseStats.times.length);
 
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
