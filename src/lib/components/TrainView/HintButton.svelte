@@ -69,7 +69,7 @@
 		'shadow-sm',
 		'transition-colors',
 		'hover:bg-gray-50 dark:hover:bg-gray-700',
-		'focus:ring-2 focus:ring-primary-700 focus:outline-none'
+		'focus:ring-2 focus:ring-primary-600 focus:outline-none'
 	].join(' ');
 
 	const className = hintBase;

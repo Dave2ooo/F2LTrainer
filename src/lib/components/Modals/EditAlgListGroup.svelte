@@ -43,16 +43,16 @@
 	});
 
 	// const selectedClass =
-	// 	'bg-[var(--color-primary-700)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)]';
+	// 	'bg-[var(--color-primary-600)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)]';
 	// // input should also show orange background in light mode when selected
 	// const selectedInputClass =
-	// 	'bg-[var(--color-primary-700)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)] placeholder:text-white/80 ';
+	// 	'bg-[var(--color-primary-600)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)] placeholder:text-white/80 ';
 
 	// selected item/input should show orange background and white text in both themes
 	const selectedClass =
-		'bg-[var(--color-primary-700)] text-white dark:bg-[var(--color-primary-700)] dark:text-white';
+		'bg-[var(--color-primary-600)] text-white dark:bg-[var(--color-primary-600)] dark:text-white';
 	const selectedInputClass =
-		'bg-[var(--color-primary-700)] text-white placeholder:text-white/80 dark:bg-[var(--color-primary-700)] dark:text-white dark:placeholder:text-white/80';
+		'bg-[var(--color-primary-600)] text-white placeholder:text-white/80 dark:bg-[var(--color-primary-600)] dark:text-white dark:placeholder:text-white/80';
 </script>
 
 <Listgroup active class="mt-4 mb-4">

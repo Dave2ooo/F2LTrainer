@@ -303,7 +303,7 @@
 		<button
 			type="button"
 			onclick={toggleVisibility}
-			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-500 transition-all duration-200"
+			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-600 transition-all duration-200"
 			title={hidePlayer ? 'Show Cube' : 'Hide Cube'}
 			aria-label={hidePlayer ? 'Show Cube' : 'Hide Cube'}
 		>
@@ -319,7 +319,7 @@
 		<button
 			type="button"
 			onclick={resetView}
-			class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-500 transition-all duration-200"
+			class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-600 transition-all duration-200"
 			title="Reset View"
 			aria-label="Reset camera view"
 		>

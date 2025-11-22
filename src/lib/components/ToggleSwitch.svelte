@@ -72,11 +72,11 @@
 	}
 
 	.switch input:checked + label {
-		color: var(--color-primary-700);
+		color: var(--color-primary-600);
 	}
 
 	:global(.dark) .switch input:checked + label {
-		color: var(--color-primary-700);
+		color: var(--color-primary-600);
 	}
 
 	:global(.dark) .switch label {
@@ -88,17 +88,17 @@
 		bottom: 0;
 		height: 4px;
 		width: 50%;
-		background-color: var(--color-primary-700);
+		background-color: var(--color-primary-600);
 		transition: transform 0.15s;
 		left: 0;
 	}
 
 	:global(.dark) .indicator {
-		background-color: var(--color-primary-700);
+		background-color: var(--color-primary-600);
 	}
 
 	.indicator.right {
 		transform: translateX(100%);
-		background-color: var(--color-primary-700);
+		background-color: var(--color-primary-600);
 	}
 </style>
