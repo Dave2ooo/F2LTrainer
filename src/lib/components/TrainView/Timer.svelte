@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
+	import { Pointer } from '@lucide/svelte';
+	import { globalState } from '$lib/globalState.svelte';
 
 	// Props
 	interface Props {
@@ -37,6 +39,7 @@
 			isRunning = true;
 			startTime = Date.now() - elapsedTime;
 			updateTimer();
+			globalState.hasUsedTimer = true;
 		}
 	}
 
@@ -108,10 +111,13 @@
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-700 focus:outline-none md:text-5xl dark:hover:bg-gray-700 select-none"
+		class="relative min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 select-none"
 		class:text-green-500={isReady}
 		aria-label="Timer"
 	>
 		<span class="tabular-nums">{formattedTime}</span>
+		{#if !isRunning && !isReady && !globalState.hasUsedTimer}
+			<Pointer class="absolute bottom-2 right-2 size-6 animate-bounce text-primary-600" />
+		{/if}
 	</button>
 </div>

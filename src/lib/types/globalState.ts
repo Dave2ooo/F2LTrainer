@@ -24,4 +24,6 @@ export interface GlobalState {
 	showDetails: boolean;
 	trainHideTwistyPlayer: boolean;
 	trainShowTimer: boolean;
+	hasUsedTimer: boolean;
+	hasUsedTwistyPlayer: boolean;
 }

@@ -20,7 +20,7 @@
 	import HintButton from './HintButton.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { createHintManager } from '$lib/utils/hintManager.svelte';
-	import { ArrowLeft, ArrowRight } from '@lucide/svelte';
+	import { ArrowLeft, ArrowRight, Pointer } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
@@ -227,25 +227,37 @@
 				>
 			</div>
 
-			<TwistyPlayer
-				bind:this={twistyPlayerRef}
-				bind:scramble
-				bind:alg
-				bind:hidePlayer={globalState.trainHideTwistyPlayer}
-				groupId={currentTrainCase.groupId}
-				caseId={currentTrainCase.caseId}
-				algorithmSelection={currentAlgorithmSelection}
-				auf={currentTrainCase.auf}
-				side={currentTrainCase.side}
-				crossColor={currentTrainCase.crossColor}
-				frontColor={currentTrainCase.frontColor}
-				stickering={globalState.trainHintStickering}
-				experimentalDragInput="auto"
-				class="size-60 md:size-80"
-				controlPanel="bottom-row"
-				onclick={onNext}
-				showVisibilityToggle={true}
-			/>
+			<div
+				class="relative mx-auto size-60 md:size-80"
+				onpointerdowncapture={() => {
+					globalState.hasUsedTwistyPlayer = true;
+				}}
+			>
+				<TwistyPlayer
+					bind:this={twistyPlayerRef}
+					bind:scramble
+					bind:alg
+					bind:hidePlayer={globalState.trainHideTwistyPlayer}
+					groupId={currentTrainCase.groupId}
+					caseId={currentTrainCase.caseId}
+					algorithmSelection={currentAlgorithmSelection}
+					auf={currentTrainCase.auf}
+					side={currentTrainCase.side}
+					crossColor={currentTrainCase.crossColor}
+					frontColor={currentTrainCase.frontColor}
+					stickering={globalState.trainHintStickering}
+					experimentalDragInput="auto"
+					class="size-full"
+					controlPanel="bottom-row"
+					onclick={onNext}
+					showVisibilityToggle={true}
+				/>
+				{#if !globalState.hasUsedTwistyPlayer}
+					<Pointer
+						class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+					/>
+				{/if}
+			</div>
 
 			<HintButton
 				{alg}

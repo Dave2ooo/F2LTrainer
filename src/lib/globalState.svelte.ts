@@ -24,7 +24,9 @@ const createDefaultGlobalState = (): GlobalState => ({
 	playOnAlgChange: true,
 	showDetails: false,
 	trainHideTwistyPlayer: false,
-	trainShowTimer: false
+	trainShowTimer: false,
+	hasUsedTimer: false,
+	hasUsedTwistyPlayer: false
 });
 
 const defaultState = createDefaultGlobalState();
