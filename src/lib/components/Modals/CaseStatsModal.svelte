@@ -46,6 +46,7 @@
 	const title = GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId;
 
 	let hoveredIndex: number | null = $state(null);
+	let selectedIndex: number | null = $state(null);
 	let innerWidth = $state(0);
 
 	const axisLabelColor = 'var(--color-chart-axis)';
@@ -191,17 +192,21 @@
 				>
 					<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-gray-500 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
 						{#each times.slice().reverse() as time, index}
+							{@const realIndex = times.length - 1 - index}
 							<Badge
-								class="text-sm md:text-base cursor-pointer {hoveredIndex === times.length - 1 - index
+								class="text-sm md:text-base cursor-pointer {hoveredIndex === realIndex ||
+								selectedIndex === realIndex
 									? 'ring-2 ring-primary-500'
 									: ''}"
 								border
-								dismissable
-								onmouseenter={() => (hoveredIndex = times.length - 1 - index)}
+								dismissable={selectedIndex === realIndex}
+								onclick={() => (selectedIndex = selectedIndex === realIndex ? null : realIndex)}
+								onmouseenter={() => (hoveredIndex = realIndex)}
 								onmouseleave={() => (hoveredIndex = null)}
 								onclose={(e: any) => {
 									e?.preventDefault?.();
-									removeTime(times.length - 1 - index);
+									removeTime(realIndex);
+									selectedIndex = null;
 								}}>{formatTime(time)}</Badge
 							>
 						{/each}
