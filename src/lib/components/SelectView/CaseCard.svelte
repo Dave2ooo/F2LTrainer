@@ -144,7 +144,7 @@
 		class="size-20 md:size-22"
 	/>
 	<div
-		class="flex flex-1 flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
+		class="flex flex-1 self-stretch relative flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
 			caseState.trainState
 		)}"
 	>
@@ -152,7 +152,18 @@
 			{alg}
 		</span>
 		{#if bestTime !== null}
-			<div class="mt-1 flex gap-2 text-sm font-normal opacity-90">
+			<!-- Hidden copy to reserve width -->
+			<div
+				class="invisible h-0 overflow-hidden text-sm font-normal whitespace-nowrap opacity-0"
+				aria-hidden="true"
+			>
+				<span class="mr-2">Best: {formatTime(bestTime)}</span>
+				<span>Ao5: {formatTime(ao5)}</span>
+			</div>
+			<!-- Visible absolute positioned stats -->
+			<div
+				class="absolute bottom-0 left-0 right-0 mb-1 flex justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90"
+			>
 				<span>Best: {formatTime(bestTime)}</span>
 				<span>Ao5: {formatTime(ao5)}</span>
 			</div>
