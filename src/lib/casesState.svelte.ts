@@ -15,10 +15,20 @@ export const createCaseState = (): CaseState => ({
 });
 
 const createGroupCasesState = (groupId: GroupId): Record<CaseId, CaseState> => {
-	const caseEntries = Object.keys(casesStatic[groupId]).map((caseId) => [
-		Number(caseId) as CaseId,
-		createCaseState()
-	]);
+	const caseEntries = Object.keys(casesStatic[groupId]).map((caseIdString) => {
+		const caseId = Number(caseIdString) as CaseId;
+		const state = createCaseState();
+
+		if (groupId === 'basic') {
+			if (caseId === 3) {
+				state.trainState = 'finished';
+			} else if (caseId === 1 || caseId === 2) {
+				state.trainState = 'learning';
+			}
+		}
+
+		return [caseId, state];
+	});
 
 	return Object.fromEntries(caseEntries) as Record<CaseId, CaseState>;
 };
