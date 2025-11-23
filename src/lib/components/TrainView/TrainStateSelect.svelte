@@ -18,12 +18,15 @@
 			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState
 			: 'unlearned'
 	);
+
+	const triggerId = `train-state-dd-${Math.random().toString(36).slice(2)}`;
+	let dropdownOpen = $state(false);
 </script>
 
 {#if currentTrainCase}
 	<div>
 		<Button
-			id="train-state-dd"
+			id={triggerId}
 			class="text-left"
 			style="background: {TrainStateColors[
 				currentTrainCaseTrainState
@@ -39,11 +42,12 @@
 			<ChevronDownOutline class="ms-2 inline h-5 w-5" />
 		</Button>
 
-		<Dropdown simple class="w-44" triggeredBy="#train-state-dd">
+		<Dropdown simple class="w-44" triggeredBy="#{triggerId}" bind:isOpen={dropdownOpen}>
 			{#each TRAIN_STATES as trainState}
 				<DropdownItem
 					onclick={() => {
 						casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState = trainState;
+						dropdownOpen = false;
 					}}
 					class="w-full text-center"
 					style="background: {TrainStateColors[trainState]}; color: {TrainStateTextColors[
