@@ -16,6 +16,19 @@ export function calculateAo5(times: number[]): number | null {
 	return sum / 3;
 }
 
+export function calculateAo12(times: number[]): number | null {
+	if (times.length < 12) return null;
+
+	const last12 = times.slice(-12);
+	// Sort to easily remove best and worst
+	const sorted = [...last12].sort((a, b) => a - b);
+	// Remove best (first) and worst (last)
+	const middle10 = sorted.slice(1, 11);
+	// Average remaining 10
+	const sum = middle10.reduce((a, b) => a + b, 0);
+	return sum / 10;
+}
+
 export function formatTime(time: number | null): string {
 	if (time === null) return '-';
 	return time.toFixed(2);

@@ -2,7 +2,7 @@
 	import { Modal, Badge, Card } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statistics } from '$lib/statisticsState.svelte';
-	import { calculateBestTime, calculateAo5, formatTime } from '$lib/utils/statistics';
+	import { calculateBestTime, calculateAo5, calculateAo12, formatTime } from '$lib/utils/statistics';
 	import { globalState } from '$lib/globalState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
@@ -35,6 +35,7 @@
 	const times = $derived(caseStats.times);
 	const bestTime = $derived(calculateBestTime(times));
 	const ao5 = $derived(calculateAo5(times));
+	const ao12 = $derived(calculateAo12(times));
 	// const solves = $derived(caseStats.solves);
 	const solves = $derived(caseStats.times.length);
 
@@ -150,30 +151,36 @@
 
 <Modal bind:open {title} size="sm" outsideclose={true} autoclose={false}>
 	<div class="flex flex-col items-center gap-4">
-		<TwistyPlayer
-			{groupId}
-			{caseId}
-			algorithmSelection={caseState.algorithmSelection}
-			customAlgorithm={caseState.customAlgorithm}
-			side="right"
-			{crossColor}
-			{frontColor}
-			experimentalDragInput="auto"
-			class="size-40 md:size-50"
-		/>
+		<div class="flex flex-row items-center gap-8">
+			<TwistyPlayer
+				{groupId}
+				{caseId}
+				algorithmSelection={caseState.algorithmSelection}
+				customAlgorithm={caseState.customAlgorithm}
+				side="right"
+				{crossColor}
+				{frontColor}
+				experimentalDragInput="auto"
+				class="size-40 md:size-50"
+			/>
 
-		<div class="grid grid-cols-3 gap-4 text-center w-full">
-			<div class="flex flex-col">
-				<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Solves</span>
-				<span class="text-xl md:text-2xl font-bold">{solves}</span>
-			</div>
-			<div class="flex flex-col">
-				<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Best</span>
-				<span class="text-xl md:text-2xl font-bold">{formatTime(bestTime)}</span>
-			</div>
-			<div class="flex flex-col">
-				<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Ao5</span>
-				<span class="text-xl md:text-2xl font-bold">{formatTime(ao5)}</span>
+			<div class="flex flex-col gap-3 text-center min-w-[100px]">
+				<div class="flex flex-col">
+					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Solves</span>
+					<span class="text-xl md:text-2xl font-bold">{solves}</span>
+				</div>
+				<div class="flex flex-col">
+					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Best</span>
+					<span class="text-xl md:text-2xl font-bold">{formatTime(bestTime)}</span>
+				</div>
+				<div class="flex flex-col">
+					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Ao5</span>
+					<span class="text-xl md:text-2xl font-bold">{formatTime(ao5)}</span>
+				</div>
+				<div class="flex flex-col">
+					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Ao12</span>
+					<span class="text-xl md:text-2xl font-bold">{formatTime(ao12)}</span>
+				</div>
 			</div>
 		</div>
 
