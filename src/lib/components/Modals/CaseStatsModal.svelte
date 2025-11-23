@@ -188,7 +188,7 @@
 <svelte:window bind:innerWidth />
 
 <Modal bind:open {title} size="sm" outsideclose={true} autoclose={false}>
-	<div class="flex flex-col items-center gap-4">
+	<div class="flex flex-col items-center gap-0 md:gap-4">
 		<div class="flex flex-row items-center gap-8">
 			<TwistyPlayer
 				{groupId}
@@ -243,7 +243,7 @@
 
 		{#if times.length > 0}
 			<Card class="w-full shadow-none border-0 sm:p-0">
-				<div class="flex justify-between mb-4">
+				<div class="flex justify-between mb-0 md:mb-2">
 					<h5 class="text-xl md:text-2xl font-bold leading-none text-gray-900 dark:text-white">
 						History
 					</h5>
