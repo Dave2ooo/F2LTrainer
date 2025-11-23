@@ -39,6 +39,13 @@
 	// const solves = $derived(caseStats.solves);
 	const solves = $derived(caseStats.times.length);
 
+	// Find the index of the best time
+	const bestTimeIndex = $derived(
+		bestTime !== null && times.length > 0
+			? times.indexOf(bestTime)
+			: null
+	);
+
 	const [crossColor, frontColor] = $derived(
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
@@ -48,6 +55,7 @@
 
 	let hoveredIndex: number | null = $state(null);
 	let selectedIndex: number | null = $state(null);
+	let bestTimeHovered: boolean = $state(false);
 	let innerWidth = $state(0);
 
 	const axisLabelColor = 'var(--color-chart-axis)';
@@ -144,14 +152,35 @@
 		},
 		markers: {
 			size: 0,
-			discrete: hoveredIndex !== null ? [{
-				seriesIndex: 0,
-				dataPointIndex: hoveredIndex,
-				fillColor: '#1A56DB',
-				strokeColor: '#fff',
-				size: 6,
-				shape: "circle"
-			}] : []
+			discrete: (() => {
+				const markers = [];
+				
+				// Add marker for hovered point
+				if (hoveredIndex !== null) {
+					markers.push({
+						seriesIndex: 0,
+						dataPointIndex: hoveredIndex,
+						fillColor: '#1A56DB',
+						strokeColor: '#fff',
+						size: 6,
+						shape: "circle"
+					});
+				}
+				
+				// Add marker for best time when hovering over the "Best" stat
+				if (bestTimeHovered && bestTimeIndex !== null && bestTimeIndex !== hoveredIndex) {
+					markers.push({
+						seriesIndex: 0,
+						dataPointIndex: bestTimeIndex,
+						fillColor: '#10B981', // Green color for best time
+						strokeColor: '#fff',
+						size: 6,
+						shape: "circle"
+					});
+				}
+				
+				return markers;
+			})()
 		}
 	});
 </script>
@@ -178,7 +207,26 @@
 					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Solves</span>
 					<span class="text-xl md:text-2xl font-bold">{solves}</span>
 				</div>
-				<div class="flex flex-col">
+				<div 
+					class="flex flex-col cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 -m-2"
+					role="button"
+					tabindex="0"
+					onmouseenter={() => bestTimeHovered = true}
+					onmouseleave={() => bestTimeHovered = false}
+					onclick={() => {
+						if (bestTimeIndex !== null) {
+							hoveredIndex = hoveredIndex === bestTimeIndex ? null : bestTimeIndex;
+						}
+					}}
+					onkeydown={(e) => {
+						if (e.key === 'Enter' || e.key === ' ') {
+							e.preventDefault();
+							if (bestTimeIndex !== null) {
+								hoveredIndex = hoveredIndex === bestTimeIndex ? null : bestTimeIndex;
+							}
+						}
+					}}
+				>
 					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Best</span>
 					<span class="text-xl md:text-2xl font-bold">{formatTime(bestTime)}</span>
 				</div>
