@@ -16,7 +16,7 @@
 	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
 	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 	import { Button } from 'flowbite-svelte';
-	import { Ellipsis } from '@lucide/svelte';
+	import { Ellipsis, Pointer } from '@lucide/svelte';
 	import { statistics } from '$lib/statisticsState.svelte';
 	import { calculateBestTime, calculateAo5, formatTime } from '$lib/utils/statistics';
 
@@ -137,19 +137,31 @@
 	<span class="font-arial px-1 md:text-lg {getCaseTextClass(caseState.trainState)}">
 		{getCaseName(staticData)}
 	</span>
-	<TwistyPlayer
-		bind:this={twistyPlayerRef}
-		bind:scramble
-		bind:alg
-		{groupId}
-		{caseId}
-		algorithmSelection={caseState.algorithmSelection}
-		{side}
-		{crossColor}
-		{frontColor}
-		controlPanel="none"
-		class="size-21 md:size-25 2xl:size-30"
-	/>
+	<div
+		class="relative size-21 md:size-25 2xl:size-30"
+		onpointerdowncapture={() => {
+			globalState.hasClickedCaseCard = true;
+		}}
+	>
+		<TwistyPlayer
+			bind:this={twistyPlayerRef}
+			bind:scramble
+			bind:alg
+			{groupId}
+			{caseId}
+			algorithmSelection={caseState.algorithmSelection}
+			{side}
+			{crossColor}
+			{frontColor}
+			controlPanel="none"
+			class="size-full"
+		/>
+		{#if !globalState.hasClickedCaseCard && groupId === 'basic' && caseId === 4}
+			<Pointer
+				class="pointer-events-none absolute top-3/4 left-1/2 z-50 size-8 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+			/>
+		{/if}
+	</div>
 	<div
 		class="flex flex-1 self-stretch relative flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
 			caseState.trainState

@@ -26,7 +26,8 @@ const createDefaultGlobalState = (): GlobalState => ({
 	trainHideTwistyPlayer: false,
 	trainShowTimer: false,
 	hasUsedTimer: false,
-	hasUsedTwistyPlayer: false
+	hasUsedTwistyPlayer: false,
+	hasClickedCaseCard: false
 });
 
 const defaultState = createDefaultGlobalState();

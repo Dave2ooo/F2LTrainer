@@ -26,4 +26,5 @@ export interface GlobalState {
 	trainShowTimer: boolean;
 	hasUsedTimer: boolean;
 	hasUsedTwistyPlayer: boolean;
+	hasClickedCaseCard: boolean;
 }
