@@ -206,7 +206,7 @@
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
-{#if currentTrainCase}
+{#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
 		{#snippet leftContent()}
 			<div class="my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
