@@ -209,7 +209,7 @@
 {#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
 		{#snippet leftContent()}
-			<div class="my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
+			<div class="my-2 md:my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"

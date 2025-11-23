@@ -106,7 +106,7 @@
 	});
 </script>
 
-<div class="my-4 flex w-full flex-col items-center md:my-6">
+<div class="mb-2 mt-0 flex w-full flex-col items-center md:mb-4 md:mt-0">
 	<button
 		type="button"
 		onpointerdown={handlePointerDown}

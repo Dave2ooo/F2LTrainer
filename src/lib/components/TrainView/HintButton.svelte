@@ -87,7 +87,7 @@
 </script>
 
 <!-- Container holds both the alg viewer element (used by TwistyAlgViewer) and the hint button UI -->
-<div class="my-4 flex w-full flex-col items-center md:my-6">
+<div class="my-2 flex w-full flex-col items-center md:my-4">
 	<div class="relative">
 		<div
 			bind:this={algViewerContainer}
