@@ -170,126 +170,129 @@
 			onConfirm();
 		}}
 	>
-		<ThemeSwitch />
-		<div class="space-y-6">
+		<div class="space-y-2">
+			<!-- Appearance Section -->
+			<section class="rounded-lg border border-gray-400 p-4">
+				<div class="flex items-center justify-between">
+					<h3 class="text-lg font-medium">Appearance</h3>
+					<ThemeSwitch />
+				</div>
+			</section>
+
 			<!-- Train Settings Section -->
 			<section class="rounded-lg border border-gray-400 p-4">
-				<div class="mb-3 flex items-center gap-0">
-					<h3 class="text-lg font-medium">Train Settings</h3>
-					<TooltipButton
-						id="btn-train-settings-1"
-						tooltip="Select the cases you want to practice"
-						icon={CircleQuestionMark}
-					/>
-				</div>
-
-				<!-- Statuses -->
-				<div class="mb-4">
-					<p class="mb-2 font-medium">Statuses</p>
-					<div
-						class="flex flex-wrap gap-4"
-						class:flash={flashStatuses}
-						role="group"
-						aria-describedby={flashStatuses ? 'statuses-error' : undefined}
-					>
-						<Checkbox autofocus bind:checked={workingState.trainStateSelection.unlearned}
-							>Unlearned</Checkbox
-						>
-						<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
-						<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
-					</div>
-					{#if flashStatuses}
-						<p id="statuses-error" class="mt-1 text-sm text-red-600" role="alert">
-							Please select at least one status.
-						</p>
-					{/if}
-				</div>
-
-				<!-- Group -->
-				<div class="mb-4">
-					<p class="mb-2 font-medium">Group</p>
-					<div
-						class="flex flex-wrap gap-4"
-						class:flash={flashGroups}
-						role="group"
-						aria-describedby={flashGroups ? 'groups-error' : undefined}
-					>
-						<Checkbox bind:checked={workingState.trainGroupSelection.basic}>Basic</Checkbox>
-						<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}>Basic Back</Checkbox
-						>
-						<Checkbox bind:checked={workingState.trainGroupSelection.advanced}>Advanced</Checkbox>
-						<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
-					</div>
-					{#if flashGroups}
-						<p id="groups-error" class="mt-1 text-sm text-red-600" role="alert">
-							Please select at least one group.
-						</p>
-					{/if}
-				</div>
-
-				<p>
-					{numberOfSelectedCases} cases selected
-				</p>
-
-				<!-- Side -->
-				<div class="mb-4">
-					<div class="mb-2 flex items-center gap-0">
-						<p class="mb-0 font-medium">Side</p>
-						<TooltipButton
-							id="btn-train-settings-2"
-							tooltip="Chose if you want to left or right slot"
+				<div class="mb-4 flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<h3 class="text-lg font-medium">Train Settings</h3>
+						<!-- <TooltipButton
+							id="btn-train-settings-main"
+							tooltip="Configure your training session parameters"
 							icon={CircleQuestionMark}
-						/>
+						/> -->
 					</div>
-					<div
-						class="flex flex-wrap gap-4"
-						class:flash={flashSides}
-						role="group"
-						aria-describedby={flashSides ? 'side-error' : undefined}
-					>
-						<Checkbox bind:checked={workingState.trainSideSelection.left}>Left</Checkbox>
-						<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
-						{#if flashSides}
-							<p id="side-error" class="mt-1 text-sm text-red-600" role="alert">
-								Please select left or right side.
-							</p>
-						{/if}
-					</div>
+					<span class="text-sm text-gray-500 dark:text-gray-400">
+						{numberOfSelectedCases} cases selected
+					</span>
 				</div>
 
-				<!-- Add AUF -->
-				<div>
-					<div class="mb-4">
-						<div class="mb-2 flex items-center gap-0">
-							<p class="mb-0 font-medium">AUF</p>
-							<TooltipButton
-								id="btn-train-settings-3"
-								tooltip="Adds random U move to the scramble"
-								icon={CircleQuestionMark}
-							/>
-						</div>
-						<div class="flex flex-wrap gap-4">
-							<div class="flex items-center">
-								<Checkbox bind:checked={workingState.trainAddAuf}>Add AUF</Checkbox>
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+					<!-- Left Column: Filtering -->
+					<div class="space-y-5">
+						<!-- Statuses -->
+						<div>
+							<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Statuses</p>
+							<div
+								class="flex flex-wrap gap-3"
+								class:flash={flashStatuses}
+								role="group"
+								aria-describedby={flashStatuses ? 'statuses-error' : undefined}
+							>
+								<Checkbox autofocus bind:checked={workingState.trainStateSelection.unlearned}
+									>Unlearned</Checkbox
+								>
+								<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
+								<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 							</div>
+							{#if flashStatuses}
+								<p id="statuses-error" class="mt-1 text-sm text-red-600" role="alert">
+									Please select at least one status.
+								</p>
+							{/if}
+						</div>
+
+						<!-- Group -->
+						<div>
+							<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Case Groups</p>
+							<div
+								class="grid w-fit grid-cols-2 gap-x-8 gap-y-2"
+								class:flash={flashGroups}
+								role="group"
+								aria-describedby={flashGroups ? 'groups-error' : undefined}
+							>
+								<Checkbox bind:checked={workingState.trainGroupSelection.basic}>Basic</Checkbox>
+								<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}>Basic Back</Checkbox
+								>
+								<Checkbox bind:checked={workingState.trainGroupSelection.advanced}>Advanced</Checkbox>
+								<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
+							</div>
+							{#if flashGroups}
+								<p id="groups-error" class="mt-1 text-sm text-red-600" role="alert">
+									Please select at least one group.
+								</p>
+							{/if}
 						</div>
 					</div>
-				</div>
 
-				<!-- Show Timer -->
-				<div>
-					<div class="mb-4">
-						<div class="mb-2 flex items-center gap-0">
-							<p class="mb-0 font-medium">Timer</p>
-							<TooltipButton
-								id="btn-train-settings-timer"
-								tooltip="Show timer component for speedcubing practice"
-								icon={CircleQuestionMark}
-							/>
+					<!-- Right Column: Configuration -->
+					<div class="space-y-5">
+						<!-- Side -->
+						<div>
+							<div class="mb-2 flex items-center gap-2">
+								<p class="text-sm font-semibold text-gray-900 dark:text-white">Slot Side</p>
+								<TooltipButton
+									id="btn-train-settings-side"
+									tooltip="Choose if you want to train left or right slot cases"
+									icon={CircleQuestionMark}
+								/>
+							</div>
+							<div
+								class="flex flex-wrap gap-4"
+								class:flash={flashSides}
+								role="group"
+								aria-describedby={flashSides ? 'side-error' : undefined}
+							>
+								<Checkbox bind:checked={workingState.trainSideSelection.left}>Left</Checkbox>
+								<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
+							</div>
+							{#if flashSides}
+								<p id="side-error" class="mt-1 text-sm text-red-600" role="alert">
+									Please select left or right side.
+								</p>
+							{/if}
 						</div>
-						<div class="flex flex-wrap gap-4">
-							<div class="flex items-center">
-								<Checkbox bind:checked={workingState.trainShowTimer}>Show Timer</Checkbox>
+
+						<!-- Options (AUF & Timer) -->
+						<div>
+							<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Options</p>
+							<div class="grid grid-cols-2 gap-4 sm:grid-cols-1 sm:gap-0">
+								<!-- Add AUF -->
+								<div class="flex items-center gap-2">
+									<Checkbox bind:checked={workingState.trainAddAuf}>Add Random AUF</Checkbox>
+									<TooltipButton
+										id="btn-train-settings-auf"
+										tooltip="Adds a random U move to the end of the scramble"
+										icon={CircleQuestionMark}
+									/>
+								</div>
+								<!-- Show Timer -->
+								<div class="flex items-center justify-between">
+									<Checkbox bind:checked={workingState.trainShowTimer}>Show Timer</Checkbox>
+									<!-- <TooltipButton
+										id="btn-train-settings-timer"
+										tooltip="Show timer component for speedcubing practice"
+										icon={CircleQuestionMark}
+									/> -->
+								</div>
 							</div>
 						</div>
 					</div>
@@ -298,13 +301,13 @@
 
 			<!-- Hint Settings Section -->
 			<section class="rounded-lg border border-gray-400 p-4">
-				<h3 class="mb-3 text-lg font-medium">Hint Settings</h3>
+				<h3 class="mb-4 text-lg font-medium">Hint Settings</h3>
 
-				<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 					<!-- Left Column -->
-					<div>
-						<div class="mb-3">
-							<Label for="algorithm" class="mb-1 block">Algorithm</Label>
+					<div class="space-y-4">
+						<div>
+							<Label for="algorithm" class="mb-1 block font-medium">Algorithm Display</Label>
 							<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
 								<option value="step">Reveal step-by-step</option>
 								<option value="allAtOnce">Reveal all at once</option>
@@ -312,8 +315,8 @@
 							</Select>
 						</div>
 
-						<div class="mb-3">
-							<Label for="stickering" class="mb-1 block">Stickering</Label>
+						<div>
+							<Label for="stickering" class="mb-1 block font-medium">Stickering Style</Label>
 							<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
 								<option value="f2l">F2L Stickering</option>
 								<option value="fully">Fully stickered</option>
@@ -322,20 +325,18 @@
 					</div>
 
 					<!-- Right Column -->
-					<div>
+					<div class="space-y-4">
 						<div
-							class="mb-3"
 							class:flash={flashCrossColor}
 							aria-invalid={flashCrossColor}
 							aria-describedby={flashCrossColor || flashFrontColor
 								? 'cross-front-error'
 								: undefined}
 						>
-							<Label for="crossColor" class="mb-1 block">Cross color</Label>
+							<Label for="crossColor" class="mb-1 block font-medium">Cross Color</Label>
 							<Select bind:value={workingState.crossColor} id="crossColor" placeholder="">
 								{#each STICKER_COLORS_WITH_RANDOM as color}
 									<option value={color}>
-										<!-- Make first letter uppercase -->
 										{color.charAt(0).toUpperCase() + color.slice(1)}
 									</option>
 								{/each}
@@ -343,18 +344,16 @@
 						</div>
 
 						<div
-							class="mb-3"
 							class:flash={flashFrontColor}
 							aria-invalid={flashFrontColor}
 							aria-describedby={flashCrossColor || flashFrontColor
 								? 'cross-front-error'
 								: undefined}
 						>
-							<Label for="frontColor" class="mb-1 block">Front color</Label>
+							<Label for="frontColor" class="mb-1 block font-medium">Front Color</Label>
 							<Select bind:value={workingState.frontColor} id="frontColor" placeholder="">
 								{#each STICKER_COLORS_WITH_RANDOM as color}
 									<option value={color}>
-										<!-- Make first letter uppercase -->
 										{color.charAt(0).toUpperCase() + color.slice(1)}
 									</option>
 								{/each}
@@ -370,20 +369,13 @@
 			</section>
 
 			<!-- Danger Zone Section -->
-			<section class="rounded-lg border border-red-400 bg-red-50 p-4">
-				<h3 class="mb-3 text-lg font-medium text-red-700">Danger Zone</h3>
-				<div class="flex items-center justify-between">
-					<div>
-						<p class="font-medium text-gray-900">Clear All Data</p>
-						<p class="text-sm text-gray-600">
-							Delete all saved settings, case states, and progress
-						</p>
-					</div>
-					<Button color="red" outline onclick={handleClearStorage} class="gap-2">
-						<Trash2 size={16} />
-						Clear Data
-					</Button>
-				</div>
+			<!-- Danger Zone Section -->
+			<section class="flex items-center justify-between rounded-lg border border-red-400 bg-red-50 p-3">
+				<span class="font-medium text-red-700">Danger Zone</span>
+				<Button size="sm" color="red" outline onclick={handleClearStorage} class="gap-2">
+					<Trash2 size={16} />
+					Clear Data
+				</Button>
 			</section>
 		</div>
 
