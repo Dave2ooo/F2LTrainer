@@ -1,0 +1,59 @@
+# Antigravity AI Context & Project Rules
+
+## Project Overview
+**Name:** F2LTrainer-Svelte
+**Description:** A speedcubing training application for F2L (First 2 Layers), featuring 3D cube rendering, algorithm management, and timing statistics.
+
+## Technology Stack
+- **Framework:** Svelte 5 (Runes mode)
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Styling:** Tailwind CSS 4 (via @tailwindcss/vite)
+- **UI Components:** Flowbite Svelte
+- **Icons:** Lucide Svelte, Flowbite Svelte Icons
+- **Domain Logic:** `cubing.js` for puzzle logic and rendering
+- **Package Manager:** pnpm
+
+## Documentation Resources
+The following files contain detailed documentation. **Consult them if unsure about syntax or component usage:**
+- **Svelte 5 & SvelteKit:** `docs/svelte/small.txt` (Contains definitive guide on Runes, Snippets, and SvelteKit routing)
+- **Flowbite Svelte:** `docs/flowbite/llm/context-full.txt` (Contains full component API and customization guides)
+
+## Coding Conventions
+
+### 1. Svelte 5 Runes (Strict)
+**You MUST use Svelte 5 Runes syntax.** Do not use legacy Svelte 4 syntax (`export let`, `$:`, etc.).
+- **State:** `let count = $state(0);` (not `let count = 0;`)
+- **Derived:** `let double = $derived(count * 2);` (not `$: double = count * 2;`)
+- **Effect:** `$effect(() => console.log(count));` (not `$: console.log(count);`)
+- **Props:** `let { title, count = 0 } = $props();` (not `export let title;`)
+- **Events:** Use `onclick` instead of `on:click`.
+- **Snippets:** Use `{#snippet name(arg)}...{/snippet}` and `{@render name(arg)}` instead of slots.
+
+### 2. Flowbite Svelte Usage
+- **Importing:** Import components directly from `flowbite-svelte`.
+  ```typescript
+  import { Button, Modal } from 'flowbite-svelte';
+  ```
+- **Icons:** Use `flowbite-svelte-icons` or `@lucide/svelte`.
+- **Customization:** Use the `class` prop to override Tailwind classes.
+  ```svelte
+  <Button class="bg-red-500 hover:bg-red-600">Click Me</Button>
+  ```
+- **Dark Mode:** Ensure all components support dark mode (Flowbite handles this automatically, but custom styles need `dark:` variants).
+
+### 3. Project Structure
+- **Components:** `src/lib/components/` (Functional, responsive, mobile-first).
+- **Stores/State:** Use `$state.raw` for large objects (like cube state) to avoid deep proxy overhead if deep reactivity isn't needed.
+- **Imports:** Use `$lib/` alias.
+
+## Key Features & Context
+- **TrainView:** The main training interface.
+- **TwistyPlayer:** Wrapper around `cubing.js` for 3D visualization.
+- **Algorithms:** Users can select, mirror, and manage algorithms for specific cases.
+- **Timer:** Integrated timer with inspection and stats (Ao5, Ao12).
+
+## User Preferences
+- **IDE:** Antigravity (VS Code fork).
+- **Design:** Prioritize premium, "wow" aesthetics with smooth animations and modern UI patterns.
+- **Performance:** Low latency is critical for the timer and cube interactions.
