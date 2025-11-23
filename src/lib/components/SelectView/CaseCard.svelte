@@ -148,7 +148,7 @@
 		{crossColor}
 		{frontColor}
 		controlPanel="none"
-		class="size-20 md:size-22"
+		class="size-21 md:size-25 2xl:size-30"
 	/>
 	<div
 		class="flex flex-1 self-stretch relative flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
