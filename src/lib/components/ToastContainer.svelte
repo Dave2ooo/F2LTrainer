@@ -6,7 +6,12 @@
 		addToast,
 		DEFAULT_TOAST_DURATION
 	} from '$lib/toastState.svelte';
-	import { casesState, TrainStateLabels, getCaseName } from '$lib/casesState.svelte';
+	import {
+		casesState,
+		TrainStateLabels,
+		getCaseName,
+		TrainStateColors
+	} from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { GROUP_IDS } from '$lib/types/group';
 	import { browser } from '$app/environment';
@@ -39,8 +44,11 @@
 							const caseName = getCaseName(staticData);
 							const stateLabel = TrainStateLabels[currentState];
 							const message = `${caseName} → ${stateLabel}`;
+							const borderColor = TrainStateColors[currentState];
 
-							addToast(message, 'success', DEFAULT_TOAST_DURATION);
+							// Clear existing toasts to avoid stacking and show only the latest one
+							toastState.notifications = [];
+							addToast(message, 'success', DEFAULT_TOAST_DURATION, borderColor);
 
 							// Update tracking
 							previousTrainStates.set(key, currentState);
@@ -53,11 +61,12 @@
 </script>
 
 <div class="toast-container fixed bottom-4 left-4 z-50 flex flex-col gap-2">
-	{#each toastState.notifications.slice(-1) as toast (toast.id)}
+	{#each toastState.notifications as toast (toast.id)}
 		<Toast
 			message={toast.message}
 			type={toast.type}
 			duration={toast.duration}
+			borderColor={toast.borderColor}
 			showIcon={false}
 			onClose={() => removeToast(toast.id)}
 		/>

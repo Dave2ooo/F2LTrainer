@@ -8,13 +8,15 @@
 		type = 'success',
 		duration = 3000,
 		showIcon = true,
-		onClose
+		onClose,
+		borderColor
 	}: {
 		message: string;
 		type?: 'success' | 'error';
 		duration?: number;
 		showIcon?: boolean;
 		onClose?: () => void;
+		borderColor?: string;
 	} = $props();
 
 	let toastStatus = $state(true);
@@ -35,7 +37,14 @@
 </script>
 
 {#if toastStatus}
-	<Toast dismissable={true} transition={slide} bind:toastStatus {color}>
+	<Toast
+		dismissable={true}
+		transition={slide}
+		bind:toastStatus
+		{color}
+		class="border-5"
+		style={borderColor ? `border-color: ${borderColor};` : ''}
+	>
 		{#if showIcon}
 			{#snippet icon()}
 				{#if type === 'success'}
@@ -45,6 +54,6 @@
 				{/if}
 			{/snippet}
 		{/if}
-		{message}
+		<div>{message}</div>
 	</Toast>
 {/if}
