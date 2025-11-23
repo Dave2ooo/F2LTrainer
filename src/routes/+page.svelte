@@ -35,8 +35,6 @@
 </script>
 
 <div style="background-color: var(--color-theme-bg); min-height: 100vh;">
-	<Heading>F2L Trainer</Heading>
-
 	<div class="flex gap-2">
 		<Button onclick={() => settingsRef.openModal()}><SettingsIcon /></Button>
 		<Tooltip placement="bottom">Settings</Tooltip>
