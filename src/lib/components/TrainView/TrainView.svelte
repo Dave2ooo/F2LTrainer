@@ -274,11 +274,17 @@
 			{#if globalState.trainShowTimer}
 				<Timer bind:this={timerRef} onStop={handleTimerStop} />
 			{/if}
-			<TrainStateSelect />
 
-			<Button onclick={() => settingsRef?.openModal()}
-				>{getNumberOfSelectedCases()} cases selected</Button
-			>
+			<div class="flex flex-row justify-center gap-2">
+				<TrainStateSelect />
+
+				<Button onclick={() => settingsRef?.openModal()}
+					>{getNumberOfSelectedCases()} cases selected</Button
+				>
+			</div>
+			
+			<Details />
+
 			<Settings bind:this={settingsRef} />
 
 			<EditAlg
@@ -288,7 +294,6 @@
 				side={currentTrainCase.side}
 			/>
 
-			<Details />
 		{/snippet}
 	</ResponsiveLayout>
 {:else}

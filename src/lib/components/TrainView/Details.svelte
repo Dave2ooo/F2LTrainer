@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { P, Button } from 'flowbite-svelte';
+	import { P } from 'flowbite-svelte';
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
@@ -27,13 +27,17 @@
 </script>
 
 {#if currentTrainCase && caseState}
-	<div>
-		<Button onclick={() => (globalState.showDetails = !globalState.showDetails)}>
+	<div class="mt-4 flex flex-col items-center gap-2 text-center">
+		<button
+			type="button"
+			class="text-sm text-gray-500 underline hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+			onclick={() => (globalState.showDetails = !globalState.showDetails)}
+		>
 			{globalState.showDetails ? 'Hide Details' : 'Show Details'}
-		</Button>
+		</button>
 
 		{#if globalState.showDetails}
-			<P size="lg" weight="semibold">
+			<P class="text-sm text-gray-500 dark:text-gray-400" weight="normal">
 				{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
 				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {caseState.solveCount}
 			</P>
