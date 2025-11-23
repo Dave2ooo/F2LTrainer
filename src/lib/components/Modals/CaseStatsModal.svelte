@@ -103,7 +103,11 @@
 		},
 		yaxis: {
 			show: true,
+			min: 0,
 			labels: {
+				formatter: function (val: number) {
+					return Math.round(val).toString();
+				},
 				style: {
 					colors: axisLabelColor,
 					fontSize: axisFontSize,
@@ -130,6 +134,11 @@
 				show: false,
 				formatter: function (val: any) {
 					return 'Solve ' + val;
+				}
+			},
+			y: {
+				formatter: function (val: number) {
+					return val.toFixed(2);
 				}
 			}
 		},
