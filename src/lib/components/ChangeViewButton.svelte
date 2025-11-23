@@ -11,7 +11,13 @@
 	);
 
 	function onToggleView() {
-		globalState.view == 'select' ? (globalState.view = 'train') : (globalState.view = 'select');
+		if (globalState.view == 'select') {
+			if (getNumberOfSelectedCases() > 0) {
+				globalState.view = 'train';
+			}
+		} else {
+			globalState.view = 'select';
+		}
 	}
 </script>
 
