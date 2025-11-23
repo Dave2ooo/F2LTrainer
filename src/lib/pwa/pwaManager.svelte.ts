@@ -1,9 +1,27 @@
-import { browser } from '$app/environment';
+import { browser, dev } from '$app/environment';
 import { base } from '$app/paths';
 import { pwaPrompt, clearPwaPrompt } from '$lib/pwaPrompt.svelte';
 
 export function startPwaManager() {
 	if (!browser) return;
+
+	// In development, unregister any existing service workers to avoid caching issues
+	if (dev) {
+		if ('serviceWorker' in navigator) {
+			console.log('PWA Manager: dev mode detected, checking for existing service workers...');
+			navigator.serviceWorker.getRegistrations().then((registrations) => {
+				if (registrations.length === 0) {
+					console.log('PWA Manager: no existing service workers found.');
+				} else {
+					for (const registration of registrations) {
+						console.log('PWA Manager: unregistering SW in dev mode', registration.scope);
+						registration.unregister();
+					}
+				}
+			});
+		}
+		return;
+	}
 
 	if (!('serviceWorker' in navigator)) return;
 
