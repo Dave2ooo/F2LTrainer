@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'fs';
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'fs';
 import path from 'path';
 
 const projectRoot = process.cwd();
@@ -40,11 +40,15 @@ mkdirSync(buildDir, { recursive: true });
 copyDirContents(clientDir, buildDir);
 copyDirContents(prerenderedPagesDir, buildDir);
 
+// Create .nojekyll file to prevent GitHub Pages from ignoring files starting with _
+writeFileSync(path.join(buildDir, '.nojekyll'), '', 'utf8');
+
+// Copy index.html to 404.html for client-side routing fallback
 const indexHtmlPath = path.join(buildDir, 'index.html');
 const fallbackPath = path.join(buildDir, '404.html');
-
-if (existsSync(indexHtmlPath) && !existsSync(fallbackPath)) {
+if (existsSync(indexHtmlPath)) {
 	cpSync(indexHtmlPath, fallbackPath, { force: true });
 }
 
 console.log(`Prepared GitHub Pages artifact at ${buildDir}`);
+
