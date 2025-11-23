@@ -190,7 +190,7 @@
 							icon={CircleQuestionMark}
 						/> -->
 					</div>
-					<span class="text-sm text-gray-500 dark:text-gray-400">
+					<span class="text-base text-gray-500 dark:text-gray-400">
 						{numberOfSelectedCases} cases selected
 					</span>
 				</div>
@@ -214,7 +214,7 @@
 								<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 							</div>
 							{#if flashStatuses}
-								<p id="statuses-error" class="mt-1 text-sm text-red-600" role="alert">
+								<p id="statuses-error" class="mt-1 text-sm text-theme-error" role="alert">
 									Please select at least one status.
 								</p>
 							{/if}
@@ -236,7 +236,7 @@
 								<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
 							</div>
 							{#if flashGroups}
-								<p id="groups-error" class="mt-1 text-sm text-red-600" role="alert">
+								<p id="groups-error" class="mt-1 text-sm text-theme-error" role="alert">
 									Please select at least one group.
 								</p>
 							{/if}
@@ -265,8 +265,8 @@
 								<Checkbox bind:checked={workingState.trainSideSelection.right}>Right</Checkbox>
 							</div>
 							{#if flashSides}
-								<p id="side-error" class="mt-1 text-sm text-red-600" role="alert">
-									Please select left or right side.
+								<p id="side-error" class="mt-1 text-sm text-theme-error" role="alert">
+									Please select at least one side.
 								</p>
 							{/if}
 						</div>
@@ -359,7 +359,7 @@
 								{/each}
 							</Select>
 							{#if flashCrossColor || flashFrontColor}
-								<p id="cross-front-error" class="mt-1 text-sm text-red-600" role="alert">
+								<p id="cross-front-error" class="mt-1 text-sm text-theme-error" role="alert">
 									Cross and Front colors must be adjacent (not the same or opposite).
 								</p>
 							{/if}

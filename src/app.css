@@ -43,6 +43,7 @@
 	--color-theme-text-secondary: var(--color-theme-text-secondary);
 	--color-theme-border: var(--color-theme-border);
 	--color-theme-accent: var(--color-theme-accent);
+	--color-theme-error: var(--color-theme-error);
 }
 
 @source "../node_modules/flowbite-svelte/dist";
@@ -66,6 +67,7 @@
 		--color-theme-text-secondary: #6b7280;
 		--color-theme-border: #000000;
 		--color-theme-accent: #0ea5e9;
+		--color-theme-error: #dc2626;
 	}
 
 	:root.dark {
@@ -75,6 +77,7 @@
 		--color-theme-text-secondary: #d1d5db;
 		--color-theme-border: #ffffff;
 		--color-theme-accent: #38bdf8;
+		--color-theme-error: #ff6464;
 		--color-chart-axis: #9ca3af;
 	}
 }
