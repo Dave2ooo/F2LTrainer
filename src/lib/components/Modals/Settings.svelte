@@ -18,7 +18,8 @@
 	let clearStorageModal: ClearStorageModal;
 
 	// Flash states for validation feedback
-	let flashSelectedCount = $state(false);
+	let flashStatuses = $state(false);
+	let flashGroups = $state(false);
 	let flashSides = $state(false);
 	let flashCrossColor = $state(false);
 	let flashFrontColor = $state(false);
@@ -59,7 +60,8 @@
 		if (!valid) return;
 
 		// Clear any previous flash states since settings are valid and will be applied
-		flashSelectedCount = false;
+		flashStatuses = false;
+		flashGroups = false;
 		flashSides = false;
 		flashCrossColor = false;
 		flashFrontColor = false;
@@ -91,15 +93,28 @@
 	function validateSettings(): boolean {
 		let hasErrors = false;
 
-		// 1. Ensure at least one case selected
-		if (numberOfSelectedCases === 0) {
-			flashSelectedCount = true;
+		// 1. Ensure at least one status is selected
+		if (!workingState.trainStateSelection.unlearned && 
+		    !workingState.trainStateSelection.learning && 
+		    !workingState.trainStateSelection.finished) {
+			flashStatuses = true;
 			hasErrors = true;
 		} else {
-			flashSelectedCount = false;
+			flashStatuses = false;
 		}
 
-		// 2. At least one side must be selected — keep error for group if still invalid
+		// 2. Ensure at least one group is selected
+		if (!workingState.trainGroupSelection.basic && 
+		    !workingState.trainGroupSelection.basicBack && 
+		    !workingState.trainGroupSelection.advanced && 
+		    !workingState.trainGroupSelection.expert) {
+			flashGroups = true;
+			hasErrors = true;
+		} else {
+			flashGroups = false;
+		}
+
+		// 3. At least one side must be selected
 		if (!workingState.trainSideSelection.left && !workingState.trainSideSelection.right) {
 			flashSides = true;
 			hasErrors = true;
@@ -107,7 +122,7 @@
 			flashSides = false;
 		}
 
-		// 3. Cross and Front color cannot be identical or opposite (must be adjacent)
+		// 4. Cross and Front color cannot be identical or opposite (must be adjacent)
 		// Only check when both are real sticker colors (not 'random')
 		const cross = workingState.crossColor;
 		const front = workingState.frontColor;
@@ -171,35 +186,50 @@
 				<!-- Statuses -->
 				<div class="mb-4">
 					<p class="mb-2 font-medium">Statuses</p>
-					<div class="flex flex-wrap gap-4">
+					<div
+						class="flex flex-wrap gap-4"
+						class:flash={flashStatuses}
+						role="group"
+						aria-describedby={flashStatuses ? 'statuses-error' : undefined}
+					>
 						<Checkbox autofocus bind:checked={workingState.trainStateSelection.unlearned}
 							>Unlearned</Checkbox
 						>
 						<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
 						<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 					</div>
+					{#if flashStatuses}
+						<p id="statuses-error" class="mt-1 text-sm text-red-600" role="alert">
+							Please select at least one status.
+						</p>
+					{/if}
 				</div>
 
 				<!-- Group -->
 				<div class="mb-4">
 					<p class="mb-2 font-medium">Group</p>
-					<div class="flex flex-wrap gap-4">
+					<div
+						class="flex flex-wrap gap-4"
+						class:flash={flashGroups}
+						role="group"
+						aria-describedby={flashGroups ? 'groups-error' : undefined}
+					>
 						<Checkbox bind:checked={workingState.trainGroupSelection.basic}>Basic</Checkbox>
 						<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}>Basic Back</Checkbox
 						>
 						<Checkbox bind:checked={workingState.trainGroupSelection.advanced}>Advanced</Checkbox>
 						<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
 					</div>
+					{#if flashGroups}
+						<p id="groups-error" class="mt-1 text-sm text-red-600" role="alert">
+							Please select at least one group.
+						</p>
+					{/if}
 				</div>
 
-				<p class={flashSelectedCount ? 'flash flash-text' : ''}>
+				<p>
 					{numberOfSelectedCases} cases selected
 				</p>
-				{#if flashSelectedCount}
-					<p class="mt-1 text-sm text-red-600" role="alert">
-						Please select at least one case to train.
-					</p>
-				{/if}
 
 				<!-- Side -->
 				<div class="mb-4">
@@ -386,12 +416,5 @@
 	.flash {
 		animation: flash-ring 900ms ease-out;
 		border-radius: 0.375rem; /* match typical rounded input */
-	}
-
-	/* Slightly different look for text flash */
-	.flash-text {
-		animation: flash-ring 900ms ease-out;
-		color: #b91c1c; /* red-700 */
-		font-weight: 600;
 	}
 </style>
