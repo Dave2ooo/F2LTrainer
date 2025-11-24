@@ -60,7 +60,7 @@
 					onclick={() => feedbackRef.openModal()}
 				>
 					<MessageCircle class="size-8 text-primary-600 md:size-10" />
-					<span class="ml-3 text-lg font-medium text-gray-900 dark:text-white md:hidden">Send Feedback</span>
+					<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white md:hidden">Send Feedback</span>
 				</Button>
 				<Tooltip placement="bottom">Send Feedback</Tooltip>
 			</li>
@@ -70,7 +70,7 @@
 					onclick={handleExportURL}
 				>
 					<Share2 class="size-8 text-primary-600 md:size-10" />
-					<span class="ml-3 text-lg font-medium text-gray-900 dark:text-white md:hidden">Export to URL</span>
+					<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white md:hidden">Export to URL</span>
 				</Button>
 				<Tooltip placement="bottom">Export to URL</Tooltip>
 			</li>
