@@ -54,10 +54,13 @@ export async function requestWakeLock(): Promise<boolean> {
 export async function releaseWakeLock(): Promise<void> {
 	if (wakeLock) {
 		try {
-			await wakeLock.release();
-			wakeLock = null;
+			if (!wakeLock.released) {
+				await wakeLock.release();
+			}
 		} catch (err) {
 			console.error('Failed to release Wake Lock:', err);
+		} finally {
+			wakeLock = null;
 		}
 	}
 }
@@ -66,5 +69,10 @@ export async function releaseWakeLock(): Promise<void> {
  * Check if wake lock is currently active
  */
 export function isWakeLockActive(): boolean {
-	return wakeLock !== null && !wakeLock.released;
+	try {
+		return wakeLock !== null && !wakeLock.released;
+	} catch (err) {
+		// Handle case where wakeLock object might be in an invalid state
+		return false;
+	}
 }
