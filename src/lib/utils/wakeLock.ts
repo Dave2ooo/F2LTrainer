@@ -5,6 +5,15 @@
 
 let wakeLock: WakeLockSentinel | null = null;
 let requestInProgress = false;
+let onReleaseCallback: (() => void) | null = null;
+
+/**
+ * Set a callback to be called when the wake lock is released
+ * This allows external code to handle re-acquisition
+ */
+export function setWakeLockReleaseCallback(callback: (() => void) | null): void {
+	onReleaseCallback = callback;
+}
 
 /**
  * Request a wake lock to prevent the screen from sleeping
@@ -12,36 +21,48 @@ let requestInProgress = false;
  */
 export async function requestWakeLock(): Promise<boolean> {
 	if (!('wakeLock' in navigator) || !navigator.wakeLock) {
-		console.log('Wake Lock API not supported');
+		console.log('Wake Lock: API not supported in this browser');
 		return false;
 	}
 
 	// Prevent race conditions from simultaneous requests
 	if (requestInProgress) {
-		console.log('Wake Lock request already in progress');
+		console.log('Wake Lock: Request already in progress');
 		return false;
+	}
+
+	// Don't request if we already have an active wake lock
+	try {
+		if (wakeLock && !wakeLock.released) {
+			console.log('Wake Lock: Already active');
+			return true;
+		}
+	} catch {
+		// WakeLockSentinel may be in invalid state, proceed to request new one
+		wakeLock = null;
 	}
 
 	requestInProgress = true;
 
 	try {
-		// Release existing wake lock before requesting a new one
-		if (wakeLock && !wakeLock.released) {
-			await wakeLock.release();
-			wakeLock = null;
-		}
-
 		wakeLock = await navigator.wakeLock.request('screen');
-		console.log('Wake Lock acquired');
+		console.log('Wake Lock: Acquired successfully');
 
+		// Listen for release events (browser may release for various reasons)
 		wakeLock.addEventListener('release', () => {
-			console.log('Wake Lock released');
+			console.log('Wake Lock: Released by browser');
 			wakeLock = null;
+			// Notify callback so it can re-acquire if needed
+			if (onReleaseCallback && document.visibilityState === 'visible') {
+				onReleaseCallback();
+			}
 		});
 
 		return true;
 	} catch (err) {
-		console.error('Failed to acquire Wake Lock:', err);
+		// Common reasons: page not visible, low battery, browser policy
+		const error = err as Error;
+		console.log('Wake Lock: Failed to acquire -', error.name, error.message);
 		return false;
 	} finally {
 		requestInProgress = false;
