@@ -9,7 +9,7 @@
 	import { statistics, STATISTICS_STATE_STORAGE_KEY } from '$lib/statisticsState.svelte';
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
-	import { requestWakeLock, releaseWakeLock } from '$lib/utils/wakeLock';
+	import { requestWakeLock, releaseWakeLock, isWakeLockActive } from '$lib/utils/wakeLock';
 	let { children } = $props();
 
 	if (browser) {
@@ -37,7 +37,10 @@
 			// Handle visibility change - reacquire wake lock when page becomes visible
 			const handleVisibilityChange = () => {
 				if (document.visibilityState === 'visible') {
-					requestWakeLock();
+					// Only request if not already active
+					if (!isWakeLockActive()) {
+						requestWakeLock();
+					}
 				}
 			};
 
