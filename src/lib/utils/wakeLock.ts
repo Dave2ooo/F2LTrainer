@@ -20,6 +20,15 @@ export function setWakeLockReleaseCallback(callback: (() => void) | null): void 
  * @returns Promise that resolves to true if wake lock was acquired, false otherwise
  */
 export async function requestWakeLock(): Promise<boolean> {
+	// Wake Lock API requires a secure context (HTTPS or localhost)
+	if (!window.isSecureContext) {
+		console.log(
+			'Wake Lock: Requires HTTPS. Currently running on:',
+			window.location.protocol + '//' + window.location.host
+		);
+		return false;
+	}
+
 	if (!('wakeLock' in navigator) || !navigator.wakeLock) {
 		console.log('Wake Lock: API not supported in this browser');
 		return false;
