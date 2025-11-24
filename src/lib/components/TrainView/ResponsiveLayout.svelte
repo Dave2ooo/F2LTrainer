@@ -57,7 +57,7 @@
 	{#if isMdOrLarger}
 		<Splitpanes style="height: 100%">
 			<Pane minSize={60} size={isRightPaneOpen ? 80 : 100}>
-				<div class="flex h-full flex-col overflow-y-auto bg-gray-50 p-4 dark:bg-gray-800">
+				<div class="flex h-full flex-col overflow-y-auto bg-gray-50 p-0 dark:bg-gray-800">
 					{@render leftContent()}
 				</div>
 			</Pane>
@@ -89,7 +89,7 @@
 		{/if}
 	<!-- Mobile: Drawer Layout -->
 	{:else}
-		<div class="flex h-full flex-col overflow-y-auto bg-gray-50 p-4 dark:bg-gray-800">
+		<div class="flex h-full flex-col overflow-y-auto bg-gray-50 p-0 dark:bg-gray-800">
 			{@render leftContent()}
 		</div>
 

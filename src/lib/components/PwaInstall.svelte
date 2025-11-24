@@ -43,9 +43,12 @@
 	<Button
 		onclick={installPwa}
 		disabled={!pwaPrompt.installAvailable}
-		class={!pwaPrompt.installAvailable ? 'opacity-50' : ''}
+		class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent {!pwaPrompt.installAvailable
+			? 'opacity-50'
+			: ''}"
 	>
-		<Download />
+		<Download class="size-8 text-primary-600 md:size-10" />
+		<span class="ml-3 text-lg font-medium text-gray-900 dark:text-white md:hidden">Install App</span>
 	</Button>
 
 	<!-- {#if pwaPrompt.deferredPrompt && !pwaPrompt.installAvailable}
