@@ -35,11 +35,11 @@
 			requestWakeLock();
 
 			// Handle visibility change - reacquire wake lock when page becomes visible
-			const handleVisibilityChange = () => {
+			const handleVisibilityChange = async () => {
 				if (document.visibilityState === 'visible') {
 					// Only request if not already active
 					if (!isWakeLockActive()) {
-						requestWakeLock();
+						await requestWakeLock();
 					}
 				}
 			};
