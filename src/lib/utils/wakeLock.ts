@@ -27,7 +27,8 @@ export async function requestWakeLock(): Promise<boolean> {
 	try {
 		// Release existing wake lock before requesting a new one
 		if (wakeLock && !wakeLock.released) {
-			await releaseWakeLock();
+			await wakeLock.release();
+			wakeLock = null;
 		}
 
 		wakeLock = await navigator.wakeLock.request('screen');
