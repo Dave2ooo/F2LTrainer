@@ -6,7 +6,7 @@ import { requestWakeLock, releaseWakeLock, isWakeLockActive } from '$lib/utils/w
  * Automatically manages wake lock lifecycle based on page visibility.
  */
 export function startWakeLockManager() {
-	if (!browser) return;
+	if (!browser) return () => {}; // Return no-op cleanup function
 
 	// Request wake lock when manager starts
 	requestWakeLock();
