@@ -4,23 +4,32 @@
  */
 
 let wakeLock: WakeLockSentinel | null = null;
+let requestInProgress = false;
 
 /**
  * Request a wake lock to prevent the screen from sleeping
  * @returns Promise that resolves to true if wake lock was acquired, false otherwise
  */
 export async function requestWakeLock(): Promise<boolean> {
-	if (!('wakeLock' in navigator)) {
+	if (!('wakeLock' in navigator) || !navigator.wakeLock) {
 		console.log('Wake Lock API not supported');
 		return false;
 	}
 
-	// Release existing wake lock before requesting a new one
-	if (wakeLock && !wakeLock.released) {
-		await releaseWakeLock();
+	// Prevent race conditions from simultaneous requests
+	if (requestInProgress) {
+		console.log('Wake Lock request already in progress');
+		return false;
 	}
 
+	requestInProgress = true;
+
 	try {
+		// Release existing wake lock before requesting a new one
+		if (wakeLock && !wakeLock.released) {
+			await releaseWakeLock();
+		}
+
 		wakeLock = await navigator.wakeLock.request('screen');
 		console.log('Wake Lock acquired');
 
@@ -33,6 +42,8 @@ export async function requestWakeLock(): Promise<boolean> {
 	} catch (err) {
 		console.error('Failed to acquire Wake Lock:', err);
 		return false;
+	} finally {
+		requestInProgress = false;
 	}
 }
 
