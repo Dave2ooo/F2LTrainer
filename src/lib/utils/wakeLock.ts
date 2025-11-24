@@ -22,10 +22,7 @@ export function setWakeLockReleaseCallback(callback: (() => void) | null): void 
 export async function requestWakeLock(): Promise<boolean> {
 	// Wake Lock API requires a secure context (HTTPS or localhost)
 	if (!window.isSecureContext) {
-		console.log(
-			'Wake Lock: Requires HTTPS. Currently running on:',
-			window.location.protocol + '//' + window.location.host
-		);
+		console.warn('Wake Lock: Requires HTTPS. Currently running on:', window.location.origin);
 		return false;
 	}
 
