@@ -47,7 +47,7 @@
 			<Button
 				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				onclick={() => settingsRef.openModal()}
-				><SettingsIcon class="size-8 text-primary-600 md:size-10" /></Button
+				><SettingsIcon class="size-8 text-primary-600 md:size-9" /></Button
 			>
 			<Tooltip placement="bottom">Settings</Tooltip>
 			<NavHamburger
@@ -60,7 +60,7 @@
 					class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					onclick={() => feedbackRef.openModal()}
 				>
-					<MessageCircle class="size-8 text-primary-600 md:size-10" />
+					<MessageCircle class="size-8 text-primary-600 md:size-9" />
 					<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white md:hidden">Send Feedback</span>
 				</Button>
 				<Tooltip placement="bottom">Send Feedback</Tooltip>
@@ -70,7 +70,7 @@
 					class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					onclick={handleExportURL}
 				>
-					<Share2 class="size-8 text-primary-600 md:size-10" />
+					<Share2 class="size-8 text-primary-600 md:size-9" />
 					<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white md:hidden">Export to URL</span>
 				</Button>
 				<Tooltip placement="bottom">Export to URL</Tooltip>
