@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { Button, P, Select } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
@@ -112,7 +111,9 @@
 	function handleTimerStop(time: number) {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
-			// Save time in seconds
+			// Save time to the TrainCase in milliseconds
+			currentTrainCase.time = time;
+			// Save time in seconds to global statistics
 			statistics[groupId][caseId].times.push(time / 1000);
 			// Mark as solved (handles incrementing solves count)
 			markAsSolved(true);
@@ -201,7 +202,6 @@
 	});
 
 	let settingsRef = $state<Settings>();
-
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
@@ -209,12 +209,11 @@
 {#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
 		{#snippet leftContent()}
-			<div class="my-2 md:my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
+			<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onPrevious}
-					><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
 				>
 				<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
 					{scramble}
@@ -222,8 +221,7 @@
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onNext}
-					><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 				>
 			</div>
 
@@ -272,7 +270,7 @@
 				}}
 			/>
 			{#if globalState.trainShowTimer}
-				<Timer bind:this={timerRef} onStop={handleTimerStop} />
+				<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={currentTrainCase?.time} />
 			{/if}
 
 			<div class="flex flex-row justify-center gap-2">
@@ -282,7 +280,7 @@
 					>{getNumberOfSelectedCases()} cases selected</Button
 				>
 			</div>
-			
+
 			<Details />
 
 			<Settings bind:this={settingsRef} />
@@ -293,7 +291,6 @@
 				caseId={currentTrainCase.caseId}
 				side={currentTrainCase.side}
 			/>
-
 		{/snippet}
 	</ResponsiveLayout>
 {:else}

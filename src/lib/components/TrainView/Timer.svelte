@@ -6,16 +6,25 @@
 	// Props
 	interface Props {
 		onStop?: (time: number) => void;
+		initialTime?: number;
 	}
-	let { onStop }: Props = $props();
+	let { onStop, initialTime }: Props = $props();
 
 	// Timer state
 	let isRunning = $state(false);
 	let startTime = $state(0);
-	let elapsedTime = $state(0);
+	let elapsedTime = $state(initialTime ?? 0);
 	let animationFrameId = $state<number | null>(null);
-	let isStopped = $state(false); // Track if timer was stopped (vs ready to start)
+	let isStopped = $state(initialTime !== undefined); // If there's an initial time, mark as stopped
 	let isReady = $state(false); // Track if user is holding spacebar/button to prepare starting
+
+	// Update elapsedTime when initialTime prop changes (e.g., navigating between cases)
+	$effect(() => {
+		if (!isRunning) {
+			elapsedTime = initialTime ?? 0;
+			isStopped = initialTime !== undefined;
+		}
+	});
 
 	// Format time as XX.XX (e.g., 05.56)
 	let formattedTime = $derived.by(() => {
@@ -107,18 +116,18 @@
 	});
 </script>
 
-<div class="mb-2 mt-0 flex w-full flex-col items-center md:mb-4 md:mt-0">
+<div class="mt-0 mb-2 flex w-full flex-col items-center md:mt-0 md:mb-4">
 	<button
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="relative min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 select-none"
+		class="relative min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors select-none hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700"
 		class:text-green-500={isReady}
 		aria-label="Timer"
 	>
 		<span class="tabular-nums">{formattedTime}</span>
 		{#if !isRunning && !isReady && !globalState.hasUsedTimer}
-			<Pointer class="absolute bottom-2 right-2 size-6 animate-bounce text-primary-600" />
+			<Pointer class="absolute right-2 bottom-2 size-6 animate-bounce text-primary-600" />
 		{/if}
 	</button>
 </div>
