@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { Modal, Button } from 'flowbite-svelte';
-	import { X } from '@lucide/svelte';
+	import { Modal } from 'flowbite-svelte';
+	import Close from './Buttons/Close.svelte';
 
 	let open = $state(false);
 
@@ -18,9 +18,5 @@
 		<!-- Help content will be added here -->
 	</div>
 
-	<div class="mt-6 flex w-full justify-center">
-		<Button type="button" color="gray" outline onclick={closeModal} class="gap-2">
-			Close<X />
-		</Button>
-	</div>
+	<Close onClose={closeModal} />
 </Modal>
