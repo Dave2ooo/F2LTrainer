@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl } from 'flowbite-svelte';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { CircleQuestionMark, MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
 	import PwaInstall from '$lib/components/PwaInstall.svelte';
 	import type Settings from '$lib/components/Modals/Settings.svelte';
@@ -19,7 +19,7 @@
 
 <Navbar fluid={true} color="none" class="bg-gray-100 px-4 py-2 md:py-0 dark:bg-gray-900">
 	<NavBrand>
-		<img src="{base}/logo.svg" class="me-3 h-9 sm:h-12" alt="F2L Trainer Logo" />
+		<img src={resolve(`/logo.svg`, {})} class="me-3 h-9 sm:h-12" alt="F2L Trainer Logo" />
 		<span class="self-center whitespace-nowrap text-xl md:text-3xl font-semibold dark:text-white"
 			>F2L Trainer</span
 		>
