@@ -1,7 +1,5 @@
 <!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
-	import { Button, Heading, Tooltip } from 'flowbite-svelte';
-	import { base } from '$app/paths';
 	import { globalState } from '$lib/globalState.svelte';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
@@ -9,6 +7,7 @@
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
+	import HelpModal from '$lib/components/Modals/HelpModal.svelte';
 	import ImportConfirmModal from '$lib/components/Modals/ImportConfirmModal.svelte';
 	import ExportUrlModal from '$lib/components/Modals/ExportUrlModal.svelte';
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
@@ -18,9 +17,9 @@
 
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;
+	let helpRef: HelpModal;
 	let importConfirmModalRef: ImportConfirmModal;
 	let exportUrlModalRef: ExportUrlModal;
-	import PwaInstall from '$lib/components/PwaInstall.svelte';
 
 	function handleExportURL() {
 		const url = exportToURL();
@@ -36,10 +35,11 @@
 </script>
 
 <div style="background-color: var(--color-theme-bg); min-height: 100vh;">
-	<AppNavbar {settingsRef} {feedbackRef} onExportURL={handleExportURL} />
+	<AppNavbar {settingsRef} {feedbackRef} {helpRef} onExportURL={handleExportURL} />
 
 	<Settings bind:this={settingsRef} />
 	<FeedbackModal bind:this={feedbackRef} />
+	<HelpModal bind:this={helpRef} />
 	<ImportConfirmModal bind:this={importConfirmModalRef} />
 	<ExportUrlModal bind:this={exportUrlModalRef} />
 

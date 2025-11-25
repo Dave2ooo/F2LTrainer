@@ -1,18 +1,20 @@
 <script lang="ts">
 	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl } from 'flowbite-svelte';
 	import { base } from '$app/paths';
-	import { MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
+	import { CircleQuestionMark, MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
 	import PwaInstall from '$lib/components/PwaInstall.svelte';
 	import type Settings from '$lib/components/Modals/Settings.svelte';
 	import type FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
+	import type HelpModal from '$lib/components/Modals/HelpModal.svelte';
 
 	interface Props {
 		settingsRef: Settings;
 		feedbackRef: FeedbackModal;
+		helpRef: HelpModal;
 		onExportURL: () => void;
 	}
 
-	let { settingsRef, feedbackRef, onExportURL }: Props = $props();
+	let { settingsRef, feedbackRef, helpRef, onExportURL }: Props = $props();
 </script>
 
 <Navbar fluid={true} color="none" class="bg-gray-100 px-4 py-2 md:py-0 dark:bg-gray-900">
@@ -24,7 +26,7 @@
 	</NavBrand>
 	<div class="ml-auto flex items-center gap-2">
 		<Button
-			class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+			class="bg-transparent p-0 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 			onclick={() => settingsRef.openModal()}
 			><SettingsIcon class="size-8 text-primary-600 md:size-9" /></Button
 		>
@@ -34,6 +36,16 @@
 		/>
 	</div>
 	<NavUl>
+		<li class="mx-1 my-2 md:my-0">
+			<Button
+				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				onclick={() => helpRef.openModal()}
+			>
+				<CircleQuestionMark class="size-8 text-primary-600 md:size-9" />
+				<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white md:hidden">Help</span>
+			</Button>
+			<Tooltip placement="bottom">Help</Tooltip>
+		</li>
 		<li class="mx-1 my-2 md:my-0">
 			<Button
 				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
