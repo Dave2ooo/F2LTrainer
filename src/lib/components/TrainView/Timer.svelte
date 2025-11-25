@@ -86,6 +86,7 @@
 		} else if (!isRunning) {
 			// Prepare to start timer
 			isReady = true;
+			resetTimer(); // Reset timer display when ready state is entered
 		}
 	}
 
