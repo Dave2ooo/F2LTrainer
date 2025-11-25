@@ -1,3 +1,4 @@
+
 <script lang="ts">
 	import { Button, P, Select } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
@@ -202,6 +203,7 @@
 	});
 
 	let settingsRef = $state<Settings>();
+
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
@@ -209,11 +211,12 @@
 {#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
 		{#snippet leftContent()}
-			<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+			<div class="my-2 md:my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onPrevious}
+					><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
 				>
 				<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
 					{scramble}
@@ -221,7 +224,8 @@
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onNext}
+					><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 				>
 			</div>
 
@@ -280,7 +284,7 @@
 					>{getNumberOfSelectedCases()} cases selected</Button
 				>
 			</div>
-
+			
 			<Details />
 
 			<Settings bind:this={settingsRef} />
@@ -291,6 +295,7 @@
 				caseId={currentTrainCase.caseId}
 				side={currentTrainCase.side}
 			/>
+
 		{/snippet}
 	</ResponsiveLayout>
 {:else}
