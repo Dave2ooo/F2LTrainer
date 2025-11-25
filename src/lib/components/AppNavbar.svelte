@@ -38,7 +38,7 @@
 	<NavUl>
 		<li class="mx-1 my-2 sm:my-0">
 			<Button
-				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				class="flex items-center justify-start bg-transparent p-1 pl-0 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				onclick={() => helpRef.openModal()}
 			>
 				<CircleQuestionMark class="size-8 text-primary-600 md:size-9" />
