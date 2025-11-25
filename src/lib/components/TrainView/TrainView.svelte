@@ -40,11 +40,17 @@
 	let scramble = $state('');
 	let alg = $state('');
 
+	// Track the last displayed time to persist across case navigation
+	let lastDisplayedTime = $state<number | undefined>(undefined);
+
 	// Create hint manager instance
 	const hintManager = createHintManager();
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
+
+	// Compute the time to display: use case time if available, otherwise keep last displayed time
+	let displayTime = $derived(currentTrainCase?.time ?? lastDisplayedTime);
 
 	let staticData = $derived(
 		currentTrainCase ? casesStatic[currentTrainCase.groupId][currentTrainCase.caseId] : undefined
@@ -112,7 +118,11 @@
 	function handleTimerStop(time: number) {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
-			// Save time in seconds
+			// Save time to the TrainCase in milliseconds
+			currentTrainCase.time = time;
+			// Update the last displayed time
+			lastDisplayedTime = time;
+			// Save time in seconds to global statistics
 			statistics[groupId][caseId].times.push(time / 1000);
 			// Mark as solved (handles incrementing solves count)
 			markAsSolved(true);
@@ -272,7 +282,7 @@
 				}}
 			/>
 			{#if globalState.trainShowTimer}
-				<Timer bind:this={timerRef} onStop={handleTimerStop} />
+				<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
 			{/if}
 
 			<div class="flex flex-row justify-center gap-2">

@@ -6,16 +6,25 @@
 	// Props
 	interface Props {
 		onStop?: (time: number) => void;
+		initialTime?: number;
 	}
-	let { onStop }: Props = $props();
+	let { onStop, initialTime }: Props = $props();
 
 	// Timer state
 	let isRunning = $state(false);
 	let startTime = $state(0);
-	let elapsedTime = $state(0);
+	let elapsedTime = $state(initialTime ?? 0);
 	let animationFrameId = $state<number | null>(null);
-	let isStopped = $state(false); // Track if timer was stopped (vs ready to start)
+	let isStopped = $state(initialTime !== undefined); // If there's an initial time, mark as stopped
 	let isReady = $state(false); // Track if user is holding spacebar/button to prepare starting
+
+	// Update elapsedTime when initialTime prop changes (e.g., navigating between cases)
+	$effect(() => {
+		if (!isRunning) {
+			elapsedTime = initialTime ?? 0;
+			isStopped = initialTime !== undefined;
+		}
+	});
 
 	// Format time as XX.XX (e.g., 05.56)
 	let formattedTime = $derived.by(() => {

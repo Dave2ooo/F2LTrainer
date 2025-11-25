@@ -66,6 +66,7 @@ export default class TrainCase {
 	#scrambleSelection: number;
 	#auf: Auf;
 	#solved: boolean = false;
+	#time: number | undefined = undefined;
 
 	constructor(
 		groupId: GroupId,
@@ -192,5 +193,11 @@ export default class TrainCase {
 	}
 	set solved(value: boolean) {
 		this.#solved = value;
+	}
+	get time() {
+		return this.#time;
+	}
+	set time(value: number | undefined) {
+		this.#time = value;
 	}
 }
