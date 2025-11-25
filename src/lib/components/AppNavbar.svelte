@@ -17,7 +17,7 @@
 	let { settingsRef, feedbackRef, helpRef, onExportURL }: Props = $props();
 </script>
 
-<Navbar breakpoint="sm" fluid={true} color="none" class="bg-gray-100 px-4 py-2 sm:py-0 dark:bg-gray-900">
+<Navbar breakpoint="sm" fluid={true} color="none" class="bg-gray-100 px-4 py-2 sm:py-0 sm:pr-0 md:pr-2 dark:bg-gray-900">
 	<NavBrand>
 		<img src={resolve(`/logo.svg`, {})} class="me-3 h-9 md:h-12" alt="F2L Trainer Logo" />
 		<span class="self-center whitespace-nowrap text-xl md:text-3xl font-semibold dark:text-white"
