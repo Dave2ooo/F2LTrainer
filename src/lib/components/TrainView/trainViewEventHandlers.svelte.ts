@@ -44,6 +44,7 @@ export function createKeyboardHandlers(
 						}
 					} else {
 						// If timer is not running, enter ready state (will start on release)
+						timerRef()?.resetTimer(); // Reset timer display when ready state is entered
 						timerRef()?.setReady(true);
 					}
 				} else {
