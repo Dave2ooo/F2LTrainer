@@ -12,7 +12,7 @@
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
-	import { statistics } from '$lib/statisticsState.svelte';
+	import { statistics, getNextSolveId } from '$lib/statisticsState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
@@ -118,15 +118,18 @@
 	function handleTimerStop(time: number) {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
-			// Save time to the TrainCase in milliseconds
+			// Get the next solve ID
+			const solveId = getNextSolveId();
+			// Save time and solve ID to the TrainCase in milliseconds
 			currentTrainCase.time = time;
+			currentTrainCase.solveId = solveId;
 			// Update the last displayed time
 			lastDisplayedTime = time;
-			// Save time in seconds to global statistics
-			statistics[groupId][caseId].times.push(time / 1000);
+			// Save time in seconds to global statistics with the solve ID
+			statistics[groupId][caseId].times.push({ id: solveId, time: time / 1000 });
 			// Mark as solved (handles incrementing solves count)
 			markAsSolved(true);
-			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s`);
+			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s with ID ${solveId}`);
 		}
 		onNext();
 	}

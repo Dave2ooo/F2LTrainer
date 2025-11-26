@@ -1,12 +1,14 @@
-export function calculateBestTime(times: number[]): number | null {
+import type { TimeEntry } from '$lib/types/statisticsState';
+
+export function calculateBestTime(times: TimeEntry[]): number | null {
 	if (times.length === 0) return null;
-	return Math.min(...times);
+	return Math.min(...times.map((t) => t.time));
 }
 
-export function calculateAo5(times: number[]): number | null {
+export function calculateAo5(times: TimeEntry[]): number | null {
 	if (times.length < 5) return null;
 
-	const last5 = times.slice(-5);
+	const last5 = times.slice(-5).map((t) => t.time);
 	// Sort to easily remove best and worst
 	const sorted = [...last5].sort((a, b) => a - b);
 	// Remove best (first) and worst (last)
@@ -16,10 +18,10 @@ export function calculateAo5(times: number[]): number | null {
 	return sum / 3;
 }
 
-export function calculateAo12(times: number[]): number | null {
+export function calculateAo12(times: TimeEntry[]): number | null {
 	if (times.length < 12) return null;
 
-	const last12 = times.slice(-12);
+	const last12 = times.slice(-12).map((t) => t.time);
 	// Sort to easily remove best and worst
 	const sorted = [...last12].sort((a, b) => a - b);
 	// Remove best (first) and worst (last)

@@ -67,6 +67,7 @@ export default class TrainCase {
 	#auf: Auf;
 	#solved: boolean = false;
 	#time: number | undefined = undefined;
+	#solveId: number | undefined = undefined;
 
 	constructor(
 		groupId: GroupId,
@@ -199,5 +200,11 @@ export default class TrainCase {
 	}
 	set time(value: number | undefined) {
 		this.#time = value;
+	}
+	get solveId() {
+		return this.#solveId;
+	}
+	set solveId(value: number | undefined) {
+		this.#solveId = value;
 	}
 }

@@ -42,7 +42,7 @@
 	// Find the index of the best time
 	const bestTimeIndex = $derived(
 		bestTime !== null && times.length > 0
-			? times.indexOf(bestTime)
+			? times.findIndex((t) => t.time === bestTime)
 			: null
 	);
 
@@ -89,7 +89,7 @@
 		series: [
 			{
 				name: 'Solve Time',
-				data: times.map((t) => parseFloat(t.toFixed(2)))
+				data: times.map((t) => parseFloat(t.time.toFixed(2)))
 			}
 		],
 		xaxis: {
@@ -255,7 +255,7 @@
 					class="grid grid-cols-1 items-center justify-between border-t border-gray-200 dark:border-gray-700 mt-4 pt-4"
 				>
 					<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-gray-500 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-						{#each times.slice().reverse() as time, index}
+						{#each times.slice().reverse() as timeEntry, index}
 							{@const realIndex = times.length - 1 - index}
 							<Badge
 								class="text-sm md:text-base cursor-pointer {hoveredIndex === realIndex ||
@@ -271,7 +271,7 @@
 									e?.preventDefault?.();
 									removeTime(realIndex);
 									selectedIndex = null;
-								}}>{formatTime(time)}</Badge
+								}}>{formatTime(timeEntry.time)}</Badge
 							>
 						{/each}
 					</div>
