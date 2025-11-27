@@ -1,4 +1,3 @@
-
 <script lang="ts">
 	import { Button, P, Select } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
@@ -118,18 +117,40 @@
 	function handleTimerStop(time: number) {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
-			// Get the next solve ID
-			const solveId = getNextSolveId();
-			// Save time and solve ID to the TrainCase in milliseconds
-			currentTrainCase.time = time;
-			currentTrainCase.solveId = solveId;
-			// Update the last displayed time
-			lastDisplayedTime = time;
-			// Save time in seconds to global statistics with the solve ID
-			statistics[groupId][caseId].times.push({ id: solveId, time: time / 1000 });
-			// Mark as solved (handles incrementing solves count)
-			markAsSolved(true);
-			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s with ID ${solveId}`);
+
+			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
+			if (currentTrainCase.solveId !== undefined) {
+				// Replace the existing time in the statistics array
+				const existingSolveId = currentTrainCase.solveId;
+				const timesArray = statistics[groupId][caseId].times;
+				const existingIndex = timesArray.findIndex((entry) => entry.id === existingSolveId);
+
+				if (existingIndex !== -1) {
+					// Replace the time value while keeping the same ID
+					timesArray[existingIndex].time = time / 1000;
+				} else {
+					// If for some reason the ID wasn't found, add it as a new entry
+					timesArray.push({ id: existingSolveId, time: time / 1000 });
+				}
+
+				// Update the time in the TrainCase (keep the same solve ID)
+				currentTrainCase.time = time;
+				// Update the last displayed time
+				lastDisplayedTime = time;
+			} else {
+				// This is a new solve - get the next solve ID
+				const solveId = getNextSolveId();
+				// Save time and solve ID to the TrainCase in milliseconds
+				currentTrainCase.time = time;
+				currentTrainCase.solveId = solveId;
+				// Update the last displayed time
+				lastDisplayedTime = time;
+				// Save time in seconds to global statistics with the solve ID
+				statistics[groupId][caseId].times.push({ id: solveId, time: time / 1000 });
+				// Mark as solved (handles incrementing solves count)
+				markAsSolved(true);
+			}
+			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s with ID ${currentTrainCase.solveId}`);
 		}
 		onNext();
 	}
@@ -214,7 +235,6 @@
 	});
 
 	let settingsRef = $state<Settings>();
-
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
@@ -222,12 +242,11 @@
 {#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
 		{#snippet leftContent()}
-			<div class="my-2 md:my-4 flex items-center justify-center gap-0 sm:gap-2 md:gap-4">
+			<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onPrevious}
-					><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
 				>
 				<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
 					{scramble}
@@ -235,8 +254,7 @@
 				<Button
 					class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 					type="button"
-					onclick={onNext}
-					><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+					onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 				>
 			</div>
 
@@ -295,7 +313,7 @@
 					>{getNumberOfSelectedCases()} cases selected</Button
 				>
 			</div>
-			
+
 			<Details />
 
 			<Settings bind:this={settingsRef} />
@@ -306,7 +324,6 @@
 				caseId={currentTrainCase.caseId}
 				side={currentTrainCase.side}
 			/>
-
 		{/snippet}
 	</ResponsiveLayout>
 {:else}
