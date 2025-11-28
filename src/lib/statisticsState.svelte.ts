@@ -1,9 +1,11 @@
-import { loadFromLocalStorage } from './utils/localStorage';
+import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
 import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
 import { casesStatic } from './casesStatic';
-import type { StatisticsState, CaseStatistics, TimeEntry } from './types/statisticsState';
+import type { StatisticsState, Solve, CompressedSolve, CompressedGroupId, CompressedSide, CompressedAuf } from './types/statisticsState';
+import type { Auf } from './types/trainCase';
+import type { Side } from './types/Side';
 
-export const STATISTICS_STATE_STORAGE_KEY = 'statistics';
+export const STATISTICS_STATE_STORAGE_KEY = 'solves';
 
 // Global solve ID counter - starts from 0 and increments with each solve
 let nextSolveId = $state(0);
@@ -16,57 +18,96 @@ export function setNextSolveId(id: number): void {
 	nextSolveId = id;
 }
 
-const createCaseStatistics = (): CaseStatistics => ({
-	solves: 0,
-	times: []
-});
-
-const createGroupStatisticsState = (groupId: GroupId): Record<CaseId, CaseStatistics> => {
-	const caseEntries = Object.keys(casesStatic[groupId]).map((caseId) => [
-		Number(caseId) as CaseId,
-		createCaseStatistics()
-	]);
-
-	return Object.fromEntries(caseEntries) as Record<CaseId, CaseStatistics>;
+const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
+	basic: 'b',
+	basicBack: 'bb',
+	advanced: 'a',
+	expert: 'e'
 };
 
-const createDefaultStatisticsState = (): StatisticsState =>
-	Object.fromEntries(
-		GROUP_IDS.map((groupId) => [groupId, createGroupStatisticsState(groupId)])
-	) as StatisticsState;
+const REVERSE_GROUP_ID_MAP: Record<CompressedGroupId, GroupId> = {
+	b: 'basic',
+	bb: 'basicBack',
+	a: 'advanced',
+	e: 'expert'
+};
 
-const persistedStatisticsState = loadFromLocalStorage<Partial<StatisticsState>>(
+const SIDE_MAP: Record<Side, CompressedSide> = {
+	left: 'l',
+	right: 'r'
+};
+
+const REVERSE_SIDE_MAP: Record<CompressedSide, Side> = {
+	l: 'left',
+	r: 'right'
+};
+
+const AUF_MAP: Record<Auf, CompressedAuf> = {
+	'': 0,
+	'U': 1,
+	'U2': 2,
+	"U'": 3
+};
+
+const REVERSE_AUF_MAP: Record<CompressedAuf, Auf> = {
+	0: '',
+	1: 'U',
+	2: 'U2',
+	3: "U'"
+};
+
+function compressSolve(solve: Solve): CompressedSolve {
+	return {
+		id: solve.id,
+		gId: GROUP_ID_MAP[solve.groupId],
+		cId: solve.caseId,
+		t: solve.time,
+		ts: Math.floor(solve.timestamp / 1000),
+		a: AUF_MAP[solve.auf],
+		s: SIDE_MAP[solve.side],
+		ss: solve.scrambleSelection
+	};
+}
+
+function decompressSolve(compressed: CompressedSolve): Solve {
+	return {
+		id: compressed.id,
+		groupId: REVERSE_GROUP_ID_MAP[compressed.gId],
+		caseId: compressed.cId,
+		time: compressed.t,
+		timestamp: compressed.ts * 1000,
+		// Default values for legacy data if fields are missing
+		auf: compressed.a !== undefined ? REVERSE_AUF_MAP[compressed.a] : '',
+		side: compressed.s !== undefined ? REVERSE_SIDE_MAP[compressed.s] : 'right',
+		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0
+	};
+}
+
+// Load raw data which could be Solve[] or CompressedSolve[]
+const persistedData = loadFromLocalStorage<any[]>(
 	STATISTICS_STATE_STORAGE_KEY
 );
 
-const initialState = createDefaultStatisticsState();
+let initialState: StatisticsState = [];
+
+if (persistedData && Array.isArray(persistedData)) {
+	initialState = persistedData.map((item) => {
+		// Check if it's already compressed (has 'gId')
+		if ('gId' in item) {
+			return decompressSolve(item as CompressedSolve);
+		}
+		// Assume it's uncompressed (legacy from previous step)
+		return item as Solve;
+	});
+}
 
 // Track the highest solve ID found in persisted data
 let maxSolveId = -1;
 
-if (persistedStatisticsState) {
-	for (const groupId of GROUP_IDS) {
-		const persistedGroup = persistedStatisticsState[groupId];
-		if (!persistedGroup) continue;
-
-		for (const [caseIdString, caseStats] of Object.entries(initialState[groupId])) {
-			const caseId = Number(caseIdString) as CaseId;
-			const persistedCase = persistedGroup[caseId];
-
-			if (persistedCase) {
-				Object.assign(caseStats, persistedCase);
-				
-				// Find the highest solve ID in the times array
-				if (persistedCase.times && Array.isArray(persistedCase.times)) {
-					for (const timeEntry of persistedCase.times) {
-						if (typeof timeEntry === 'object' && 'id' in timeEntry && typeof timeEntry.id === 'number') {
-							if (timeEntry.id > maxSolveId) {
-								maxSolveId = timeEntry.id;
-							}
-						}
-					}
-				}
-			}
+if (initialState.length > 0) {
+	for (const solve of initialState) {
+		if (solve.id > maxSolveId) {
+			maxSolveId = solve.id;
 		}
 	}
 }
@@ -75,3 +116,29 @@ if (persistedStatisticsState) {
 nextSolveId = maxSolveId + 1;
 
 export const statistics: StatisticsState = $state(initialState);
+
+// Effect to save statistics to local storage whenever they change
+$effect.root(() => {
+	$effect(() => {
+		const compressedStats = statistics.map(compressSolve);
+		saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressedStats);
+	});
+});
+
+export function addSolve(solve: Solve) {
+	statistics.push(solve);
+}
+
+export function updateSolve(id: number, time: number) {
+	const solve = statistics.find((s) => s.id === id);
+	if (solve) {
+		solve.time = time;
+	}
+}
+
+export function removeSolve(id: number) {
+	const index = statistics.findIndex((s) => s.id === id);
+	if (index !== -1) {
+		statistics.splice(index, 1);
+	}
+}

@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { Modal, Badge, Card } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
-	import { statistics } from '$lib/statisticsState.svelte';
-	import { calculateBestTime, calculateAo5, calculateAo12, formatTime } from '$lib/utils/statistics';
+	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
+	import { calculateBestTime, calculateAo5, calculateAo12, formatTime, getSolvesForCase } from '$lib/utils/statistics';
 	import { globalState } from '$lib/globalState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
@@ -24,25 +24,22 @@
 	}
 
 	function removeTime(index: number) {
-		statistics[groupId][caseId].times.splice(index, 1);
-		// Also decrement solves count if it tracks total solves separately
-		if (statistics[groupId][caseId].solves > 0) {
-			statistics[groupId][caseId].solves--;
+		const solve = caseSolves[index];
+		if (solve) {
+			removeSolve(solve.id);
 		}
 	}
 
-	const caseStats = $derived(statistics[groupId][caseId]);
-	const times = $derived(caseStats.times);
-	const bestTime = $derived(calculateBestTime(times));
-	const ao5 = $derived(calculateAo5(times));
-	const ao12 = $derived(calculateAo12(times));
-	// const solves = $derived(caseStats.solves);
-	const solves = $derived(caseStats.times.length);
+	const caseSolves = $derived(getSolvesForCase(statistics, groupId, caseId));
+	const bestTime = $derived(calculateBestTime(caseSolves));
+	const ao5 = $derived(calculateAo5(caseSolves));
+	const ao12 = $derived(calculateAo12(caseSolves));
+	const solvesCount = $derived(caseSolves.length);
 
 	// Find the index of the best time
 	const bestTimeIndex = $derived(
-		bestTime !== null && times.length > 0
-			? times.findIndex((t) => t.time === bestTime)
+		bestTime !== null && caseSolves.length > 0
+			? caseSolves.findIndex((s) => s.time === bestTime)
 			: null
 	);
 
@@ -61,6 +58,8 @@
 	const axisLabelColor = 'var(--color-chart-axis)';
 	const axisFontSize = $derived(innerWidth < 768 ? '1rem' : '1.2rem');
 	const tooltipFontSize = $derived(innerWidth < 768 ? '1rem' : '1rem'); // Does not work
+
+	const chartSolves = $derived(caseSolves.filter((s) => s.time !== null));
 
 	const chartOptions = $derived({
 		chart: {
@@ -89,11 +88,11 @@
 		series: [
 			{
 				name: 'Solve Time',
-				data: times.map((t) => parseFloat(t.time.toFixed(2)))
+				data: chartSolves.map((s) => parseFloat((s.time as number).toFixed(2)))
 			}
 		],
 		xaxis: {
-			categories: times.map((_, i) => i + 1),
+			categories: chartSolves.map((_, i) => i + 1),
 			labels: {
 				show: false,
 				style: {
@@ -205,7 +204,7 @@
 			<div class="flex flex-col gap-3 text-center min-w-[100px]">
 				<div class="flex flex-col">
 					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Solves</span>
-					<span class="text-xl md:text-2xl font-bold">{solves}</span>
+					<span class="text-xl md:text-2xl font-bold">{solvesCount}</span>
 				</div>
 				<div 
 					class="flex flex-col cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 -m-2"
@@ -241,7 +240,7 @@
 			</div>
 		</div>
 
-		{#if times.length > 0}
+		{#if caseSolves.length > 0}
 			<Card class="w-full shadow-none border-0 sm:p-0">
 				<div class="flex justify-between mb-0 md:mb-2">
 					<h5 class="text-xl md:text-2xl font-bold leading-none text-gray-900 dark:text-white">
@@ -255,8 +254,8 @@
 					class="grid grid-cols-1 items-center justify-between border-t border-gray-200 dark:border-gray-700 mt-4 pt-4"
 				>
 					<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-gray-500 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
-						{#each times.slice().reverse() as timeEntry, index}
-							{@const realIndex = times.length - 1 - index}
+						{#each caseSolves.slice().reverse() as solve, index}
+							{@const realIndex = caseSolves.length - 1 - index}
 							<Badge
 								class="text-sm md:text-base cursor-pointer {hoveredIndex === realIndex ||
 								selectedIndex === realIndex
@@ -271,7 +270,7 @@
 									e?.preventDefault?.();
 									removeTime(realIndex);
 									selectedIndex = null;
-								}}>{formatTime(timeEntry.time)}</Badge
+								}}>{formatTime(solve.time)}</Badge
 							>
 						{/each}
 					</div>

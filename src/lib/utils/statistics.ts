@@ -1,14 +1,26 @@
-import type { TimeEntry } from '$lib/types/statisticsState';
+import type { Solve } from '$lib/types/statisticsState';
+import type { CaseId, GroupId } from '$lib/types/group';
 
-export function calculateBestTime(times: TimeEntry[]): number | null {
-	if (times.length === 0) return null;
-	return Math.min(...times.map((t) => t.time));
+export function getSolvesForCase(
+	solves: Solve[],
+	groupId: GroupId,
+	caseId: CaseId
+): Solve[] {
+	return solves.filter((s) => s.groupId === groupId && s.caseId === caseId);
 }
 
-export function calculateAo5(times: TimeEntry[]): number | null {
+export function calculateBestTime(solves: Solve[]): number | null {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
+	if (times.length === 0) return null;
+	return Math.min(...times);
+}
+
+export function calculateAo5(solves: Solve[]): number | null {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	if (times.length < 5) return null;
 
-	const last5 = times.slice(-5).map((t) => t.time);
+	// Get last 5 solves
+	const last5 = times.slice(-5);
 	// Sort to easily remove best and worst
 	const sorted = [...last5].sort((a, b) => a - b);
 	// Remove best (first) and worst (last)
@@ -18,10 +30,12 @@ export function calculateAo5(times: TimeEntry[]): number | null {
 	return sum / 3;
 }
 
-export function calculateAo12(times: TimeEntry[]): number | null {
+export function calculateAo12(solves: Solve[]): number | null {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	if (times.length < 12) return null;
 
-	const last12 = times.slice(-12).map((t) => t.time);
+	// Get last 12 solves
+	const last12 = times.slice(-12);
 	// Sort to easily remove best and worst
 	const sorted = [...last12].sort((a, b) => a - b);
 	// Remove best (first) and worst (last)

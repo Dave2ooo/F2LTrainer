@@ -18,7 +18,7 @@
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis, Pointer } from '@lucide/svelte';
 	import { statistics } from '$lib/statisticsState.svelte';
-	import { calculateBestTime, calculateAo5, formatTime } from '$lib/utils/statistics';
+	import { calculateBestTime, calculateAo5, formatTime, getSolvesForCase } from '$lib/utils/statistics';
 
 	let editAlgRef: EditAlg;
 	let caseStatsRef: CaseStatsModal;
@@ -43,9 +43,9 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 
-	const times = $derived(statistics[groupId][caseId].times);
-	const bestTime = $derived(calculateBestTime(times));
-	const ao5 = $derived(calculateAo5(times));
+	const caseSolves = $derived(getSolvesForCase(statistics, groupId, caseId));
+	const bestTime = $derived(calculateBestTime(caseSolves));
+	const ao5 = $derived(calculateAo5(caseSolves));
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);

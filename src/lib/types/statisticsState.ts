@@ -1,13 +1,31 @@
+import type { Auf } from './trainCase';
+import type { Side } from '$lib/types/Side';
 import type { CaseId, GroupId } from './group';
 
-export type TimeEntry = {
+export type Solve = {
 	id: number;
-	time: number;
+	groupId: GroupId;
+	caseId: CaseId;
+	time: number | null;
+	timestamp: number;
+	auf: Auf;
+	side: Side;
+	scrambleSelection: number;
 };
 
-export type CaseStatistics = {
-	solves: number;
-	times: TimeEntry[];
+export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
+export type CompressedSide = 'l' | 'r';
+export type CompressedAuf = 0 | 1 | 2 | 3; // '' -> 0, 'U' -> 1, 'U2' -> 2, "U'" -> 3
+
+export type CompressedSolve = {
+	id: number;
+	gId: CompressedGroupId;
+	cId: number;
+	t: number | null;
+	ts: number;
+	a: CompressedAuf;
+	s: CompressedSide;
+	ss: number;
 };
 
-export type StatisticsState = Record<GroupId, Record<CaseId, CaseStatistics>>;
+export type StatisticsState = Solve[];

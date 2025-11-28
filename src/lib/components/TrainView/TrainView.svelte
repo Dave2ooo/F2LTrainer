@@ -11,7 +11,7 @@
 	import { tick, onMount } from 'svelte';
 	import { TRAIN_STATES } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, TrainStateTextColors } from '$lib/casesState.svelte';
-	import { statistics, getNextSolveId } from '$lib/statisticsState.svelte';
+	import { statistics, getNextSolveId, addSolve, updateSolve } from '$lib/statisticsState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import { trainSettingsManager } from '$lib/utils/trainSettings';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
@@ -73,14 +73,36 @@
 	function markAsSolved(force: boolean = false) {
 		if (currentTrainCase) {
 			if (force || !currentTrainCase.solved) {
-				const { groupId, caseId } = currentTrainCase;
-				statistics[groupId][caseId].solves++;
 				currentTrainCase.solved = true;
 			}
 		}
 	}
 
 	async function onNext() {
+		if (currentTrainCase) {
+			const { groupId, caseId } = currentTrainCase;
+			
+			// If no solve has been recorded for this case instance yet, record an untimed solve
+			if (currentTrainCase.solveId === undefined) {
+				const solveId = getNextSolveId();
+				
+				// Add new untimed solve
+				addSolve({
+					id: solveId,
+					groupId,
+					caseId,
+					time: null,
+					timestamp: Date.now(),
+					auf: currentTrainCase.auf,
+					side: currentTrainCase.side,
+					scrambleSelection: currentTrainCase.scramble
+				});
+				
+				// Update the TrainCase with the solve ID so we don't record it again
+				currentTrainCase.solveId = solveId;
+			}
+		}
+
 		markAsSolved();
 		advanceToNextTrainCase();
 		hintManager.reset();
@@ -120,18 +142,8 @@
 
 			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
 			if (currentTrainCase.solveId !== undefined) {
-				// Replace the existing time in the statistics array
-				const existingSolveId = currentTrainCase.solveId;
-				const timesArray = statistics[groupId][caseId].times;
-				const existingIndex = timesArray.findIndex((entry) => entry.id === existingSolveId);
-
-				if (existingIndex !== -1) {
-					// Replace the time value while keeping the same ID
-					timesArray[existingIndex].time = time / 1000;
-				} else {
-					// If for some reason the ID wasn't found, add it as a new entry
-					timesArray.push({ id: existingSolveId, time: time / 1000 });
-				}
+				// Update existing solve
+				updateSolve(currentTrainCase.solveId, time / 1000);
 
 				// Update the time in the TrainCase (keep the same solve ID)
 				currentTrainCase.time = time;
@@ -145,9 +157,20 @@
 				currentTrainCase.solveId = solveId;
 				// Update the last displayed time
 				lastDisplayedTime = time;
-				// Save time in seconds to global statistics with the solve ID
-				statistics[groupId][caseId].times.push({ id: solveId, time: time / 1000 });
-				// Mark as solved (handles incrementing solves count)
+				
+				// Add new solve
+				addSolve({
+					id: solveId,
+					groupId,
+					caseId,
+					time: time / 1000,
+					timestamp: Date.now(),
+					auf: currentTrainCase.auf,
+					side: currentTrainCase.side,
+					scrambleSelection: currentTrainCase.scramble
+				});
+				
+				// Mark as solved
 				markAsSolved(true);
 			}
 			// console.log(`Saved time for ${groupId}-${caseId}: ${time / 1000}s with ID ${currentTrainCase.solveId}`);
