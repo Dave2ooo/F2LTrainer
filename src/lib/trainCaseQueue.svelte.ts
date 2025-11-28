@@ -71,14 +71,56 @@ export function advanceToNextTrainCase() {
 	trainState.current = trainCaseQueue[trainState.index];
 }
 
+import { statistics } from '$lib/statisticsState.svelte';
+
 export function advanceToPreviousTrainCase() {
 	const prev = trainState.index - 1;
 	if (prev >= 0) {
 		trainState.index = prev;
 		trainState.current = trainCaseQueue[trainState.index];
 	} else {
-		// already at start, no-op
-		trainState.index = 0;
+		// We are at the start of the queue (index 0)
+		// Try to load previous solve from history
+		const currentCase = trainState.current;
+		if (!currentCase) return;
+
+		let previousSolveIndex = -1;
+
+		if (currentCase.solveId !== undefined) {
+			// Find the current solve in statistics
+			const currentSolveIndex = statistics.findIndex((s) => s.id === currentCase.solveId);
+			if (currentSolveIndex > 0) {
+				previousSolveIndex = currentSolveIndex - 1;
+			}
+		} else {
+			// Current case is new (not solved yet), so previous is the last one in statistics
+			if (statistics.length > 0) {
+				previousSolveIndex = statistics.length - 1;
+			}
+		}
+
+		if (previousSolveIndex !== -1) {
+			const previousSolve = statistics[previousSolveIndex];
+			// Create a TrainCase from the solve
+			// Use current global colors as we don't store colors in history
+			const newCase = TrainCase.fromSolve(
+				previousSolve,
+				globalState.crossColor,
+				globalState.frontColor
+			);
+			
+			// Prepend to queue
+			trainCaseQueue.unshift(newCase);
+			
+			// Index stays 0, but current updates to the new head
+			trainState.index = 0;
+			trainState.current = newCase;
+			
+			// console.log('Loaded previous solve from history:', previousSolve.id);
+		} else {
+			// No history available
+			trainState.index = 0;
+		}
 	}
 }
 

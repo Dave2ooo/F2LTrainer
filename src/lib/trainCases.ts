@@ -13,6 +13,8 @@ import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
 import shuffleArray from './utils/shuffleArray';
 
+import type { Solve } from './types/statisticsState';
+
 export function gernerateTrainCases(): TrainCase[] {
 	console.log('gernerateTrainCases() called');
 	const result: TrainCase[] = [];
@@ -74,7 +76,13 @@ export default class TrainCase {
 		caseId: number,
 		side: Side,
 		crossColor: StickerColor | 'random',
-		frontColor: StickerColor | 'random'
+		frontColor: StickerColor | 'random',
+		options?: {
+			scrambleSelection?: number;
+			auf?: Auf;
+			solveId?: number;
+			time?: number | null;
+		}
 	) {
 		this.#groupId = groupId;
 		this.#caseId = caseId;
@@ -86,9 +94,40 @@ export default class TrainCase {
 
 		this.#stickerHidden = casesStatic[groupId][caseId].pieceToHide;
 
-		this.setRandomScramble();
-		this.setAuf();
+		if (options?.scrambleSelection !== undefined) {
+			this.#scrambleSelection = options.scrambleSelection;
+		} else {
+			this.setRandomScramble();
+		}
+
+		if (options?.auf !== undefined) {
+			this.#auf = options.auf;
+		} else {
+			this.setAuf();
+		}
+
+		if (options?.solveId !== undefined) {
+			this.#solveId = options.solveId;
+		}
+
+		if (options?.time !== undefined) {
+			this.#time = options.time === null ? undefined : options.time;
+		}
+
 		this.setCrossAndFrontColor(crossColor, frontColor);
+	}
+
+	static fromSolve(
+		solve: Solve,
+		crossColor: StickerColor | 'random' = 'white',
+		frontColor: StickerColor | 'random' = 'red'
+	): TrainCase {
+		return new TrainCase(solve.groupId, solve.caseId, solve.side, crossColor, frontColor, {
+			scrambleSelection: solve.scrambleSelection,
+			auf: solve.auf,
+			solveId: solve.id,
+			time: solve.time !== null ? solve.time * 1000 : null
+		});
 	}
 
 	private setRandomScramble() {
