@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Modal, Button } from 'flowbite-svelte';
+	import { Button } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import { Check, X } from '@lucide/svelte';
 
 	let open = $state(false);

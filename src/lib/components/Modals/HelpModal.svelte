@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import Close from './Buttons/Close.svelte';
 
 	let open = $state(false);

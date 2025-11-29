@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { A, ButtonGroup, Input, InputAddon, Label, Modal, Textarea } from 'flowbite-svelte';
+	import { A, ButtonGroup, Input, InputAddon, Label, Textarea } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import { AtSign, UserRound } from '@lucide/svelte';
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';

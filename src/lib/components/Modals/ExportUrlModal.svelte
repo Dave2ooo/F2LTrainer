@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, Input, Label, Modal } from 'flowbite-svelte';
+	import { Button, Input, Label } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import Close from './Buttons/Close.svelte';
 	import { Copy } from '@lucide/svelte';
 

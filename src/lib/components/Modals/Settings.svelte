@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
+	import { Button, Checkbox, Label, Select } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { STICKER_COLORS_WITH_RANDOM, OPPOSITE_COLOR } from '$lib/types/stickering';
 	import {

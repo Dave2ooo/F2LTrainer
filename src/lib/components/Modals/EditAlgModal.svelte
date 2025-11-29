@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
-	import { Modal, Checkbox, Button } from 'flowbite-svelte';
+	import { Checkbox, Button } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import ToggleSwitch from '../ToggleSwitch.svelte';
 	import { casesState } from '$lib/casesState.svelte';

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Modal, Badge } from 'flowbite-svelte';
+	import { Badge } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
 	import {
@@ -67,6 +68,33 @@
 
 	const chartSolves = $derived(caseSolves.filter((s) => s.time !== null));
 
+	// Index mapping functions between caseSolves (includes nulls) and chartSolves (filtered)
+	function caseSolvesIndexToChartIndex(caseSolvesIdx: number): number | null {
+		if (caseSolvesIdx < 0 || caseSolvesIdx >= caseSolves.length) return null;
+		if (caseSolves[caseSolvesIdx].time === null) return null;
+
+		// Count non-null times before this index
+		let chartIdx = 0;
+		for (let i = 0; i < caseSolvesIdx; i++) {
+			if (caseSolves[i].time !== null) chartIdx++;
+		}
+		return chartIdx;
+	}
+
+	function chartIndexToCaseSolvesIndex(chartIdx: number): number {
+		if (chartIdx < 0 || chartIdx >= chartSolves.length) return -1;
+
+		// Find the nth non-null time in caseSolves
+		let count = 0;
+		for (let i = 0; i < caseSolves.length; i++) {
+			if (caseSolves[i].time !== null) {
+				if (count === chartIdx) return i;
+				count++;
+			}
+		}
+		return -1;
+	}
+
 	const chartOptions = $derived({
 		chart: {
 			type: 'line',
@@ -84,7 +112,8 @@
 			},
 			events: {
 				dataPointMouseEnter: function (event: any, chartContext: any, config: any) {
-					hoveredIndex = config.dataPointIndex;
+					// Convert chart index to caseSolves index
+					hoveredIndex = chartIndexToCaseSolvesIndex(config.dataPointIndex);
 				},
 				dataPointMouseLeave: function (event: any, chartContext: any, config: any) {
 					hoveredIndex = null;
@@ -162,26 +191,32 @@
 
 				// Add marker for hovered point
 				if (hoveredIndex !== null) {
-					markers.push({
-						seriesIndex: 0,
-						dataPointIndex: hoveredIndex,
-						fillColor: '#1A56DB',
-						strokeColor: '#fff',
-						size: 6,
-						shape: 'circle'
-					});
+					const chartIdx = caseSolvesIndexToChartIndex(hoveredIndex);
+					if (chartIdx !== null) {
+						markers.push({
+							seriesIndex: 0,
+							dataPointIndex: chartIdx,
+							fillColor: '#1A56DB',
+							strokeColor: '#fff',
+							size: 6,
+							shape: 'circle'
+						});
+					}
 				}
 
 				// Add marker for best time when hovering over the "Best" stat
 				if (bestTimeHovered && bestTimeIndex !== null && bestTimeIndex !== hoveredIndex) {
-					markers.push({
-						seriesIndex: 0,
-						dataPointIndex: bestTimeIndex,
-						fillColor: '#10B981', // Green color for best time
-						strokeColor: '#fff',
-						size: 6,
-						shape: 'circle'
-					});
+					const chartIdx = caseSolvesIndexToChartIndex(bestTimeIndex);
+					if (chartIdx !== null) {
+						markers.push({
+							seriesIndex: 0,
+							dataPointIndex: chartIdx,
+							fillColor: '#10B981', // Green color for best time
+							strokeColor: '#fff',
+							size: 6,
+							shape: 'circle'
+						});
+					}
 				}
 
 				return markers;
