@@ -12,7 +12,7 @@
 </script>
 
 <div class="mt-4 flex w-full justify-center gap-3">
-	<Button type="submit" class="gap-2 md:text-lg" {disabled}>
+	<Button type="submit" class="gap-2 md:text-lg py-2" {disabled}>
 		{#if disabled}
 			<Spinner size="6" />
 		{:else}
@@ -20,7 +20,7 @@
 		{/if}
 		{submitText}
 	</Button>
-	<Button type="button" color="gray" outline onclick={onCancel} class="gap-2 md:text-lg" {disabled}
+	<Button type="button" color="gray" outline onclick={onCancel} class="gap-2 md:text-lg py-2" {disabled}
 		>Cancel<X /></Button
 	>
 </div>

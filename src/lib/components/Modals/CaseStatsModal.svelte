@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Modal, Badge, Card } from 'flowbite-svelte';
+	import { Modal, Badge } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
 	import {
@@ -192,9 +192,9 @@
 
 <svelte:window bind:innerWidth />
 
-<Modal bind:open {title} size="sm" outsideclose={true} autoclose={false}>
-	<div class="flex flex-col items-center gap-0 md:gap-4">
-		<div class="flex flex-row items-center gap-8">
+<Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
+	<div class="flex w-full flex-col items-center gap-0 md:gap-4">
+		<div class="flex w-full flex-row items-center justify-center gap-8">
 			<TwistyPlayer
 				{groupId}
 				{caseId}
@@ -247,8 +247,8 @@
 		</div>
 
 		{#if caseSolves.length > 0}
-			<Card class="w-full border-0 shadow-none sm:p-0">
-				<div class="mb-0 flex justify-between md:mb-2">
+			<div class="w-full max-w-none">
+				<div class="mb-0 flex w-full justify-between md:mb-2">
 					<h5 class="text-xl leading-none font-bold text-gray-900 md:text-2xl dark:text-white">
 						History
 					</h5>
@@ -257,10 +257,10 @@
 					<Chart options={chartOptions as any} />
 				{/key}
 				<div
-					class="mt-4 grid grid-cols-1 items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700"
+					class="mt-4 grid w-full grid-cols-1 items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700"
 				>
 					<div
-						class="flex max-h-40 flex-wrap gap-2 overflow-y-auto rounded-lg border border-gray-500 bg-gray-50 p-2 dark:border-gray-600 dark:bg-gray-700"
+						class="flex max-h-40 w-full flex-wrap gap-2 overflow-y-auto rounded-lg border border-gray-500 bg-gray-50 p-2 dark:border-gray-600 dark:bg-gray-700"
 					>
 						{#each caseSolves.slice().reverse() as solve, index}
 							{@const realIndex = caseSolves.length - 1 - index}
@@ -283,7 +283,7 @@
 						{/each}
 					</div>
 				</div>
-			</Card>
+			</div>
 		{/if}
 
 		<Close {onClose} />
