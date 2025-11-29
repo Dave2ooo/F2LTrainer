@@ -40,7 +40,8 @@
 	let alg = $state('');
 
 	// Track the last displayed time to persist across case navigation
-	let lastDisplayedTime = $state<number | undefined>(undefined);
+	// Now managed in trainState to allow clearing it on navigation
+	// let lastDisplayedTime = $state<number | undefined>(undefined);
 
 	// Create hint manager instance
 	const hintManager = createHintManager();
@@ -49,7 +50,12 @@
 	let currentTrainCase = $derived(trainState.current);
 
 	// Compute the time to display: use case time if available, otherwise keep last displayed time
-	let displayTime = $derived(currentTrainCase?.time ?? lastDisplayedTime);
+	// Note: currentTrainCase.time can be null (untimed) or undefined (new case)
+	// We only want to fallback to lastDisplayedTime if it is undefined.
+	// If it is null, we want to pass null to the timer so it shows 00.00
+	let displayTime = $derived(
+		currentTrainCase?.time !== undefined ? currentTrainCase.time : trainState.lastDisplayedTime
+	);
 
 	let staticData = $derived(
 		currentTrainCase ? casesStatic[currentTrainCase.groupId][currentTrainCase.caseId] : undefined
@@ -151,7 +157,7 @@
 				// Update the time in the TrainCase
 				currentTrainCase.time = timeInCentiseconds;
 				// Update the last displayed time
-				lastDisplayedTime = timeInCentiseconds;
+				trainState.lastDisplayedTime = timeInCentiseconds;
 			} else {
 				// This is a new solve - get the next solve ID
 				const solveId = getNextSolveId();
@@ -159,7 +165,7 @@
 				currentTrainCase.time = timeInCentiseconds;
 				currentTrainCase.solveId = solveId;
 				// Update the last displayed time
-				lastDisplayedTime = timeInCentiseconds;
+				trainState.lastDisplayedTime = timeInCentiseconds;
 				
 				// Add new solve
 				addSolve({

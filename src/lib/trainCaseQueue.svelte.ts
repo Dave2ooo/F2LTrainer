@@ -36,9 +36,14 @@ function createInitialTrainCase(): TrainCase | undefined {
 }
 
 // Export a single $state object — mutate its properties instead of reassigning the variable.
-export const trainState: { index: number; current: TrainCase | undefined } = $state({
+export const trainState: {
+	index: number;
+	current: TrainCase | undefined;
+	lastDisplayedTime: number | undefined;
+} = $state({
 	index: 0,
-	current: createInitialTrainCase()
+	current: createInitialTrainCase(),
+	lastDisplayedTime: undefined
 });
 
 export function regenerateTrainCaseQueue(): number {
@@ -130,6 +135,7 @@ export function jumpToSolve(solveId: number) {
 	if (queueIndex !== -1) {
 		trainState.index = queueIndex;
 		trainState.current = trainCaseQueue[queueIndex];
+		trainState.lastDisplayedTime = undefined;
 		return;
 	}
 
@@ -204,6 +210,7 @@ export function jumpToSolve(solveId: number) {
 		// Set index to 0 (which is now Solve(solveIndex))
 		trainState.index = 0;
 		trainState.current = trainCaseQueue[0];
+		trainState.lastDisplayedTime = undefined;
 	} else {
 		// The target solve is "newer" than the head? This shouldn't happen if we only jump backwards in history
 		// unless the queue is somehow "behind" the latest stats (e.g. after a refresh?).
@@ -230,6 +237,8 @@ export function jumpToFirstUnsolved() {
 	if (index !== -1) {
 		trainState.index = index;
 		trainState.current = trainCaseQueue[index];
+		// Clear lastDisplayedTime so the timer shows 00.00 instead of previous time
+		trainState.lastDisplayedTime = undefined;
 	}
 }
 
