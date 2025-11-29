@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { P } from 'flowbite-svelte';
 	import { statistics } from '$lib/statisticsState.svelte';
-	import { trainState, trainCaseQueue } from '$lib/trainCaseQueue.svelte';
+	import { trainState, trainCaseQueue, jumpToSolve, jumpToFirstUnsolved } from '$lib/trainCaseQueue.svelte';
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
 	
 	// Find the most recent unsolved case in the queue
@@ -41,17 +41,26 @@
 			<ul class="space-y-2">
 				<!-- Show most recent unsolved case at the top -->
 				{#if mostRecentUnsolvedCase()}
-					<li class="rounded-lg border-2 border-primary-500 bg-primary-50 p-3 dark:border-primary-400 dark:bg-primary-900/20">
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
+					<li
+						class="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800
+						{trainState.current === mostRecentUnsolvedCase()
+							? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
+							: 'border-gray-200 dark:border-gray-700'}"
+						onclick={jumpToFirstUnsolved}
+						role="button"
+						tabindex="0"
+					>
 						<div class="flex items-center justify-between">
 							<div class="flex flex-col">
 								<span class="font-medium text-gray-900 dark:text-white">
-									{getGroupDisplayName(mostRecentUnsolvedCase()!.groupId)} #{mostRecentUnsolvedCase()!.caseId}
+									{getGroupDisplayName(mostRecentUnsolvedCase()!.groupId)} #{mostRecentUnsolvedCase()!
+										.caseId}
 								</span>
 							</div>
 							<div class="text-right">
-								<span class="font-mono text-sm text-gray-400 dark:text-gray-500">
-									Unsolved
-								</span>
+								<span class="font-mono text-sm text-gray-400 dark:text-gray-500"> Unsolved </span>
 							</div>
 						</div>
 					</li>
@@ -59,7 +68,17 @@
 				
 				<!-- Show all solved cases -->
 				{#each allSolves() as solve}
-					<li class="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+					<!-- svelte-ignore a11y_click_events_have_key_events -->
+					<!-- svelte-ignore a11y_no_noninteractive_element_to_interactive_role -->
+					<li
+						class="cursor-pointer rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800
+						{trainState.current?.solveId === solve.id
+							? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
+							: 'border-gray-200 dark:border-gray-700'}"
+						onclick={() => jumpToSolve(solve.id)}
+						role="button"
+						tabindex="0"
+					>
 						<div class="flex items-center justify-between">
 							<div class="flex flex-col">
 								<span class="font-medium text-gray-900 dark:text-white">
@@ -67,7 +86,11 @@
 								</span>
 							</div>
 							<div class="text-right">
-								<span class="font-mono text-sm {solve.time !== null ? 'text-gray-900 dark:text-white' : 'text-gray-400 dark:text-gray-500'}">
+								<span
+									class="font-mono text-sm {solve.time !== null
+										? 'text-gray-900 dark:text-white'
+										: 'text-gray-400 dark:text-gray-500'}"
+								>
 									{formatTime(solve.time)}
 								</span>
 							</div>
