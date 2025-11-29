@@ -15,6 +15,8 @@
 	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
 	import type { CaseId } from '$lib/types/group';
 	import { X } from '@lucide/svelte';
+	import { casesStatic } from '$lib/casesStatic';
+	import { getCaseName } from '$lib/casesState.svelte';
 
 	// Store reference to the single shared modal
 	let activeModal: CaseStatsModal | undefined = $state();
@@ -144,11 +146,13 @@
 								{#if item.type === 'unsolved'}
 									{@const unsolvedCase = mostRecentUnsolvedCase()!}
 									<span class="font-medium text-gray-900 dark:text-white">
-										{getGroupDisplayName(unsolvedCase.groupId)} #{unsolvedCase.caseId}
+										{getGroupDisplayName(unsolvedCase.groupId)}
+										#{getCaseName(casesStatic[unsolvedCase.groupId][unsolvedCase.caseId])}
 									</span>
 								{:else}
 									<span class="font-medium text-gray-900 dark:text-white">
-										{getGroupDisplayName(item.solve!.groupId)} #{item.solve!.caseId}
+										{getGroupDisplayName(item.solve!.groupId)}
+										#{getCaseName(casesStatic[item.solve!.groupId][item.solve!.caseId])}
 									</span>
 								{/if}
 							</div>
