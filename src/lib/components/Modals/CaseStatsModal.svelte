@@ -2,7 +2,13 @@
 	import { Modal, Badge, Card } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
-	import { calculateBestTime, calculateAo5, calculateAo12, formatTime, getSolvesForCase } from '$lib/utils/statistics';
+	import {
+		calculateBestTime,
+		calculateAo5,
+		calculateAo12,
+		formatTime,
+		getSolvesForCase
+	} from '$lib/utils/statistics';
 	import { globalState } from '$lib/globalState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
@@ -153,7 +159,7 @@
 			size: 0,
 			discrete: (() => {
 				const markers = [];
-				
+
 				// Add marker for hovered point
 				if (hoveredIndex !== null) {
 					markers.push({
@@ -162,10 +168,10 @@
 						fillColor: '#1A56DB',
 						strokeColor: '#fff',
 						size: 6,
-						shape: "circle"
+						shape: 'circle'
 					});
 				}
-				
+
 				// Add marker for best time when hovering over the "Best" stat
 				if (bestTimeHovered && bestTimeIndex !== null && bestTimeIndex !== hoveredIndex) {
 					markers.push({
@@ -174,10 +180,10 @@
 						fillColor: '#10B981', // Green color for best time
 						strokeColor: '#fff',
 						size: 6,
-						shape: "circle"
+						shape: 'circle'
 					});
 				}
-				
+
 				return markers;
 			})()
 		}
@@ -201,17 +207,17 @@
 				class="size-40 md:size-50"
 			/>
 
-			<div class="flex flex-col gap-3 text-center min-w-[100px]">
+			<div class="flex min-w-[100px] flex-col gap-3 text-center">
 				<div class="flex flex-col">
-					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Solves</span>
-					<span class="text-xl md:text-2xl font-bold">{solvesCount}</span>
+					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Solves</span>
+					<span class="text-xl font-bold md:text-2xl">{solvesCount}</span>
 				</div>
-				<div 
-					class="flex flex-col cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg p-2 -m-2"
+				<div
+					class="-m-2 flex cursor-pointer flex-col rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
 					role="button"
 					tabindex="0"
-					onmouseenter={() => bestTimeHovered = true}
-					onmouseleave={() => bestTimeHovered = false}
+					onmouseenter={() => (bestTimeHovered = true)}
+					onmouseleave={() => (bestTimeHovered = false)}
 					onclick={() => {
 						if (bestTimeIndex !== null) {
 							hoveredIndex = hoveredIndex === bestTimeIndex ? null : bestTimeIndex;
@@ -226,24 +232,24 @@
 						}
 					}}
 				>
-					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Best</span>
-					<span class="text-xl md:text-2xl font-bold">{formatTime(bestTime)}</span>
+					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Best</span>
+					<span class="text-xl font-bold md:text-2xl">{formatTime(bestTime)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Ao5</span>
-					<span class="text-xl md:text-2xl font-bold">{formatTime(ao5)}</span>
+					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Ao5</span>
+					<span class="text-xl font-bold md:text-2xl">{formatTime(ao5)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-sm md:text-base text-gray-500 dark:text-gray-400">Ao12</span>
-					<span class="text-xl md:text-2xl font-bold">{formatTime(ao12)}</span>
+					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Ao12</span>
+					<span class="text-xl font-bold md:text-2xl">{formatTime(ao12)}</span>
 				</div>
 			</div>
 		</div>
 
 		{#if caseSolves.length > 0}
-			<Card class="w-full shadow-none border-0 sm:p-0">
-				<div class="flex justify-between mb-0 md:mb-2">
-					<h5 class="text-xl md:text-2xl font-bold leading-none text-gray-900 dark:text-white">
+			<Card class="w-full border-0 shadow-none sm:p-0">
+				<div class="mb-0 flex justify-between md:mb-2">
+					<h5 class="text-xl leading-none font-bold text-gray-900 md:text-2xl dark:text-white">
 						History
 					</h5>
 				</div>
@@ -251,13 +257,15 @@
 					<Chart options={chartOptions as any} />
 				{/key}
 				<div
-					class="grid grid-cols-1 items-center justify-between border-t border-gray-200 dark:border-gray-700 mt-4 pt-4"
+					class="mt-4 grid grid-cols-1 items-center justify-between border-t border-gray-200 pt-4 dark:border-gray-700"
 				>
-					<div class="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 border border-gray-500 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700">
+					<div
+						class="flex max-h-40 flex-wrap gap-2 overflow-y-auto rounded-lg border border-gray-500 bg-gray-50 p-2 dark:border-gray-600 dark:bg-gray-700"
+					>
 						{#each caseSolves.slice().reverse() as solve, index}
 							{@const realIndex = caseSolves.length - 1 - index}
 							<Badge
-								class="text-sm md:text-base cursor-pointer {hoveredIndex === realIndex ||
+								class="cursor-pointer text-sm md:text-base {hoveredIndex === realIndex ||
 								selectedIndex === realIndex
 									? 'ring-2 ring-primary-500'
 									: ''}"

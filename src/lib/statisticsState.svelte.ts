@@ -1,7 +1,14 @@
 import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
 import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
 import { casesStatic } from './casesStatic';
-import type { StatisticsState, Solve, CompressedSolve, CompressedGroupId, CompressedSide, CompressedAuf } from './types/statisticsState';
+import type {
+	StatisticsState,
+	Solve,
+	CompressedSolve,
+	CompressedGroupId,
+	CompressedSide,
+	CompressedAuf
+} from './types/statisticsState';
 import type { Auf } from './types/trainCase';
 import type { Side } from './types/Side';
 
@@ -44,8 +51,8 @@ const REVERSE_SIDE_MAP: Record<CompressedSide, Side> = {
 
 const AUF_MAP: Record<Auf, CompressedAuf> = {
 	'': 0,
-	'U': 1,
-	'U2': 2,
+	U: 1,
+	U2: 2,
 	"U'": 3
 };
 
@@ -84,9 +91,7 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 }
 
 // Load raw data which could be Solve[] or CompressedSolve[]
-const persistedData = loadFromLocalStorage<any[]>(
-	STATISTICS_STATE_STORAGE_KEY
-);
+const persistedData = loadFromLocalStorage<any[]>(STATISTICS_STATE_STORAGE_KEY);
 
 let initialState: StatisticsState = [];
 

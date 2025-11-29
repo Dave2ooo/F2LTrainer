@@ -1,18 +1,15 @@
 import type { Solve } from '$lib/types/statisticsState';
 import type { CaseId, GroupId } from '$lib/types/group';
 
-export function getSolvesForCase(
-	solves: Solve[],
-	groupId: GroupId,
-	caseId: CaseId
-): Solve[] {
+export function getSolvesForCase(solves: Solve[], groupId: GroupId, caseId: CaseId): Solve[] {
 	return solves.filter((s) => s.groupId === groupId && s.caseId === caseId);
 }
 
 export function calculateBestTime(solves: Solve[]): number | null {
 	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	if (times.length === 0) return null;
-	return Math.min(...times);
+	const best = Math.min(...times);
+	return Math.round(best);
 }
 
 export function calculateAo5(solves: Solve[]): number | null {
@@ -27,7 +24,8 @@ export function calculateAo5(solves: Solve[]): number | null {
 	const middle3 = sorted.slice(1, 4);
 	// Average remaining 3
 	const sum = middle3.reduce((a, b) => a + b, 0);
-	return sum / 3;
+	const average = sum / 3;
+	return Math.round(average);
 }
 
 export function calculateAo12(solves: Solve[]): number | null {
@@ -42,13 +40,16 @@ export function calculateAo12(solves: Solve[]): number | null {
 	const middle10 = sorted.slice(1, 11);
 	// Average remaining 10
 	const sum = middle10.reduce((a, b) => a + b, 0);
-	return sum / 10;
+	const average = sum / 10;
+	return Math.round(average);
 }
 
 export function formatTime(timeInCentiseconds: number | null): string {
 	if (timeInCentiseconds === null) return '-';
 	// Time is stored as centiseconds (1/100s), format as XX.XX
-	const seconds = Math.floor(timeInCentiseconds / 100);
-	const centiseconds = timeInCentiseconds % 100;
+	// Round to ensure we're working with integers
+	const rounded = Math.round(timeInCentiseconds);
+	const seconds = Math.floor(rounded / 100);
+	const centiseconds = rounded % 100;
 	return `${seconds}.${centiseconds.toString().padStart(2, '0')}`;
 }
