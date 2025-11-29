@@ -120,8 +120,8 @@
 						animate:flip={{ duration: 400 }}
 						transition:slide={{ duration: 300 }}
 					>
-						<div class="flex items-center justify-between">
-							<div class="flex flex-col">
+						<div class="flex w-full items-center justify-between gap-4">
+							<div class="flex flex-1 flex-col">
 								{#if item.type === 'unsolved'}
 									{@const unsolvedCase = mostRecentUnsolvedCase()!}
 									<span class="font-medium text-gray-900 dark:text-white">
@@ -133,7 +133,7 @@
 									</span>
 								{/if}
 							</div>
-							<div class="flex items-center gap-2 text-right">
+							<div class="flex shrink-0 items-center gap-2">
 								{#if item.type === 'unsolved'}
 									{@const unsolvedCase = mostRecentUnsolvedCase()!}
 									<span
