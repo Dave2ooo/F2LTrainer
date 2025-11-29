@@ -18,7 +18,12 @@
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis, Pointer } from '@lucide/svelte';
 	import { statistics } from '$lib/statisticsState.svelte';
-	import { calculateBestTime, calculateAo5, formatTime, getSolvesForCase } from '$lib/utils/statistics';
+	import {
+		calculateBestTime,
+		calculateAo5,
+		formatTime,
+		getSolvesForCase
+	} from '$lib/utils/statistics';
 
 	let editAlgRef: EditAlg;
 	let caseStatsRef: CaseStatsModal;
@@ -163,7 +168,7 @@
 		{/if}
 	</div>
 	<div
-		class="flex flex-1 self-stretch relative flex-col items-center justify-center px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
+		class="relative flex flex-1 flex-col items-center justify-center self-stretch px-2 text-center font-bold text-pretty md:text-lg {getCaseTextClass(
 			caseState.trainState
 		)}"
 	>
@@ -183,7 +188,7 @@
 			<div
 				role="button"
 				tabindex="0"
-				class="absolute bottom-0 left-0 right-0 mb-1 flex justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90 hover:underline hover:opacity-100 cursor-pointer"
+				class="absolute right-0 bottom-0 left-0 mb-1 flex cursor-pointer justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90 hover:underline hover:opacity-100"
 				onclick={handleStatsClick}
 				onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any)}
 			>
