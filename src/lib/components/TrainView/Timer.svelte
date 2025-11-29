@@ -3,42 +3,40 @@
 	import { Pointer } from '@lucide/svelte';
 	import { globalState } from '$lib/globalState.svelte';
 
-	// Props
+	// Props - time is now in centiseconds (1/100s)
 	interface Props {
-		onStop?: (time: number) => void;
-		initialTime?: number;
+		onStop?: (timeInCentiseconds: number) => void;
+		initialTime?: number; // in centiseconds
 	}
 	let { onStop, initialTime }: Props = $props();
 
-	// Timer state
+	// Timer state - all in centiseconds
 	let isRunning = $state(false);
 	let startTime = $state(0);
-	let elapsedTime = $state(initialTime ?? 0);
+	let elapsedCentiseconds = $state(initialTime ?? 0);
 	let animationFrameId = $state<number | null>(null);
-	let isStopped = $state(initialTime !== undefined); // If there's an initial time, mark as stopped
-	let isReady = $state(false); // Track if user is holding spacebar/button to prepare starting
+	let isStopped = $state(initialTime !== undefined);
+	let isReady = $state(false);
 
-	// Update elapsedTime when initialTime prop changes (e.g., navigating between cases)
+	// Update elapsedCentiseconds when initialTime prop changes
 	$effect(() => {
 		if (!isRunning) {
-			elapsedTime = initialTime ?? 0;
+			elapsedCentiseconds = initialTime ?? 0;
 			isStopped = initialTime !== undefined;
 		}
 	});
 
 	// Format time as XX.XX (e.g., 05.56)
 	let formattedTime = $derived.by(() => {
-		const seconds = elapsedTime / 1000;
-		const integerPart = Math.floor(seconds).toString().padStart(2, '0');
-		const decimalPart = Math.floor((seconds % 1) * 100)
-			.toString()
-			.padStart(2, '0');
-		return `${integerPart}.${decimalPart}`;
+		const seconds = Math.floor(elapsedCentiseconds / 100);
+		const centiseconds = elapsedCentiseconds % 100;
+		return `${seconds.toString().padStart(2, '0')}.${centiseconds.toString().padStart(2, '0')}`;
 	});
 
 	function updateTimer() {
 		if (isRunning) {
-			elapsedTime = Date.now() - startTime;
+			const elapsedMs = Date.now() - startTime;
+			elapsedCentiseconds = Math.floor(elapsedMs / 10);
 			animationFrameId = requestAnimationFrame(updateTimer);
 		}
 	}
@@ -46,7 +44,8 @@
 	export function startTimer() {
 		if (!isRunning) {
 			isRunning = true;
-			startTime = Date.now() - elapsedTime;
+			// Convert centiseconds back to milliseconds for Date.now() calculation
+			startTime = Date.now() - (elapsedCentiseconds * 10);
 			updateTimer();
 			globalState.hasUsedTimer = true;
 		}
@@ -55,19 +54,19 @@
 	export function stopTimer() {
 		if (isRunning) {
 			isRunning = false;
-			isStopped = true; // Mark as stopped
+			isStopped = true;
 			if (animationFrameId !== null) {
 				cancelAnimationFrame(animationFrameId);
 				animationFrameId = null;
 			}
-			return elapsedTime; // Return elapsed time
+			return elapsedCentiseconds;
 		}
-		return undefined; // Return undefined if timer wasn't running
+		return undefined;
 	}
 
 	export function resetTimer() {
-		elapsedTime = 0;
-		isStopped = false; // Reset the stopped state
+		elapsedCentiseconds = 0;
+		isStopped = false;
 	}
 
 	export function getIsRunning() {
@@ -90,12 +89,12 @@
 		event.preventDefault();
 		if (isRunning) {
 			stopTimer();
-			// Notify parent that timer was stopped (to advance to next case)
-			onStop?.(elapsedTime);
+			// Notify parent that timer was stopped
+			onStop?.(elapsedCentiseconds);
 		} else if (!isRunning) {
 			// Prepare to start timer
 			isReady = true;
-			resetTimer(); // Reset timer display when ready state is entered
+			resetTimer();
 		}
 	}
 

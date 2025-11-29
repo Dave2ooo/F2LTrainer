@@ -3,6 +3,7 @@
 	import { statistics } from '$lib/statisticsState.svelte';
 	import { trainState, trainCaseQueue, jumpToSolve, jumpToFirstUnsolved } from '$lib/trainCaseQueue.svelte';
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
+	import { formatTime } from '$lib/utils/statistics';
 	
 	// Find the most recent unsolved case in the queue
 	const mostRecentUnsolvedCase = $derived(() => {
@@ -19,11 +20,6 @@
 	const allSolves = $derived(() => {
 		return [...statistics].reverse();
 	});
-	
-	function formatTime(timeSec: number | null): string {
-		if (timeSec === null) return '-';
-		return timeSec.toFixed(2);
-	}
 	
 	function getGroupDisplayName(groupId: GroupId): string {
 		const def = GROUP_DEFINITIONS[groupId];

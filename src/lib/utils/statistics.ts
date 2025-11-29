@@ -45,7 +45,10 @@ export function calculateAo12(solves: Solve[]): number | null {
 	return sum / 10;
 }
 
-export function formatTime(time: number | null): string {
-	if (time === null) return '-';
-	return time.toFixed(2);
+export function formatTime(timeInCentiseconds: number | null): string {
+	if (timeInCentiseconds === null) return '-';
+	// Time is stored as centiseconds (1/100s), format as XX.XX
+	const seconds = Math.floor(timeInCentiseconds / 100);
+	const centiseconds = timeInCentiseconds % 100;
+	return `${seconds}.${centiseconds.toString().padStart(2, '0')}`;
 }

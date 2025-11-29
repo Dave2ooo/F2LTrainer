@@ -6,7 +6,7 @@ export type Solve = {
 	id: number;
 	groupId: GroupId;
 	caseId: CaseId;
-	time: number | null;
+	time: number | null; // Time in centiseconds (1/100s), or null for untimed solves
 	timestamp: number;
 	auf: Auf;
 	side: Side;

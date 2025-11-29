@@ -126,7 +126,7 @@ export default class TrainCase {
 			scrambleSelection: solve.scrambleSelection,
 			auf: solve.auf,
 			solveId: solve.id,
-			time: solve.time !== null ? solve.time * 1000 : null
+			time: solve.time // Time is already in centiseconds, no conversion needed
 		});
 	}
 
