@@ -68,7 +68,7 @@ export default class TrainCase {
 	#scrambleSelection: number;
 	#auf: Auf;
 	#solved: boolean = false;
-	#time: number | undefined = undefined;
+	#time: number | null | undefined = undefined;
 	#solveId: number | undefined = undefined;
 
 	constructor(
@@ -111,7 +111,7 @@ export default class TrainCase {
 		}
 
 		if (options?.time !== undefined) {
-			this.#time = options.time === null ? undefined : options.time;
+			this.#time = options.time;
 		}
 
 		this.setCrossAndFrontColor(crossColor, frontColor);
@@ -237,7 +237,7 @@ export default class TrainCase {
 	get time() {
 		return this.#time;
 	}
-	set time(value: number | undefined) {
+	set time(value: number | null | undefined) {
 		this.#time = value;
 	}
 	get solveId() {

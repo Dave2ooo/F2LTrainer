@@ -6,15 +6,21 @@
 	// Props - time is now in centiseconds (1/100s)
 	interface Props {
 		onStop?: (timeInCentiseconds: number) => void;
-		initialTime?: number; // in centiseconds
+		initialTime?: number | null; // in centiseconds, null means untimed
 	}
 	let { onStop, initialTime }: Props = $props();
 
 	// Timer state - all in centiseconds
 	let isRunning = $state(false);
 	let startTime = $state(0);
+	// If initialTime is null (untimed solve), start at 0
 	let elapsedCentiseconds = $state(initialTime ?? 0);
 	let animationFrameId = $state<number | null>(null);
+	// Mark as stopped if there's an initial time (even if it's 0/null, though usually 0 means ready to start)
+	// Actually, if we are viewing a history item, we want it to look "stopped" at that time.
+	// If initialTime is provided (even null), it means we are viewing a state, not ready to start a new one?
+	// The logic for `isStopped` was `initialTime !== undefined`.
+	// If we pass `null` for untimed solve, `isStopped` becomes true, which is correct (we are viewing a result).
 	let isStopped = $state(initialTime !== undefined);
 	let isReady = $state(false);
 
