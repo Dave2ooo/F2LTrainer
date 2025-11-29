@@ -7,6 +7,14 @@
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
 	import { formatTime } from '$lib/utils/statistics';
 	import type { Solve } from '$lib/types/statisticsState';
+	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
+	import type { CaseId } from '$lib/types/group';
+	
+	// Store reference to the single shared modal
+	let activeModal: CaseStatsModal | undefined = $state();
+	// State for the currently active case in the modal
+	let activeGroupId = $state<GroupId>('basic');
+	let activeCaseId = $state<CaseId>(1);
 	
 	// Find the most recent unsolved case in the queue
 	const mostRecentUnsolvedCase = $derived(() => {
@@ -55,6 +63,18 @@
 		const def = GROUP_DEFINITIONS[groupId];
 		return def ? def.editName : groupId;
 	}
+	
+	function handleStatsClick(e: MouseEvent, groupId: GroupId, caseId: CaseId) {
+		e.stopPropagation();
+		// Update the active case for the modal
+		activeGroupId = groupId;
+		activeCaseId = caseId;
+		
+		// Open the modal
+		if (activeModal) {
+			activeModal.openModal();
+		}
+	}
 </script>
 
 <div class="flex h-full flex-col p-4">
@@ -98,12 +118,25 @@
 							</div>
 							<div class="text-right">
 								{#if item.type === 'unsolved'}
-									<span class="font-mono text-sm text-gray-400 dark:text-gray-500"> Unsolved </span>
+									{@const unsolvedCase = mostRecentUnsolvedCase()!}
+									<span 
+										role="button"
+										tabindex="0"
+										class="font-mono text-sm text-gray-400 dark:text-gray-500 cursor-pointer hover:underline hover:text-gray-600 dark:hover:text-gray-300"
+										onclick={(e) => handleStatsClick(e, unsolvedCase.groupId, unsolvedCase.caseId)}
+										onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any, unsolvedCase.groupId, unsolvedCase.caseId)}
+									>
+										Unsolved
+									</span>
 								{:else}
 									<span
-										class="font-mono text-sm {item.solve!.time !== null
-											? 'text-gray-900 dark:text-white'
-											: 'text-gray-400 dark:text-gray-500'}"
+										role="button"
+										tabindex="0"
+										class="font-mono text-sm cursor-pointer hover:underline {item.solve!.time !== null
+											? 'text-gray-900 dark:text-white hover:text-gray-700 dark:hover:text-gray-200'
+											: 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'}"
+										onclick={(e) => handleStatsClick(e, item.solve!.groupId, item.solve!.caseId)}
+										onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any, item.solve!.groupId, item.solve!.caseId)}
 									>
 										{formatTime(item.solve!.time)}
 									</span>
@@ -116,3 +149,10 @@
 		{/if}
 	</div>
 </div>
+
+<!-- Single shared modal for displaying statistics -->
+<CaseStatsModal 
+	bind:this={activeModal}
+	groupId={activeGroupId}
+	caseId={activeCaseId}
+/>

@@ -47,8 +47,8 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 
-	const caseState = casesState[groupId][caseId];
-	const title = GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId;
+	const caseState = $derived(casesState[groupId][caseId]);
+	const title = $derived(GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId);
 
 	let hoveredIndex: number | null = $state(null);
 	let selectedIndex: number | null = $state(null);
