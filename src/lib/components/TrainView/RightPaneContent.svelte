@@ -84,6 +84,25 @@
 
 	function handleDeleteSolve(e: MouseEvent, solveId: number) {
 		e.stopPropagation();
+
+		// Check if this is the currently selected solve
+		const isCurrentlySelected = trainState.current?.solveId === solveId;
+
+		if (isCurrentlySelected) {
+			// Find the index of the solve being deleted in the statistics array
+			const deleteIndex = statistics.findIndex((s) => s.id === solveId);
+
+			if (deleteIndex > 0) {
+				// Navigate to the previous solve (earlier in time, lower index)
+				const previousSolve = statistics[deleteIndex - 1];
+				jumpToSolve(previousSolve.id);
+			} else {
+				// This is the first solve, navigate to the unsolved case if it exists
+				jumpToFirstUnsolved();
+			}
+		}
+
+		// Now remove the solve
 		removeSolve(solveId);
 	}
 
