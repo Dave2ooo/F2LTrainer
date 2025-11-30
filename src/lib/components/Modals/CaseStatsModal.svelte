@@ -123,7 +123,7 @@
 		series: [
 			{
 				name: 'Solve Time',
-				data: chartSolves.map((s) => parseFloat((s.time as number).toFixed(2)))
+				data: chartSolves.map((s) => parseFloat(((s.time as number) / 100).toFixed(2)))
 			}
 		],
 		xaxis: {
