@@ -10,8 +10,8 @@ const createCollapsedCategories = (): Record<GroupId, boolean[]> =>
 	) as Record<GroupId, boolean[]>;
 
 const createDefaultGlobalState = (): GlobalState => ({
-	crossColor: 'white',
-	frontColor: 'red',
+	crossColor: ['white'],
+	frontColor: ['red'],
 	categoriesOpenedObj: createCollapsedCategories(),
 	view: 'select',
 	selectedGroup: 'basic',
@@ -34,7 +34,7 @@ const defaultState = createDefaultGlobalState();
 const persistedGlobalState = loadFromLocalStorage<Partial<GlobalState>>(GLOBAL_STATE_STORAGE_KEY);
 
 // Merge persisted state with defaults to ensure new properties get default values
-const initialState = persistedGlobalState 
+const initialState = persistedGlobalState
 	? { ...defaultState, ...persistedGlobalState }
 	: defaultState;
 

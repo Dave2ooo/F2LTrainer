@@ -9,8 +9,8 @@ export type HintAlgorithm = 'step' | 'allAtOnce' | 'always';
 export type HintStickering = 'f2l' | 'fully';
 
 export interface GlobalState {
-	crossColor: StickerColor | 'random';
-	frontColor: StickerColor | 'random';
+	crossColor: StickerColor[];
+	frontColor: StickerColor[];
 	categoriesOpenedObj: Record<GroupId, boolean[]>;
 	view: View;
 	selectedGroup: GroupId;

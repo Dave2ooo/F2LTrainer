@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { Button, Checkbox, Label, Select } from 'flowbite-svelte';
-	import Modal from '../Modal.svelte';
+	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { STICKER_COLORS_WITH_RANDOM, OPPOSITE_COLOR } from '$lib/types/stickering';
+	import { STICKER_COLORS, OPPOSITE_COLOR } from '$lib/types/stickering';
 	import {
 		getNumberOfSelectedCasesFromSelections,
 		regenerateTrainCaseQueue
@@ -14,8 +13,11 @@
 	import ClearStorageModal from './ClearStorageModal.svelte';
 	import { clearAllLocalStorage } from '$lib/utils/localStorage';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
+	import { Accordion, AccordionItem } from '$lib/components/Accordion';
 
 	let open = $state(false);
+	let hintSettingsOpen = $state(false);
+	let dangerZoneOpen = $state(false);
 	let clearStorageModal: ClearStorageModal;
 
 	// Flash states for validation feedback
@@ -27,8 +29,8 @@
 
 	// Working copy for editing (reactive)
 	let workingState = $state({
-		crossColor: globalState.crossColor,
-		frontColor: globalState.frontColor,
+		crossColor: [...globalState.crossColor],
+		frontColor: [...globalState.frontColor],
 		trainStateSelection: { ...globalState.trainStateSelection },
 		trainGroupSelection: { ...globalState.trainGroupSelection },
 		trainSideSelection: { ...globalState.trainSideSelection },
@@ -42,8 +44,8 @@
 		if (globalState.view === 'train') trainSettingsManager.saveTrainSettings();
 		// Reset workingState when opening modal
 		workingState = {
-			crossColor: globalState.crossColor,
-			frontColor: globalState.frontColor,
+			crossColor: [...globalState.crossColor],
+			frontColor: [...globalState.frontColor],
 			trainStateSelection: { ...globalState.trainStateSelection },
 			trainGroupSelection: { ...globalState.trainGroupSelection },
 			trainSideSelection: { ...globalState.trainSideSelection },
@@ -67,8 +69,8 @@
 		flashCrossColor = false;
 		flashFrontColor = false;
 		// Copy workingState back to globalState
-		globalState.crossColor = workingState.crossColor;
-		globalState.frontColor = workingState.frontColor;
+		globalState.crossColor = [...workingState.crossColor];
+		globalState.frontColor = [...workingState.frontColor];
 		globalState.trainStateSelection = { ...workingState.trainStateSelection };
 		globalState.trainGroupSelection = { ...workingState.trainGroupSelection };
 		globalState.trainSideSelection = { ...workingState.trainSideSelection };
@@ -123,26 +125,16 @@
 			flashSides = false;
 		}
 
-		// 4. Cross and Front color cannot be identical or opposite (must be adjacent)
-		// Only check when both are real sticker colors (not 'random')
-		const cross = workingState.crossColor;
-		const front = workingState.frontColor;
-		if (cross !== 'random' && front !== 'random') {
-			const isSame = cross === front;
-			const isOpposite = OPPOSITE_COLOR[cross as keyof typeof OPPOSITE_COLOR] === front;
-			if (isSame || isOpposite) {
-				flashCrossColor = true;
-				flashFrontColor = true;
-				hasErrors = true;
-			} else {
-				flashCrossColor = false;
-				flashFrontColor = false;
-			}
+		// 4. Cross Color validation
+		if (workingState.crossColor.length === 0) {
+			flashCrossColor = true;
+			hasErrors = true;
 		} else {
-			// if one of the colors is 'random', clear the cross/front errors because the field is valid
 			flashCrossColor = false;
-			flashFrontColor = false;
 		}
+
+		// Front color is always valid (empty = random)
+		flashFrontColor = false;
 
 		return !hasErrors;
 	}
@@ -162,6 +154,31 @@
 			window.location.reload();
 		}
 	}
+
+
+
+	// Auto-unselect invalid front colors or clear if multiple cross colors selected
+	$effect(() => {
+		const crossColors = workingState.crossColor;
+		if (crossColors.length === 0) return;
+
+		// If multiple cross colors are selected, clear front colors
+		if (crossColors.length > 1) {
+			if (workingState.frontColor.length > 0) {
+				workingState.frontColor = [];
+			}
+			return;
+		}
+
+		const currentFrontColors = workingState.frontColor;
+		const validFrontColors = currentFrontColors.filter((front) => {
+			return crossColors.every((cross) => cross !== front && OPPOSITE_COLOR[cross] !== front);
+		});
+
+		if (validFrontColors.length !== currentFrontColors.length) {
+			workingState.frontColor = validFrontColors;
+		}
+	});
 </script>
 
 <Modal bind:open title="Settings" size="md" outsideclose={true} autoclose={false}>
@@ -301,83 +318,131 @@
 			</section>
 
 			<!-- Hint Settings Section -->
-			<section class="rounded-lg border border-gray-400 p-4">
-				<h3 class="mb-4 text-lg font-medium">Hint Settings</h3>
+			<Accordion multiple>
+				<!-- Hint Settings Section -->
+				<section class="rounded-lg border border-gray-400 p-4">
+					<AccordionItem bind:open={hintSettingsOpen}>
+						{#snippet header()}
+							<h3 class="text-lg font-medium">Hint Settings</h3>
+						{/snippet}
+						<div class="space-y-6 pt-2">
+							<!-- Display Settings -->
+							<div>
+								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">Display Options</h4>
+								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+									<div>
+										<Label for="algorithm" class="mb-1 block font-medium">Algorithm Display</Label>
+										<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
+											<option value="step">Reveal step-by-step</option>
+											<option value="allAtOnce">Reveal all at once</option>
+											<option value="always">Show all time</option>
+										</Select>
+									</div>
 
-				<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-					<!-- Left Column -->
-					<div class="space-y-4">
-						<div>
-							<Label for="algorithm" class="mb-1 block font-medium">Algorithm Display</Label>
-							<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
-								<option value="step">Reveal step-by-step</option>
-								<option value="allAtOnce">Reveal all at once</option>
-								<option value="always">Show all time</option>
-							</Select>
+									<div>
+										<Label for="stickering" class="mb-1 block font-medium">Stickering Style</Label>
+										<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
+											<option value="f2l">F2L Stickering</option>
+											<option value="fully">Fully stickered</option>
+										</Select>
+									</div>
+								</div>
+							</div>
+
+							<hr class="border-gray-200 dark:border-gray-700" />
+
+							<!-- Color Settings -->
+							<div>
+								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">Color Options</h4>
+								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+									<!-- Cross Color -->
+									<div
+										class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+										class:flash={flashCrossColor}
+										aria-invalid={flashCrossColor}
+										aria-describedby={flashCrossColor ? 'cross-color-error' : undefined}
+									>
+										<Label class="mb-3 block text-base font-medium">Cross Color</Label>
+										<div class="grid grid-cols-2 gap-2">
+											{#each STICKER_COLORS as color}
+												<Checkbox bind:group={workingState.crossColor} value={color}>
+													{color.charAt(0).toUpperCase() + color.slice(1)}
+												</Checkbox>
+											{/each}
+										</div>
+										{#if flashCrossColor}
+											<p id="cross-color-error" class="mt-2 text-sm text-theme-error" role="alert">
+												Please select at least one cross color.
+											</p>
+										{/if}
+									</div>
+
+									<!-- Front Color -->
+									<div
+										class="rounded-lg border border-gray-200 p-4 dark:border-gray-700"
+										class:flash={flashFrontColor}
+										aria-invalid={flashFrontColor}
+									>
+										<Label class="mb-3 block text-base font-medium">Front Color</Label>
+										<div class="grid grid-cols-2 gap-2">
+											{#each STICKER_COLORS as color}
+												{@const isDisabled =
+													workingState.crossColor.length > 1 ||
+													(workingState.crossColor.length === 1 &&
+														!workingState.crossColor.every(
+															(c) => c !== color && OPPOSITE_COLOR[c] !== color
+														))}
+												<Checkbox
+													bind:group={workingState.frontColor}
+													value={color}
+													disabled={isDisabled}
+												>
+													{color.charAt(0).toUpperCase() + color.slice(1)}
+												</Checkbox>
+											{/each}
+										</div>
+										{#if workingState.crossColor.length > 1}
+											<p class="mt-2 text-sm text-gray-500">
+												Randomized when multiple cross colors are selected.
+											</p>
+										{/if}
+									</div>
+								</div>
+							</div>
 						</div>
+					</AccordionItem>
+				</section>
 
-						<div>
-							<Label for="stickering" class="mb-1 block font-medium">Stickering Style</Label>
-							<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
-								<option value="f2l">F2L Stickering</option>
-								<option value="fully">Fully stickered</option>
-							</Select>
+				<!-- Danger Zone Section -->
+				<section class="rounded-lg border border-gray-400 p-4">
+					<AccordionItem
+						bind:open={dangerZoneOpen}
+						headerClass="text-red-700 hover:!bg-red-50 dark:text-red-500 dark:hover:!bg-red-900/20 {dangerZoneOpen
+							? '!bg-red-50 dark:!bg-red-900/20'
+							: ''}"
+						contentClass="bg-red-50 dark:bg-red-900/10"
+					>
+						{#snippet header()}
+							<span class="font-medium">Danger Zone</span>
+						{/snippet}
+						<div class="pt-2">
+							<p class="mb-4 text-sm text-red-600 dark:text-red-400">
+								This will permanently delete all your progress and settings. This action cannot be undone.
+							</p>
+							<Button
+								size="sm"
+								color="red"
+								outline
+								onclick={handleClearStorage}
+								class="w-full gap-2 sm:w-auto"
+							>
+								<Trash2 size={16} />
+								Clear Data
+							</Button>
 						</div>
-					</div>
-
-					<!-- Right Column -->
-					<div class="space-y-4">
-						<div
-							class:flash={flashCrossColor}
-							aria-invalid={flashCrossColor}
-							aria-describedby={flashCrossColor || flashFrontColor
-								? 'cross-front-error'
-								: undefined}
-						>
-							<Label for="crossColor" class="mb-1 block font-medium">Cross Color</Label>
-							<Select bind:value={workingState.crossColor} id="crossColor" placeholder="">
-								{#each STICKER_COLORS_WITH_RANDOM as color}
-									<option value={color}>
-										{color.charAt(0).toUpperCase() + color.slice(1)}
-									</option>
-								{/each}
-							</Select>
-						</div>
-
-						<div
-							class:flash={flashFrontColor}
-							aria-invalid={flashFrontColor}
-							aria-describedby={flashCrossColor || flashFrontColor
-								? 'cross-front-error'
-								: undefined}
-						>
-							<Label for="frontColor" class="mb-1 block font-medium">Front Color</Label>
-							<Select bind:value={workingState.frontColor} id="frontColor" placeholder="">
-								{#each STICKER_COLORS_WITH_RANDOM as color}
-									<option value={color}>
-										{color.charAt(0).toUpperCase() + color.slice(1)}
-									</option>
-								{/each}
-							</Select>
-							{#if flashCrossColor || flashFrontColor}
-								<p id="cross-front-error" class="mt-1 text-sm text-theme-error" role="alert">
-									Cross and Front colors must be adjacent (not the same or opposite).
-								</p>
-							{/if}
-						</div>
-					</div>
-				</div>
-			</section>
-
-			<!-- Danger Zone Section -->
-			<!-- Danger Zone Section -->
-			<section class="flex items-center justify-between rounded-lg border border-red-400 bg-red-50 p-3">
-				<span class="font-medium text-red-700">Danger Zone</span>
-				<Button size="sm" color="red" outline onclick={handleClearStorage} class="gap-2">
-					<Trash2 size={16} />
-					Clear Data
-				</Button>
-			</section>
+					</AccordionItem>
+				</section>
+			</Accordion>
 		</div>
 
 		<!-- <svelte:fragment slot="footer"> -->

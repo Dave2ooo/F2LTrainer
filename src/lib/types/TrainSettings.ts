@@ -7,7 +7,7 @@ export type TrainSettings = {
 	trainStateSelection: Record<TrainState, boolean>;
 	trainGroupSelection: Record<GroupId, boolean>;
 	trainSideSelection: Record<Side, boolean>;
-	crossColor: StickerColor | 'random';
-	frontColor: StickerColor | 'random';
+	crossColor: StickerColor[];
+	frontColor: StickerColor[];
 	trainState: Record<GroupId, Record<number, TrainState>>;
 };

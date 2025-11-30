@@ -75,8 +75,8 @@ export default class TrainCase {
 		groupId: GroupId,
 		caseId: number,
 		side: Side,
-		crossColor: StickerColor | 'random',
-		frontColor: StickerColor | 'random',
+		crossColors: StickerColor[],
+		frontColors: StickerColor[],
 		options?: {
 			scrambleSelection?: number;
 			auf?: Auf;
@@ -114,15 +114,15 @@ export default class TrainCase {
 			this.#time = options.time;
 		}
 
-		this.setCrossAndFrontColor(crossColor, frontColor);
+		this.setCrossAndFrontColor(crossColors, frontColors);
 	}
 
 	static fromSolve(
 		solve: Solve,
-		crossColor: StickerColor | 'random' = 'white',
-		frontColor: StickerColor | 'random' = 'red'
+		crossColors: StickerColor[] = ['white'],
+		frontColors: StickerColor[] = ['red']
 	): TrainCase {
-		return new TrainCase(solve.groupId, solve.caseId, solve.side, crossColor, frontColor, {
+		return new TrainCase(solve.groupId, solve.caseId, solve.side, crossColors, frontColors, {
 			scrambleSelection: solve.scrambleSelection,
 			auf: solve.auf,
 			solveId: solve.id,
@@ -147,60 +147,36 @@ export default class TrainCase {
 	}
 
 	private setCrossAndFrontColor(
-		crossColor: StickerColor | 'random',
-		frontColor: StickerColor | 'random'
+		crossColors: StickerColor[],
+		frontColors: StickerColor[]
 	) {
-		if (crossColor === 'random' && frontColor !== 'random') {
-			// If front color is specific but cross color is random,
-			// we need to find a valid cross color that works with the specified front color
-			const validCrossColors = STICKER_COLORS.filter((color) => {
-				return SIDE_COLOR[color]?.[frontColor] !== undefined;
-			});
+		// Generate all valid pairs
+		const validPairs: [StickerColor, StickerColor][] = [];
 
-			if (validCrossColors.length > 0) {
-				this.#crossColor = validCrossColors[Math.floor(Math.random() * validCrossColors.length)];
-				this.#frontColor = frontColor;
-			} else {
-				// If no valid combination found (shouldn't happen with correct color names)
-				this.#crossColor = 'white';
-				this.#frontColor = 'red';
+		for (const cross of crossColors) {
+			// If frontColors is empty, consider ALL valid neighbors
+			const potentialFrontColors =
+				frontColors.length > 0
+					? frontColors
+					: (Object.keys(SIDE_COLOR[cross]) as StickerColor[]);
+
+			for (const front of potentialFrontColors) {
+				if (cross !== front && OPPOSITE_COLOR[cross] !== front) {
+					validPairs.push([cross, front]);
+				}
 			}
+		}
+
+		if (validPairs.length > 0) {
+			// Pick a random valid pair
+			const [selectedCross, selectedFront] =
+				validPairs[Math.floor(Math.random() * validPairs.length)];
+			this.#crossColor = selectedCross;
+			this.#frontColor = selectedFront;
 		} else {
-			// Set cross color first if it's not random or if front color is also random
-			this.#crossColor =
-				crossColor === 'random'
-					? STICKER_COLORS[Math.floor(Math.random() * STICKER_COLORS.length)]
-					: crossColor;
-
-			// Then set front color
-			if (frontColor === 'random') {
-				// Get valid colors that work with the selected cross color
-				const validColors = STICKER_COLORS.filter((color) => {
-					return SIDE_COLOR[this.#crossColor]?.[color] !== undefined;
-				});
-
-				if (validColors.length > 0) {
-					this.#frontColor = validColors[Math.floor(Math.random() * validColors.length)];
-				} else {
-					// Fallback to a safe default if no valid colors found
-					this.#frontColor = 'red';
-					if (this.#crossColor === 'red' || this.#crossColor === OPPOSITE_COLOR['red']) {
-						this.#frontColor = 'blue';
-					}
-				}
-			} else {
-				// If specific front color requested, verify it's valid
-				const sideColorEntry = SIDE_COLOR[this.#crossColor]?.[frontColor];
-				if (sideColorEntry !== undefined) {
-					this.#frontColor = frontColor;
-				} else {
-					// If not valid with current cross color, fall back to a safe default
-					this.#frontColor = 'red';
-					if (this.#crossColor === 'red' || this.#crossColor === OPPOSITE_COLOR['red']) {
-						this.#frontColor = 'blue';
-					}
-				}
-			}
+			// Fallback (should be prevented by validation)
+			this.#crossColor = 'white';
+			this.#frontColor = 'red';
 		}
 	}
 
