@@ -122,13 +122,9 @@ nextSolveId = maxSolveId + 1;
 
 export const statistics: StatisticsState = $state(initialState);
 
-// Effect to save statistics to local storage whenever they change
-$effect.root(() => {
-	$effect(() => {
-		const compressedStats = statistics.map(compressSolve);
-		saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressedStats);
-	});
-});
+export function compressStatistics(stats: StatisticsState): CompressedSolve[] {
+	return stats.map(compressSolve);
+}
 
 export function addSolve(solve: Solve) {
 	statistics.push(solve);
