@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Button, Checkbox, Label, Modal, Select } from 'flowbite-svelte';
+	import { Button, Checkbox, Label, Select } from 'flowbite-svelte';
+	import Modal from '../Modal.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { STICKER_COLORS, OPPOSITE_COLOR } from '$lib/types/stickering';
 	import {
@@ -320,7 +321,7 @@
 			<!-- Hint Settings Section -->
 			<Accordion multiple>
 				<!-- Hint Settings Section -->
-				<section class="rounded-lg border border-gray-400 p-4">
+				<section class="rounded-lg border border-gray-400 px-4 py-1">
 					<AccordionItem bind:open={hintSettingsOpen}>
 						{#snippet header()}
 							<h3 class="text-lg font-medium">Hint Settings</h3>
@@ -414,7 +415,7 @@
 				</section>
 
 				<!-- Danger Zone Section -->
-				<section class="rounded-lg border border-gray-400 p-4">
+				<section class="rounded-lg border border-gray-400 px-4 py-1">
 					<AccordionItem
 						bind:open={dangerZoneOpen}
 						headerClass="text-red-700 hover:!bg-red-50 dark:text-red-500 dark:hover:!bg-red-900/20 {dangerZoneOpen
