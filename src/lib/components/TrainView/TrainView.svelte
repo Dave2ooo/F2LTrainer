@@ -307,6 +307,7 @@
 					side={currentTrainCase.side}
 					crossColor={currentTrainCase.crossColor}
 					frontColor={currentTrainCase.frontColor}
+					scrambleSelection={currentTrainCase.scramble}
 					stickering={globalState.trainHintStickering}
 					experimentalDragInput="auto"
 					class="size-full"
