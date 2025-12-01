@@ -14,5 +14,4 @@ export interface CaseState {
 	algorithmSelection: AlgorithmSelection;
 	customAlgorithm: CustomAlgorithm;
 	identicalAlgorithm: boolean;
-	solveCount: number;
 }

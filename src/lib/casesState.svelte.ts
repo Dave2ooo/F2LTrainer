@@ -10,8 +10,7 @@ export const createCaseState = (): CaseState => ({
 	trainState: 'unlearned',
 	algorithmSelection: { left: 0, right: 0 },
 	customAlgorithm: { left: '', right: '' },
-	identicalAlgorithm: true,
-	solveCount: 0
+	identicalAlgorithm: true
 });
 
 const createGroupCasesState = (groupId: GroupId): Record<CaseId, CaseState> => {

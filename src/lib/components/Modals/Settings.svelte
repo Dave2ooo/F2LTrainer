@@ -38,6 +38,8 @@
 		trainAddAuf: globalState.trainAddAuf,
 		trainHintAlgorithm: globalState.trainHintAlgorithm,
 		trainHintStickering: globalState.trainHintStickering,
+		trainSmartFrequencySolved: globalState.trainSmartFrequencySolved,
+		trainSmartFrequencyTime: globalState.trainSmartFrequencyTime,
 		trainShowTimer: globalState.trainShowTimer
 	});
 
@@ -53,6 +55,8 @@
 			trainAddAuf: globalState.trainAddAuf,
 			trainHintAlgorithm: globalState.trainHintAlgorithm,
 			trainHintStickering: globalState.trainHintStickering,
+			trainSmartFrequencySolved: globalState.trainSmartFrequencySolved,
+			trainSmartFrequencyTime: globalState.trainSmartFrequencyTime,
 			trainShowTimer: globalState.trainShowTimer
 		};
 		open = true;
@@ -78,6 +82,8 @@
 		globalState.trainAddAuf = workingState.trainAddAuf;
 		globalState.trainHintAlgorithm = workingState.trainHintAlgorithm;
 		globalState.trainHintStickering = workingState.trainHintStickering;
+		globalState.trainSmartFrequencySolved = workingState.trainSmartFrequencySolved;
+		globalState.trainSmartFrequencyTime = workingState.trainSmartFrequencyTime;
 		globalState.trainShowTimer = workingState.trainShowTimer;
 		if (globalState.view === 'train')
 			if (!trainSettingsManager.areTrainSettingsUnchanged()) regenerateTrainCaseQueue();
@@ -311,6 +317,29 @@
 										tooltip="Show timer component for speedcubing practice"
 										icon={CircleQuestionMark}
 									/> -->
+								</div>
+							</div>
+							
+							<!-- Smart Frequency -->
+							<div class="mt-4">
+								<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Smart Frequency</p>
+								<div class="space-y-2">
+									<div class="flex items-center gap-2">
+										<Checkbox bind:checked={workingState.trainSmartFrequencySolved}>Prioritize Unsolved/New</Checkbox>
+										<TooltipButton
+											id="btn-train-settings-freq-solved"
+											tooltip="Show cases with fewer solves more frequently"
+											icon={CircleQuestionMark}
+										/>
+									</div>
+									<div class="flex items-center gap-2">
+										<Checkbox bind:checked={workingState.trainSmartFrequencyTime}>Prioritize Slower Cases</Checkbox>
+										<TooltipButton
+											id="btn-train-settings-freq-time"
+											tooltip="Show cases with slower average times more frequently"
+											icon={CircleQuestionMark}
+										/>
+									</div>
 								</div>
 							</div>
 						</div>

@@ -3,6 +3,7 @@
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
+	import { statistics } from '$lib/statisticsState.svelte';
 
 	let currentTrainCase = $derived(trainState.current);
 	let caseState = $derived(
@@ -23,6 +24,17 @@
 			: ''
 	);
 	let aufText = $derived(currentTrainCase?.auf || '');
+	
+	let solveCount = $derived(
+		currentTrainCase
+			? statistics.filter(
+					(s) =>
+						s.groupId === currentTrainCase!.groupId &&
+						s.caseId === currentTrainCase!.caseId &&
+						s.side === currentTrainCase!.side
+				).length
+			: 0
+	);
 </script>
 
 {#if currentTrainCase && caseState}
@@ -38,7 +50,7 @@
 		{#if globalState.showDetails}
 			<p class="text-sm text-theme-text-secondary">
 				{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
-				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {caseState.solveCount}
+				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {solveCount}
 			</p>
 		{/if}
 	</div>

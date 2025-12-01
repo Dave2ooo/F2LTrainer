@@ -20,6 +20,8 @@ export interface GlobalState {
 	trainAddAuf: boolean;
 	trainHintAlgorithm: HintAlgorithm;
 	trainHintStickering: HintStickering;
+	trainSmartFrequencySolved: boolean;
+	trainSmartFrequencyTime: boolean;
 	playOnAlgChange: boolean;
 	showDetails: boolean;
 	trainHideTwistyPlayer: boolean;

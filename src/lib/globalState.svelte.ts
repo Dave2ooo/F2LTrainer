@@ -21,6 +21,8 @@ const createDefaultGlobalState = (): GlobalState => ({
 	trainAddAuf: true,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	trainSmartFrequencySolved: false,
+	trainSmartFrequencyTime: false,
 	playOnAlgChange: true,
 	showDetails: false,
 	trainHideTwistyPlayer: false,

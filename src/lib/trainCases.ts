@@ -13,32 +13,32 @@ import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
 import shuffleArray from './utils/shuffleArray';
 
+import { statistics } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
 
 export function gernerateTrainCases(): TrainCase[] {
-	console.log('gernerateTrainCases() called');
+	// console.log('gernerateTrainCases() called');
 	const result: TrainCase[] = [];
 
 	const trainGroupSelection = globalState.trainGroupSelection;
 	const trainStateSelection = globalState.trainStateSelection;
 	const trainSideSelection = globalState.trainSideSelection;
-	// console.log("trainGroupSelection", trainGroupSelection, "trainStateSelection", trainStateSelection, "trainSideSelection", trainSideSelection);
+	const trainSmartFrequencySolved = globalState.trainSmartFrequencySolved;
+	const trainSmartFrequencyTime = globalState.trainSmartFrequencyTime;
 
 	const crossColor = globalState.crossColor;
 	const frontColor = globalState.frontColor;
 
+	// Collect all candidates first
+	const candidates: { groupId: GroupId; caseId: number; side: Side }[] = [];
+
 	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
-		// 1. check if this group is selected
-		if (!trainGroupSelection[groupId]) {
-			// console.log("groupId", groupId, "not selected");
-			continue;
-		}
+		if (!trainGroupSelection[groupId]) continue;
 
 		const groupCaseStates = casesState[groupId];
 
 		for (const caseIdStr of Object.keys(groupCaseStates)) {
 			const caseId = Number(caseIdStr);
-			// console.log("groupId", groupId, "caseId", caseId);
 			if (Number.isNaN(caseId)) continue;
 
 			const caseState = groupCaseStates[caseId];
@@ -46,14 +46,130 @@ export function gernerateTrainCases(): TrainCase[] {
 
 			if (!trainStateSelection[caseTrainState]) continue;
 
-			// console.log("groupId", groupId, "caseId", caseId);
-			if (trainSideSelection.right)
-				result.push(new TrainCase(groupId, caseId, 'right', crossColor, frontColor));
-			if (trainSideSelection.left)
-				result.push(new TrainCase(groupId, caseId, 'left', crossColor, frontColor));
-			// console.log("result temp", result);
+			if (trainSideSelection.right) candidates.push({ groupId, caseId, side: 'right' });
+			if (trainSideSelection.left) candidates.push({ groupId, caseId, side: 'left' });
 		}
 	}
+
+	if (candidates.length === 0) return result;
+
+	// Calculate weights if smart frequency is enabled
+	let weights: number[] = new Array(candidates.length).fill(1);
+
+	if (trainSmartFrequencySolved || trainSmartFrequencyTime) {
+		// Pre-calculate stats for candidates
+		const candidateStats = candidates.map((c) => {
+			const caseSolves = statistics.filter(
+				(s) => s.groupId === c.groupId && s.caseId === c.caseId && s.side === c.side
+			);
+			return {
+				solveCount: caseSolves.length,
+				solves: caseSolves
+			};
+		});
+
+		// 1. Solve Count Frequency
+		let solveWeights = new Array(candidates.length).fill(1);
+		if (trainSmartFrequencySolved) {
+			const maxSolves = Math.max(...candidateStats.map((s) => s.solveCount));
+			solveWeights = candidateStats.map((s) => {
+				const solveDeficit = maxSolves - s.solveCount;
+				// Every 3 solves difference adds 1 to weight, max 3 total
+				return 1 + Math.min(2, solveDeficit / 3);
+			});
+		}
+
+		// 2. Time Frequency
+		let timeWeights = new Array(candidates.length).fill(1);
+		if (trainSmartFrequencyTime) {
+			// Calculate average time of the SELECTED candidates
+			// We use the same "avgTime" metric for the baseline as we do for the individual cases
+			// to ensure a fair comparison.
+			const candidateAvgTimes = candidateStats
+				.map((s) => {
+					const recentSolves = s.solves
+						.filter((solve) => solve.time !== null && solve.time !== undefined)
+						.slice(-5);
+					if (recentSolves.length === 0) return null;
+					return recentSolves.reduce((a, b) => a + (b.time ?? 0), 0) / recentSolves.length;
+				})
+				.filter((t): t is number => t !== null);
+
+			const overallAvgTime =
+				candidateAvgTimes.length > 0
+					? candidateAvgTimes.reduce((a, b) => a + b, 0) / candidateAvgTimes.length
+					: 0;
+
+			timeWeights = candidateStats.map((s) => {
+				if (s.solves.length === 0) return 1;
+
+				const recentSolves = s.solves
+					.filter((solve) => solve.time !== null && solve.time !== undefined)
+					.slice(-5);
+				
+				if (recentSolves.length === 0) return 1;
+
+				const caseAvgTime =
+					recentSolves.reduce((a, b) => a + (b.time ?? 0), 0) / recentSolves.length;
+
+				// Every 1 second (100 cs) slower than average adds 1 to weight
+				return 1 + Math.min(2, Math.max(0, caseAvgTime - overallAvgTime) / 100);
+			});
+		}
+
+		// Combine weights
+		weights = solveWeights.map((sw, i) => {
+			const tw = timeWeights[i];
+			// Max of the two weights, capped at 3
+			return Math.min(3, Math.max(sw, tw));
+		});
+
+		console.group('Smart Frequency Calculation');
+		console.log('Candidates:', candidates.length);
+		console.table(
+			candidates.map((c, i) => {
+				const timedSolves = candidateStats[i].solves.filter(
+					(s) => s.time !== null && s.time !== undefined
+				);
+				return {
+					case: `${c.groupId}-${c.caseId} (${c.side})`,
+					solves: candidateStats[i].solveCount,
+					avgTime:
+						timedSolves.length > 0
+							? (
+									timedSolves.reduce((a, b) => a + (b.time ?? 0), 0) / timedSolves.length
+							  ).toFixed(0)
+							: 'N/A',
+					solveWeight: solveWeights[i].toFixed(2),
+					timeWeight: timeWeights[i].toFixed(2),
+					finalWeight: weights[i].toFixed(2),
+					count: Math.round(weights[i])
+				};
+			})
+		);
+		console.groupEnd();
+	}
+
+	// Generate result array based on weights
+	for (let i = 0; i < candidates.length; i++) {
+		const candidate = candidates[i];
+		const weight = Math.round(weights[i]);
+		
+		for (let k = 0; k < weight; k++) {
+			result.push(
+				new TrainCase(
+					candidate.groupId,
+					candidate.caseId,
+					candidate.side,
+					crossColor,
+					frontColor
+				)
+			);
+		}
+	}
+
+	console.log(`Generated ${result.length} cases from ${candidates.length} unique candidates.`);
+	
 	shuffleArray(result);
 	return result;
 }
