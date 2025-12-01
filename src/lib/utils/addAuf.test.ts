@@ -104,5 +104,25 @@ describe('concatinateAuf', () => {
 			// First U cancels, opening bracket removed, first ) removed
 			expect(alg).toBe("R' U' R U (R' U2 R)");
 		});
+
+		it('should handle single-move bracket group', () => {
+			// Algorithm: (U) R U' R' with AUF U
+			// Mirror of U is U'
+			// U (first move in bracket) + U' (mirror AUF) = '' (cancel)
+			const [scramble, alg] = concatinateAuf('R', "(U) R U' R'", 'U');
+			expect(scramble).toBe('R U');
+			// U cancels, both brackets removed
+			expect(alg).toBe("R U' R'");
+		});
+
+		it('should merge single-move bracket group without cancelling', () => {
+			// Algorithm: (U) R U' R' with AUF U'
+			// Mirror of U' is U
+			// U (first move in bracket) + U (mirror AUF) = U2
+			const [scramble, alg] = concatinateAuf('R', "(U) R U' R'", "U'");
+			expect(scramble).toBe("R U'");
+			// U + U = U2, keep brackets
+			expect(alg).toBe("(U2) R U' R'");
+		});
 	});
 });

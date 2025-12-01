@@ -57,28 +57,41 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 		const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
 	} else if (firstMoveAlg && firstMoveAlg.startsWith('(')) {
-		// First move starts with a bracket - check if the move inside is an AUF
-		const moveInsideBracket = firstMoveAlg.slice(1); // Remove opening bracket
+		// First move starts with a bracket - extract the move inside
+		// Handle cases like '(U', '(U)', '(U2', "(U'", etc.
+		let moveInsideBracket = firstMoveAlg.slice(1); // Remove opening bracket
+		const hasClosingBracket = moveInsideBracket.endsWith(')');
+		if (hasClosingBracket) {
+			moveInsideBracket = moveInsideBracket.slice(0, -1); // Remove closing bracket
+		}
+
 		if (isAuf(moveInsideBracket)) {
 			algList.shift();
 			const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
 			if (mergedAufAlg !== '') {
 				// Keep the bracket with the merged move
-				algList.unshift('(' + mergedAufAlg);
+				if (hasClosingBracket) {
+					algList.unshift('(' + mergedAufAlg + ')');
+				} else {
+					algList.unshift('(' + mergedAufAlg);
+				}
 			} else {
 				// The moves cancelled - remove the opening bracket and the matching closing bracket
-				// Find the first token containing ')' and remove one ')' from it
-				for (let i = 0; i < algList.length; i++) {
-					const idx = algList[i].indexOf(')');
-					if (idx !== -1) {
-						algList[i] = algList[i].slice(0, idx) + algList[i].slice(idx + 1);
-						// If the token becomes empty after removing ')', remove it
-						if (algList[i] === '') {
-							algList.splice(i, 1);
+				if (!hasClosingBracket) {
+					// The closing bracket is in a later token - find and remove it
+					for (let i = 0; i < algList.length; i++) {
+						const idx = algList[i].indexOf(')');
+						if (idx !== -1) {
+							algList[i] = algList[i].slice(0, idx) + algList[i].slice(idx + 1);
+							// If the token becomes empty after removing ')', remove it
+							if (algList[i] === '') {
+								algList.splice(i, 1);
+							}
+							break;
 						}
-						break;
 					}
 				}
+				// If hasClosingBracket was true, both brackets were in the first token and already removed
 			}
 		} else {
 			// First move in bracket is not an AUF, just prepend the mirror AUF
