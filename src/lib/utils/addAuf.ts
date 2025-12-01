@@ -52,12 +52,28 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 	const firstMoveAlg = algList.at(0);
 
 	if (firstMoveAlg && isAuf(firstMoveAlg)) {
-		// console.log("First move is Auf:", firstMoveAlg);
+		// First move is a plain AUF (no bracket)
 		algList.shift();
 		const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
+	} else if (firstMoveAlg && firstMoveAlg.startsWith('(')) {
+		// First move starts with a bracket - check if the move inside is an AUF
+		const moveInsideBracket = firstMoveAlg.slice(1); // Remove opening bracket
+		if (isAuf(moveInsideBracket)) {
+			algList.shift();
+			const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+			if (mergedAufAlg !== '') {
+				// Keep the bracket with the merged move
+				algList.unshift('(' + mergedAufAlg);
+			}
+			// If merged to empty, the bracket opening is removed (first move removed entirely)
+		} else {
+			// First move in bracket is not an AUF, just prepend the mirror AUF
+			const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
+			if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
+		}
 	} else {
-		// console.log("First move is not Auf:", firstMoveAlg);
+		// First move is not an AUF and doesn't start with bracket
 		const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
 	}
