@@ -46,8 +46,8 @@ describe('concatinateAuf', () => {
 			// U (first move in bracket) + U' (mirror AUF) = '' (cancel)
 			const [scramble, alg] = concatinateAuf("R' F R F'", "(U R U') R'", 'U');
 			expect(scramble).toBe("R' F R F' U");
-			// When U cancels, remove opening bracket
-			expect(alg).toBe("R U') R'");
+			// When U cancels, remove opening bracket and matching closing bracket
+			expect(alg).toBe("R U' R'");
 		});
 
 		it("should merge AUF when alg starts with bracket containing U' move", () => {
@@ -65,7 +65,8 @@ describe('concatinateAuf', () => {
 			// U' (first move in bracket) + U (mirror AUF) = '' (cancel)
 			const [scramble, alg] = concatinateAuf('R U R', "(U' R' U R)", "U'");
 			expect(scramble).toBe("R U R U'");
-			expect(alg).toBe("R' U R)");
+			// When U' cancels, remove opening bracket and matching closing bracket
+			expect(alg).toBe("R' U R");
 		});
 
 		it('should handle U2 in bracket', () => {
@@ -83,6 +84,25 @@ describe('concatinateAuf', () => {
 			const [scramble, alg] = concatinateAuf('R', "(R U R')", 'U');
 			expect(scramble).toBe('R U');
 			expect(alg).toBe("U' (R U R')");
+		});
+
+		it('should handle empty bracket content gracefully', () => {
+			// Algorithm: ( R U R') - first token is just '(' with space after
+			// This is an edge case - bracket with empty content after split
+			const [scramble, alg] = concatinateAuf('R', "( R U R')", 'U');
+			expect(scramble).toBe('R U');
+			// Empty string after '(' is not an AUF, so just prepend the mirror AUF
+			expect(alg).toBe("U' ( R U R')");
+		});
+
+		it('should handle multiple bracket groups', () => {
+			// Algorithm: (U R' U' R) U (R' U2 R) with AUF U
+			// Mirror of U is U'
+			// U (first move in bracket) + U' (mirror AUF) = '' (cancel)
+			const [scramble, alg] = concatinateAuf('R', "(U R' U' R) U (R' U2 R)", 'U');
+			expect(scramble).toBe('R U');
+			// First U cancels, opening bracket removed, first ) removed
+			expect(alg).toBe("R' U' R U (R' U2 R)");
 		});
 	});
 });

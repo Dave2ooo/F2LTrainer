@@ -65,8 +65,21 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 			if (mergedAufAlg !== '') {
 				// Keep the bracket with the merged move
 				algList.unshift('(' + mergedAufAlg);
+			} else {
+				// The moves cancelled - remove the opening bracket and the matching closing bracket
+				// Find the first token containing ')' and remove one ')' from it
+				for (let i = 0; i < algList.length; i++) {
+					const idx = algList[i].indexOf(')');
+					if (idx !== -1) {
+						algList[i] = algList[i].slice(0, idx) + algList[i].slice(idx + 1);
+						// If the token becomes empty after removing ')', remove it
+						if (algList[i] === '') {
+							algList.splice(i, 1);
+						}
+						break;
+					}
+				}
 			}
-			// If merged to empty, the bracket opening is removed (first move removed entirely)
 		} else {
 			// First move in bracket is not an AUF, just prepend the mirror AUF
 			const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
