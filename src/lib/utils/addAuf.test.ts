@@ -125,4 +125,55 @@ describe('concatinateAuf', () => {
 			expect(alg).toBe("(U2) R U' R'");
 		});
 	});
+
+	describe('AUF merging with repetition notation', () => {
+		it("should expand repetition when first move is AUF - (U R U' R')3 with AUF U", () => {
+			// Algorithm: (U R U' R')3 with AUF U
+			// Expand: U R U' R' (U R U' R')2
+			// Mirror of U is U'
+			// First U + U' = '' (cancel)
+			const [scramble, alg] = concatinateAuf('R', "(U R U' R')3", 'U');
+			expect(scramble).toBe('R U');
+			expect(alg).toBe("R U' R' (U R U' R')2");
+		});
+
+		it("should expand repetition when first move is AUF - (U' R' U R)3 with AUF U'", () => {
+			// Algorithm: (U' R' U R)3 with AUF U'
+			// Expand: U' R' U R (U' R' U R)2
+			// Mirror of U' is U
+			// First U' + U = '' (cancel)
+			const [scramble, alg] = concatinateAuf('R', "(U' R' U R)3", "U'");
+			expect(scramble).toBe("R U'");
+			expect(alg).toBe("R' U R (U' R' U R)2");
+		});
+
+		it("should expand repetition and merge when moves don't cancel", () => {
+			// Algorithm: (U R U' R')2 with AUF U'
+			// Expand: U R U' R' (U R U' R')
+			// Mirror of U' is U
+			// First U + U = U2
+			const [scramble, alg] = concatinateAuf('R', "(U R U' R')2", "U'");
+			expect(scramble).toBe("R U'");
+			expect(alg).toBe("(U2 R U' R') (U R U' R')");
+		});
+
+		it('should expand repetition to 1 when number is 2', () => {
+			// Algorithm: (U R U' R')2 with AUF U
+			// Expand: U R U' R' (U R U' R')
+			// But when repetition becomes 1, remove the number
+			// Mirror of U is U'
+			// First U + U' = '' (cancel)
+			const [scramble, alg] = concatinateAuf('R', "(U R U' R')2", 'U');
+			expect(scramble).toBe('R U');
+			expect(alg).toBe("R U' R' (U R U' R')");
+		});
+
+		it('should not expand repetition when first move is not AUF', () => {
+			// Algorithm: (R U R' U')3 with AUF U
+			// First move is R, not an AUF, so don't expand
+			const [scramble, alg] = concatinateAuf('R', "(R U R' U')3", 'U');
+			expect(scramble).toBe('R U');
+			expect(alg).toBe("U' (R U R' U')3");
+		});
+	});
 });
