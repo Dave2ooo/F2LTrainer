@@ -52,12 +52,156 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 	const firstMoveAlg = algList.at(0);
 
 	if (firstMoveAlg && isAuf(firstMoveAlg)) {
-		// console.log("First move is Auf:", firstMoveAlg);
+		// First move is a plain AUF (no bracket)
 		algList.shift();
 		const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
+	} else if (firstMoveAlg && firstMoveAlg.startsWith('(')) {
+		// First move starts with a bracket - extract the move inside
+		// Handle cases like '(U', '(U)', '(U2', "(U'", etc.
+		let moveInsideBracket = firstMoveAlg.slice(1); // Remove opening bracket
+		const hasClosingBracket = moveInsideBracket.endsWith(')');
+		if (hasClosingBracket) {
+			moveInsideBracket = moveInsideBracket.slice(0, -1); // Remove closing bracket
+		}
+
+		if (isAuf(moveInsideBracket)) {
+			// Check if this is a repetition notation case (e.g., "(U R U' R')3")
+			// Find the matching closing bracket and check if there's a number after it
+			let closingBracketIdx = -1;
+			let repetitionNumber = 0;
+
+			if (hasClosingBracket) {
+				// Closing bracket is in the first token - no repetition in this case
+				algList.shift();
+				const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+				if (mergedAufAlg !== '') {
+					algList.unshift('(' + mergedAufAlg + ')');
+				}
+				// Both brackets removed if moves cancel
+			} else {
+				// Find the closing bracket in later tokens
+				for (let i = 0; i < algList.length; i++) {
+					const idx = algList[i].indexOf(')');
+					if (idx !== -1) {
+						closingBracketIdx = i;
+						// Check if there's a number after the closing bracket
+						const afterBracket = algList[i].slice(idx + 1);
+						const numMatch = afterBracket.match(/^(\d+)/);
+						if (numMatch) {
+							repetitionNumber = parseInt(numMatch[1], 10);
+						}
+						break;
+					}
+				}
+
+				if (repetitionNumber > 1) {
+					// This is a repetition notation - expand it
+					// Extract the content inside brackets (excluding the first move we're processing)
+					const bracketContent: string[] = [];
+					let currentIdx = 1; // Start after the first token (which is '(U')
+
+					while (currentIdx < algList.length && currentIdx <= closingBracketIdx) {
+						const token = algList[currentIdx];
+						if (currentIdx === closingBracketIdx) {
+							// This is the token with the closing bracket - remove the bracket and number
+							const idx = token.indexOf(')');
+							if (idx > 0) {
+								bracketContent.push(token.slice(0, idx));
+							}
+							// If idx === 0, token was just ')2' or similar, no content to add
+						} else {
+							bracketContent.push(token);
+						}
+						currentIdx++;
+					}
+
+					// Now reconstruct the algorithm
+					// 1. Remove the original bracketed group from algList
+					algList.splice(0, closingBracketIdx + 1);
+
+					// 2. Merge the first AUF move
+					const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+
+					if (mergedAufAlg !== '') {
+						// Moves don't cancel - add merged first instance with brackets FIRST
+						const newRepNumber = repetitionNumber - 1;
+						const firstInstanceTokens = ['(' + mergedAufAlg, ...bracketContent];
+
+						// Reconstruct closing bracket (combine last token with closing bracket)
+						if (firstInstanceTokens.length > 1) {
+							const lastIdx = firstInstanceTokens.length - 1;
+							firstInstanceTokens[lastIdx] = firstInstanceTokens[lastIdx] + ')';
+						} else {
+							// Only one token, add closing bracket
+							firstInstanceTokens[0] = firstInstanceTokens[0] + ')';
+						}
+
+						// Add remaining repetitions if > 1, AFTER the first instance
+						if (newRepNumber > 1) {
+							const remainingTokens = ['(' + moveInsideBracket, ...bracketContent];
+							const lastIdx = remainingTokens.length - 1;
+							remainingTokens[lastIdx] = remainingTokens[lastIdx] + ')' + newRepNumber;
+							algList.unshift(...firstInstanceTokens, ...remainingTokens);
+						} else {
+							// newRepNumber === 1, add without number
+							const remainingTokens = ['(' + moveInsideBracket, ...bracketContent];
+							const lastIdx = remainingTokens.length - 1;
+							remainingTokens[lastIdx] = remainingTokens[lastIdx] + ')';
+							algList.unshift(...firstInstanceTokens, ...remainingTokens);
+						}
+					} else {
+						// Moves cancelled - add content without the first AUF, no brackets
+						const newRepNumber = repetitionNumber - 1;
+
+						// Add remaining repetitions first
+						if (newRepNumber > 1) {
+							const remainingTokens = ['(' + moveInsideBracket, ...bracketContent];
+							const lastIdx = remainingTokens.length - 1;
+							remainingTokens[lastIdx] = remainingTokens[lastIdx] + ')' + newRepNumber;
+							algList.unshift(...remainingTokens);
+						} else {
+							// newRepNumber === 1, add without number
+							const remainingTokens = ['(' + moveInsideBracket, ...bracketContent];
+							const lastIdx = remainingTokens.length - 1;
+							remainingTokens[lastIdx] = remainingTokens[lastIdx] + ')';
+							algList.unshift(...remainingTokens);
+						}
+
+						// Then add content without brackets (first AUF cancelled)
+						algList.unshift(...bracketContent);
+					}
+				} else {
+					// No repetition notation - handle normally
+					algList.shift();
+					const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+					if (mergedAufAlg !== '') {
+						// Keep the bracket with the merged move
+						algList.unshift('(' + mergedAufAlg);
+					} else {
+						// The moves cancelled - remove the opening bracket and the matching closing bracket
+						// Find the first token containing ')' and remove one ')' from it
+						for (let i = 0; i < algList.length; i++) {
+							const idx = algList[i].indexOf(')');
+							if (idx !== -1) {
+								algList[i] = algList[i].slice(0, idx) + algList[i].slice(idx + 1);
+								// If the token becomes empty after removing ')', remove it
+								if (algList[i] === '') {
+									algList.splice(i, 1);
+								}
+								break;
+							}
+						}
+					}
+				}
+			}
+		} else {
+			// First move in bracket is not an AUF, just prepend the mirror AUF
+			const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
+			if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
+		}
 	} else {
-		// console.log("First move is not Auf:", firstMoveAlg);
+		// First move is not an AUF and doesn't start with bracket
 		const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
 	}
