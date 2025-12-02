@@ -248,10 +248,13 @@ describe('calculateRollingAo5', () => {
 		];
 
 		const result = calculateRollingAo5(solves);
-		// Null times are filtered out, so we have 5 non-null times total
-		// For 5th non-null solve (600, 700, 800, 900 plus earlier 500)
+		// We have 6 solves total: 500, null, 600, 700, 800, 900
+		// Non-null times accumulate: [500], [500], [500,600], [500,600,700], [500,600,700,800], [500,600,700,800,900]
+		// At index 5 (6th solve), we have 5 non-null times
+		// Last 5 non-null: 500, 600, 700, 800, 900
 		// Remove min (500) and max (900): 600, 700, 800
-		expect(result[4]).toBe(700);
+		// Average: (600 + 700 + 800) / 3 = 700
+		expect(result[5]).toBe(700);
 	});
 });
 
@@ -355,9 +358,12 @@ describe('calculateRollingAo12', () => {
 		];
 
 		const result = calculateRollingAo12(solves);
-		// We have 12 non-null times total
+		// We have 13 solves total with indices 0-12
+		// Non-null times: 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, null, 1100, 1200
+		// At index 12 (13th solve), we have 12 non-null times
 		// Last 12 non-null: 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200
 		// Remove min (100) and max (1200): 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
-		expect(result[11]).toBe(650);
+		// Average: (200 + 300 + 400 + 500 + 600 + 700 + 800 + 900 + 1000 + 1100) / 10 = 6500 / 10 = 650
+		expect(result[12]).toBe(650);
 	});
 });

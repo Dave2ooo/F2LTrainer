@@ -58,18 +58,26 @@ export function formatTime(timeInCentiseconds: number | null): string {
  * Calculate rolling Ao5 values for each solve in the history.
  * Returns an array where each element is the Ao5 up to that point,
  * or null if there aren't enough solves yet.
+ * The returned array has the same length as the input solves array.
  */
 export function calculateRollingAo5(solves: Solve[]): (number | null)[] {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	const result: (number | null)[] = [];
+	const nonNullTimes: number[] = [];
 
-	for (let i = 0; i < times.length; i++) {
-		if (i < 4) {
-			// Not enough solves yet for Ao5
+	for (let i = 0; i < solves.length; i++) {
+		const currentTime = solves[i].time;
+		
+		// Add current time to our running list if it's not null
+		if (currentTime !== null) {
+			nonNullTimes.push(currentTime);
+		}
+
+		// Check if we have enough non-null times for Ao5
+		if (nonNullTimes.length < 5) {
 			result.push(null);
 		} else {
-			// Get last 5 solves up to this point
-			const last5 = times.slice(Math.max(0, i - 4), i + 1);
+			// Get last 5 non-null times
+			const last5 = nonNullTimes.slice(-5);
 			// Sort to easily remove best and worst
 			const sorted = [...last5].sort((a, b) => a - b);
 			// Remove best (first) and worst (last)
@@ -88,18 +96,26 @@ export function calculateRollingAo5(solves: Solve[]): (number | null)[] {
  * Calculate rolling Ao12 values for each solve in the history.
  * Returns an array where each element is the Ao12 up to that point,
  * or null if there aren't enough solves yet.
+ * The returned array has the same length as the input solves array.
  */
 export function calculateRollingAo12(solves: Solve[]): (number | null)[] {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	const result: (number | null)[] = [];
+	const nonNullTimes: number[] = [];
 
-	for (let i = 0; i < times.length; i++) {
-		if (i < 11) {
-			// Not enough solves yet for Ao12
+	for (let i = 0; i < solves.length; i++) {
+		const currentTime = solves[i].time;
+		
+		// Add current time to our running list if it's not null
+		if (currentTime !== null) {
+			nonNullTimes.push(currentTime);
+		}
+
+		// Check if we have enough non-null times for Ao12
+		if (nonNullTimes.length < 12) {
 			result.push(null);
 		} else {
-			// Get last 12 solves up to this point
-			const last12 = times.slice(Math.max(0, i - 11), i + 1);
+			// Get last 12 non-null times
+			const last12 = nonNullTimes.slice(-12);
 			// Sort to easily remove best and worst
 			const sorted = [...last12].sort((a, b) => a - b);
 			// Remove best (first) and worst (last)
