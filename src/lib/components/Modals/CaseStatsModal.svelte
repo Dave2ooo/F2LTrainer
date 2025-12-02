@@ -74,12 +74,18 @@
 	const rollingAo5 = $derived(calculateRollingAo5(caseSolves));
 	const rollingAo12 = $derived(calculateRollingAo12(caseSolves));
 
+	// Create a map of solve ID to original index for efficient lookup
+	const solveIdToIndex = $derived(
+		new Map(caseSolves.map((solve, index) => [solve.id, index]))
+	);
+
 	// Map rolling averages to chart data by finding corresponding indices
 	// Since chartSolves filters out null times, we need to map back to original caseSolves indices
 	const chartRollingAo5 = $derived(
 		chartSolves.map((solve) => {
 			// Find the index of this solve in the original caseSolves array
-			const originalIndex = caseSolves.findIndex((s) => s.id === solve.id);
+			const originalIndex = solveIdToIndex.get(solve.id);
+			if (originalIndex === undefined) return null;
 			const ao5 = rollingAo5[originalIndex];
 			return ao5 !== null ? parseFloat((ao5 / 100).toFixed(2)) : null;
 		})
@@ -88,7 +94,8 @@
 	const chartRollingAo12 = $derived(
 		chartSolves.map((solve) => {
 			// Find the index of this solve in the original caseSolves array
-			const originalIndex = caseSolves.findIndex((s) => s.id === solve.id);
+			const originalIndex = solveIdToIndex.get(solve.id);
+			if (originalIndex === undefined) return null;
 			const ao12 = rollingAo12[originalIndex];
 			return ao12 !== null ? parseFloat((ao12 / 100).toFixed(2)) : null;
 		})
