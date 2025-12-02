@@ -128,10 +128,10 @@
 						class="solve-entry group relative cursor-pointer rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800
 						{item.type === 'unsolved'
 							? trainState.current === mostRecentUnsolvedCase()
-								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
+								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20 selected'
 								: 'border-gray-200 dark:border-gray-700'
 							: trainState.current?.solveId === item.solve?.id
-								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
+								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20 selected'
 								: 'border-gray-200 dark:border-gray-700'}"
 						onclick={item.type === 'unsolved'
 							? jumpToFirstUnsolved
@@ -156,7 +156,7 @@
 									</span>
 								{/if}
 							</div>
-							<div class="flex shrink-0 items-center gap-2">
+							<div class="flex shrink-0 items-center gap-4">
 								{#if item.type === 'unsolved'}
 									{@const unsolvedCase = mostRecentUnsolvedCase()!}
 									<span
@@ -213,20 +213,10 @@
 		transition: opacity 150ms ease-in-out;
 	}
 
-	/* Show for touch devices (no hover or coarse pointer) */
-	@media (hover: none), (pointer: coarse) {
-		:global(.solve-delete-btn) {
-			opacity: 1;
-			pointer-events: auto;
-		}
-	}
-
-	/* Show for desktop / mouse users when hovering the parent group */
-	@media (hover: hover) and (pointer: fine) {
-		:global(.solve-entry:hover) :global(.solve-delete-btn) {
-			opacity: 1;
-			pointer-events: auto;
-		}
+	/* Show when the parent row is selected */
+	:global(.solve-entry.selected) :global(.solve-delete-btn) {
+		opacity: 1;
+		pointer-events: auto;
 	}
 
 	/* Allow keyboard focus to show the button even on non-touch devices */
