@@ -74,17 +74,22 @@
 	const rollingAo5 = $derived(calculateRollingAo5(caseSolves));
 	const rollingAo12 = $derived(calculateRollingAo12(caseSolves));
 
-	// Filter out null values for chart display, keeping only non-null solves
+	// Map rolling averages to chart data by finding corresponding indices
+	// Since chartSolves filters out null times, we need to map back to original caseSolves indices
 	const chartRollingAo5 = $derived(
-		chartSolves.map((_, i) => {
-			const ao5 = rollingAo5[i];
+		chartSolves.map((solve) => {
+			// Find the index of this solve in the original caseSolves array
+			const originalIndex = caseSolves.findIndex((s) => s.id === solve.id);
+			const ao5 = rollingAo5[originalIndex];
 			return ao5 !== null ? parseFloat((ao5 / 100).toFixed(2)) : null;
 		})
 	);
 
 	const chartRollingAo12 = $derived(
-		chartSolves.map((_, i) => {
-			const ao12 = rollingAo12[i];
+		chartSolves.map((solve) => {
+			// Find the index of this solve in the original caseSolves array
+			const originalIndex = caseSolves.findIndex((s) => s.id === solve.id);
+			const ao12 = rollingAo12[originalIndex];
 			return ao12 !== null ? parseFloat((ao12 / 100).toFixed(2)) : null;
 		})
 	);
