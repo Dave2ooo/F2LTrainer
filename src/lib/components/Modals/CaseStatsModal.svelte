@@ -8,7 +8,9 @@
 		calculateAo5,
 		calculateAo12,
 		formatTime,
-		getSolvesForCase
+		getSolvesForCase,
+		calculateRollingAo5,
+		calculateRollingAo12
 	} from '$lib/utils/statistics';
 	import { globalState } from '$lib/globalState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
@@ -68,6 +70,37 @@
 
 	const chartSolves = $derived(caseSolves.filter((s) => s.time !== null));
 
+	// Calculate rolling Ao5 and Ao12 for the chart
+	const rollingAo5 = $derived(calculateRollingAo5(caseSolves));
+	const rollingAo12 = $derived(calculateRollingAo12(caseSolves));
+
+	// Create a map of solve ID to original index for efficient lookup
+	const solveIdToIndex = $derived(
+		new Map(caseSolves.map((solve, index) => [solve.id, index]))
+	);
+
+	// Map rolling averages to chart data by finding corresponding indices
+	// Since chartSolves filters out null times, we need to map back to original caseSolves indices
+	const chartRollingAo5 = $derived(
+		chartSolves.map((solve) => {
+			// Find the index of this solve in the original caseSolves array
+			const originalIndex = solveIdToIndex.get(solve.id);
+			if (originalIndex === undefined) return null;
+			const ao5 = rollingAo5[originalIndex];
+			return ao5 !== null ? parseFloat((ao5 / 100).toFixed(2)) : null;
+		})
+	);
+
+	const chartRollingAo12 = $derived(
+		chartSolves.map((solve) => {
+			// Find the index of this solve in the original caseSolves array
+			const originalIndex = solveIdToIndex.get(solve.id);
+			if (originalIndex === undefined) return null;
+			const ao12 = rollingAo12[originalIndex];
+			return ao12 !== null ? parseFloat((ao12 / 100).toFixed(2)) : null;
+		})
+	);
+
 	// Index mapping functions between caseSolves (includes nulls) and chartSolves (filtered)
 	function caseSolvesIndexToChartIndex(caseSolvesIdx: number): number | null {
 		if (caseSolvesIdx < 0 || caseSolvesIdx >= caseSolves.length) return null;
@@ -124,6 +157,14 @@
 			{
 				name: 'Solve Time',
 				data: chartSolves.map((s) => parseFloat(((s.time as number) / 100).toFixed(2)))
+			},
+			{
+				name: 'Ao5',
+				data: chartRollingAo5
+			},
+			{
+				name: 'Ao12',
+				data: chartRollingAo12
 			}
 		],
 		xaxis: {
@@ -164,7 +205,9 @@
 			enabled: false
 		},
 		stroke: {
-			curve: 'smooth'
+			curve: 'smooth',
+			width: 2,
+			colors: ['#1A56DB', '#10B981', '#F59E0B']
 		},
 		tooltip: {
 			enabled: true,
@@ -179,7 +222,8 @@
 				}
 			},
 			y: {
-				formatter: function (val: number) {
+				formatter: function (val: number | null) {
+					if (val === null || val === undefined) return '-';
 					return val.toFixed(2);
 				}
 			}

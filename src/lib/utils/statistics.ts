@@ -53,3 +53,79 @@ export function formatTime(timeInCentiseconds: number | null): string {
 	const centiseconds = rounded % 100;
 	return `${seconds}.${centiseconds.toString().padStart(2, '0')}`;
 }
+
+/**
+ * Calculate rolling Ao5 values for each solve in the history.
+ * Returns an array where each element is the Ao5 up to that point,
+ * or null if there aren't enough solves yet.
+ * The returned array has the same length as the input solves array.
+ */
+export function calculateRollingAo5(solves: Solve[]): (number | null)[] {
+	const result: (number | null)[] = [];
+	const nonNullTimes: number[] = [];
+
+	for (let i = 0; i < solves.length; i++) {
+		const currentTime = solves[i].time;
+		
+		// Add current time to our running list if it's not null
+		if (currentTime !== null) {
+			nonNullTimes.push(currentTime);
+		}
+
+		// Check if we have enough non-null times for Ao5
+		if (nonNullTimes.length < 5) {
+			result.push(null);
+		} else {
+			// Get last 5 non-null times
+			const last5 = nonNullTimes.slice(-5);
+			// Sort to easily remove best and worst
+			const sorted = [...last5].sort((a, b) => a - b);
+			// Remove best (first) and worst (last)
+			const middle3 = sorted.slice(1, 4);
+			// Average remaining 3
+			const sum = middle3.reduce((a, b) => a + b, 0);
+			const average = sum / 3;
+			result.push(Math.round(average));
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Calculate rolling Ao12 values for each solve in the history.
+ * Returns an array where each element is the Ao12 up to that point,
+ * or null if there aren't enough solves yet.
+ * The returned array has the same length as the input solves array.
+ */
+export function calculateRollingAo12(solves: Solve[]): (number | null)[] {
+	const result: (number | null)[] = [];
+	const nonNullTimes: number[] = [];
+
+	for (let i = 0; i < solves.length; i++) {
+		const currentTime = solves[i].time;
+		
+		// Add current time to our running list if it's not null
+		if (currentTime !== null) {
+			nonNullTimes.push(currentTime);
+		}
+
+		// Check if we have enough non-null times for Ao12
+		if (nonNullTimes.length < 12) {
+			result.push(null);
+		} else {
+			// Get last 12 non-null times
+			const last12 = nonNullTimes.slice(-12);
+			// Sort to easily remove best and worst
+			const sorted = [...last12].sort((a, b) => a - b);
+			// Remove best (first) and worst (last)
+			const middle10 = sorted.slice(1, 11);
+			// Average remaining 10
+			const sum = middle10.reduce((a, b) => a + b, 0);
+			const average = sum / 10;
+			result.push(Math.round(average));
+		}
+	}
+
+	return result;
+}
