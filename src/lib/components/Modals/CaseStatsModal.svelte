@@ -222,7 +222,8 @@
 				}
 			},
 			y: {
-				formatter: function (val: number) {
+				formatter: function (val: number | null) {
+					if (val === null || val === undefined) return '-';
 					return val.toFixed(2);
 				}
 			}
