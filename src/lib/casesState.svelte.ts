@@ -58,22 +58,42 @@ const validateAlgorithmSelection = (
 
 const persistedCasesState = loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
 
-if (persistedCasesState) {
+if (persistedCasesState && typeof persistedCasesState === 'object') {
 	for (const groupId of GROUP_IDS) {
 		const persistedGroup = persistedCasesState[groupId];
-		if (!persistedGroup) continue;
+		if (!persistedGroup || typeof persistedGroup !== 'object') {
+			if (persistedGroup !== undefined) {
+				console.warn(
+					`[CasesState] Skipping invalid persisted group "${groupId}":`,
+					persistedGroup
+				);
+			}
+			continue;
+		}
 
 		for (const [caseIdString, caseState] of Object.entries(casesState[groupId])) {
 			const caseId = Number(caseIdString) as CaseId;
 			const persistedCase = persistedGroup[caseId];
 
-			if (!persistedCase) continue;
+			if (!persistedCase || typeof persistedCase !== 'object') {
+				if (persistedCase !== undefined) {
+					console.warn(
+						`[CasesState] Skipping invalid persisted case "${groupId}/${caseId}":`,
+						persistedCase
+					);
+				}
+				continue;
+			}
 
 			// Validate algorithm selection indices before assigning
 			const staticData = casesStatic[groupId][caseId];
 			const algPoolLength = staticData?.algPool?.length ?? 0;
 
-			if (persistedCase.algorithmSelection && algPoolLength > 0) {
+			if (
+				persistedCase.algorithmSelection &&
+				typeof persistedCase.algorithmSelection === 'object' &&
+				algPoolLength > 0
+			) {
 				const validated: AlgorithmSelection = {
 					left: validateAlgorithmSelection(persistedCase.algorithmSelection.left, algPoolLength),
 					right: validateAlgorithmSelection(persistedCase.algorithmSelection.right, algPoolLength)

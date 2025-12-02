@@ -96,14 +96,24 @@ const persistedData = loadFromLocalStorage<any[]>(STATISTICS_STATE_STORAGE_KEY);
 let initialState: StatisticsState = [];
 
 if (persistedData && Array.isArray(persistedData)) {
-	initialState = persistedData.map((item) => {
-		// Check if it's already compressed (has 'gId')
-		if ('gId' in item) {
-			return decompressSolve(item as CompressedSolve);
-		}
-		// Assume it's uncompressed (legacy from previous step)
-		return item as Solve;
-	});
+	initialState = persistedData
+		.filter((item) => {
+			const isValid = item !== null && typeof item === 'object';
+			if (!isValid) {
+				console.warn('[StatisticsState] Skipping invalid solve entry:', item);
+			}
+			return isValid;
+		})
+		.map((item) => {
+			// Check if it's already compressed (has 'gId')
+			if ('gId' in item) {
+				return decompressSolve(item as CompressedSolve);
+			}
+			// Assume it's uncompressed (legacy from previous step)
+			return item as Solve;
+		});
+} else if (persistedData !== null && persistedData !== undefined) {
+	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
 
 // Track the highest solve ID found in persisted data
