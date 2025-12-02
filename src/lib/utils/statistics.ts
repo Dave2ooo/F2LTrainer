@@ -53,3 +53,63 @@ export function formatTime(timeInCentiseconds: number | null): string {
 	const centiseconds = rounded % 100;
 	return `${seconds}.${centiseconds.toString().padStart(2, '0')}`;
 }
+
+/**
+ * Calculate rolling Ao5 values for each solve in the history.
+ * Returns an array where each element is the Ao5 up to that point,
+ * or null if there aren't enough solves yet.
+ */
+export function calculateRollingAo5(solves: Solve[]): (number | null)[] {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
+	const result: (number | null)[] = [];
+
+	for (let i = 0; i < times.length; i++) {
+		if (i < 4) {
+			// Not enough solves yet for Ao5
+			result.push(null);
+		} else {
+			// Get last 5 solves up to this point
+			const last5 = times.slice(Math.max(0, i - 4), i + 1);
+			// Sort to easily remove best and worst
+			const sorted = [...last5].sort((a, b) => a - b);
+			// Remove best (first) and worst (last)
+			const middle3 = sorted.slice(1, 4);
+			// Average remaining 3
+			const sum = middle3.reduce((a, b) => a + b, 0);
+			const average = sum / 3;
+			result.push(Math.round(average));
+		}
+	}
+
+	return result;
+}
+
+/**
+ * Calculate rolling Ao12 values for each solve in the history.
+ * Returns an array where each element is the Ao12 up to that point,
+ * or null if there aren't enough solves yet.
+ */
+export function calculateRollingAo12(solves: Solve[]): (number | null)[] {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
+	const result: (number | null)[] = [];
+
+	for (let i = 0; i < times.length; i++) {
+		if (i < 11) {
+			// Not enough solves yet for Ao12
+			result.push(null);
+		} else {
+			// Get last 12 solves up to this point
+			const last12 = times.slice(Math.max(0, i - 11), i + 1);
+			// Sort to easily remove best and worst
+			const sorted = [...last12].sort((a, b) => a - b);
+			// Remove best (first) and worst (last)
+			const middle10 = sorted.slice(1, 11);
+			// Average remaining 10
+			const sum = middle10.reduce((a, b) => a + b, 0);
+			const average = sum / 10;
+			result.push(Math.round(average));
+		}
+	}
+
+	return result;
+}
