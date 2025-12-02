@@ -1,7 +1,14 @@
 <script lang="ts">
 	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl } from 'flowbite-svelte';
 	import { resolve } from '$app/paths';
-	import { CircleQuestionMark, MessageCircle, Settings as SettingsIcon, Share2 } from '@lucide/svelte';
+	import {
+		Bluetooth,
+		BluetoothConnected,
+		CircleQuestionMark,
+		MessageCircle,
+		Settings as SettingsIcon,
+		Share2
+	} from '@lucide/svelte';
 	import PwaInstall from '$lib/components/PwaInstall.svelte';
 	import type Settings from '$lib/components/Modals/Settings.svelte';
 	import type FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
@@ -12,9 +19,10 @@
 		feedbackRef: FeedbackModal;
 		helpRef: HelpModal;
 		onExportURL: () => void;
+		onConnectCube?: () => void;
 	}
 
-	let { settingsRef, feedbackRef, helpRef, onExportURL }: Props = $props();
+	let { settingsRef, feedbackRef, helpRef, onExportURL, onConnectCube }: Props = $props();
 </script>
 
 <Navbar breakpoint="sm" fluid={true} color="none" class="bg-gray-100 px-4 py-2 sm:py-0 sm:pr-0 md:pr-2 dark:bg-gray-900">
@@ -39,6 +47,20 @@
 		<li class="mx-1 my-2 sm:my-0">
 			<Button
 				class="flex items-center justify-start bg-transparent p-1 pl-0 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				onclick={onConnectCube}
+			>
+				<!-- {#if isConnected}
+					<BluetoothConnected class="size-8 text-primary-600 md:size-9" />
+				{:else} -->
+				<Bluetooth class="size-8 text-primary-600 md:size-9" />
+				<!-- {/if} -->
+				<span class="ml-4 text-lg font-medium text-gray-900 dark:text-white sm:hidden">Connect Cube</span>
+			</Button>
+			<Tooltip placement="bottom">Connect Cube</Tooltip>
+		</li>
+		<li class="mx-1 my-2 sm:my-0">
+			<Button
+				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				onclick={() => helpRef.openModal()}
 			>
 				<CircleQuestionMark class="size-8 text-primary-600 md:size-9" />
