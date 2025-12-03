@@ -24,8 +24,8 @@ describe('getStickeringString', () => {
 		// - All yellow (top) corners: indices 4, 5, 6, 7
 
 		// Parse the result
-		const [edgesStr, cornersStr] = result.split(',').map(s => s.split(':')[1]);
-		
+		const [edgesStr, cornersStr] = result.split(',').map((s) => s.split(':')[1]);
+
 		// Check edge index 8 is hidden (red-green)
 		expect(edgesStr[8]).toBe('I');
 		// Check corner index 0 is hidden (white-red-green)
@@ -54,10 +54,10 @@ describe('getStickeringString', () => {
 
 		// When side is 'left', the sideSticker should be swapped from 'right' to 'left'
 		// So we should be hiding red-blue edge and white-red-blue corner
-		
+
 		// Parse the result
-		const [edgesStr, cornersStr] = result.split(',').map(s => s.split(':')[1]);
-		
+		const [edgesStr, cornersStr] = result.split(',').map((s) => s.split(':')[1]);
+
 		// Check edge index 10 is hidden (red-blue from STICKERING.edges['red']['blue'])
 		expect(edgesStr[10]).toBe('I');
 		// Check corner index 1 is hidden (white-red-blue from STICKERING.corners['white']['red']['blue'])
