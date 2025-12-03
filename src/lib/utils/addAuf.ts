@@ -71,9 +71,7 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 		} else {
 			// No U move after y-rotation, or it's in a bracket
 			// Just add the AUF after the y-rotation (using the AUF directly, not mirrored)
-			if (auf !== '') {
-				algList.unshift(auf);
-			}
+			algList.unshift(auf);
 			algList.unshift(yRotation);
 		}
 	} else if (firstMoveAlg && isAuf(firstMoveAlg)) {
