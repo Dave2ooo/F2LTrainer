@@ -15,13 +15,13 @@ export function syncAlgorithms(
 	if (!customAlgorithm || typeof customAlgorithm !== 'object') {
 		customAlgorithm = { left: '', right: '' };
 	}
-
+	
 	// Initialize missing properties with defaults
 	if (algorithmSelection.left === undefined) algorithmSelection.left = 0;
 	if (algorithmSelection.right === undefined) algorithmSelection.right = 0;
 	if (customAlgorithm.left === undefined) customAlgorithm.left = '';
 	if (customAlgorithm.right === undefined) customAlgorithm.right = '';
-
+	
 	if (side === 'left') {
 		algorithmSelection.right = algorithmSelection.left;
 		if (algorithmSelection.left === null) customAlgorithm.right = mirrorAlg(customAlgorithm.left);

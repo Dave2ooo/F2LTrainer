@@ -51,7 +51,7 @@
 		if (!isRunning) {
 			isRunning = true;
 			// Convert centiseconds back to milliseconds for Date.now() calculation
-			startTime = Date.now() - elapsedCentiseconds * 10;
+			startTime = Date.now() - (elapsedCentiseconds * 10);
 			updateTimer();
 			globalState.hasUsedTimer = true;
 		}
@@ -121,18 +121,18 @@
 	});
 </script>
 
-<div class="mt-0 mb-2 flex w-full flex-col items-center md:mt-0 md:mb-4">
+<div class="mb-2 mt-0 flex w-full flex-col items-center md:mb-4 md:mt-0">
 	<button
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="relative min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors select-none hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700"
+		class="relative min-w-60 cursor-pointer rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 select-none"
 		class:text-green-500={isReady}
 		aria-label="Timer"
 	>
 		<span class="tabular-nums">{formattedTime}</span>
 		{#if !isRunning && !isReady && !globalState.hasUsedTimer}
-			<Pointer class="absolute right-2 bottom-2 size-6 animate-bounce text-primary-600" />
+			<Pointer class="absolute bottom-2 right-2 size-6 animate-bounce text-primary-600" />
 		{/if}
 	</button>
 </div>

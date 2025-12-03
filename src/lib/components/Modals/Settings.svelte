@@ -104,11 +104,9 @@
 		let hasErrors = false;
 
 		// 1. Ensure at least one status is selected
-		if (
-			!workingState.trainStateSelection.unlearned &&
-			!workingState.trainStateSelection.learning &&
-			!workingState.trainStateSelection.finished
-		) {
+		if (!workingState.trainStateSelection.unlearned && 
+		    !workingState.trainStateSelection.learning && 
+		    !workingState.trainStateSelection.finished) {
 			flashStatuses = true;
 			hasErrors = true;
 		} else {
@@ -116,12 +114,10 @@
 		}
 
 		// 2. Ensure at least one group is selected
-		if (
-			!workingState.trainGroupSelection.basic &&
-			!workingState.trainGroupSelection.basicBack &&
-			!workingState.trainGroupSelection.advanced &&
-			!workingState.trainGroupSelection.expert
-		) {
+		if (!workingState.trainGroupSelection.basic && 
+		    !workingState.trainGroupSelection.basicBack && 
+		    !workingState.trainGroupSelection.advanced && 
+		    !workingState.trainGroupSelection.expert) {
 			flashGroups = true;
 			hasErrors = true;
 		} else {
@@ -165,6 +161,8 @@
 			window.location.reload();
 		}
 	}
+
+
 
 	// Auto-unselect invalid front colors or clear if multiple cross colors selected
 	$effect(() => {
@@ -237,12 +235,8 @@
 								<Checkbox autofocus bind:checked={workingState.trainStateSelection.unlearned}
 									>Unlearned</Checkbox
 								>
-								<Checkbox bind:checked={workingState.trainStateSelection.learning}
-									>Learning</Checkbox
-								>
-								<Checkbox bind:checked={workingState.trainStateSelection.finished}
-									>Finished</Checkbox
-								>
+								<Checkbox bind:checked={workingState.trainStateSelection.learning}>Learning</Checkbox>
+								<Checkbox bind:checked={workingState.trainStateSelection.finished}>Finished</Checkbox>
 							</div>
 							{#if flashStatuses}
 								<p id="statuses-error" class="mt-1 text-sm text-theme-error" role="alert">
@@ -261,12 +255,9 @@
 								aria-describedby={flashGroups ? 'groups-error' : undefined}
 							>
 								<Checkbox bind:checked={workingState.trainGroupSelection.basic}>Basic</Checkbox>
-								<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}
-									>Basic Back</Checkbox
+								<Checkbox bind:checked={workingState.trainGroupSelection.basicBack}>Basic Back</Checkbox
 								>
-								<Checkbox bind:checked={workingState.trainGroupSelection.advanced}
-									>Advanced</Checkbox
-								>
+								<Checkbox bind:checked={workingState.trainGroupSelection.advanced}>Advanced</Checkbox>
 								<Checkbox bind:checked={workingState.trainGroupSelection.expert}>Expert</Checkbox>
 							</div>
 							{#if flashGroups}
@@ -328,17 +319,13 @@
 									/> -->
 								</div>
 							</div>
-
+							
 							<!-- Smart Frequency -->
 							<div class="mt-4">
-								<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">
-									Smart Frequency
-								</p>
+								<p class="mb-2 text-sm font-semibold text-gray-900 dark:text-white">Smart Frequency</p>
 								<div class="space-y-2">
 									<div class="flex items-center gap-2">
-										<Checkbox bind:checked={workingState.trainSmartFrequencySolved}
-											>Prioritize Unsolved/New</Checkbox
-										>
+										<Checkbox bind:checked={workingState.trainSmartFrequencySolved}>Prioritize Unsolved/New</Checkbox>
 										<TooltipButton
 											id="btn-train-settings-freq-solved"
 											tooltip="Show cases with fewer solves more frequently"
@@ -346,9 +333,7 @@
 										/>
 									</div>
 									<div class="flex items-center gap-2">
-										<Checkbox bind:checked={workingState.trainSmartFrequencyTime}
-											>Prioritize Slower Cases</Checkbox
-										>
+										<Checkbox bind:checked={workingState.trainSmartFrequencyTime}>Prioritize Slower Cases</Checkbox>
 										<TooltipButton
 											id="btn-train-settings-freq-time"
 											tooltip="Show cases with slower average times more frequently"
@@ -373,17 +358,11 @@
 						<div class="space-y-6 pt-2">
 							<!-- Display Settings -->
 							<div>
-								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">
-									Display Options
-								</h4>
+								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">Display Options</h4>
 								<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 									<div>
 										<Label for="algorithm" class="mb-1 block font-medium">Algorithm Display</Label>
-										<Select
-											bind:value={workingState.trainHintAlgorithm}
-											id="algorithm"
-											placeholder=""
-										>
+										<Select bind:value={workingState.trainHintAlgorithm} id="algorithm" placeholder="">
 											<option value="step">Reveal step-by-step</option>
 											<option value="allAtOnce">Reveal all at once</option>
 											<option value="always">Show all time</option>
@@ -392,11 +371,7 @@
 
 									<div>
 										<Label for="stickering" class="mb-1 block font-medium">Stickering Style</Label>
-										<Select
-											bind:value={workingState.trainHintStickering}
-											id="stickering"
-											placeholder=""
-										>
+										<Select bind:value={workingState.trainHintStickering} id="stickering" placeholder="">
 											<option value="f2l">F2L Stickering</option>
 											<option value="fully">Fully stickered</option>
 										</Select>
@@ -408,9 +383,7 @@
 
 							<!-- Color Settings -->
 							<div>
-								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">
-									Color Options
-								</h4>
+								<h4 class="mb-3 text-base font-semibold text-gray-900 dark:text-white">Color Options</h4>
 								<div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
 									<!-- Cross Color -->
 									<div
@@ -484,8 +457,7 @@
 						{/snippet}
 						<div class="pt-2">
 							<p class="mb-4 text-sm text-red-600 dark:text-red-400">
-								This will permanently delete all your progress and settings. This action cannot be
-								undone.
+								This will permanently delete all your progress and settings. This action cannot be undone.
 							</p>
 							<Button
 								size="sm"

@@ -75,7 +75,9 @@
 	const rollingAo12 = $derived(calculateRollingAo12(caseSolves));
 
 	// Create a map of solve ID to original index for efficient lookup
-	const solveIdToIndex = $derived(new Map(caseSolves.map((solve, index) => [solve.id, index])));
+	const solveIdToIndex = $derived(
+		new Map(caseSolves.map((solve, index) => [solve.id, index]))
+	);
 
 	// Map rolling averages to chart data by finding corresponding indices
 	// Since chartSolves filters out null times, we need to map back to original caseSolves indices

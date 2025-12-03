@@ -47,6 +47,14 @@ The following files contain detailed documentation. **Consult them if unsure abo
 - **Stores/State:** Use `$state.raw` for large objects (like cube state) to avoid deep proxy overhead if deep reactivity isn't needed.
 - **Imports:** Use `$lib/` alias.
 
+### 4. Code Formatting & Changes
+**CRITICAL:** When making changes:
+- **ONLY modify files directly related to the functional change**
+- **DO NOT reformat or refactor unrelated files**
+- **DO NOT run formatters on the entire codebase** - only format files you're actively changing
+- If a file is working and doesn't need functional changes, **leave it untouched**
+- Format only the lines you are adding or modifying, not the entire file
+
 ## Key Features & Context
 - **TrainView:** The main training interface.
 - **TwistyPlayer:** Wrapper around `cubing.js` for 3D visualization.

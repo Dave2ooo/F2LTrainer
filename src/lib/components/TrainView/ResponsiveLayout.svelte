@@ -66,7 +66,7 @@
 				<Pane minSize={10} size={20}>
 					<div class="relative flex h-full items-center justify-center bg-gray-50 dark:bg-gray-800">
 						<button
-							class="absolute top-1/2 -left-3 z-50 flex h-12 w-6 translate-x-3 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+							class="absolute -left-3 top-1/2 z-50 flex h-12 w-6 -translate-y-1/2 translate-x-3 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 							onclick={toggleRightPane}
 							aria-label="Collapse right pane"
 						>
@@ -80,14 +80,14 @@
 
 		{#if !isRightPaneOpen}
 			<button
-				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+				class="absolute right-0 top-1/2 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Expand right pane"
 			>
 				<ChevronLeft class="size-4 text-gray-500 dark:text-gray-400" />
 			</button>
 		{/if}
-		<!-- Mobile: Drawer Layout -->
+	<!-- Mobile: Drawer Layout -->
 	{:else}
 		<div class="flex h-full flex-col overflow-y-auto bg-gray-50 p-0 dark:bg-gray-800">
 			{@render leftContent()}
@@ -95,7 +95,7 @@
 
 		<!-- Mobile toggle button -->
 		<button
-			class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+			class="absolute right-0 top-1/2 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 			onclick={toggleRightPane}
 			aria-label="Toggle right pane"
 		>

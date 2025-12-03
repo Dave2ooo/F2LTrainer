@@ -63,7 +63,10 @@ if (persistedCasesState && typeof persistedCasesState === 'object') {
 		const persistedGroup = persistedCasesState[groupId];
 		if (!persistedGroup || typeof persistedGroup !== 'object') {
 			if (persistedGroup !== undefined) {
-				console.warn(`[CasesState] Skipping invalid persisted group "${groupId}":`, persistedGroup);
+				console.warn(
+					`[CasesState] Skipping invalid persisted group "${groupId}":`,
+					persistedGroup
+				);
 			}
 			continue;
 		}

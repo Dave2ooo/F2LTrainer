@@ -106,7 +106,7 @@ export function gernerateTrainCases(): TrainCase[] {
 				const recentSolves = s.solves
 					.filter((solve) => solve.time !== null && solve.time !== undefined)
 					.slice(-5);
-
+				
 				if (recentSolves.length === 0) return 1;
 
 				const caseAvgTime =
@@ -136,7 +136,9 @@ export function gernerateTrainCases(): TrainCase[] {
 					solves: candidateStats[i].solveCount,
 					avgTime:
 						timedSolves.length > 0
-							? (timedSolves.reduce((a, b) => a + (b.time ?? 0), 0) / timedSolves.length).toFixed(0)
+							? (
+									timedSolves.reduce((a, b) => a + (b.time ?? 0), 0) / timedSolves.length
+							  ).toFixed(0)
 							: 'N/A',
 					solveWeight: solveWeights[i].toFixed(2),
 					timeWeight: timeWeights[i].toFixed(2),
@@ -152,16 +154,22 @@ export function gernerateTrainCases(): TrainCase[] {
 	for (let i = 0; i < candidates.length; i++) {
 		const candidate = candidates[i];
 		const weight = Math.round(weights[i]);
-
+		
 		for (let k = 0; k < weight; k++) {
 			result.push(
-				new TrainCase(candidate.groupId, candidate.caseId, candidate.side, crossColor, frontColor)
+				new TrainCase(
+					candidate.groupId,
+					candidate.caseId,
+					candidate.side,
+					crossColor,
+					frontColor
+				)
 			);
 		}
 	}
 
 	console.log(`Generated ${result.length} cases from ${candidates.length} unique candidates.`);
-
+	
 	shuffleArray(result);
 	return result;
 }
@@ -254,14 +262,19 @@ export default class TrainCase {
 		this.#auf = AUF[aufIndex];
 	}
 
-	private setCrossAndFrontColor(crossColors: StickerColor[], frontColors: StickerColor[]) {
+	private setCrossAndFrontColor(
+		crossColors: StickerColor[],
+		frontColors: StickerColor[]
+	) {
 		// Generate all valid pairs
 		const validPairs: [StickerColor, StickerColor][] = [];
 
 		for (const cross of crossColors) {
 			// If frontColors is empty, consider ALL valid neighbors
 			const potentialFrontColors =
-				frontColors.length > 0 ? frontColors : (Object.keys(SIDE_COLOR[cross]) as StickerColor[]);
+				frontColors.length > 0
+					? frontColors
+					: (Object.keys(SIDE_COLOR[cross]) as StickerColor[]);
 
 			for (const front of potentialFrontColors) {
 				if (cross !== front && OPPOSITE_COLOR[cross] !== front) {
