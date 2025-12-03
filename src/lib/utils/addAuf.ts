@@ -51,7 +51,32 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 	const algList = alg.trim().length ? alg.trim().split(/\s+/) : [];
 	const firstMoveAlg = algList.at(0);
 
-	if (firstMoveAlg && isAuf(firstMoveAlg)) {
+	// Check if the algorithm starts with a y-rotation (y or y')
+	if (firstMoveAlg && (firstMoveAlg === 'y' || firstMoveAlg === "y'")) {
+		// Get the y-rotation and remove it temporarily
+		const yRotation = algList.shift()!;
+		const secondMoveAlg = algList.at(0);
+
+		// Check if the second move is a U move (without brackets)
+		if (secondMoveAlg && isAuf(secondMoveAlg)) {
+			// Remove the U move
+			algList.shift();
+			// Merge the AUF with the U move (using the AUF directly, not mirrored)
+			const mergedAufAlg = DUPLICATES[auf][secondMoveAlg];
+			// Put y-rotation first, then the merged U move (if non-empty)
+			if (mergedAufAlg !== '') {
+				algList.unshift(mergedAufAlg);
+			}
+			algList.unshift(yRotation);
+		} else {
+			// No U move after y-rotation, or it's in a bracket
+			// Just add the AUF after the y-rotation (using the AUF directly, not mirrored)
+			if (auf !== '') {
+				algList.unshift(auf);
+			}
+			algList.unshift(yRotation);
+		}
+	} else if (firstMoveAlg && isAuf(firstMoveAlg)) {
 		// First move is a plain AUF (no bracket)
 		algList.shift();
 		const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];

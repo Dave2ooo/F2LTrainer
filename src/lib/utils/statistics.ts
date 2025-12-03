@@ -66,7 +66,7 @@ export function calculateRollingAo5(solves: Solve[]): (number | null)[] {
 
 	for (let i = 0; i < solves.length; i++) {
 		const currentTime = solves[i].time;
-		
+
 		// Add current time to our running list if it's not null
 		if (currentTime !== null) {
 			nonNullTimes.push(currentTime);
@@ -104,7 +104,7 @@ export function calculateRollingAo12(solves: Solve[]): (number | null)[] {
 
 	for (let i = 0; i < solves.length; i++) {
 		const currentTime = solves[i].time;
-		
+
 		// Add current time to our running list if it's not null
 		if (currentTime !== null) {
 			nonNullTimes.push(currentTime);

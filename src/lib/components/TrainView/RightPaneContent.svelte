@@ -128,10 +128,10 @@
 						class="solve-entry group relative cursor-pointer rounded-lg border p-3 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800
 						{item.type === 'unsolved'
 							? trainState.current === mostRecentUnsolvedCase()
-								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20 selected'
+								? 'border-primary-500 selected bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
 								: 'border-gray-200 dark:border-gray-700'
 							: trainState.current?.solveId === item.solve?.id
-								? 'border-primary-500 bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20 selected'
+								? 'border-primary-500 selected bg-primary-50 dark:border-primary-400 dark:bg-primary-900/20'
 								: 'border-gray-200 dark:border-gray-700'}"
 						onclick={item.type === 'unsolved'
 							? jumpToFirstUnsolved

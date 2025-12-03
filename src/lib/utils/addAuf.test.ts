@@ -176,4 +176,78 @@ describe('concatinateAuf', () => {
 			expect(alg).toBe("U' (R U R' U')3");
 		});
 	});
+
+	describe('AUF merging with y-rotation', () => {
+		it("should merge AUF with U move after y rotation - U2 y U' (L' U L)", () => {
+			// Algorithm: y U' (L' U L) with AUF U2
+			// Swap y and U2, then merge: U2 + U' = U
+			// Result: y U (L' U L)
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L)");
+		});
+
+		it("should cancel U moves after y' rotation - U' y' U (R U' R')", () => {
+			// Algorithm: y' U (R U' R') with AUF U'
+			// Swap y' and U', then merge: U' + U = '' (cancel)
+			// Result: y' (R U' R')
+			const [scramble, alg] = concatinateAuf('R', "y' U (R U' R')", "U'");
+			expect(scramble).toBe("R U'");
+			expect(alg).toBe("y' (R U' R')");
+		});
+
+		it("should cancel U2 moves after y rotation - U2 y U2 (L U' L') U (S' L' S)", () => {
+			// Algorithm: y U2 (L U' L') U (S' L' S) with AUF U2
+			// Swap y and U2, then merge: U2 + U2 = '' (cancel)
+			// Result: y (L U' L') U (S' L' S)
+			const [scramble, alg] = concatinateAuf('R', "y U2 (L U' L') U (S' L' S)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y (L U' L') U (S' L' S)");
+		});
+
+		it("should merge U2 with AUF after y rotation - U2 y (F' U2 F) (L' U' L)", () => {
+			// Algorithm: y (F' U2 F) (L' U' L) with AUF U2
+			// Swap y and U2, then merge: U2 + '' = U2 (no U move after y)
+			// Result: y U2 (F' U2 F) (L' U' L)
+			const [scramble, alg] = concatinateAuf('R', "y (F' U2 F) (L' U' L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U2 (F' U2 F) (L' U' L)");
+		});
+
+		it("should merge U after y' rotation - U y' (R' U2 R) U (R' U' R)", () => {
+			// Algorithm: y' (R' U2 R) U (R' U' R) with AUF U
+			// Swap y' and U, then merge: U + '' = U (no U move after y')
+			// Result: y' U (R' U2 R) U (R' U' R)
+			const [scramble, alg] = concatinateAuf('R', "y' (R' U2 R) U (R' U' R)", 'U');
+			expect(scramble).toBe('R U');
+			expect(alg).toBe("y' U (R' U2 R) U (R' U' R)");
+		});
+
+		it("should merge U2 after y' rotation - U2 y' (R U R2' U' R)", () => {
+			// Algorithm: y' (R U R2' U' R) with AUF U2
+			// Swap y' and U2, then merge: U2 + '' = U2 (no U move after y')
+			// Result: y' U2 (R U R2' U' R)
+			const [scramble, alg] = concatinateAuf('R', "y' (R U R2' U' R)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y' U2 (R U R2' U' R)");
+		});
+
+		it("should merge U move after y rotation with brackets - U2 y U' (L' U L) (R U' R')", () => {
+			// Algorithm: y U' (L' U L) (R U' R') with AUF U2
+			// Swap y and U2, then merge: U2 + U' = U
+			// Result: y U (L' U L) (R U' R')
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L) (R U' R')", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L) (R U' R')");
+		});
+
+		it("should merge U move after y rotation - U2 y U' (L' U L)", () => {
+			// Algorithm: y U' (L' U L) with AUF U2
+			// Swap y and U2, then merge: U2 + U' = U
+			// Result: y U (L' U L)
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L)");
+		});
+	});
 });
