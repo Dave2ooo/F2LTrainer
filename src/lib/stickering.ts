@@ -15,7 +15,7 @@ function getStickeringString(
 ) {
 	// DEBUG: Log the parameters to diagnose stickering issues
 	// console.log('[getStickeringString]', { stickering, side, crossColor, frontColor });
-	
+
 	const edgesArr = Array(12).fill('-');
 	const cornersArr = Array(8).fill('-');
 

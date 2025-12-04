@@ -24,7 +24,7 @@
 			: ''
 	);
 	let aufText = $derived(currentTrainCase?.auf || '');
-	
+
 	let solveCount = $derived(
 		currentTrainCase
 			? statistics.filter(
@@ -41,7 +41,7 @@
 	<div class="mt-4 flex flex-col items-center gap-2 text-center">
 		<button
 			type="button"
-			class="text-sm underline text-theme-text-secondary hover:text-gray-900 dark:hover:text-white"
+			class="text-sm text-theme-text-secondary underline hover:text-gray-900 dark:hover:text-white"
 			onclick={() => (globalState.showDetails = !globalState.showDetails)}
 		>
 			{globalState.showDetails ? 'Hide Details' : 'Show Details'}

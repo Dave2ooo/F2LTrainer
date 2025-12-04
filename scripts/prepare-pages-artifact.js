@@ -51,4 +51,3 @@ if (existsSync(indexHtmlPath)) {
 }
 
 console.log(`Prepared GitHub Pages artifact at ${buildDir}`);
-

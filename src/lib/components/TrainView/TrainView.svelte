@@ -87,11 +87,11 @@
 	async function onNext() {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
-			
+
 			// If no solve has been recorded for this case instance yet, record an untimed solve
 			if (currentTrainCase.solveId === undefined) {
 				const solveId = getNextSolveId();
-				
+
 				// Add new untimed solve
 				addSolve({
 					id: solveId,
@@ -103,7 +103,7 @@
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble
 				});
-				
+
 				// Update the TrainCase with the solve ID so we don't record it again
 				currentTrainCase.solveId = solveId;
 			}
@@ -166,7 +166,7 @@
 				currentTrainCase.solveId = solveId;
 				// Update the last displayed time
 				trainState.lastDisplayedTime = timeInCentiseconds;
-				
+
 				// Add new solve
 				addSolve({
 					id: solveId,
@@ -178,7 +178,7 @@
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble
 				});
-				
+
 				// Mark as solved
 				markAsSolved(true);
 			}
