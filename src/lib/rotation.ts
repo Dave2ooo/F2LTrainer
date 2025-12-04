@@ -15,13 +15,13 @@ function getRotationAlg(
 		crossColor, 
 		frontColor, 
 		resolved: { cross, front },
-		rotation: ROTATION_ALG[cross]?.[front] || "z2 y'"
+		rotation: ROTATION_ALG[cross]?.[front] ?? "z2 y'"
 	});
 
 	// Safety check
 	if (!cross || !front) return "z2 y'";
 
-	return ROTATION_ALG[cross]?.[front] || "z2 y'";
+	return ROTATION_ALG[cross]?.[front] ?? "z2 y'";
 }
 
 function getCurrentRotationAlg() {
@@ -37,7 +37,7 @@ function getCurrentRotationAlg() {
 
 	// if (cross === 'random' || front === 'random') return "z2 y'";
 
-	return ROTATION_ALG[cross]?.[front] || "z2 y'";
+	return ROTATION_ALG[cross]?.[front] ?? "z2 y'";
 }
 
 export default getRotationAlg;
