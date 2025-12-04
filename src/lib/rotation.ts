@@ -11,12 +11,12 @@ function getRotationAlg(
 	const front = Array.isArray(frontColor) ? frontColor[0] : frontColor;
 	
 	// DEBUG: Log the rotation calculation to diagnose orientation issues
-	console.log('[getRotationAlg]', { 
-		crossColor, 
-		frontColor, 
-		resolved: { cross, front },
-		rotation: ROTATION_ALG[cross]?.[front] ?? "z2 y'"
-	});
+ 	// console.log('[getRotationAlg]', { 
+	// 	crossColor, 
+	//	frontColor, 
+	//	resolved: { cross, front },
+	//	rotation: ROTATION_ALG[cross]?.[front] ?? "z2 y'"
+	// });
 
 	// Safety check
 	if (!cross || !front) return "z2 y'";

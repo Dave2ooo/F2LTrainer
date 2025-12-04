@@ -80,14 +80,6 @@ type SideColorMap = Record<
 >;
 // bottom color: front color: side: side color
 export const SIDE_COLOR = {
-	white: {
-		yellow: undefined,
-		white: undefined,
-		red: { right: 'green', left: 'blue' },
-		orange: { right: 'blue', left: 'green' },
-		green: { right: 'orange', left: 'red' },
-		blue: { right: 'red', left: 'orange' }
-	},
 	yellow: {
 		yellow: undefined,
 		white: undefined,
@@ -95,6 +87,14 @@ export const SIDE_COLOR = {
 		orange: { right: 'green', left: 'blue' },
 		green: { right: 'red', left: 'orange' },
 		blue: { right: 'orange', left: 'red' }
+	},
+	white: {
+		yellow: undefined,
+		white: undefined,
+		red: { right: 'green', left: 'blue' },
+		orange: { right: 'blue', left: 'green' },
+		green: { right: 'orange', left: 'red' },
+		blue: { right: 'red', left: 'orange' }
 	},
 	red: {
 		yellow: { right: 'green', left: 'blue' },
