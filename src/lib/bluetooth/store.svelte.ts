@@ -5,6 +5,7 @@ let deviceName = $state<string | null>(null);
 let batteryLevel = $state<number | null>(null);
 let facelet = $state<string | null>(null);
 let lastMove = $state<string | null>(null);
+let moveCounter = $state(0);
 
 export const bluetoothState = {
 	get isConnected() {
@@ -22,11 +23,15 @@ export const bluetoothState = {
 	get lastMove() {
 		return lastMove;
 	},
+	get moveCounter() {
+		return moveCounter;
+	},
 	setConnected(connected: boolean) {
 		isConnected = connected;
 		if (!connected) {
 			facelet = null;
 			lastMove = null;
+			moveCounter = 0;
 		}
 	},
 	setDeviceName(name: string | null) {
@@ -39,6 +44,7 @@ export const bluetoothState = {
 		facelet = newFacelet;
 		if (prevMoves.length > 0) {
 			lastMove = prevMoves[0];
+			moveCounter++;
 		}
 	}
 };

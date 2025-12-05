@@ -25,6 +25,8 @@
 	});
 
 	$effect(() => {
+		// Depend on moveCounter to trigger updates even if the move string is the same
+		void bluetoothState.moveCounter;
 		if (bluetoothState.lastMove && twistyPlayerComponent) {
 			const el = twistyPlayerComponent.getElement();
 			if (el && el.experimentalAddMove) {
@@ -55,6 +57,21 @@
 
 	async function onDisconnect() {
 		await GiikerCube.stop();
+	}
+
+	function onSync() {
+		if (twistyPlayerComponent) {
+			const el = twistyPlayerComponent.getElement();
+			if (el) {
+				el.experimentalSetupAlg = '';
+				el.alg = '';
+				el.jumpToStart();
+				// Also clear the last move in store to prevent re-application
+				// Note: bluetoothState.lastMove is read-only via getter, but we can't easily clear it without a setter.
+				// However, the effect only runs on change.
+				// We might need to force a re-sync of internal state if needed.
+			}
+		}
 	}
 </script>
 
@@ -87,7 +104,10 @@
 					bind:this={twistyPlayerComponent}
 				/>
 			</div>
-			<Button color="red" class="w-full" onclick={onDisconnect}>Disconnect</Button>
+			<div class="flex w-full gap-2">
+				<Button color="light" class="flex-1" onclick={onSync}>Sync (Reset)</Button>
+				<Button color="red" class="flex-1" onclick={onDisconnect}>Disconnect</Button>
+			</div>
 		{:else}
 			<div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
 				<Bluetooth class="size-16" />
