@@ -21,6 +21,12 @@ declare global {
 			request(type: 'screen'): Promise<WakeLockSentinel>;
 		};
 	}
+
+	namespace svelteHTML {
+		interface IntrinsicElements {
+			'twisty-player': any;
+		}
+	}
 }
 
 export {};

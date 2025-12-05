@@ -111,6 +111,7 @@ export function createBluetoothManager(): BluetoothCube {
 		}).then(() => {
 			bluetoothState.setConnected(true);
 			bluetoothState.setDeviceName(_device?.name || null);
+			GiikerCube.setCallback(bluetoothState.handleCubeCallback);
 		});
 	}
 

@@ -3,12 +3,42 @@
 	import Modal from '../Modal.svelte';
 	import { Bluetooth, BluetoothConnected } from '@lucide/svelte';
 	import { GiikerCube } from '$lib/bluetooth/index';
-	import { bluetoothState } from '$lib/bluetooth/store.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte'
+	import TwistyPlayer from '../TwistyPlayer.svelte';
 
 	let { open = $bindable(false) } = $props();
 
 	let isConnecting = $state(false);
 	let error = $state<string | null>(null);
+	let twistyPlayerComponent = $state<any>(null);
+
+	$effect(() => {
+		if (twistyPlayerComponent) {
+			const el = twistyPlayerComponent.getElement();
+			if (el) {
+				// Clear any case-specific setup
+				el.experimentalSetupAlg = '';
+				el.alg = '';
+				el.jumpToStart();
+			}
+		}
+	});
+
+	$effect(() => {
+		if (bluetoothState.lastMove && twistyPlayerComponent) {
+			const el = twistyPlayerComponent.getElement();
+			if (el && el.experimentalAddMove) {
+				try {
+					const move = bluetoothState.lastMove.trim();
+					if (move) {
+						el.experimentalAddMove(move);
+					}
+				} catch (e) {
+					console.warn('Failed to apply move:', bluetoothState.lastMove, e);
+				}
+			}
+		}
+	});
 
 	async function onConnect() {
 		isConnecting = true;
@@ -40,6 +70,22 @@
 				{#if bluetoothState.batteryLevel !== null}
 					<p class="text-sm text-gray-500 dark:text-gray-400">Battery: {bluetoothState.batteryLevel}%</p>
 				{/if}
+			</div>
+			<div class="h-64 w-64">
+				<TwistyPlayer
+					groupId="basic"
+					caseId={1}
+					side="right"
+					crossColor="white"
+					frontColor="red"
+					stickering="fully"
+					customAlgorithm={{ left: '', right: '' }}
+					algorithmSelection={{ left: null, right: null }}
+					controlPanel="none"
+					showVisibilityToggle={false}
+					class="h-full w-full"
+					bind:this={twistyPlayerComponent}
+				/>
 			</div>
 			<Button color="red" class="w-full" onclick={onDisconnect}>Disconnect</Button>
 		{:else}
