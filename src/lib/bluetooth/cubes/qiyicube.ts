@@ -64,7 +64,7 @@ function sendMessage(content: number[]): Promise<void> {
 	decoder = decoder || $.aes128(JSON.parse(LZString.decompressFromEncodedURIComponent(KEYS[0])!));
 	for (let i = 0; i < msg.length; i += 16) {
 		const block = msg.slice(i, i + 16);
-		decoder.encrypt(block);
+		decoder!.encrypt(block);
 		for (let j = 0; j < 16; j++) {
 			encMsg[i + j] = block[j];
 		}
@@ -150,7 +150,7 @@ function onCubeEvent(event: Event) {
 	const msg: number[] = [];
 	for (let i = 0; i < encMsg.length; i += 16) {
 		const block = encMsg.slice(i, i + 16);
-		decoder.decrypt(block);
+		decoder!.decrypt(block);
 		for (let j = 0; j < 16; j++) {
 			msg[i + j] = block[j];
 		}

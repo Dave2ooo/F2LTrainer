@@ -219,7 +219,7 @@ function v2initDecoder(mac: string, ver: number) {
 	}
 	let keyiv = getKeyV2(value, ver);
 	decoder = $.aes128(keyiv[0]);
-	decoder.iv = keyiv[1];
+	decoder!.iv = keyiv[1];
 }
 
 function v2sendRequest(req: number[]) {

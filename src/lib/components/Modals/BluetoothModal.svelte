@@ -3,25 +3,18 @@
 	import Modal from '../Modal.svelte';
 	import { Bluetooth, BluetoothConnected } from '@lucide/svelte';
 	import { GiikerCube } from '$lib/bluetooth/index';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 
 	let { open = $bindable(false) } = $props();
 
 	let isConnecting = $state(false);
-	let isConnected = $state(false);
 	let error = $state<string | null>(null);
-
-	$effect(() => {
-		if (open) {
-			isConnected = GiikerCube.isConnected();
-		}
-	});
 
 	async function onConnect() {
 		isConnecting = true;
 		error = null;
 		try {
 			await GiikerCube.init();
-			isConnected = true;
 		} catch (e: any) {
 			console.error(e);
 			error = e.toString();
@@ -32,16 +25,21 @@
 
 	async function onDisconnect() {
 		await GiikerCube.stop();
-		isConnected = false;
 	}
 </script>
 
 <Modal bind:open title="Bluetooth Cube" size="sm">
 	<div class="flex flex-col items-center gap-4 py-4">
-		{#if isConnected}
+		{#if bluetoothState.isConnected}
 			<div class="flex flex-col items-center gap-2 text-green-500">
 				<BluetoothConnected class="size-16" />
 				<p class="text-lg font-semibold">Connected</p>
+				{#if bluetoothState.deviceName}
+					<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
+				{/if}
+				{#if bluetoothState.batteryLevel !== null}
+					<p class="text-sm text-gray-500 dark:text-gray-400">Battery: {bluetoothState.batteryLevel}%</p>
+				{/if}
 			</div>
 			<Button color="red" class="w-full" onclick={onDisconnect}>Disconnect</Button>
 		{:else}

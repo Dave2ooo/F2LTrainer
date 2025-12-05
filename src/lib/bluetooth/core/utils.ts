@@ -7,6 +7,9 @@
 const DEBUG = import.meta.env.DEV || false;
 const DEBUGBL = false; // Bluetooth debugging
 
+import { AES128 } from './aes';
+import { bluetoothState } from '../store.svelte';
+
 // jQuery-like utilities
 export const $ = {
 	// No-op function
@@ -18,15 +21,9 @@ export const $ = {
 	// Check if value is an array
 	isArray: (value: any): value is any[] => Array.isArray(value),
 
-	// AES-128 encryption (simplified - needs crypto library)
+	// AES-128 encryption
 	aes128: (key: number[]) => {
-		// For now, return a minimal interface
-		// TODO: Implement proper AES if needed for encrypted cubes
-		return {
-			encrypt: (data: number[]) => data,
-			decrypt: (data: number[]) => data,
-			iv: [] as number[]
-		};
+		return new AES128(key);
 	}
 };
 
@@ -118,6 +115,7 @@ export const giikerutil: GiikerUtil = {
 	 */
 	updateBattery: (value: [number, string]) => {
 		giikerutil.log('[bluetooth] battery level:', value[0], '%, device:', value[1]);
+		bluetoothState.setBatteryLevel(value[0]);
 	},
 
 	/**

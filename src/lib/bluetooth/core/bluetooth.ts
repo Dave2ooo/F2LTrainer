@@ -5,6 +5,7 @@
 
 import type { BluetoothCube, CubeModel, CubeCallback, EventCallback } from './types';
 import { giikerutil, $, DEBUG, DEBUGBL } from './utils';
+import { bluetoothState } from '../store.svelte';
 
 export function createBluetoothManager(): BluetoothCube {
 	/* { prefix: cubeModel } */
@@ -107,6 +108,9 @@ export function createBluetoothManager(): BluetoothCube {
 				return Promise.reject('Cannot detect device type');
 			}
 			return cube.init(device);
+		}).then(() => {
+			bluetoothState.setConnected(true);
+			bluetoothState.setDeviceName(_device?.name || null);
 		});
 	}
 
@@ -145,6 +149,8 @@ export function createBluetoothManager(): BluetoothCube {
 			_device!.removeEventListener('gattserverdisconnected', onDisconnect);
 			_device!.gatt!.disconnect();
 			_device = null;
+			bluetoothState.setConnected(false);
+			bluetoothState.setDeviceName(null);
 		});
 	}
 

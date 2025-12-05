@@ -69,7 +69,7 @@ function initDecoder(mac: string) {
 	}
 	const keyiv = getKeyAndIv(value);
 	decoder = $.aes128(keyiv[0]);
-	decoder.iv = keyiv[1];
+	decoder!.iv = keyiv[1];
 }
 
 function decode(value: DataView | number[]): number[] {
