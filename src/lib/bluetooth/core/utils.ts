@@ -53,6 +53,13 @@ export const giikerutil: GiikerUtil = {
 	 * Check if Web Bluetooth is available
 	 */
 	chkAvail: (): Promise<void> => {
+		// Check if running in secure context (HTTPS or localhost)
+		if (!window.isSecureContext) {
+			return Promise.reject(
+				'Web Bluetooth requires HTTPS. Please access this page via https:// instead of http://'
+			);
+		}
+
 		if (!window.navigator || !('bluetooth' in window.navigator)) {
 			return Promise.reject('Web Bluetooth API is not available in this browser');
 		}

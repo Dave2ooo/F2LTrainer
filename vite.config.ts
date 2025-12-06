@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitest/config';
 import tailwindcss from '@tailwindcss/vite';
 import { sveltekit } from '@sveltejs/kit/vite';
+import basicSsl from '@vitejs/plugin-basic-ssl';
 
 import { copyFileSync, existsSync, mkdirSync } from 'fs';
 
@@ -15,7 +16,11 @@ function copyStaticAssets() {
 }
 
 export default defineConfig({
-	plugins: [tailwindcss(), sveltekit()],
+	plugins: [basicSsl(), tailwindcss(), sveltekit()],
+	server: {
+		https: true,
+		host: true // Allow access from local network
+	},
 	build: {
 		chunkSizeWarningLimit: 1024,
 		rollupOptions: {
