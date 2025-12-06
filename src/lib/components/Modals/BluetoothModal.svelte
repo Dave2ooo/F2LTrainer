@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Spinner } from 'flowbite-svelte';
+	import { Button, Spinner, Input, Label } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import { Bluetooth, BluetoothConnected } from '@lucide/svelte';
 	import { GiikerCube } from '$lib/bluetooth/index';
@@ -11,6 +11,13 @@
 	let isConnecting = $state(false);
 	let error = $state<string | null>(null);
 	let twistyPlayerComponent = $state<any>(null);
+	let macInput = $state('');
+
+	$effect(() => {
+		if (bluetoothState.macAddressRequest.isOpen) {
+			macInput = bluetoothState.macAddressRequest.deviceMac || '';
+		}
+	});
 
 	$effect(() => {
 		if (twistyPlayerComponent) {
@@ -116,17 +123,35 @@
 				<p class="text-lg font-semibold">Not Connected</p>
 			</div>
 			
-			{#if error || bluetoothState.errorMessage}
-				<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
-			{/if}
-
-			<Button color="blue" class="w-full" onclick={onConnect} disabled={isConnecting}>
-				{#if isConnecting}
-					<Spinner class="mr-3" size="4" />Connecting...
-				{:else}
-					Connect Cube
+			{#if bluetoothState.macAddressRequest.isOpen}
+				<div class="flex w-full flex-col gap-4">
+					<p class:text-red-500={bluetoothState.macAddressRequest.isWrongKey} class="text-center text-sm">
+						{bluetoothState.macAddressRequest.isWrongKey 
+							? 'The MAC provided might be wrong! Please enter the Bluetooth MAC address of your cube:' 
+							: 'Please enter the Bluetooth MAC address of your cube:'}
+					</p>
+					<div class="flex flex-col gap-2">
+						<Label>MAC Address</Label>
+						<Input type="text" bind:value={macInput} placeholder={bluetoothState.macAddressRequest.defaultMac || 'xx:xx:xx:xx:xx:xx'} />
+					</div>
+					<div class="flex gap-2">
+						<Button color="alternative" class="flex-1" onclick={() => bluetoothState.cancelMacAddressRequest()}>Cancel</Button>
+						<Button color="blue" class="flex-1" onclick={() => bluetoothState.submitMacAddress(macInput || bluetoothState.macAddressRequest.defaultMac || '')}>Submit</Button>
+					</div>
+				</div>
+			{:else}
+				{#if error || bluetoothState.errorMessage}
+					<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
 				{/if}
-			</Button>
+
+				<Button color="blue" class="w-full" onclick={onConnect} disabled={isConnecting}>
+					{#if isConnecting}
+						<Spinner class="mr-3" size="4" />Connecting...
+					{:else}
+						Connect Cube
+					{/if}
+				</Button>
+			{/if}
 		{/if}
 	</div>
 </Modal>

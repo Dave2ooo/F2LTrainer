@@ -30,7 +30,7 @@ export const $ = {
 interface GiikerUtil {
 	log: (...args: any[]) => void;
 	chkAvail: () => Promise<void>;
-	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null) => string | undefined;
+	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null) => Promise<string | undefined>;
 	updateBattery: (value: [number, string]) => void;
 	markSolved: () => void;
 }
@@ -73,7 +73,7 @@ export const giikerutil: GiikerUtil = {
 	/**
 	 * Request/retrieve MAC address for cube
 	 */
-	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null): string | undefined => {
+	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null): Promise<string | undefined> => {
 		try {
 			const savedMac = localStorage.getItem('bluetooth_device_mac');
 			let mac = savedMac;
@@ -88,13 +88,24 @@ export const giikerutil: GiikerUtil = {
 			} else {
 				// Prompt for MAC if needed
 				if (!mac || forcePrompt) {
-					const message = (isWrongKey ? 'The MAC provided might be wrong!\n' : '') +
-						'Please enter the Bluetooth MAC address of your cube:';
-					mac = prompt(message, mac || defaultMac || 'xx:xx:xx:xx:xx:xx');
+					// Use custom UI request instead of prompt
+					return new Promise((resolve) => {
+						bluetoothState.requestMacAddress(isWrongKey, deviceMac, defaultMac, (newMac) => {
+							if (newMac) {
+								if (newMac !== savedMac) {
+									localStorage.setItem('bluetooth_device_mac', newMac);
+									giikerutil.log('[bluetooth] device mac updated');
+								}
+								resolve(newMac);
+							} else {
+								resolve(undefined);
+							}
+						});
+					});
 				}
 				if (!mac || !/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.exec(mac)) {
 					console.error('[bluetooth] invalid MAC address');
-					return undefined;
+					return Promise.resolve(undefined);
 				}
 			}
 
@@ -103,10 +114,10 @@ export const giikerutil: GiikerUtil = {
 				giikerutil.log('[bluetooth] device mac updated');
 			}
 
-			return mac || undefined;
+			return Promise.resolve(mac || undefined);
 		} catch (e) {
 			console.error('[bluetooth] Error handling MAC address:', e);
-			return undefined;
+			return Promise.resolve(undefined);
 		}
 	},
 

@@ -193,21 +193,34 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 	if (mfData instanceof DataView) { // this is workaround for Bluefy browser
 		return new DataView(mfData.buffer.slice(2, 11));
 	}
+	
+	// Log all available manufacturer data for debugging
+	mfData.forEach((value, key) => {
+		giikerutil.log('[gancube] manufacturer data:', '0x' + key.toString(16).padStart(4, '0'), value);
+	});
+
 	for (let id of GAN_CIC_LIST) {
 		if (mfData.has(id)) {
 			giikerutil.log('[gancube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0'));
 			return new DataView(mfData.get(id)!.buffer.slice(0, 9));
 		}
 	}
+
+	// Fallback to searching any entry if specific list fails, similar to how some libraries might handle it loosely
+	// The log from the user shows CIC = 0x0001, which is in our list, but maybe the map lookup is tricky
+	if (mfData.has(0x0001)) {
+		return new DataView(mfData.get(0x0001)!.buffer.slice(0, 9));
+	}
+
 	giikerutil.log('[gancube] Looks like this cube has new unknown CIC');
 	return undefined;
 }
 
-function v2initKey(forcePrompt: boolean, isWrongKey: boolean, ver: number) {
-	let mac = giikerutil.reqMacAddr(forcePrompt, isWrongKey, deviceMac, null);
+async function v2initKey(forcePrompt: boolean, isWrongKey: boolean, ver: number) {
+	let mac = await giikerutil.reqMacAddr(forcePrompt, isWrongKey, deviceMac, null);
 	if (!mac) {
 		decoder = null;
-		return;
+		throw new Error('MAC address required');
 	}
 	v2initDecoder(mac, ver);
 }
@@ -253,8 +266,9 @@ function v2requestHardwareInfo() {
 function v2init(ver: number) {
 	giikerutil.log('[gancube] v2init start');
 	keyCheck = 0;
-	v2initKey(true, false, ver);
-	return _service_v2data!.getCharacteristics().then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
+	return v2initKey(false, false, ver).then(() => {
+		return _service_v2data!.getCharacteristics();
+	}).then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
 		giikerutil.log('[gancube] v2init find chrcts', chrcts);
 		_chrct_v2read = GiikerCube.findUUID(chrcts, CHRCT_UUID_V2READ);
 		_chrct_v2write = GiikerCube.findUUID(chrcts, CHRCT_UUID_V2WRITE);
@@ -308,8 +322,9 @@ function v3requestHardwareInfo() {
 function v3init() {
 	giikerutil.log('[gancube] v3init start');
 	keyCheck = 0;
-	v2initKey(true, false, 0);
-	return _service_v3data!.getCharacteristics().then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
+	return v2initKey(false, false, 0).then(() => {
+		return _service_v3data!.getCharacteristics();
+	}).then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
 		giikerutil.log('[gancube] v3init find chrcts', chrcts);
 		_chrct_v3read = GiikerCube.findUUID(chrcts, CHRCT_UUID_V3READ);
 		_chrct_v3write = GiikerCube.findUUID(chrcts, CHRCT_UUID_V3WRITE);
@@ -367,8 +382,9 @@ function v4requestHardwareInfo() {
 function v4init() {
 	giikerutil.log('[gancube] v4init start');
 	keyCheck = 0;
-	v2initKey(true, false, 0);
-	return _service_v4data!.getCharacteristics().then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
+	return v2initKey(false, false, 0).then(() => {
+		return _service_v4data!.getCharacteristics();
+	}).then(function(chrcts: BluetoothRemoteGATTCharacteristic[]) {
 		giikerutil.log('[gancube] v4init find chrcts', chrcts);
 		_chrct_v4read = GiikerCube.findUUID(chrcts, CHRCT_UUID_V4READ);
 		_chrct_v4write = GiikerCube.findUUID(chrcts, CHRCT_UUID_V4WRITE);

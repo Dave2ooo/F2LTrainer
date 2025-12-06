@@ -112,6 +112,20 @@ export function createBluetoothManager(): BluetoothCube {
 			bluetoothState.setConnected(true);
 			bluetoothState.setDeviceName(_device?.name || null);
 			GiikerCube.setCallback(bluetoothState.handleCubeCallback);
+		}).catch((err) => {
+			giikerutil.log('[bluetooth] connection failed', err);
+			// Attempt cleanup if partial connection
+			if (_device) {
+				_device.removeEventListener('gattserverdisconnected', onDisconnect);
+				if (_device.gatt && _device.gatt.connected) {
+					_device.gatt.disconnect();
+				}
+				_device = null;
+			}
+			bluetoothState.setConnected(false);
+			bluetoothState.setDeviceName(null);
+			// Propagate error to caller
+			return Promise.reject(err);
 		});
 	}
 

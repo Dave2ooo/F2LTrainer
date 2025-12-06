@@ -203,15 +203,15 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 // CICs 0x(01..=FF)00
 const MOYU32_CIC_LIST = mathlib.valuedArray(255, function (i) { return (i + 1) << 8 });
 
-function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
+async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 	let defaultMac: string | null = null;
 	if (deviceName && /^WCU_MY32_[0-9A-F]{4}$/.exec(deviceName)) {
 		defaultMac = 'CF:30:16:00:' + deviceName.slice(9, 11) + ':' + deviceName.slice(11, 13);
 	}
-	deviceMac = giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac) || null;
+	deviceMac = (await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
 	if (!deviceMac) {
 		decoder = null;
-		return;
+		throw new Error('MAC address required');
 	}
 	initDecoder(deviceMac);
 }
@@ -254,7 +254,8 @@ function init(device: BluetoothDevice) {
 		_chrct_read.addEventListener('characteristicvaluechanged', onStateChanged);
 		return _chrct_read.startNotifications();
 	}).then(function () {
-		initMac(true);
+		return initMac(false);
+	}).then(function () {
 		return requestCubeInfo();
 	}).then(function () {
 		return requestCubeStatus();

@@ -25,12 +25,16 @@ let decoder: any = null;
 let deviceMac: string | null = null;
 const KEYS = ['NoDg7ANAjGkEwBYCc0xQnADAVgkzGAzHNAGyRTanQi5QIFyHrjQMQgsC6QA'];
 
-function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
+async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 	let defaultMac: string | null = null;
 	if (_deviceName && /^(QY-QYSC|XMD-TornadoV4-i)-.-[0-9A-F]{4}$/.exec(_deviceName)) {
 		defaultMac = 'CC:A3:00:00:' + _deviceName.slice(-4, -2) + ':' + _deviceName.slice(-2);
 	}
-	deviceMac = giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac) || null;
+	deviceMac = (await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
+
+	if (!deviceMac) {
+		throw new Error('MAC address required');
+	}
 }
 
 function crc16modbus(data: number[]): number {
@@ -133,7 +137,8 @@ function init(device: BluetoothDevice): Promise<void> {
 		_chrct_cube!.addEventListener('characteristicvaluechanged', onCubeEvent);
 		return _chrct_cube!.startNotifications();
 	}).then(function () {
-		initMac(true);
+		return initMac(false);
+	}).then(function () {
 		return sendHello(deviceMac);
 	});
 }
