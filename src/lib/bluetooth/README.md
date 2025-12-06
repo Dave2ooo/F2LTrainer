@@ -2,100 +2,151 @@
 
 This directory contains a TypeScript port of the smart cube Bluetooth implementation from [csTimer](https://cstimer.net/). It has been adapted for use in a Svelte 5 application.
 
-## Overview
+## 1. Overview
 
-The purpose of this module is to enable Web Bluetooth communication with various smart cubes (GAN, GoCube, MoYu, QiYi, etc.). It handles device discovery, connection, encryption (AES-128), and parsing of move data.
+The purpose of this module is to enable Web Bluetooth communication with various smart cubes (GAN, GoCube, MoYu, QiYi, etc.). It behaves as a "shim" layer that allows the original csTimer cube drivers to run within a modern Svelte/TypeScript environment with minimal changes.
 
-## Architecture
+## 2. Architecture
 
-The implementation is modularized into several core components:
+The system is built on a layered architecture:
 
-### 1. Core Logic (`src/lib/bluetooth/core/`)
+```mermaid
+graph TD
+    UI[Components] --> Store[Svelte Store]
+    Store --> Controller[Bluetooth Controller]
+    Controller --> Drivers[Cube Drivers]
+    Drivers --> WebBluetooth[Web Bluetooth API]
+    Drivers --> Utils[Utils & MathLib]
+```
 
-*   **`bluetooth.ts`**: The central controller. It exports the `GiikerCube` object (singleton-like) which manages the connection lifecycle.
-    *   `init()`: Triggers the Web Bluetooth device picker and establishes a connection.
-    *   `stop()`: Disconnects the current device.
-    *   `isConnected`: Checks connection status.
-*   **`mathlib.ts`**: A minimal port of csTimer's math library. It defines the `CubieCube` class and handles move tables, facelet representations, and basic cube operations required for parsing non-standard cube data (like Giiker).
-*   **`aes.ts`**: Implements AES-128 encryption/decryption. This is crucial for newer cubes (like GAN and MoYu AI) that encrypt their Bluetooth traffic.
-*   **`utils.ts`**: Contains utility functions and shims to emulate the csTimer environment (e.g., `kernel` object) so the original cube drivers could be ported with minimal logic changes.
+### Core Components (`src/lib/bluetooth/core/`)
 
-### 2. Cube Drivers (`src/lib/bluetooth/cubes/`)
+*   **`bluetooth.ts`**: The central controller singleton (`GiikerCube`).
+    *   **Role**: Manages the connection lifecycle (scan, connect, disconnect) and delegates events to the appropriate driver.
+    *   **Key Behavior**: It aggregates "filters" (Service UUIDs) from all registered drivers to pass to `navigator.bluetooth.requestDevice()`.
+*   **`mathlib.ts`**: A partial port of csTimer's math library.
+    *   **Role**: Provides the `CubieCube` class for representing cube state (permutation/orientation) and applying moves.
+    *   **Crucial For**: Cubes that report state (like Giiker) rather than moves. The library calculates the difference between the previous and current state to derive the move string (e.g., "R").
+*   **`aes.ts`**: A dedicated AES-128 implementation.
+    *   **Role**: Handles decryption for cubes like GAN and MoYu AI that encrypt their Bluetooth traffic to prevent reverse-engineering.
+*   **`utils.ts`**: The "Compatibility Layer".
+    *   **Role**: Emulates the `kernel` object from csTimer. It provides `kernel.prop()` for persistent settings and `kernel.getProp()` for retrieving them, mapping them to local logic or stores.
 
-Each file in this directory normally corresponds to a specific hardware protocol.
-*   **`gancube.ts`**: Driver for GAN cubes (uses AES).
-*   **`moyucube.ts`**: Driver for older MoYu cubes.
-*   **`moyu32cube.ts`**: Driver for MoYu 3x3 AI (uses specific handshake).
-*   **`qiyicube.ts`**: Driver for QiYi cubes.
-*   **`gocube.ts`**: Driver for GoCube/Rubik's Connected.
-*   **`giikercube.ts`**: Driver for the original Xiaomi Giiker.
+### Cube Drivers (`src/lib/bluetooth/cubes/`)
 
-### 3. State Management (`src/lib/bluetooth/store.svelte.ts`)
+Each file handles a specific hardware protocol. They are designed to be as close to the original source as possible to facilitate future updates from csTimer.
 
-This file exposes a reactive Svelte 5 store (`bluetoothState`) that the UI components listen to.
+*   **`gancube.ts`**: Complex. Uses AES. Needs explicit handshake.
+*   **`moyu32cube.ts`**: MoYu AI 2020+. Handshake required.
+*   **`gocube.ts`**: GoCube/Rubik's Connected. simpler protocol.
+*   **`giikercube.ts`**: The reference implementation. Report state changes.
 
-*   `isConnected`: Boolean status.
-*   `deviceName`: Name of the connected device.
-*   `batteryLevel`: Current battery percentage.
-*   `lastMove`: The standard notation string of the last move made (e.g., "R'", "U2").
-*   `moveCounter`: Increments on every move to allow reactivity even if the same move is repeated.
-*   `facelet`: The raw facelet string representing the cube state.
+## 3. Data Flow
 
-## Porting Strategy
+1.  **Connection**: User clicks "Connect" -> `GiikerCube.init()` -> Browser Scan -> Driver `connect()` -> Handshake (if needed).
+2.  **Event Loop**:
+    *   Cube hardware sends a notification (Characteristic Value Changed).
+    *   Driver receives raw `DataView`.
+    *   Driver decrypts data (if needed).
+    *   Driver parses data (e.g., identifies face turn).
+    *   Driver calls `callback(faceletStr, moveList)`.
+3.  **State Update**:
+    *   `callback` updates `store.svelte.ts`.
+    *   `lastMove` is updated.
+    *   `moveCounter` is incremented (CRITICAL for detecting repeated moves like "U U").
+4.  **UI Reaction**:
+    *   `BluetoothModal` observes `moveCounter`.
+    *   `TwistyPlayer` applies the move.
 
-The original csTimer code relies heavily on global variables and a specific build system. The porting process involved:
+## 4. Deep Dive: Porting Strategy
 
-1.  **TypeScript Conversion**: Adding type safety to key interfaces (Cube drivers, `CubieCube`).
-2.  **ES Modules**: Converting `var` and global assignments to `export`/`import` statements to make the code modular and tree-shakeable.
-3.  **Shims**: Creating `utils.ts` to mock the `kernel` and `mathlib` globals that csTimer drivers expect, allowing us to paste the driver logic with minimal modification.
-4.  **AES Extraction**: Isolating the AES logic into a dedicated class (`AES128` in `aes.ts`) instead of inline bit-shifting spaghetti code.
+If you need to update a driver or add a new one from csTimer, follow this guide.
 
-## Usage Guide
+### The Problem
+csTimer uses a global `kernel` object and older ES5 class patterns. It assumes `mathlib` is globally available.
 
-### Connecting a Cube
+### The Solution
+We use **Dependency Injection via Modules**.
 
-To initiate a connection, call `GiikerCube.init()`. This must be triggered by a user gesture (like a button click) due to browser security restrictions on Web Bluetooth.
+1.  **Global Simulation**: `utils.ts` exports `deviceList`, `kernel`, `DEBUG`, etc.
+    *   *Action*: Import these at the top of any new driver file.
+2.  **Math Library**: `mathlib.ts` exports `CubieCube`.
+    *   *Action*: Import `{ CubieCube }` instead of relying on `window.CubieCube`.
+3.  **Registration**:
+    *   *Original*: `GiikerCube.regCubeModel({ ... })` happened at script load.
+    *   *Ported*: We explicitly call `GiikerCube.regCubeModel` in the driver file, but we **MUST** import the file in `src/lib/bluetooth/index.ts` for this code to run.
 
+### Example: Porting `newcube.js`
+
+**Step 1: Copy file to `src/lib/bluetooth/cubes/newcube.ts`**
+
+**Step 2: Add Imports**
 ```typescript
-import { GiikerCube } from '$lib/bluetooth';
-
-async function connect() {
-    try {
-        await GiikerCube.init();
-    } catch (e) {
-        console.error("Connection failed", e);
-    }
-}
+import { GiikerCube } from '../core/bluetooth';
+import { CubieCube } from '../core/mathlib';
+import { DEBUG, kernel } from '../core/utils';
 ```
 
-### Listening for Moves
+**Step 3: Fix Types**
+Add specific types to function arguments (usually `DataView` for raw data).
 
-Components should subscribe to `bluetoothState` in `store.svelte.ts`.
-
-```svelte
-<script>
-    import { bluetoothState } from '$lib/bluetooth/store.svelte';
-
-    $effect(() => {
-        // This will run whenever a move is made
-        console.log("New move:", bluetoothState.lastMove);
-        console.log("Move count:", bluetoothState.moveCounter);
-    });
-</script>
-```
-
-### Adding New Cubes
-
-1.  Port the driver file from csTimer's source to `src/lib/bluetooth/cubes/`.
-2.  Ensure it implements the standard driver interface (registering itself via `GiikerCube.regCubeModel`).
-3.  Import the new file in `src/lib/bluetooth/index.ts` to ensure it registers at runtime.
-
+**Step 4: Register**
+Ensure `src/lib/bluetooth/index.ts` has:
 ```typescript
-// src/lib/bluetooth/index.ts
-import './cubes/some-new-cube.ts';
+import './cubes/newcube';
 ```
 
-## Known Limitations
+## 5. Important Implementation Details
 
-*   **Browser Support**: Web Bluetooth is primarily supported in Chrome, Edge, and Opera. Firefox and Safari have limited or no support.
-*   **Hardware Quirks**: Different cube firmwares may behave differently. The drivers attempt to handle common variations, but testing on physical hardware is always required.
+### AES Encryption
+Cubes like GAN use AES-128. The keys are often derived from the cube's MAC address or a fixed handshake.
+*   **`aes.ts`** provides `AES128` class.
+*   **Key Handling**: Keys are often pre-computed (brute-forced/extracted) and stored in the driver (see `MOYU_KEYS` in `moyucube.ts` or `GAN_KEYS` logic).
+
+### Move Detection
+Two types of cubes exist:
+1.  **Move-based**: Sends "I turned U face". (Easy, e.g., GoCube).
+2.  **State-based**: Sends "Here is my entire internal state". (Hard, e.g., Giiker).
+    *   For state-based, `mathlib.ts` is used to compare `currentState` vs `previousState` to deduce the move.
+
+### Troubleshooting
+
+*   **"Parsing unexpectedly ended early"**:
+    *   *Cause*: Driver sent a move string with trailing whitespace (e.g., "U ") or invalid formatting.
+    *   *Fix*: Ensure `move.trim()` is called before passing to `TwistyPlayer`.
+*   **Repeated moves ignored**:
+    *   *Cause*: Svelte reactivity optimizations. If `lastMove` changes from "U" to "U", Svelte sees no change.
+    *   *Fix*: Use `moveCounter` in the store to force an update.
+*   **Garbage Data / Connection Instability**:
+    *   *Cause*: iOS/Mac vs Windows Bluetooth implementation differences, or incorrect decryption key.
+    *   *Fix*: Check `aes.ts` logic and ensure the handshake (sending specific bytes on connect) is correct for that specific firmware version.
+
+## 6. API Reference
+
+### `store.svelte.ts`
+*   `bluetoothState.isConnected`: `bool`
+*   `bluetoothState.lastMove`: `string` (e.g. "R", "U'")
+*   `bluetoothState.moveCounter`: `number` (Monotonic counter)
+*   `bluetoothState.batteryLevel`: `number` (0-100)
+
+### `GiikerCube` (Controller)
+*   `init()`: Start connection flow.
+*   `stop()`: Disconnect.
+
+## 7. Future Work
+*   **New Drivers**: Watch csTimer repo for new cube protocols.
+*   **Firmware Updates**: Some cubes might change protocols via firmware updates, requiring driver adjustments.
+*   **Performance**: `mathlib.ts` is running in the main thread. If complex solving logic is added, consider moving it to a Web Worker.
+
+## Appendix: Source File Mapping
+
+To assist with future maintenance and porting, here is the mapping between the original csTimer source files and this project's structure:
+
+| csTimer File (Original) | F2LTrainer File (Ported) | Key Changes |
+| ----------------------- | ------------------------ | ----------- |
+| `js/bluetooth.js` | `src/lib/bluetooth/core/bluetooth.ts` | Converted to Singleton, added types, removed UI-dom coupling. |
+| `js/mathlib.js` | `src/lib/bluetooth/core/mathlib.ts` | Ported only `CubieCube` and rotation tables. Removed Kociemba solver to reduce size. |
+| `js/kernel.js` (mocked) | `src/lib/bluetooth/core/utils.ts` | Created `kernel` shim to provide `getProp`/`prop` methods used by drivers. |
+| `js/cubes/gancube.js` | `src/lib/bluetooth/cubes/gancube.ts` | Extracted AES logic to `aes.ts`. Added types for `DataView`. |
+| `js/cubes/giikercube.js`| `src/lib/bluetooth/cubes/giikercube.ts`| Added explicit registration calls. |
+| *(Inline AES logic)* | `src/lib/bluetooth/core/aes.ts` | Refactored spaghetti bit-shifting into a reusable `AES128` class. |
