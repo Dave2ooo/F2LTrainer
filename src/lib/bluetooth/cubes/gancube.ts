@@ -55,8 +55,9 @@ const SERVICE_UUID_V4DATA = '00000010-0000-fff7-fff6-fff5fff4fff0';
 const CHRCT_UUID_V4READ = '0000fff6-0000-1000-8000-00805f9b34fb';
 const CHRCT_UUID_V4WRITE = '0000fff5-0000-1000-8000-00805f9b34fb';
 
-// List of Company Identifier Codes, fill with all values range [0x0001, 0xFF01] possible for GAN cubes
-const GAN_CIC_LIST = mathlib.valuedArray(256, function (i) { return (i << 8) | 0x01; });
+// List of Company Identifier Codes used by GAN cubes
+// Only including the most common ones to avoid overwhelming the browser
+const GAN_CIC_LIST = [0x0001, 0x0101, 0x0201];
 
 interface Decoder {
 	encrypt: (data: number[]) => number[];
@@ -1084,6 +1085,7 @@ const cubeModel: CubeModel = {
 	prefix: ['GAN', 'MG', 'AiCube'],
 	init: init,
 	opservs: [SERVICE_UUID_META, SERVICE_UUID_DATA, SERVICE_UUID_V2DATA, SERVICE_UUID_V3DATA, SERVICE_UUID_V4DATA],
+	cics: GAN_CIC_LIST,
 	getBatteryLevel: getBatteryLevel,
 	clear: clear
 };
