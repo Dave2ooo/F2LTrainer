@@ -45,6 +45,7 @@
 	async function onConnect() {
 		isConnecting = true;
 		error = null;
+		bluetoothState.setErrorMessage(null);
 		try {
 			await GiikerCube.init();
 		} catch (e: any) {
@@ -115,8 +116,8 @@
 				<p class="text-lg font-semibold">Not Connected</p>
 			</div>
 			
-			{#if error}
-				<p class="text-center text-sm text-red-500">{error}</p>
+			{#if error || bluetoothState.errorMessage}
+				<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
 			{/if}
 
 			<Button color="blue" class="w-full" onclick={onConnect} disabled={isConnecting}>

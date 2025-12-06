@@ -146,13 +146,25 @@ export function createBluetoothManager(): BluetoothCube {
 		if (!_device) {
 			return Promise.resolve();
 		}
-		return Promise.resolve(cube && cube.clear(isHardwareEvent)).then(function () {
-			_device!.removeEventListener('gattserverdisconnected', onDisconnect);
-			_device!.gatt!.disconnect();
-			_device = null;
-			bluetoothState.setConnected(false);
-			bluetoothState.setDeviceName(null);
-		});
+		return Promise.resolve()
+			.then(() => cube && cube.clear(isHardwareEvent))
+			.catch((e) => {
+				console.warn('[bluetooth] error clearing cube:', e);
+			})
+			.then(function () {
+				if (_device) {
+					_device.removeEventListener('gattserverdisconnected', onDisconnect);
+					if (_device.gatt && _device.gatt.connected) {
+						_device.gatt.disconnect();
+					}
+					_device = null;
+				}
+				bluetoothState.setConnected(false);
+				bluetoothState.setDeviceName(null);
+				if (isHardwareEvent) {
+					bluetoothState.setErrorMessage('Cube disconnected unexpectedly. Please reconnect.');
+				}
+			});
 	}
 
 	let callback: CubeCallback = $.noop as any;
