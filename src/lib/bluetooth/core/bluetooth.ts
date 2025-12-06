@@ -111,6 +111,7 @@ export function createBluetoothManager(): BluetoothCube {
 		}).then(() => {
 			bluetoothState.setConnected(true);
 			bluetoothState.setDeviceName(_device?.name || null);
+			bluetoothState.setDeviceId(_device?.id || null);
 			GiikerCube.setCallback(bluetoothState.handleCubeCallback);
 		}).catch((err) => {
 			giikerutil.log('[bluetooth] connection failed', err);
@@ -124,6 +125,7 @@ export function createBluetoothManager(): BluetoothCube {
 			}
 			bluetoothState.setConnected(false);
 			bluetoothState.setDeviceName(null);
+			bluetoothState.setDeviceId(null);
 			// Propagate error to caller
 			return Promise.reject(err);
 		});
@@ -175,6 +177,7 @@ export function createBluetoothManager(): BluetoothCube {
 				}
 				bluetoothState.setConnected(false);
 				bluetoothState.setDeviceName(null);
+			bluetoothState.setDeviceId(null);
 				if (isHardwareEvent) {
 					bluetoothState.setErrorMessage('Cube disconnected unexpectedly. Please reconnect.');
 				}
