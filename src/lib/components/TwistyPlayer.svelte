@@ -37,6 +37,7 @@
 		class?: string;
 		hidePlayer?: boolean;
 		showVisibilityToggle?: boolean;
+		tempoScale?: number;
 	}
 
 	let {
@@ -57,7 +58,8 @@
 		onclick,
 		class: extraClass = '',
 		hidePlayer = $bindable(false),
-		showVisibilityToggle = false
+		showVisibilityToggle = false,
+		tempoScale = 1,
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -296,6 +298,7 @@
 		hint-facelets="none"
 		viewer-link="none"
 		camera-distance="4.7"
+		tempo-scale={tempoScale}
 	></twisty-player>
 
 	<!-- Visibility toggle button (top-left corner) -->

@@ -102,6 +102,7 @@
 					showVisibilityToggle={false}
 					class="h-full w-full"
 					bind:this={twistyPlayerComponent}
+					tempoScale={5}
 				/>
 			</div>
 			<div class="flex w-full gap-2">
