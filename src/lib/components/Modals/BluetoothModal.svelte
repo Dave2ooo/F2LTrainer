@@ -181,7 +181,6 @@
 					{@const savedCube = savedCubesState.getCube(bluetoothState.deviceId)}
 					{#if savedCube}
 						<p class="text-base font-medium text-gray-900 dark:text-white">{savedCube.customName}</p>
-						<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
 					{:else if bluetoothState.deviceName}
 						<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
 					{/if}
