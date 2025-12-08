@@ -41,6 +41,17 @@ Each file handles a specific hardware protocol. They are designed to be as close
 *   **`gocube.ts`**: GoCube/Rubik's Connected. simpler protocol.
 *   **`giikercube.ts`**: The reference implementation. Report state changes.
 
+### State Management (`src/lib/bluetooth/`)
+
+*   **`store.svelte.ts`**: Main Bluetooth state store
+    *   Manages connection state, device info, battery level
+    *   Handles MAC address requests via custom UI
+    *   Tracks moves and cube state changes
+*   **`savedCubes.svelte.ts`**: Saved cubes management
+    *   Persists cube data to localStorage
+    *   Tracks custom names, device IDs, and last connection times
+    *   Provides methods to add, remove, rename, and retrieve saved cubes
+
 ## 3. Data Flow
 
 1.  **Connection**: User clicks "Connect" -> `GiikerCube.init()` -> Browser Scan -> Driver `connect()` -> Handshake (if needed).
@@ -58,7 +69,128 @@ Each file handles a specific hardware protocol. They are designed to be as close
     *   `BluetoothModal` observes `moveCounter`.
     *   `TwistyPlayer` applies the move.
 
-## 4. Deep Dive: Porting Strategy
+## 4. Saved Cubes Feature
+
+The application includes a saved cubes management system that allows users to save, rename, and quickly reconnect to their Bluetooth cubes.
+
+### Features
+
+*   **Save Cubes**: After connecting to a cube, users can save it with a custom name
+*   **Quick Connect**: One-click reconnection to previously saved cubes
+*   **Rename**: Edit custom names for saved cubes
+*   **Remove**: Delete saved cubes from the list
+*   **Persistence**: All saved cube data is stored in localStorage
+*   **Last Connected**: Displays relative timestamps (e.g., "5m ago", "2h ago")
+
+### Implementation
+
+The saved cubes system consists of:
+
+1.  **`savedCubes.svelte.ts`**: Core state management
+    *   `SavedCube` interface with id, customName, deviceName, dateAdded, lastConnected
+    *   Methods: `addCube()`, `removeCube()`, `renameCube()`, `updateLastConnected()`, `getCube()`
+    *   Automatic localStorage sync
+
+2.  **`store.svelte.ts`**: Device ID tracking
+    *   `deviceId` state variable to track currently connected cube's Bluetooth ID
+    *   Updated in `bluetooth.ts` on successful connection
+
+3.  **`BluetoothModal.svelte`**: User interface
+    *   Displays list of saved cubes with connect/rename/remove actions
+    *   Shows custom name prominently when connected to a saved cube
+    *   "Save this cube" option appears for unsaved connected cubes
+    *   Custom confirmation modal (`RemoveCubeModal.svelte`) for deletions
+
+### Usage
+
+When connected to a cube:
+- If it's a new cube, a "Save this cube" input appears
+- Enter a custom name (e.g., "My Main Cube") and click Save
+- The cube is now saved and will appear in the saved cubes list
+
+When disconnected:
+- Saved cubes appear in a list with their custom names
+- Click "Connect" on any saved cube to reconnect instantly
+- Use the edit icon to rename or trash icon to remove
+
+## 5. HTTPS Requirement for Web Bluetooth
+
+### Why HTTPS is Required
+
+The Web Bluetooth API is **only available in secure contexts** (HTTPS or localhost). This is a browser security requirement to prevent malicious websites from accessing Bluetooth devices.
+
+**Important**: When accessing the app from a mobile device over your local network (e.g., `http://192.168.1.x:5173`), the connection is considered insecure and Web Bluetooth will be blocked, even though it works on `localhost` on your development machine.
+
+### Development Setup
+
+The project is configured to use HTTPS in development via `@vitejs/plugin-basic-ssl`:
+
+**vite.config.ts**:
+```typescript
+import basicSsl from '@vitejs/plugin-basic-ssl';
+
+export default defineConfig({
+  plugins: [basicSsl(), tailwindcss(), sveltekit()],
+  server: {
+    https: true,
+    host: true // Allow access from local network
+  },
+  // ...
+});
+```
+
+### Running the Dev Server
+
+Simply run:
+```bash
+pnpm run dev --host
+```
+
+The server will automatically start with HTTPS enabled:
+```
+➜  Local:   https://localhost:5173/
+➜  Network: https://10.2.0.2:5173/
+➜  Network: https://192.168.1.178:5173/
+```
+
+### Mobile Testing
+
+1. **Find your network URL** from the dev server output (e.g., `https://192.168.1.178:5173`)
+
+2. **On your mobile device** (Android/iOS):
+   - Open Chrome/Safari
+   - Navigate to the HTTPS URL (e.g., `https://192.168.1.178:5173`)
+   - You'll see a security warning about the self-signed certificate
+
+3. **Accept the certificate warning**:
+   - **Android Chrome**: Tap "Advanced" → "Proceed to [address] (unsafe)"
+   - **iOS Safari**: Tap "Show Details" → "visit this website"
+
+4. **The Bluetooth modal should now work!** The page is in a secure context.
+
+### Error Handling
+
+The app includes secure context detection in `utils.ts`:
+
+```typescript
+chkAvail: (): Promise<void> => {
+  // Check if running in secure context (HTTPS or localhost)
+  if (!window.isSecureContext) {
+    return Promise.reject(
+      'Web Bluetooth requires HTTPS. Please access this page via https:// instead of http://'
+    );
+  }
+  // ... rest of availability checks
+}
+```
+
+If a user tries to connect over HTTP, they'll see a clear error message explaining the requirement.
+
+### Alternative: Production Deployment
+
+When deployed to production (e.g., GitHub Pages, Vercel, Netlify), the site is automatically served over HTTPS, so no special configuration is needed. The Web Bluetooth API will work on all devices without certificate warnings.
+
+## 6. Deep Dive: Porting Strategy
 
 If you need to update a driver or add a new one from csTimer, follow this guide.
 
@@ -96,12 +228,27 @@ Ensure `src/lib/bluetooth/index.ts` has:
 import './cubes/newcube';
 ```
 
-## 5. Important Implementation Details
+## 7. Important Implementation Details
 
 ### AES Encryption
 Cubes like GAN use AES-128. The keys are often derived from the cube's MAC address or a fixed handshake.
 *   **`aes.ts`** provides `AES128` class.
 *   **Key Handling**: Keys are often pre-computed (brute-forced/extracted) and stored in the driver (see `MOYU_KEYS` in `moyucube.ts` or `GAN_KEYS` logic).
+
+### MAC Address Handling
+
+Some cubes require the MAC address for encryption key derivation. The app handles this with a custom UI:
+
+1. **Automatic Detection**: Most modern cubes provide manufacturer data that includes the MAC address
+2. **Manual Entry**: If automatic detection fails, a custom modal prompts the user to enter the MAC address
+3. **Error Recovery**: If the wrong MAC is provided, the modal re-appears with an error message
+4. **State Management**: MAC address requests are managed through `bluetoothState.macAddressRequest`
+
+**Key Implementation Details**:
+- `forcePrompt` parameter in cube drivers controls whether to always prompt or try auto-detection first
+- Set to `false` to enable auto-detection (recommended)
+- The `cics` field in cube model registration must include the correct Company Identifier Codes for manufacturer data retrieval
+- Example from `gancube.ts`: `cics: GAN_CIC_LIST` where `GAN_CIC_LIST = [0x0001, 0x0101, 0x0201]`
 
 ### Move Detection
 Two types of cubes exist:
@@ -120,23 +267,44 @@ Two types of cubes exist:
 *   **Garbage Data / Connection Instability**:
     *   *Cause*: iOS/Mac vs Windows Bluetooth implementation differences, or incorrect decryption key.
     *   *Fix*: Check `aes.ts` logic and ensure the handshake (sending specific bytes on connect) is correct for that specific firmware version.
+*   **"Web Bluetooth API is not available"**:
+    *   *Cause*: Accessing the app over HTTP instead of HTTPS from a mobile device.
+    *   *Fix*: Use `https://` URL or see "HTTPS Requirement" section above.
+*   **Always prompts for MAC address**:
+    *   *Cause*: Missing `cics` field in cube model registration or `forcePrompt` set to `true`.
+    *   *Fix*: Ensure `cics` field is present and `forcePrompt` is `false` in the cube driver.
 
-## 6. API Reference
+## 8. API Reference
 
 ### `store.svelte.ts`
 *   `bluetoothState.isConnected`: `bool`
+*   `bluetoothState.deviceId`: `string | null` - Bluetooth device ID
+*   `bluetoothState.deviceName`: `string | null`
 *   `bluetoothState.lastMove`: `string` (e.g. "R", "U'")
 *   `bluetoothState.moveCounter`: `number` (Monotonic counter)
 *   `bluetoothState.batteryLevel`: `number` (0-100)
+*   `bluetoothState.macAddressRequest`: Object for MAC address prompt state
+*   `bluetoothState.requestMacAddress()`: Trigger MAC address input
+*   `bluetoothState.submitMacAddress(mac)`: Submit MAC address
+*   `bluetoothState.cancelMacAddressRequest()`: Cancel MAC input
+
+### `savedCubes.svelte.ts`
+*   `savedCubesState.cubes`: `SavedCube[]` - Array of saved cubes
+*   `savedCubesState.addCube(deviceId, customName, deviceName)`: Save a new cube
+*   `savedCubesState.removeCube(deviceId)`: Remove a saved cube
+*   `savedCubesState.renameCube(deviceId, newName)`: Rename a saved cube
+*   `savedCubesState.updateLastConnected(deviceId)`: Update last connection time
+*   `savedCubesState.getCube(deviceId)`: Get a saved cube by ID
 
 ### `GiikerCube` (Controller)
 *   `init()`: Start connection flow.
 *   `stop()`: Disconnect.
 
-## 7. Future Work
+## 9. Future Work
 *   **New Drivers**: Watch csTimer repo for new cube protocols.
 *   **Firmware Updates**: Some cubes might change protocols via firmware updates, requiring driver adjustments.
 *   **Performance**: `mathlib.ts` is running in the main thread. If complex solving logic is added, consider moving it to a Web Worker.
+*   **Cloud Sync**: Sync saved cubes across devices via cloud storage.
 
 ## Appendix: Source File Mapping
 
@@ -147,6 +315,7 @@ To assist with future maintenance and porting, here is the mapping between the o
 | `js/bluetooth.js` | `src/lib/bluetooth/core/bluetooth.ts` | Converted to Singleton, added types, removed UI-dom coupling. |
 | `js/mathlib.js` | `src/lib/bluetooth/core/mathlib.ts` | Ported only `CubieCube` and rotation tables. Removed Kociemba solver to reduce size. |
 | `js/kernel.js` (mocked) | `src/lib/bluetooth/core/utils.ts` | Created `kernel` shim to provide `getProp`/`prop` methods used by drivers. |
-| `js/cubes/gancube.js` | `src/lib/bluetooth/cubes/gancube.ts` | Extracted AES logic to `aes.ts`. Added types for `DataView`. |
+| `js/cubes/gancube.js` | `src/lib/bluetooth/cubes/gancube.ts` | Extracted AES logic to `aes.ts`. Added types for `DataView`. Fixed `cics` registration. |
 | `js/cubes/giikercube.js`| `src/lib/bluetooth/cubes/giikercube.ts`| Added explicit registration calls. |
 | *(Inline AES logic)* | `src/lib/bluetooth/core/aes.ts` | Refactored spaghetti bit-shifting into a reusable `AES128` class. |
+| *(New)* | `src/lib/bluetooth/savedCubes.svelte.ts` | New feature for managing saved cubes with localStorage persistence. |
