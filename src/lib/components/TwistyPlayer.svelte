@@ -249,6 +249,12 @@
 						);
 					}
 
+						player.experimentalModel.currentPattern.addFreshListener((pattern: any) => {
+							const { CORNERS, EDGES } = pattern.patternData;
+							console.log('TwistyPlayer State - Corners:', CORNERS);
+							console.log('TwistyPlayer State - Edges:', EDGES);
+						});
+
 					// Add click detection event listeners if onclick handler is provided
 					if (onclick) {
 						const { cleanup } = setupTwistyPlayerClickHandlers(player, onclick);
