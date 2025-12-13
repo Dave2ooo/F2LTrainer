@@ -24,7 +24,10 @@
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
+
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	import ToggleSwitch from '$lib/components/ToggleSwitch.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -33,11 +36,36 @@
 	let timerRef = $state<Timer>();
 
 	let twistyPlayerRef = $state<any>();
+	let physicalTwistyPlayerRef = $state<any>();
 	let algViewerContainer = $state<HTMLElement>();
 	let twistyAlgViewerLoaded = $state(false);
 
+	let inputMode = $state('virtual');
+
 	let scramble = $state('');
 	let alg = $state('');
+
+	let lastProcessedMoveCounter = -1;
+
+	$effect(() => {
+		// Depend on moveCounter to trigger updates even if the move string is the same
+		const currentCounter = bluetoothState.moveCounter;
+		
+		if (currentCounter > lastProcessedMoveCounter) {
+            lastProcessedMoveCounter = currentCounter;
+            
+            if (bluetoothState.lastMove && physicalTwistyPlayerRef && inputMode === 'real') {
+                try {
+                    const move = bluetoothState.lastMove.trim();
+                    if (move) {
+                        physicalTwistyPlayerRef.addMove(move);
+                    }
+                } catch (e) {
+                    console.warn('Failed to apply move:', bluetoothState.lastMove, e);
+                }
+            }
+        }
+	});
 
 	// Track the last displayed time to persist across case navigation
 	// Now managed in trainState to allow clearing it on navigation
@@ -114,6 +142,9 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
+		// Sync the move counter so we don't apply old moves to the new case
+		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
 		hintManager.initialize(
 			globalState.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
@@ -126,6 +157,9 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
+		// Sync the move counter so we don't apply old moves to the new case
+		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
 		hintManager.initialize(
 			globalState.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
@@ -289,6 +323,16 @@
 				>
 			</div>
 
+			<div class="mb-4 flex justify-center">
+				<ToggleSwitch
+					bind:selected={inputMode}
+					leftLabel="Virtual"
+					rightLabel="Real"
+					leftValue="virtual"
+					rightValue="real"
+				/>
+			</div>
+
 			<div
 				class="relative mx-auto size-60 md:size-80"
 				onpointerdowncapture={() => {
@@ -310,10 +354,31 @@
 					scrambleSelection={currentTrainCase.scramble}
 					stickering={globalState.trainHintStickering}
 					experimentalDragInput="auto"
-					class="size-full"
+					class="size-full {inputMode === 'virtual' ? '' : 'hidden'}"
 					controlPanel="bottom-row"
 					onclick={onNext}
 					showVisibilityToggle={true}
+				/>
+				<TwistyPlayer
+					bind:this={physicalTwistyPlayerRef}
+					bind:scramble
+					alg={''}
+					groupId={currentTrainCase.groupId}
+					caseId={currentTrainCase.caseId}
+					algorithmSelection={currentAlgorithmSelection}
+					auf={currentTrainCase.auf}
+					side={currentTrainCase.side}
+					crossColor={currentTrainCase.crossColor}
+					frontColor={currentTrainCase.frontColor}
+					scrambleSelection={currentTrainCase.scramble}
+					stickering={globalState.trainHintStickering}
+					experimentalDragInput="none"
+					class="size-full {inputMode === 'real' ? '' : 'hidden'}"
+					controlPanel="bottom-row"
+					onclick={onNext}
+					showVisibilityToggle={false}
+					tempoScale={5}
+					showAlg={false}
 				/>
 				{#if !globalState.hasUsedTwistyPlayer}
 					<Pointer

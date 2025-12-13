@@ -38,6 +38,7 @@
 		hidePlayer?: boolean;
 		showVisibilityToggle?: boolean;
 		tempoScale?: number;
+		showAlg?: boolean;
 	}
 
 	let {
@@ -60,6 +61,7 @@
 		hidePlayer = $bindable(false),
 		showVisibilityToggle = false,
 		tempoScale = 1,
+		showAlg = true
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -93,7 +95,13 @@
 	const scrambleWithoutAUF = $derived(getCaseScramble(staticData, side, scrambleSelection));
 
 	$effect(() => {
-		[scramble, alg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+		const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+		scramble = newScramble;
+		if (showAlg) {
+			alg = newAlg;
+		} else {
+			alg = '';
+		}
 	});
 
 	// Auto-reset animation when key props change
@@ -111,16 +119,20 @@
 		void auf;
 		void crossColor;
 		void frontColor;
-		void scramble;
-		void alg;
 
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Wait for the player to be initialized and add a small delay to ensure it's ready
 		if (el && isPlayerInitialized) {
 			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
 			setTimeout(() => {
-				jumpToStart();
-				resetView();
+				const player = el as any;
+				// Explicitly reset properties to ensure any added moves are cleared
+				if (player) {
+					player.alg = alg || '';
+					player.experimentalSetupAlg = [setupRotation, scramble].join(' ');
+					jumpToStart();
+					resetView();
+				}
 			}, 10);
 		}
 	});
@@ -248,6 +260,22 @@
 			}
 		}, TWISTY_PLAYER_INIT_DELAY);
 	});
+
+	// Public method to add a move to the player dynamically (e.g. from Bluetooth)
+	export function addMove(move: string) {
+		if (el) {
+			const player = el as any;
+			if (player.experimentalAddMove) {
+				player.experimentalAddMove(move);
+				
+				// Re-apply stickering if needed
+				// Sometimes adding a move might reset internal state depending on twisty-player version/behavior
+				if (stickeringString) {
+					player.experimentalStickeringMaskOrbits = stickeringString;
+				}
+			}
+		}
+	}
 
 	// Cleanup event listeners when component is destroyed
 	onDestroy(() => {

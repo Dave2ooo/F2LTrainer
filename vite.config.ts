@@ -18,7 +18,6 @@ function copyStaticAssets() {
 export default defineConfig({
 	plugins: [basicSsl(), tailwindcss(), sveltekit()],
 	server: {
-		https: true,
 		host: true // Allow access from local network
 	},
 	build: {
