@@ -15,6 +15,7 @@
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
+	import { logNormalizedKPattern } from '$lib/utils/logNormalizedKPattern';
 
 	interface Props {
 		groupId: GroupId;
@@ -224,8 +225,6 @@
 
 	// Register the custom element only on the client (avoids SSR issues)
 	onMount(async () => {
-		const { Alg } = await import('cubing/alg');
-		const { KPattern } = await import('cubing/kpuzzle');
 		await import('cubing/twisty');
 
 		// Set up event listener to track camera position changes
@@ -252,30 +251,7 @@
 					}
 
 					player.experimentalModel.currentPattern.addFreshListener(async (pattern: any) => {
-						const { CORNERS, EDGES } = pattern.patternData;
-						console.log('TwistyPlayer State (with rotation) - Corners:', CORNERS);
-						console.log('TwistyPlayer State (with rotation) - Edges:', EDGES);
-
-						// Apply inverse rotation to get normalized KPattern
-						try {
-							const setupAlg = new Alg(setupRotation);
-							const inverseRotation = setupAlg.invert();
-
-							// Apply the inverse rotation to the current pattern
-							const inverseTransformation = pattern.kpuzzle.algToTransformation(inverseRotation);
-							const normalizedPattern = pattern.applyTransformation(inverseTransformation);
-
-							console.log(
-								'Normalized State (rotation removed) - Corners:',
-								normalizedPattern.patternData.CORNERS
-							);
-							console.log(
-								'Normalized State (rotation removed) - Edges:',
-								normalizedPattern.patternData.EDGES
-							);
-						} catch (e) {
-							console.warn('Could not normalize KPattern:', e);
-						}
+						await logNormalizedKPattern(pattern, setupRotation);
 					});
 
 					// Add click detection event listeners if onclick handler is provided
