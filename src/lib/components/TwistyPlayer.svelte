@@ -40,6 +40,7 @@
 		showVisibilityToggle?: boolean;
 		tempoScale?: number;
 		showAlg?: boolean;
+		logNormalizedPattern?: boolean;
 	}
 
 	let {
@@ -62,7 +63,8 @@
 		hidePlayer = $bindable(false),
 		showVisibilityToggle = false,
 		tempoScale = 1,
-		showAlg = true
+		showAlg = true,
+		logNormalizedPattern = true
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -250,9 +252,11 @@
 						);
 					}
 
-					player.experimentalModel.currentPattern.addFreshListener(async (pattern: any) => {
-						await logNormalizedKPattern(pattern, setupRotation);
-					});
+					if (logNormalizedPattern) {
+						player.experimentalModel.currentPattern.addFreshListener(async (pattern: any) => {
+							await logNormalizedKPattern(pattern, setupRotation);
+						});
+					}
 
 					// Add click detection event listeners if onclick handler is provided
 					if (onclick) {

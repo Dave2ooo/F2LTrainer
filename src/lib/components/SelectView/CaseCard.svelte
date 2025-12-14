@@ -160,6 +160,7 @@
 			{frontColor}
 			controlPanel="none"
 			class="size-full"
+			logNormalizedPattern={false}
 		/>
 		{#if !globalState.hasClickedCaseCard && groupId === 'basic' && caseId === 4}
 			<Pointer
