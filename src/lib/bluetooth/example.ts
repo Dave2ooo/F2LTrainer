@@ -30,7 +30,7 @@ export async function connectCube() {
 	try {
 		await GiikerCube.init();
 		console.log('Successfully connected to cube');
-		
+
 		// Get battery level
 		const cube = GiikerCube.getCube();
 		if (cube) {

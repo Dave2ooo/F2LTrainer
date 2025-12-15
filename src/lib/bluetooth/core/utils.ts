@@ -13,7 +13,7 @@ import { bluetoothState } from '../store.svelte';
 // jQuery-like utilities
 export const $ = {
 	// No-op function
-	noop: () => { },
+	noop: () => {},
 
 	// Current time in milliseconds
 	now: () => Date.now(),
@@ -30,7 +30,12 @@ export const $ = {
 interface GiikerUtil {
 	log: (...args: any[]) => void;
 	chkAvail: () => Promise<void>;
-	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null) => Promise<string | undefined>;
+	reqMacAddr: (
+		forcePrompt: boolean,
+		isWrongKey: boolean,
+		deviceMac: string | null,
+		defaultMac: string | null
+	) => Promise<string | undefined>;
 	updateBattery: (value: [number, string]) => void;
 	markSolved: () => void;
 }
@@ -80,7 +85,12 @@ export const giikerutil: GiikerUtil = {
 	/**
 	 * Request/retrieve MAC address for cube
 	 */
-	reqMacAddr: (forcePrompt: boolean, isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null): Promise<string | undefined> => {
+	reqMacAddr: (
+		forcePrompt: boolean,
+		isWrongKey: boolean,
+		deviceMac: string | null,
+		defaultMac: string | null
+	): Promise<string | undefined> => {
 		try {
 			const savedMac = localStorage.getItem('bluetooth_device_mac');
 			let mac = savedMac;
@@ -148,10 +158,9 @@ export const giikerutil: GiikerUtil = {
  * ExecMain wrapper - dependency injection pattern used in csTimer
  * Simplified for ES modules
  */
-export function execMain<T>(factory: (...deps: any[]) => T, dependencies:any[] = []): T {
+export function execMain<T>(factory: (...deps: any[]) => T, dependencies: any[] = []): T {
 	return factory(...dependencies);
 }
 
 // Export DEBUG flags
 export { DEBUG, DEBUGBL };
-

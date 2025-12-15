@@ -35,8 +35,8 @@
 <Modal bind:open title="Remove Saved Cube?" size="sm" outsideclose={false} autoclose={false}>
 	<div class="space-y-4">
 		<p>
-			Are you sure you want to remove <strong class="font-semibold">{cubeName}</strong> from your
-			saved cubes?
+			Are you sure you want to remove <strong class="font-semibold">{cubeName}</strong> from your saved
+			cubes?
 		</p>
 		<p class="text-sm text-gray-500 dark:text-gray-400">
 			You can always save it again after reconnecting.

@@ -26,7 +26,7 @@ export function createBluetoothManager(): BluetoothCube {
 
 	function toUuid128(uuid: string): string {
 		if (/^[0-9A-Fa-f]{4}$/.exec(uuid)) {
-			uuid = "0000" + uuid + "-0000-1000-8000-00805F9B34FB";
+			uuid = '0000' + uuid + '-0000-1000-8000-00805F9B34FB';
 		}
 		return uuid.toUpperCase();
 	}
@@ -43,7 +43,7 @@ export function createBluetoothManager(): BluetoothCube {
 	}
 
 	function waitForAdvs(): Promise<any> {
-		if (!_device || !((_device as any).watchAdvertisements)) {
+		if (!_device || !(_device as any).watchAdvertisements) {
 			return Promise.reject(-1);
 		}
 		const abortController = new AbortController();
@@ -56,7 +56,8 @@ export function createBluetoothManager(): BluetoothCube {
 			};
 			_device!.addEventListener('advertisementreceived', onAdvEvent);
 			(_device as any).watchAdvertisements({ signal: abortController.signal });
-			setTimeout(function () { // reject if no mac found
+			setTimeout(function () {
+				// reject if no mac found
 				_device && _device.removeEventListener('advertisementreceived', onAdvEvent);
 				abortController.abort();
 				reject(-2);
@@ -79,56 +80,75 @@ export function createBluetoothManager(): BluetoothCube {
 	const onDisconnect = onHardwareEvent.bind(null, 'disconnect');
 
 	function init(reconnect?: boolean): Promise<void> {
-		return giikerutil.chkAvail().then(function () {
-			if (_device && reconnect) {
-				giikerutil.log('[bluetooth]', 'reconnecting...', _device);
-				return waitUntilDeviceAvailable(_device);
-			}
-			const filters = Object.keys(cubeModels).map((prefix) => ({ namePrefix: prefix }));
-			const opservs = [...new Set(Array.prototype.concat.apply([], Object.values(cubeModels).map((cubeModel) => cubeModel.opservs || [])))];
-			const cics = [...new Set(Array.prototype.concat.apply([], Object.values(cubeModels).map((cubeModel) => cubeModel.cics || [])))];
-			giikerutil.log('[bluetooth]', 'scanning...', Object.keys(cubeModels));
-			return (window.navigator as any).bluetooth.requestDevice({
-				filters: filters,
-				optionalServices: opservs,
-				optionalManufacturerData: cics
+		return giikerutil
+			.chkAvail()
+			.then(function () {
+				if (_device && reconnect) {
+					giikerutil.log('[bluetooth]', 'reconnecting...', _device);
+					return waitUntilDeviceAvailable(_device);
+				}
+				const filters = Object.keys(cubeModels).map((prefix) => ({ namePrefix: prefix }));
+				const opservs = [
+					...new Set(
+						Array.prototype.concat.apply(
+							[],
+							Object.values(cubeModels).map((cubeModel) => cubeModel.opservs || [])
+						)
+					)
+				];
+				const cics = [
+					...new Set(
+						Array.prototype.concat.apply(
+							[],
+							Object.values(cubeModels).map((cubeModel) => cubeModel.cics || [])
+						)
+					)
+				];
+				giikerutil.log('[bluetooth]', 'scanning...', Object.keys(cubeModels));
+				return (window.navigator as any).bluetooth.requestDevice({
+					filters: filters,
+					optionalServices: opservs,
+					optionalManufacturerData: cics
+				});
+			})
+			.then(function (device: BluetoothDevice) {
+				giikerutil.log('[bluetooth]', 'BLE device is selected, name=' + device.name, device);
+				_device = device;
+				device.addEventListener('gattserverdisconnected', onDisconnect);
+				cube = undefined;
+				for (const prefix in cubeModels) {
+					if (device.name && device.name.startsWith(prefix)) {
+						cube = cubeModels[prefix];
+						break;
+					}
+				}
+				if (!cube) {
+					return Promise.reject('Cannot detect device type');
+				}
+				return cube.init(device);
+			})
+			.then(() => {
+				bluetoothState.setConnected(true);
+				bluetoothState.setDeviceName(_device?.name || null);
+				bluetoothState.setDeviceId(_device?.id || null);
+				GiikerCube.setCallback(bluetoothState.handleCubeCallback);
+			})
+			.catch((err) => {
+				giikerutil.log('[bluetooth] connection failed', err);
+				// Attempt cleanup if partial connection
+				if (_device) {
+					_device.removeEventListener('gattserverdisconnected', onDisconnect);
+					if (_device.gatt && _device.gatt.connected) {
+						_device.gatt.disconnect();
+					}
+					_device = null;
+				}
+				bluetoothState.setConnected(false);
+				bluetoothState.setDeviceName(null);
+				bluetoothState.setDeviceId(null);
+				// Propagate error to caller
+				return Promise.reject(err);
 			});
-		}).then(function (device: BluetoothDevice) {
-			giikerutil.log('[bluetooth]', 'BLE device is selected, name=' + device.name, device);
-			_device = device;
-			device.addEventListener('gattserverdisconnected', onDisconnect);
-			cube = undefined;
-			for (const prefix in cubeModels) {
-				if (device.name && device.name.startsWith(prefix)) {
-					cube = cubeModels[prefix];
-					break;
-				}
-			}
-			if (!cube) {
-				return Promise.reject('Cannot detect device type');
-			}
-			return cube.init(device);
-		}).then(() => {
-			bluetoothState.setConnected(true);
-			bluetoothState.setDeviceName(_device?.name || null);
-			bluetoothState.setDeviceId(_device?.id || null);
-			GiikerCube.setCallback(bluetoothState.handleCubeCallback);
-		}).catch((err) => {
-			giikerutil.log('[bluetooth] connection failed', err);
-			// Attempt cleanup if partial connection
-			if (_device) {
-				_device.removeEventListener('gattserverdisconnected', onDisconnect);
-				if (_device.gatt && _device.gatt.connected) {
-					_device.gatt.disconnect();
-				}
-				_device = null;
-			}
-			bluetoothState.setConnected(false);
-			bluetoothState.setDeviceName(null);
-			bluetoothState.setDeviceId(null);
-			// Propagate error to caller
-			return Promise.reject(err);
-		});
 	}
 
 	// Wait until target device start sending bluetooth advertisiment packets
@@ -136,7 +156,7 @@ export function createBluetoothManager(): BluetoothCube {
 		const abortController = new AbortController();
 		return new Promise(function (resolve, reject) {
 			if (!(device as any).watchAdvertisements) {
-				reject("Bluetooth Advertisements API is not supported by this browser");
+				reject('Bluetooth Advertisements API is not supported by this browser');
 			} else {
 				const onAdvEvent = function (event: any) {
 					DEBUG && console.log('[bluetooth] received advertisement packet from device', event);
@@ -177,7 +197,7 @@ export function createBluetoothManager(): BluetoothCube {
 				}
 				bluetoothState.setConnected(false);
 				bluetoothState.setDeviceName(null);
-			bluetoothState.setDeviceId(null);
+				bluetoothState.setDeviceId(null);
 				if (isHardwareEvent) {
 					bluetoothState.setErrorMessage('Cube disconnected unexpectedly. Please reconnect.');
 				}
@@ -200,12 +220,19 @@ export function createBluetoothManager(): BluetoothCube {
 			evtCallback = func;
 		},
 		getCube: function () {
-			return cube || (DEBUGBL ? {
-				getBatteryLevel: function () { return Promise.resolve([80, 'Debug'] as [number, string]); },
-				init: $.noop as any,
-				clear: $.noop as any,
-				prefix: 'Debug'
-			} : null);
+			return (
+				cube ||
+				(DEBUGBL
+					? {
+							getBatteryLevel: function () {
+								return Promise.resolve([80, 'Debug'] as [number, string]);
+							},
+							init: $.noop as any,
+							clear: $.noop as any,
+							prefix: 'Debug'
+						}
+					: null)
+			);
 		},
 		regCubeModel: regCubeModel,
 		findUUID: findUUID,
@@ -223,14 +250,14 @@ export const BluetoothTimer = createBluetoothManager();
 
 // Timer state constants
 export const BluetoothTimerSTATE = {
-	DISCONNECT: 0,  // Fired when timer is disconnected from bluetooth
-	GET_SET: 1,     // Grace delay is expired and timer is ready to start
-	HANDS_OFF: 2,   // Hands removed from the timer before grace delayexpired
-	RUNNING: 3,     // Timer is running
-	STOPPED: 4,     // Timer is stopped, this event includes recorded time
-	IDLE: 5,        // Timer is reset and idle
-	HANDS_ON: 6,    // Hands are placed on the timer
-	FINISHED: 7,    // Timer moves to this state immediately after STOPPED
+	DISCONNECT: 0, // Fired when timer is disconnected from bluetooth
+	GET_SET: 1, // Grace delay is expired and timer is ready to start
+	HANDS_OFF: 2, // Hands removed from the timer before grace delayexpired
+	RUNNING: 3, // Timer is running
+	STOPPED: 4, // Timer is stopped, this event includes recorded time
+	IDLE: 5, // Timer is reset and idle
+	HANDS_ON: 6, // Hands are placed on the timer
+	FINISHED: 7, // Timer moves to this state immediately after STOPPED
 	INSPECTION: 8,
 	GAN_RESET: 9
 };

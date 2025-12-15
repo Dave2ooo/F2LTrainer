@@ -63,17 +63,31 @@
 			await GiikerCube.init();
 			// After successful connection, check if this cube is already saved
 			if (bluetoothState.deviceId && bluetoothState.deviceName) {
-				// First check by device ID
-				const existingById = savedCubesState.getCube(bluetoothState.deviceId);
-				if (existingById) {
-					savedCubesState.updateLastConnected(bluetoothState.deviceId);
-				} else {
-					// Check by device name in case the device ID changed
-					const existingByName = savedCubesState.getCubeByDeviceName(bluetoothState.deviceName);
-					if (existingByName) {
-						// Update the device ID to the new one
-						savedCubesState.updateDeviceId(existingByName.id, bluetoothState.deviceId);
-					}
+				let existingCube = null;
+
+				// Priority 1: Check by MAC address (most reliable)
+				if (bluetoothState.deviceMac) {
+					existingCube = savedCubesState.getCubeByMacAddress(bluetoothState.deviceMac);
+				}
+
+				// Priority 2: Check by device ID if no MAC match
+				if (!existingCube) {
+					existingCube = savedCubesState.getCube(bluetoothState.deviceId);
+				}
+
+				// Priority 3: Check by device name if still not found
+				if (!existingCube) {
+					existingCube = savedCubesState.getCubeByDeviceName(bluetoothState.deviceName);
+				}
+
+				// If cube was found, update its info with current connection details
+				if (existingCube) {
+					savedCubesState.addCube(
+						bluetoothState.deviceId,
+						bluetoothState.deviceName,
+						existingCube.customName,
+						bluetoothState.deviceMac || existingCube.macAddress
+					);
 				}
 			}
 		} catch (e: any) {
@@ -87,6 +101,15 @@
 	async function onConnectSaved(deviceId: string) {
 		const saved = savedCubesState.getCube(deviceId);
 		if (!saved) return;
+
+		// Pre-populate MAC address if available to avoid prompting user
+		if (saved.macAddress) {
+			try {
+				localStorage.setItem('bluetooth_device_mac', saved.macAddress);
+			} catch (e) {
+				console.warn('Failed to set MAC address in localStorage:', e);
+			}
+		}
 
 		isConnecting = true;
 		error = null;
@@ -120,7 +143,12 @@
 	function onSaveCube() {
 		if (bluetoothState.deviceId && bluetoothState.deviceName) {
 			const name = customCubeName.trim() || bluetoothState.deviceName;
-			savedCubesState.addCube(bluetoothState.deviceId, bluetoothState.deviceName, name);
+			savedCubesState.addCube(
+				bluetoothState.deviceId,
+				bluetoothState.deviceName,
+				name,
+				bluetoothState.deviceMac || undefined
+			);
 			customCubeName = '';
 		}
 	}
