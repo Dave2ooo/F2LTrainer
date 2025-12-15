@@ -72,21 +72,20 @@ function isF2LSolved(
 /**
  * Logs the normalized KPattern (with rotation removed) and checks if the cube is solved.
  * @param pattern - The current KPattern from TwistyPlayer
- * @param setupRotation - The rotation algorithm applied to the cube
+ * @param scramble - The scramble algorithm
+ * @param alg - The solution algorithm
  */
 export async function logNormalizedKPattern(
 	pattern: any,
-	setupRotation: string,
+	scramble: string,
+	alg: string,
 	piecesToHide?: StickerHidden,
 	side: Side = 'right'
 ) {
 	try {
-		const setupAlg = new Alg(setupRotation);
-		const inverseRotation = setupAlg.invert();
-
-		// Apply the inverse rotation to the current pattern
-		const inverseTransformation = pattern.kpuzzle.algToTransformation(inverseRotation);
-		const normalizedPattern = pattern.applyTransformation(inverseTransformation);
+		// Generate normalized pattern from scramble + alg (ignores setupRotation)
+		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
+		const normalizedPattern = pattern.kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
 		console.log(
 			'Normalized State (rotation removed) - Corners:',
@@ -110,6 +109,7 @@ export async function logNormalizedKPattern(
 				'%cF2L IS SOLVED!',
 				'color: #fff; background: #00ff00; font-size:1.5rem; font-weight: bold; padding: 8px 0; text-align: center;'
 			);
+			window.alert('F2L is solved!');
 		}
 
 		// Check if cube is fully solved

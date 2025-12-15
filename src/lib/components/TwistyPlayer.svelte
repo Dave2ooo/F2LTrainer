@@ -254,7 +254,7 @@
 
 					if (logNormalizedPattern) {
 						player.experimentalModel.currentPattern.addFreshListener(async (pattern: any) => {
-							await logNormalizedKPattern(pattern, setupRotation, staticData.pieceToHide, side);
+							await logNormalizedKPattern(pattern, scramble, alg, staticData.pieceToHide, side);
 						});
 					}
 
