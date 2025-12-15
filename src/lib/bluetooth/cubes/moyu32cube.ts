@@ -83,7 +83,7 @@ function decode(value: DataView | number[]): number[] {
 			ret[i] = value[i];
 		}
 	}
-
+	
 	if (decoder == null) {
 		return ret;
 	}
@@ -92,12 +92,12 @@ function decode(value: DataView | number[]): number[] {
 		const offset = ret.length - 16;
 		const block = decoder.decrypt(ret.slice(offset));
 		for (let i = 0; i < 16; i++) {
-			ret[i + offset] = block[i] ^ ~~iv[i];
+			ret[i + offset] = block[i] ^ (~~iv[i]);
 		}
 	}
 	decoder.decrypt(ret);
 	for (let i = 0; i < 16; i++) {
-		ret[i] ^= ~~iv[i];
+		ret[i] ^= (~~iv[i]);
 	}
 	return ret;
 }
@@ -154,15 +154,12 @@ function requestCubePower() {
 }
 
 function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView | undefined {
-	if (mfData instanceof DataView) {
-		// this is workaround for Bluefy browser
+	if (mfData instanceof DataView) { // this is workaround for Bluefy browser
 		return new DataView(mfData.buffer.slice(2));
 	}
 	for (let id of MOYU32_CIC_LIST) {
 		if (mfData.has(id)) {
-			giikerutil.log(
-				'[Moyu32Cube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0')
-			);
+			giikerutil.log('[Moyu32Cube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0'));
 			return mfData.get(id);
 		}
 	}
@@ -172,21 +169,21 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 
 /**
  * Automatic MAC address discovery only works when the cube is "bound" and has an account ID above 65535 (0xFFFF)
- *
+ * 
  * Explanation:
  *
  * When the cube is "bound" in the WCU Cube app, the CIC is equal to the high bytes of the account ID (32-bit int).
  * The CIC is interpreted as little-endian (i.e. an account ID of 0xaabbccdd being bound to the cube results in a CIC of 0xbbaa).
- *
+ * 
  * Unfortunately, Chromium has an issue when receiving advertisements with CIC 0x0000
  * seemingly related to its use of WTF::HashMap which disallows 0 as a key in this case (IntHashTraits: empty_value = 0).
- *
+ * 
  * ERROR:map_traits_wtf_hash_map.h(52)] The key value is disallowed by WTF::HashMap
  * ERROR:validation_errors.cc(117)] Invalid message: VALIDATION_ERROR_DESERIALIZATION_FAILED
  * ERROR:interface_endpoint_client.cc(722)] Message 0 rejected by interface blink.mojom.WebBluetoothAdvertisementClient
- *
+ * 
  * This issue then also causes device.gatt.connect() to fail, seemingly causing the promise to get abandoned and cube initialisation to fail:
- *
+ * 
  * FATAL:script_promise_resolver.cc(72)] Check failed: false. ScriptPromiseResolverBase was not properly detached; created at
  *  base::debug::CollectStackTrace [0x00007FF9401EEFD7+39]
  *  base::debug::StackTrace::StackTrace [0x00007FF9401A5E76+118]
@@ -196,7 +193,7 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
  *  blink::MakeGarbageCollected<blink::ScriptPromiseResolver<blink::BluetoothRemoteGATTServer>,blink::ScriptState *&,const blink::ExceptionContext &> [0x00007FF8DBA0449B+107]
  *  blink::BluetoothRemoteGATTServer::connect [0x00007FF8DBA03EF5+133]
  *  blink::`anonymous namespace'::v8_bluetooth_remote_gatt_server::ConnectOperationCallback [0x00007FF8DA8C69A4+1076]
- *
+ * 
  * Therefore, unbound cubes (bound account ID 0x00) and cubes with bound account IDs between 1 (0x01) and 65535 (0xFF) will not have automatic MAC address detection (even in Bluefy,
  * as including 0x0000 in the CIC list will completely break Chrome support for this cube).
  * Furthermore, the possible range of CICs is 0x0000 - 0xFFFF (65536 values). For now, we can just include CICs between 0x0100 and 0xFF00, as it is not likely that the account IDs
@@ -204,17 +201,14 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
  */
 
 // CICs 0x(01..=FF)00
-const MOYU32_CIC_LIST = mathlib.valuedArray(255, function (i) {
-	return (i + 1) << 8;
-});
+const MOYU32_CIC_LIST = mathlib.valuedArray(255, function (i) { return (i + 1) << 8 });
 
 async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 	let defaultMac: string | null = null;
 	if (deviceName && /^WCU_MY32_[0-9A-F]{4}$/.exec(deviceName)) {
 		defaultMac = 'CF:30:16:00:' + deviceName.slice(9, 11) + ':' + deviceName.slice(11, 13);
 	}
-	deviceMac =
-		(await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
+	deviceMac = (await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
 	if (!deviceMac) {
 		decoder = null;
 		throw new Error('MAC address required');
@@ -226,63 +220,48 @@ function init(device: BluetoothDevice) {
 	clear();
 	deviceName = device.name ? device.name.trim() : 'MoYu32';
 	giikerutil.log('[Moyu32Cube] start init device');
-	return GiikerCube.waitForAdvs()
-		.then(function (mfData: BluetoothManufacturerData) {
-			let dataView = getManufacturerDataBytes(mfData);
-			if (dataView && dataView.byteLength >= 6) {
-				let mac: string[] = [];
-				for (let i = 0; i < 6; i++) {
-					mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
-				}
-				return Promise.resolve(mac.join(':'));
+	return GiikerCube.waitForAdvs().then(function(mfData: BluetoothManufacturerData) {
+		let dataView = getManufacturerDataBytes(mfData);
+		if (dataView && dataView.byteLength >= 6) {
+			let mac: string[] = [];
+			for (let i = 0; i < 6; i++) {
+				mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
 			}
-			return Promise.reject(-3);
-		})
-		.then(
-			function (mac: string) {
-				giikerutil.log('[Moyu32Cube] init, found cube bluetooth hardware MAC = ' + mac);
-				deviceMac = mac;
-			},
-			function (err: any) {
-				giikerutil.log(
-					'[Moyu32Cube] init, unable to automatically determine cube MAC, error code = ' + err
-				);
-			}
-		)
-		.then(function () {
-			return device.gatt!.connect();
-		})
-		.then(function (gatt: BluetoothRemoteGATTServer) {
-			_gatt = gatt;
-			return gatt.getPrimaryService(SERVICE_UUID);
-		})
-		.then(function (service: BluetoothRemoteGATTService) {
-			_service = service;
-			giikerutil.log('[Moyu32Cube] got primary service', SERVICE_UUID);
-			return _service.getCharacteristics();
-		})
-		.then(function (chrcts: BluetoothRemoteGATTCharacteristic[]) {
-			giikerutil.log('[Moyu32Cube] find chrcts', chrcts);
-			_chrct_read = GiikerCube.findUUID(chrcts, CHRT_UUID_READ);
-			_chrct_write = GiikerCube.findUUID(chrcts, CHRT_UUID_WRITE);
-			if (!_chrct_read) {
-				return Promise.reject('[Moyu32Cube] Cannot find required characteristics');
-			}
-			_chrct_read.addEventListener('characteristicvaluechanged', onStateChanged);
-			return _chrct_read.startNotifications();
-		})
-		.then(function () {
-			return initMac(false);
-		})
-		.then(function () {
-			return requestCubeInfo();
-		})
-		.then(function () {
-			return requestCubeStatus();
-		})
-		.then(function () {
-			return requestCubePower();
-		});
+			return Promise.resolve(mac.join(':'));
+		}
+		return Promise.reject(-3);
+	}).then(function (mac: string) {
+		giikerutil.log('[Moyu32Cube] init, found cube bluetooth hardware MAC = ' + mac);
+		deviceMac = mac;
+	}, function (err: any) {
+		giikerutil.log('[Moyu32Cube] init, unable to automatically determine cube MAC, error code = ' + err);
+	}).then(function () {
+		return device.gatt!.connect();
+	}).then(function (gatt: BluetoothRemoteGATTServer) {
+		_gatt = gatt;
+		return gatt.getPrimaryService(SERVICE_UUID);
+	}).then(function (service: BluetoothRemoteGATTService) {
+		_service = service;
+		giikerutil.log('[Moyu32Cube] got primary service', SERVICE_UUID);
+		return _service.getCharacteristics();
+	}).then(function (chrcts: BluetoothRemoteGATTCharacteristic[]) {
+		giikerutil.log('[Moyu32Cube] find chrcts', chrcts);
+		_chrct_read = GiikerCube.findUUID(chrcts, CHRT_UUID_READ);
+		_chrct_write = GiikerCube.findUUID(chrcts, CHRT_UUID_WRITE);
+		if (!_chrct_read) {
+			return Promise.reject('[Moyu32Cube] Cannot find required characteristics');
+		}
+		_chrct_read.addEventListener('characteristicvaluechanged', onStateChanged);
+		return _chrct_read.startNotifications();
+	}).then(function () {
+		return initMac(false);
+	}).then(function () {
+		return requestCubeInfo();
+	}).then(function () {
+		return requestCubeStatus();
+	}).then(function () {
+		return requestCubePower();
+	});
 }
 
 function onStateChanged(event: Event) {
@@ -316,31 +295,26 @@ function parseData(value: DataView | any) {
 	}
 	let bin = binStr.join('');
 	let msgType = parseInt(bin.slice(0, 8), 2);
-	if (msgType == 161) {
-		// info
+	if (msgType == 161) { // info
 		giikerutil.log('[Moyu32Cube] received hardware info event', decoded);
 		let devName = '';
 		for (let i = 0; i < 8; i++)
 			devName += String.fromCharCode(parseInt(bin.slice(8 + i * 8, 16 + i * 8), 2));
-		let hardwareVersion = parseInt(bin.slice(88, 96), 2) + '.' + parseInt(bin.slice(96, 104), 2);
-		let softwareVersion = parseInt(bin.slice(72, 80), 2) + '.' + parseInt(bin.slice(80, 88), 2);
+		let hardwareVersion = parseInt(bin.slice(88, 96), 2) + "." + parseInt(bin.slice(96, 104), 2);
+		let softwareVersion = parseInt(bin.slice(72, 80), 2) + "." + parseInt(bin.slice(80, 88), 2);
 		giikerutil.log('[Moyu32Cube] Hardware Version (?)', hardwareVersion);
 		giikerutil.log('[Moyu32Cube] Software Version', softwareVersion);
 		giikerutil.log('[Moyu32Cube] Device Name', devName);
-	} else if (msgType == 163) {
-		// state (facelets)
-		if (prevMoveCnt == -1) {
-			// we only care about the initial cube state, ignore any other state messages
+	} else if (msgType == 163) { // state (facelets)
+		if (prevMoveCnt == -1) { // we only care about the initial cube state, ignore any other state messages
 			moveCnt = parseInt(bin.slice(152, 160), 2);
 			latestFacelet = parseFacelet(bin.slice(8, 152));
 			initCubeState();
 		}
-	} else if (msgType == 164) {
-		// battery level
+	} else if (msgType == 164) { // battery level
 		batteryLevel = parseInt(bin.slice(8, 16), 2);
 		giikerutil.updateBattery([batteryLevel, deviceName + '*']);
-	} else if (msgType == 165) {
-		// move
+	} else if (msgType == 165) { // move
 		moveCnt = parseInt(bin.slice(88, 96), 2);
 		if (moveCnt == prevMoveCnt || prevMoveCnt == -1) {
 			return;
@@ -351,16 +325,16 @@ function parseData(value: DataView | any) {
 		for (let i = 0; i < 5; i++) {
 			let m = parseInt(bin.slice(96 + i * 5, 101 + i * 5), 2);
 			timeOffs[i] = parseInt(bin.slice(8 + i * 16, 24 + i * 16), 2);
-			prevMoves[i] = 'FBUDLR'.charAt(m >> 1) + " '".charAt(m & 1);
+			prevMoves[i] = "FBUDLR".charAt(m >> 1) + " '".charAt(m & 1);
 			if (m >= 12) {
-				prevMoves[i] = 'U ';
+				prevMoves[i] = "U ";
 				invalidMove = true;
 			}
 		}
 		if (!invalidMove) {
 			updateMoveTimes(locTime);
 		}
-		// } else if (msgType == 171) { // gyro
+	// } else if (msgType == 171) { // gyro
 	}
 }
 
@@ -380,15 +354,10 @@ function updateMoveTimes(locTime: number) {
 		deviceTime += locTime - calcTs;
 	}
 	for (let i = moveDiff - 1; i >= 0; i--) {
-		let m = 'URFDLB'.indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
+		let m = "URFDLB".indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
 		mathlib.CubieCube.CubeMult(prevCubie, mathlib.CubieCube.moveCube[m], curCubie);
 		deviceTime += timeOffs[i];
-		GiikerCube.callback(
-			curCubie.toFaceCube(),
-			prevMoves.slice(i),
-			[deviceTime, i == 0 ? locTime : null],
-			deviceName + '*'
-		);
+		GiikerCube.callback(curCubie.toFaceCube(), prevMoves.slice(i), [deviceTime, i == 0 ? locTime : null], deviceName + '*');
 		let tmp = curCubie;
 		curCubie = prevCubie;
 		prevCubie = tmp;
@@ -399,13 +368,13 @@ function updateMoveTimes(locTime: number) {
 
 function parseFacelet(faceletBits: string): string {
 	let state: string[] = [];
-	let faces = [2, 5, 0, 3, 4, 1]; // parse in order URFDLB instead of FBUDLR
+	let faces = [2, 5, 0, 3, 4, 1] // parse in order URFDLB instead of FBUDLR
 	for (let i = 0; i < 6; i += 1) {
 		let face = faceletBits.slice(faces[i] * 24, 24 + faces[i] * 24);
 		for (let j = 0; j < 8; j += 1) {
-			state.push('FBUDLR'.charAt(parseInt(face.slice(j * 3, 3 + j * 3), 2)));
+			state.push("FBUDLR".charAt(parseInt(face.slice(j * 3, 3 + j * 3), 2)));
 			if (j == 3) {
-				state.push('FBUDLR'.charAt(faces[i]));
+				state.push("FBUDLR".charAt(faces[i]));
 			}
 		}
 	}
@@ -414,7 +383,7 @@ function parseFacelet(faceletBits: string): string {
 
 function getBatteryLevel(): Promise<[number, string]> {
 	return requestCubePower().then(function () {
-		return Promise.resolve([batteryLevel, deviceName || 'MoYu32']);
+		return Promise.resolve([batteryLevel, deviceName || 'MoYu32'])
 	}) as Promise<[number, string]>;
 }
 
@@ -424,10 +393,7 @@ function clear(): Promise<void> {
 	_service = null;
 	if (_chrct_read) {
 		_chrct_read.removeEventListener('characteristicvaluechanged', onStateChanged);
-		result = _chrct_read
-			.stopNotifications()
-			.catch($.noop)
-			.then(() => {}) as Promise<void>;
+		result = _chrct_read.stopNotifications().catch($.noop).then(() => {}) as Promise<void>;
 		_chrct_read = null;
 	}
 	_chrct_write = null;

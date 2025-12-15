@@ -25,30 +25,23 @@ const WRITE_STATE = 51;
 function init(device: BluetoothDevice): Promise<void> {
 	clear();
 	_deviceName = device.name && device.name.startsWith('GoCube') ? 'GoCube' : 'Rubiks Connected';
-	return device
-		.gatt!.connect()
-		.then(function (gatt) {
-			_gatt = gatt;
-			return gatt.getPrimaryService(SERVICE_UUID);
-		})
-		.then(function (service) {
-			_service = service;
-			return _service.getCharacteristic(CHRCT_UUID_WRITE);
-		})
-		.then(function (chrct) {
-			_write = chrct;
-			return _service!.getCharacteristic(CHRCT_UUID_READ);
-		})
-		.then(function (chrct) {
-			_read = chrct;
-			return _read.startNotifications();
-		})
-		.then(function () {
-			return _read!.addEventListener('characteristicvaluechanged', onStateChanged);
-		})
-		.then(function () {
-			return _write!.writeValue(new Uint8Array([WRITE_STATE]).buffer as ArrayBuffer);
-		});
+	return device.gatt!.connect().then(function (gatt) {
+		_gatt = gatt;
+		return gatt.getPrimaryService(SERVICE_UUID);
+	}).then(function (service) {
+		_service = service;
+		return _service.getCharacteristic(CHRCT_UUID_WRITE);
+	}).then(function (chrct) {
+		_write = chrct;
+		return _service!.getCharacteristic(CHRCT_UUID_READ);
+	}).then(function (chrct) {
+		_read = chrct;
+		return _read.startNotifications();
+	}).then(function () {
+		return _read!.addEventListener('characteristicvaluechanged', onStateChanged);
+	}).then(function () {
+		return _write!.writeValue(new Uint8Array([WRITE_STATE]).buffer as ArrayBuffer);
+	});
 }
 
 function onStateChanged(event: Event) {
@@ -60,7 +53,7 @@ function onStateChanged(event: Event) {
 function toHexVal(value: DataView): number[] {
 	const valhex: number[] = [];
 	for (let i = 0; i < value.byteLength; i++) {
-		valhex.push((value.getUint8(i) >> 4) & 0xf);
+		valhex.push(value.getUint8(i) >> 4 & 0xf);
 		valhex.push(value.getUint8(i) & 0xf);
 	}
 	return valhex;
@@ -82,26 +75,24 @@ function parseData(value: DataView) {
 	if (value.byteLength < 4) {
 		return;
 	}
-	if (
-		value.getUint8(0) !== 0x2a ||
+	if (value.getUint8(0) !== 0x2a ||
 		value.getUint8(value.byteLength - 2) !== 0x0d ||
-		value.getUint8(value.byteLength - 1) !== 0x0a
-	) {
+		value.getUint8(value.byteLength - 1) !== 0x0a) {
 		return;
 	}
 	const msgType = value.getUint8(2);
 	const msgLen = value.byteLength - 6;
-	if (msgType === 1) {
-		// move
+	if (msgType === 1) { // move
 		for (let i = 0; i < msgLen; i += 2) {
 			const axis = axisPerm[value.getUint8(3 + i) >> 1];
 			const power = [0, 2][value.getUint8(3 + i) & 1];
 			const m = axis * 3 + power;
-			giikerutil.log('[gocube] move', 'URFDLB'.charAt(axis) + " 2'".charAt(power));
+			giikerutil.log('[gocube] move', "URFDLB".charAt(axis) + " 2'".charAt(power));
 			CubieCube.CubeMult(prevCubie, CubieCube.moveCube[m], curCubie);
 			curFacelet = curCubie.toFaceCube();
-			prevMoves.unshift('URFDLB'.charAt(axis) + " 2'".charAt(power));
-			if (prevMoves.length > 8) prevMoves = prevMoves.slice(0, 8);
+			prevMoves.unshift("URFDLB".charAt(axis) + " 2'".charAt(power));
+			if (prevMoves.length > 8)
+				prevMoves = prevMoves.slice(0, 8);
 			GiikerCube.callback(curFacelet, prevMoves, [locTime, locTime], _deviceName || undefined);
 			const tmp = curCubie;
 			curCubie = prevCubie;
@@ -111,17 +102,14 @@ function parseData(value: DataView) {
 				_write!.writeValue(new Uint8Array([WRITE_STATE]).buffer as ArrayBuffer);
 			}
 		}
-	} else if (msgType === 2) {
-		// cube state
+	} else if (msgType === 2) { // cube state
 		const facelet: string[] = [];
 		for (let a = 0; a < 6; a++) {
 			const axis = axisPerm[a] * 9;
 			const aoff = faceOffset[a];
-			facelet[axis + 4] = 'BFUDRL'.charAt(value.getUint8(3 + a * 9));
+			facelet[axis + 4] = "BFUDRL".charAt(value.getUint8(3 + a * 9));
 			for (let i = 0; i < 8; i++) {
-				facelet[axis + facePerm[(i + aoff) % 8]] = 'BFUDRL'.charAt(
-					value.getUint8(3 + a * 9 + i + 1)
-				);
+				facelet[axis + facePerm[(i + aoff) % 8]] = "BFUDRL".charAt(value.getUint8(3 + a * 9 + i + 1));
 			}
 		}
 		const newFacelet = facelet.join('');
@@ -129,25 +117,21 @@ function parseData(value: DataView) {
 			giikerutil.log('[gocube] facelet', newFacelet);
 			curCubie.fromFacelet(newFacelet);
 		}
-	} else if (msgType === 3) {
-		// quaternion
+	} else if (msgType === 3) { // quaternion
 		// Ignore quaternion data
-	} else if (msgType === 5) {
-		// battery level
+	} else if (msgType === 5) { // battery level
 		_batteryLevel = value.getUint8(3);
 		giikerutil.log('[gocube] battery level', _batteryLevel);
-	} else if (msgType === 7) {
-		// offline stats
+	} else if (msgType === 7) { // offline stats
 		giikerutil.log('[gocube] offline stats', toHexVal(value));
-	} else if (msgType === 8) {
-		// cube type
+	} else if (msgType === 8) { // cube type
 		giikerutil.log('[gocube] cube type', toHexVal(value));
 	}
 }
 
 function getBatteryLevel(): Promise<[number, string]> {
 	if (!_write) {
-		return Promise.reject('Bluetooth Cube is not connected');
+		return Promise.reject("Bluetooth Cube is not connected");
 	}
 	_write.writeValue(new Uint8Array([WRITE_BATTERY]).buffer as ArrayBuffer);
 	return new Promise(function (resolve) {

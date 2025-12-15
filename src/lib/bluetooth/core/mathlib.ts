@@ -3,7 +3,7 @@
  * Only includes CubieCube class and essential utilities needed for Bluetooth cube integration
  */
 
-export const SOLVED_FACELET = 'UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB';
+export const SOLVED_FACELET = "UUUUUUUUURRRRRRRRRFFFFFFFFFDDDDDDDDDLLLLLLLLLBBBBBBBBB";
 
 /**
  * Represents a Rubik's Cube state using corner and edge permutation/orientation
@@ -62,30 +62,20 @@ export class CubieCube {
 	/**
 	 * Convert cube to facelet string representation
 	 */
-	toFaceCube(
-		cFacelet?: number[][],
-		eFacelet?: number[][],
-		ctFacelet?: number[],
-		withOri?: boolean
-	): string {
+	toFaceCube(cFacelet?: number[][], eFacelet?: number[][], ctFacelet?: number[], withOri?: boolean): string {
 		const perm = this.toPerm(cFacelet, eFacelet, ctFacelet, withOri);
-		const ts = 'URFDLB';
+		const ts = "URFDLB";
 		const f: string[] = [];
 		for (let i = 0; i < 54; i++) {
 			f[i] = ts[~~(perm[i] / 9)];
 		}
-		return f.join('');
+		return f.join("");
 	}
 
 	/**
 	 * Convert cube to permutation representation
 	 */
-	private toPerm(
-		cFacelet?: number[][],
-		eFacelet?: number[][],
-		ctFacelet?: number[],
-		withOri?: boolean
-	): number[] {
+	private toPerm(cFacelet?: number[][], eFacelet?: number[][], ctFacelet?: number[], withOri?: boolean): number[] {
 		cFacelet = cFacelet || CubieCube.cFacelet;
 		eFacelet = eFacelet || CubieCube.eFacelet;
 		ctFacelet = ctFacelet || CubieCube.ctFacelet;
@@ -105,12 +95,14 @@ export class CubieCube {
 		for (let c = 0; c < 8; c++) {
 			const j = obj.ca[c] & 0x7; // cornercubie with index j is at
 			const ori = obj.ca[c] >> 3; // Orientation of this cubie
-			for (let n = 0; n < 3; n++) f[cFacelet[c][(n + ori) % 3]] = cFacelet[j][n];
+			for (let n = 0; n < 3; n++)
+				f[cFacelet[c][(n + ori) % 3]] = cFacelet[j][n];
 		}
 		for (let e = 0; e < 12; e++) {
 			const j = obj.ea[e] >> 1; // edgecubie with index j is at edgeposition
 			const ori = obj.ea[e] & 1; // Orientation of this cubie
-			for (let n = 0; n < 2; n++) f[eFacelet[e][(n + ori) % 2]] = eFacelet[j][n];
+			for (let n = 0; n < 2; n++)
+				f[eFacelet[e][(n + ori) % 2]] = eFacelet[j][n];
 		}
 		return f;
 	}
@@ -123,8 +115,7 @@ export class CubieCube {
 		eFacelet = eFacelet || CubieCube.eFacelet;
 		let count = 0;
 		const f: number[] = [];
-		const centers =
-			facelet[4] + facelet[13] + facelet[22] + facelet[31] + facelet[40] + facelet[49];
+		const centers = facelet[4] + facelet[13] + facelet[22] + facelet[31] + facelet[40] + facelet[49];
 		for (let i = 0; i < 54; ++i) {
 			f[i] = centers.indexOf(facelet[i]);
 			if (f[i] === -1) {
@@ -138,29 +129,24 @@ export class CubieCube {
 		let col1, col2, i, j, ori;
 		for (i = 0; i < 8; ++i) {
 			for (ori = 0; ori < 3; ++ori)
-				if (f[cFacelet[i][ori]] === 0 || f[cFacelet[i][ori]] === 3) break;
+				if (f[cFacelet[i][ori]] === 0 || f[cFacelet[i][ori]] === 3)
+					break;
 			col1 = f[cFacelet[i][(ori + 1) % 3]];
 			col2 = f[cFacelet[i][(ori + 2) % 3]];
 			for (j = 0; j < 8; ++j) {
 				if (col1 === ~~(cFacelet[j][1] / 9) && col2 === ~~(cFacelet[j][2] / 9)) {
-					this.ca[i] = j | (ori % 3 << 3);
+					this.ca[i] = j | ((ori % 3) << 3);
 					break;
 				}
 			}
 		}
 		for (i = 0; i < 12; ++i) {
 			for (j = 0; j < 12; ++j) {
-				if (
-					f[eFacelet[i][0]] === ~~(eFacelet[j][0] / 9) &&
-					f[eFacelet[i][1]] === ~~(eFacelet[j][1] / 9)
-				) {
+				if (f[eFacelet[i][0]] === ~~(eFacelet[j][0] / 9) && f[eFacelet[i][1]] === ~~(eFacelet[j][1] / 9)) {
 					this.ea[i] = j << 1;
 					break;
 				}
-				if (
-					f[eFacelet[i][0]] === ~~(eFacelet[j][1] / 9) &&
-					f[eFacelet[i][1]] === ~~(eFacelet[j][0] / 9)
-				) {
+				if (f[eFacelet[i][0]] === ~~(eFacelet[j][1] / 9) && f[eFacelet[i][1]] === ~~(eFacelet[j][0] / 9)) {
 					this.ea[i] = (j << 1) | 1;
 					break;
 				}
@@ -187,11 +173,8 @@ export class CubieCube {
 			sum += (this.ca[c] >> 3) << 1;
 			cp.push(this.ca[c] & 0x7);
 		}
-		if (
-			mask !== 0xfffff ||
-			sum % 6 !== 0 ||
-			getNParity(getNPerm(ep, 12), 12) !== getNParity(getNPerm(cp, 8), 8)
-		) {
+		if (mask !== 0xfffff || sum % 6 !== 0 ||
+			getNParity(getNPerm(ep, 12), 12) !== getNParity(getNPerm(cp, 8), 8)) {
 			return -1;
 		}
 		return 0;
@@ -248,7 +231,7 @@ export class CubieCube {
 		[29, 26, 15], // DFR
 		[27, 44, 24], // DLF
 		[33, 53, 42], // DBL
-		[35, 17, 51] // DRB
+		[35, 17, 51]  // DRB
 	];
 
 	static eFacelet = [
@@ -263,7 +246,7 @@ export class CubieCube {
 		[23, 12], // FR
 		[21, 41], // FL
 		[50, 39], // BL
-		[48, 14] // BR
+		[48, 14]  // BR
 	];
 
 	static ctFacelet = [4, 13, 22, 31, 40, 49]; // centers
@@ -352,20 +335,11 @@ function getNParity(idx: number, n: number): number {
 
 // Initialize rotation tables (minimal version)
 (() => {
-	const u4 = new CubieCube().init(
-		[3, 0, 1, 2, 7, 4, 5, 6],
-		[6, 0, 2, 4, 14, 8, 10, 12, 23, 17, 19, 21]
-	);
+	const u4 = new CubieCube().init([3, 0, 1, 2, 7, 4, 5, 6], [6, 0, 2, 4, 14, 8, 10, 12, 23, 17, 19, 21]);
 	u4.ct = [0, 5, 1, 3, 2, 4];
-	const f2 = new CubieCube().init(
-		[5, 4, 7, 6, 1, 0, 3, 2],
-		[12, 10, 8, 14, 4, 2, 0, 6, 18, 16, 22, 20]
-	);
+	const f2 = new CubieCube().init([5, 4, 7, 6, 1, 0, 3, 2], [12, 10, 8, 14, 4, 2, 0, 6, 18, 16, 22, 20]);
 	f2.ct = [3, 4, 2, 0, 1, 5];
-	const urf = new CubieCube().init(
-		[8, 20, 13, 17, 19, 15, 22, 10],
-		[3, 16, 11, 18, 7, 22, 15, 20, 1, 9, 13, 5]
-	);
+	const urf = new CubieCube().init([8, 20, 13, 17, 19, 15, 22, 10], [3, 16, 11, 18, 7, 22, 15, 20, 1, 9, 13, 5]);
 	urf.ct = [2, 0, 1, 5, 3, 4];
 
 	const c = new CubieCube();
