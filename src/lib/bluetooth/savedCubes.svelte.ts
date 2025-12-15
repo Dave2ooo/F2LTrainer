@@ -96,6 +96,11 @@ export const savedCubesState = {
 		return cubes.find((c) => c.id === deviceId);
 	},
 
+	/**
+	 * Find a saved cube by its Bluetooth device name.
+	 * Note: This assumes device names are unique enough for practical use.
+	 * In the rare case of multiple cubes with identical names, the first match is returned.
+	 */
 	getCubeByDeviceName(deviceName: string): SavedCube | undefined {
 		return cubes.find((c) => c.deviceName === deviceName);
 	},
