@@ -70,6 +70,8 @@
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
 	let isPlayerInitialized = $state(false);
+	let movesAdded = $state('');
+	let kpuzzle: any = null;
 
 	// Compute width/height based on size and control panel configuration
 	const aspectRatio = $derived(controlPanel === 'bottom-row' ? 1.15 : 1);
@@ -126,6 +128,9 @@
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Wait for the player to be initialized and add a small delay to ensure it's ready
 		if (el && isPlayerInitialized) {
+			// Reset moves added via smart cube when case changes
+			movesAdded = '';
+
 			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
 			setTimeout(() => {
 				const player = el as any;
@@ -252,9 +257,10 @@
 						);
 					}
 
-					if (logNormalizedPattern) {
-						player.experimentalModel.currentPattern.addFreshListener(async (pattern: any) => {
-							await logNormalizedKPattern(pattern, scramble, alg, staticData.pieceToHide, side);
+					// We store the kpuzzle to use it there.
+					if (player.experimentalModel?.kpuzzle) {
+						player.experimentalModel.kpuzzle.addFreshListener((kp: any) => {
+							kpuzzle = kp;
 						});
 					}
 
@@ -271,16 +277,27 @@
 	});
 
 	// Public method to add a move to the player dynamically (e.g. from Bluetooth)
-	export function addMove(move: string) {
+	export async function addMove(move: string) {
 		if (el) {
 			const player = el as any;
 			if (player.experimentalAddMove) {
 				player.experimentalAddMove(move);
+				movesAdded += (movesAdded ? ' ' : '') + move;
 
 				// Re-apply stickering if needed
 				// Sometimes adding a move might reset internal state depending on twisty-player version/behavior
 				if (stickeringString) {
 					player.experimentalStickeringMaskOrbits = stickeringString;
+				}
+
+				if (logNormalizedPattern && kpuzzle) {
+					await logNormalizedKPattern(
+						{ kpuzzle },
+						scramble,
+						movesAdded.trim(),
+						staticData.pieceToHide,
+						side
+					);
 				}
 			}
 		}

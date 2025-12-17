@@ -109,7 +109,7 @@ export async function logNormalizedKPattern(
 				'%cF2L IS SOLVED!',
 				'color: #fff; background: #00ff00; font-size:1.5rem; font-weight: bold; padding: 8px 0; text-align: center;'
 			);
-			window.alert('F2L is solved!');
+			// window.alert('F2L is solved!');
 		}
 
 		// Check if cube is fully solved
