@@ -280,5 +280,12 @@ describe('concatinateAuf', () => {
 			// No U move after y', so add U' (mirror of U)
 			expect(alg).toBe("y' U' (R U R')");
 		});
+
+		it("y' U2' (non-standard notation) with AUF 'U' should normalize and merge", () => {
+			const [scramble, alg] = concatinateAuf('R', "y' U2' (R' U R) U' (S R S')", 'U');
+			expect(scramble).toBe('R U');
+			// U2' should be normalized to U2, then: U2 + U' (mirror of U) = U
+			expect(alg).toBe("y' U (R' U R) U' (S R S')");
+		});
 	});
 });
