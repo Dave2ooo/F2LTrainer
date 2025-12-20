@@ -61,8 +61,8 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 		if (secondMoveAlg && isAuf(secondMoveAlg)) {
 			// Remove the U move
 			algList.shift();
-			// Merge the AUF with the U move (using the AUF directly, not mirrored)
-			const mergedAufAlg = DUPLICATES[auf][secondMoveAlg];
+			// Merge the U move with the mirrored AUF (to cancel the AUF added to scramble)
+			const mergedAufAlg = DUPLICATES[secondMoveAlg][MIRROR_AUF[auf]];
 			// Put y-rotation first, then the merged U move (if non-empty)
 			if (mergedAufAlg !== '') {
 				algList.unshift(mergedAufAlg);
@@ -70,8 +70,9 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 			algList.unshift(yRotation);
 		} else {
 			// No U move after y-rotation, or it's in a bracket
-			// Just add the AUF after the y-rotation (using the AUF directly, not mirrored)
-			algList.unshift(auf);
+			// Just add the mirrored AUF after the y-rotation (to cancel the AUF added to scramble)
+			const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
+			if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
 			algList.unshift(yRotation);
 		}
 	} else if (firstMoveAlg && isAuf(firstMoveAlg)) {
