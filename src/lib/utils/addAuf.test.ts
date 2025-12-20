@@ -176,4 +176,123 @@ describe('concatinateAuf', () => {
 			expect(alg).toBe("U' (R U R' U')3");
 		});
 	});
+
+	describe('AUF merging with y-rotation', () => {
+		it("should merge AUF with U move after y rotation - U2 y U' (L' U L)", () => {
+			// Algorithm: y U' (L' U L) with AUF U2
+			// AUF U2 is added to scramble as-is
+			// Alg needs to cancel it: U' + U2 (mirrored) = U' + U2 = U
+			// Result: y U (L' U L)
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L)");
+		});
+
+		it("should cancel U moves after y' rotation - U' y' U (R U' R')", () => {
+			// Algorithm: y' U (R U' R') with AUF U'
+			// AUF U' is added to scramble as-is
+			// Alg needs to cancel it: U + U (mirrored of U') = U + U = U2
+			// Result: y' U2 (R U' R')
+			const [scramble, alg] = concatinateAuf('R', "y' U (R U' R')", "U'");
+			expect(scramble).toBe("R U'");
+			expect(alg).toBe("y' U2 (R U' R')");
+		});
+
+		it("should cancel U2 moves after y rotation - U2 y U2 (L U' L') U (S' L' S)", () => {
+			// Algorithm: y U2 (L U' L') U (S' L' S) with AUF U2
+			// AUF U2 is added to scramble as-is
+			// Alg needs to cancel it: U2 + U2 (mirrored) = U2 + U2 = '' (cancel)
+			// Result: y (L U' L') U (S' L' S)
+			const [scramble, alg] = concatinateAuf('R', "y U2 (L U' L') U (S' L' S)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y (L U' L') U (S' L' S)");
+		});
+
+		it("should add mirrored AUF after y rotation - U2 y (F' U2 F) (L' U' L)", () => {
+			// Algorithm: y (F' U2 F) (L' U' L) with AUF U2
+			// AUF U2 is added to scramble as-is
+			// No U move after y, so add mirrored AUF: U2 (mirrored) = U2
+			// Result: y U2 (F' U2 F) (L' U' L)
+			const [scramble, alg] = concatinateAuf('R', "y (F' U2 F) (L' U' L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U2 (F' U2 F) (L' U' L)");
+		});
+
+		it("should add mirrored AUF after y' rotation - U y' (R' U2 R) U (R' U' R)", () => {
+			// Algorithm: y' (R' U2 R) U (R' U' R) with AUF U
+			// AUF U is added to scramble as-is
+			// No U move after y', so add mirrored AUF: U' (mirrored of U)
+			// Result: y' U' (R' U2 R) U (R' U' R)
+			const [scramble, alg] = concatinateAuf('R', "y' (R' U2 R) U (R' U' R)", 'U');
+			expect(scramble).toBe('R U');
+			expect(alg).toBe("y' U' (R' U2 R) U (R' U' R)");
+		});
+
+		it("should add mirrored AUF after y' rotation - U2 y' (R U R2' U' R)", () => {
+			// Algorithm: y' (R U R2' U' R) with AUF U2
+			// AUF U2 is added to scramble as-is
+			// No U move after y', so add mirrored AUF: U2 (mirrored) = U2
+			// Result: y' U2 (R U R2' U' R)
+			const [scramble, alg] = concatinateAuf('R', "y' (R U R2' U' R)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y' U2 (R U R2' U' R)");
+		});
+
+		it("should merge U move after y rotation with brackets - U2 y U' (L' U L) (R U' R')", () => {
+			// Algorithm: y U' (L' U L) (R U' R') with AUF U2
+			// AUF U2 is added to scramble as-is
+			// Alg needs to cancel it: U' + U2 (mirrored) = U' + U2 = U
+			// Result: y U (L' U L) (R U' R')
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L) (R U' R')", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L) (R U' R')");
+		});
+
+		it("should merge U move after y rotation - U2 y U' (L' U L)", () => {
+			// Algorithm: y U' (L' U L) with AUF U2
+			// AUF U2 is added to scramble as-is
+			// Alg needs to cancel it: U' + U2 (mirrored) = U' + U2 = U
+			// Result: y U (L' U L)
+			const [scramble, alg] = concatinateAuf('R', "y U' (L' U L)", 'U2');
+			expect(scramble).toBe('R U2');
+			expect(alg).toBe("y U (L' U L)");
+		});
+	});
+
+	describe('User reported issues - exact examples', () => {
+		it("y' U2 (R' U R) U' (S R S') with AUF 'U' should merge correctly", () => {
+			const [scramble, alg] = concatinateAuf('R', "y' U2 (R' U R) U' (S R S')", 'U');
+			expect(scramble).toBe('R U');
+			// Should merge U2 + U' (mirror of U) = U2 + U' = U
+			expect(alg).toBe("y' U (R' U R) U' (S R S')");
+		});
+
+		it("y (F' U2 F) (L' U' L) with AUF 'U' should add mirrored AUF", () => {
+			const [scramble, alg] = concatinateAuf('R', "y (F' U2 F) (L' U' L)", 'U');
+			expect(scramble).toBe('R U');
+			// No U move after y, so add U' (mirror of U)
+			expect(alg).toBe("y U' (F' U2 F) (L' U' L)");
+		});
+
+		it("y' (R U R') with AUF 'U' should add mirrored AUF", () => {
+			const [scramble, alg] = concatinateAuf('R', "y' (R U R')", 'U');
+			expect(scramble).toBe('R U');
+			// No U move after y', so add U' (mirror of U)
+			expect(alg).toBe("y' U' (R U R')");
+		});
+
+		it("y' U2' (non-standard notation) with AUF 'U' should normalize and merge", () => {
+			const [scramble, alg] = concatinateAuf('R', "y' U2' (R' U R) U' (S R S')", 'U');
+			expect(scramble).toBe('R U');
+			// U2' should be normalized to U2, then: U2 + U' (mirror of U) = U
+			expect(alg).toBe("y' U (R' U R) U' (S R S')");
+		});
+
+		it('should handle U2\' in scramble (non-standard notation)', () => {
+			const [scramble, alg] = concatinateAuf("R U2' R", "R U' R'", 'U');
+			expect(scramble).toBe("R U2' R U");
+			// U2' in scramble should be normalized, then merged with U
+			expect(alg).toBe("U' R U' R'");
+		});
+	});
 });

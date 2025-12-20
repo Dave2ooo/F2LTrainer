@@ -40,7 +40,8 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 
 	if (lastMoveScramble && isAuf(lastMoveScramble)) {
 		scrambleList.pop();
-		const mergedAufScramble = DUPLICATES[lastMoveScramble][auf];
+		const normalizedLastMove = normalizeMove(lastMoveScramble) as Auf;
+		const mergedAufScramble = DUPLICATES[normalizedLastMove][auf];
 		if (mergedAufScramble !== '') scrambleList.push(mergedAufScramble);
 	} else {
 		const mergedAufScramble = DUPLICATES[''][auf];
@@ -51,10 +52,37 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 	const algList = alg.trim().length ? alg.trim().split(/\s+/) : [];
 	const firstMoveAlg = algList.at(0);
 
-	if (firstMoveAlg && isAuf(firstMoveAlg)) {
+	// Check if the algorithm starts with a y-rotation (y or y')
+	if (firstMoveAlg && (firstMoveAlg === 'y' || firstMoveAlg === "y'")) {
+		// Get the y-rotation and remove it temporarily
+		const yRotation = algList.shift()!;
+		const secondMoveAlg = algList.at(0);
+
+		// Check if the second move is a U move (without brackets)
+		if (secondMoveAlg && isAuf(secondMoveAlg)) {
+			// Remove the U move
+			algList.shift();
+			// Normalize the move (e.g., U2' -> U2)
+			const normalizedSecondMove = normalizeMove(secondMoveAlg) as Auf;
+			// Merge the U move with the mirrored AUF (to cancel the AUF added to scramble)
+			const mergedAufAlg = DUPLICATES[normalizedSecondMove][MIRROR_AUF[auf]];
+			// Put y-rotation first, then the merged U move (if non-empty)
+			if (mergedAufAlg !== '') {
+				algList.unshift(mergedAufAlg);
+			}
+			algList.unshift(yRotation);
+		} else {
+			// No U move after y-rotation, or it's in a bracket
+			// Just add the mirrored AUF after the y-rotation (to cancel the AUF added to scramble)
+			const mergedAufAlg = DUPLICATES[''][MIRROR_AUF[auf]];
+			if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
+			algList.unshift(yRotation);
+		}
+	} else if (firstMoveAlg && isAuf(firstMoveAlg)) {
 		// First move is a plain AUF (no bracket)
 		algList.shift();
-		const mergedAufAlg = DUPLICATES[firstMoveAlg][MIRROR_AUF[auf]];
+		const normalizedFirstMove = normalizeMove(firstMoveAlg) as Auf;
+		const mergedAufAlg = DUPLICATES[normalizedFirstMove][MIRROR_AUF[auf]];
 		if (mergedAufAlg !== '') algList.unshift(mergedAufAlg);
 	} else if (firstMoveAlg && firstMoveAlg.startsWith('(')) {
 		// First move starts with a bracket - extract the move inside
@@ -66,6 +94,8 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 		}
 
 		if (isAuf(moveInsideBracket)) {
+			// Normalize the move inside bracket
+			const normalizedBracketMove = normalizeMove(moveInsideBracket) as Auf;
 			// Check if this is a repetition notation case (e.g., "(U R U' R')3")
 			// Find the matching closing bracket and check if there's a number after it
 			let closingBracketIdx = -1;
@@ -74,7 +104,7 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 			if (hasClosingBracket) {
 				// Closing bracket is in the first token - no repetition in this case
 				algList.shift();
-				const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+				const mergedAufAlg = DUPLICATES[normalizedBracketMove][MIRROR_AUF[auf]];
 				if (mergedAufAlg !== '') {
 					algList.unshift('(' + mergedAufAlg + ')');
 				}
@@ -121,7 +151,7 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 					algList.splice(0, closingBracketIdx + 1);
 
 					// 2. Merge the first AUF move
-					const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+					const mergedAufAlg = DUPLICATES[normalizedBracketMove][MIRROR_AUF[auf]];
 
 					if (mergedAufAlg !== '') {
 						// Moves don't cancel - add merged first instance with brackets FIRST
@@ -174,7 +204,7 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 				} else {
 					// No repetition notation - handle normally
 					algList.shift();
-					const mergedAufAlg = DUPLICATES[moveInsideBracket][MIRROR_AUF[auf]];
+					const mergedAufAlg = DUPLICATES[normalizedBracketMove][MIRROR_AUF[auf]];
 					if (mergedAufAlg !== '') {
 						// Keep the bracket with the merged move
 						algList.unshift('(' + mergedAufAlg);
@@ -209,6 +239,13 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 	return [scrambleList.join(' '), algList.join(' ')];
 }
 
+function normalizeMove(move: string): string {
+	// U2' is non-standard but equivalent to U2 (180 degree rotation has no direction)
+	if (move === "U2'") return 'U2';
+	return move;
+}
+
 function isAuf(x: string): x is Auf {
-	return x === 'U' || x === 'U2' || x === "U'";
+	const normalized = normalizeMove(x);
+	return normalized === 'U' || normalized === 'U2' || normalized === "U'";
 }

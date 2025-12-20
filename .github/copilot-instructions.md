@@ -71,6 +71,8 @@ Examples of acceptable changes:
 - Check formatting: `npm run lint`
 - Type checking: `npm run check`
 
+**IMPORTANT**: DO NOT run `npm run format` on the entire codebase. Only format files you are actively modifying. Use your editor's format-on-save or manually format specific files to avoid reformatting unrelated code.
+
 ## Project Structure
 
 ```
