@@ -40,7 +40,8 @@ export function concatinateAuf(scramble: string, alg: string, auf: Auf): [string
 
 	if (lastMoveScramble && isAuf(lastMoveScramble)) {
 		scrambleList.pop();
-		const mergedAufScramble = DUPLICATES[lastMoveScramble][auf];
+		const normalizedLastMove = normalizeMove(lastMoveScramble) as Auf;
+		const mergedAufScramble = DUPLICATES[normalizedLastMove][auf];
 		if (mergedAufScramble !== '') scrambleList.push(mergedAufScramble);
 	} else {
 		const mergedAufScramble = DUPLICATES[''][auf];

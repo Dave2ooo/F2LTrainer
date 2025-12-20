@@ -287,5 +287,12 @@ describe('concatinateAuf', () => {
 			// U2' should be normalized to U2, then: U2 + U' (mirror of U) = U
 			expect(alg).toBe("y' U (R' U R) U' (S R S')");
 		});
+
+		it('should handle U2\' in scramble (non-standard notation)', () => {
+			const [scramble, alg] = concatinateAuf("R U2' R", "R U' R'", 'U');
+			expect(scramble).toBe("R U2' R U");
+			// U2' in scramble should be normalized, then merged with U
+			expect(alg).toBe("U' R U' R'");
+		});
 	});
 });
