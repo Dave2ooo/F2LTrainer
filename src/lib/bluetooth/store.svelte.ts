@@ -16,6 +16,8 @@ let macAddressRequest = $state({
 	resolve: null as ((mac: string | undefined) => void) | null
 });
 
+let history = $state([] as { move: string; counter: number }[]);
+
 export const bluetoothState = {
 	get isConnected() {
 		return isConnected;
@@ -31,6 +33,9 @@ export const bluetoothState = {
 	},
 	get facelet() {
 		return facelet;
+	},
+	get history() {
+		return history;
 	},
 	get lastMove() {
 		return lastMove;
@@ -49,6 +54,7 @@ export const bluetoothState = {
 			facelet = null;
 			lastMove = null;
 			moveCounter = 0;
+			history = [];
 		}
 	},
 	setDeviceName(name: string | null) {
@@ -99,6 +105,14 @@ export const bluetoothState = {
 		if (prevMoves.length > 0) {
 			lastMove = prevMoves[0];
 			moveCounter++;
+			history.push({ move: lastMove, counter: moveCounter });
+			// keep history small
+			if (history.length > 50) {
+				history.shift();
+			}
 		}
+	},
+	getMovesSince(lastCounter: number) {
+		return history.filter((h) => h.counter > lastCounter);
 	}
 };

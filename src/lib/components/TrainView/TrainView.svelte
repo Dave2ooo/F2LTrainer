@@ -48,21 +48,24 @@
 	let lastProcessedMoveCounter = -1;
 
 	$effect(() => {
-		// Depend on moveCounter to trigger updates even if the move string is the same
+		// Depend on moveCounter to trigger updates
 		const currentCounter = bluetoothState.moveCounter;
 		
 		if (currentCounter > lastProcessedMoveCounter) {
+            const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
             lastProcessedMoveCounter = currentCounter;
             
-            if (bluetoothState.lastMove && physicalTwistyPlayerRef && inputMode === 'real') {
-                try {
-                    const move = bluetoothState.lastMove.trim();
-                    if (move) {
-                        physicalTwistyPlayerRef.addMove(move);
+            if (physicalTwistyPlayerRef && inputMode === 'real') {
+                missedMoves.forEach(({ move }) => {
+                    try {
+                        const m = move.trim();
+                        if (m) {
+                            physicalTwistyPlayerRef.addMove(m);
+                        }
+                    } catch (e) {
+                        console.warn('Failed to apply move:', move, e);
                     }
-                } catch (e) {
-                    console.warn('Failed to apply move:', bluetoothState.lastMove, e);
-                }
+                });
             }
         }
 	});
