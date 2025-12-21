@@ -87,14 +87,14 @@ export async function logNormalizedKPattern(
 		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
 		const normalizedPattern = pattern.kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
-		console.log(
+	/* 	console.log(
 			'Normalized State (rotation removed) - Corners:',
 			normalizedPattern.patternData.CORNERS
 		);
 		console.log(
 			'Normalized State (rotation removed) - Edges:',
 			normalizedPattern.patternData.EDGES
-		);
+		); */
 
 		// Check if F2L is solved
 		const f2lSolved = isF2LSolved(

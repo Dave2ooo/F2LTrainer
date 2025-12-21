@@ -37,21 +37,41 @@
 		}
 	});
 
+	let lastProcessedMoveCounter = -1;
+
 	$effect(() => {
-		// Depend on moveCounter to trigger updates even if the move string is the same
-		void bluetoothState.moveCounter;
-		if (bluetoothState.lastMove && twistyPlayerComponent) {
-			const el = twistyPlayerComponent.getElement();
-			if (el && el.experimentalAddMove) {
-				try {
-					const move = bluetoothState.lastMove.trim();
-					if (move) {
-						el.experimentalAddMove(move);
-					}
-				} catch (e) {
-					console.warn('Failed to apply move:', bluetoothState.lastMove, e);
+		// Depend on moveCounter to trigger updates
+		const currentCounter = bluetoothState.moveCounter;
+
+		if (currentCounter > lastProcessedMoveCounter) {
+			// If we just connected or reset, we might be behind, so just snap to current
+			// But for modal preview, we usually start at 0 or solved anyway.
+			
+			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
+			lastProcessedMoveCounter = currentCounter;
+
+			if (twistyPlayerComponent) {
+				const el = twistyPlayerComponent.getElement();
+				if (el && el.experimentalAddMove) {
+					missedMoves.forEach(({ move }) => {
+						try {
+							const m = move.trim();
+							if (m) {
+								el.experimentalAddMove(m);
+							}
+						} catch (e) {
+							console.warn('Failed to apply move:', move, e);
+						}
+					});
 				}
 			}
+		}
+	});
+
+	// Reset counter when modal opens/closes or connection changes
+	$effect(() => {
+		if (!open || !bluetoothState.isConnected) {
+			lastProcessedMoveCounter = bluetoothState.moveCounter;
 		}
 	});
 
