@@ -3,6 +3,7 @@ import { GiikerCube } from './core/bluetooth';
 let isConnected = $state(false);
 let deviceName = $state<string | null>(null);
 let deviceId = $state<string | null>(null);
+let deviceMac = $state<string | null>(null);
 let batteryLevel = $state<number | null>(null);
 let facelet = $state<string | null>(null);
 let lastMove = $state<string | null>(null);
@@ -27,6 +28,9 @@ export const bluetoothState = {
 	},
 	get deviceId() {
 		return deviceId;
+	},
+	get deviceMac() {
+		return deviceMac;
 	},
 	get batteryLevel() {
 		return batteryLevel;
@@ -62,6 +66,9 @@ export const bluetoothState = {
 	},
 	setDeviceId(id: string | null) {
 		deviceId = id;
+	},
+	setDeviceMac(mac: string | null) {
+		deviceMac = mac;
 	},
 	setBatteryLevel(level: number | null) {
 		batteryLevel = level;

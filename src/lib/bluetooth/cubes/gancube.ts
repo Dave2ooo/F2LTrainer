@@ -1087,7 +1087,8 @@ const cubeModel: CubeModel = {
 	opservs: [SERVICE_UUID_META, SERVICE_UUID_DATA, SERVICE_UUID_V2DATA, SERVICE_UUID_V3DATA, SERVICE_UUID_V4DATA],
 	cics: GAN_CIC_LIST,
 	getBatteryLevel: getBatteryLevel,
-	clear: clear
+	clear: clear,
+	getMacAddress: () => Promise.resolve(deviceMac)
 };
 
 GiikerCube.regCubeModel(cubeModel);

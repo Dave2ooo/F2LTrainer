@@ -85,7 +85,12 @@
 			if (bluetoothState.deviceId && bluetoothState.deviceName) {
 				const existing = savedCubesState.getCube(bluetoothState.deviceId);
 				if (existing) {
-					savedCubesState.updateLastConnected(bluetoothState.deviceId);
+					savedCubesState.addCube(
+						bluetoothState.deviceId, 
+						bluetoothState.deviceName, 
+						existing.customName, 
+						bluetoothState.deviceMac || undefined
+					);
 				}
 			}
 		} catch (e: any) {
@@ -105,7 +110,16 @@
 		bluetoothState.setErrorMessage(null);
 		try {
 			await GiikerCube.init(true);
-			savedCubesState.updateLastConnected(deviceId);
+			if (bluetoothState.deviceId && bluetoothState.deviceName) {
+				savedCubesState.addCube(
+					bluetoothState.deviceId,
+					bluetoothState.deviceName,
+					saved.customName,
+					bluetoothState.deviceMac || undefined
+				);
+			} else {
+				savedCubesState.updateLastConnected(deviceId);
+			}
 		} catch (e: any) {
 			console.error(e);
 			error = e.toString();
@@ -132,7 +146,12 @@
 	function onSaveCube() {
 		if (bluetoothState.deviceId && bluetoothState.deviceName) {
 			const name = customCubeName.trim() || bluetoothState.deviceName;
-			savedCubesState.addCube(bluetoothState.deviceId, bluetoothState.deviceName, name);
+			savedCubesState.addCube(
+				bluetoothState.deviceId,
+				bluetoothState.deviceName,
+				name,
+				bluetoothState.deviceMac || undefined
+			);
 			customCubeName = '';
 		}
 	}
@@ -311,28 +330,34 @@
 												<X class="size-4" />
 											</Button>
 										{:else}
-											<div class="flex flex-1 flex-col">
-												<p class="font-semibold text-gray-900 dark:text-white">{cube.customName}</p>
-												<div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-													<span>{cube.deviceName}</span>
+											<div class="flex flex-1 flex-col min-w-0">
+												<p class="truncate font-semibold text-gray-900 dark:text-white">{cube.customName}</p>
+												<div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+													<span class="whitespace-nowrap">{cube.deviceName}</span>
 													<span>•</span>
-													<span>{formatDate(cube.lastConnected)}</span>
+													<span class="whitespace-nowrap">{formatDate(cube.lastConnected)}</span>
+													{#if cube.macAddress}
+														<span>•</span>
+														<span class="whitespace-nowrap font-mono text-xs opacity-75">{cube.macAddress}</span>
+													{/if}
 												</div>
 											</div>
-											<Button
-												size="sm"
-												color="blue"
-												onclick={() => onConnectSaved(cube.id)}
-												disabled={isConnecting}
-											>
-												Connect
-											</Button>
-											<Button size="xs" color="light" onclick={() => startEditingCube(cube.id)}>
-												<Edit2 class="size-4" />
-											</Button>
-											<Button size="xs" color="red" onclick={() => onRemoveCube(cube.id)}>
-												<Trash2 class="size-4" />
-											</Button>
+											<div class="flex shrink-0 items-center gap-2">
+												<Button
+													size="sm"
+													color="blue"
+													onclick={() => onConnectSaved(cube.id)}
+													disabled={isConnecting}
+												>
+													Connect
+												</Button>
+												<Button size="xs" color="light" onclick={() => startEditingCube(cube.id)}>
+													<Edit2 class="size-4" />
+												</Button>
+												<Button size="xs" color="red" onclick={() => onRemoveCube(cube.id)}>
+													<Trash2 class="size-4" />
+												</Button>
+											</div>
 										{/if}
 									</div>
 								{/each}

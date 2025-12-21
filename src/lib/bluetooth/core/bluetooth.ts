@@ -108,10 +108,23 @@ export function createBluetoothManager(): BluetoothCube {
 				return Promise.reject('Cannot detect device type');
 			}
 			return cube.init(device);
-		}).then(() => {
+		}).then(async () => {
 			bluetoothState.setConnected(true);
 			bluetoothState.setDeviceName(_device?.name || null);
 			bluetoothState.setDeviceId(_device?.id || null);
+			
+			if (cube && cube.getMacAddress) {
+				try {
+					const mac = await cube.getMacAddress();
+					bluetoothState.setDeviceMac(mac || null);
+				} catch (e) {
+					console.warn('[bluetooth] failed to get MAC address', e);
+					bluetoothState.setDeviceMac(null);
+				}
+			} else {
+				bluetoothState.setDeviceMac(null);
+			}
+
 			GiikerCube.setCallback(bluetoothState.handleCubeCallback);
 		}).catch((err) => {
 			giikerutil.log('[bluetooth] connection failed', err);
@@ -126,6 +139,7 @@ export function createBluetoothManager(): BluetoothCube {
 			bluetoothState.setConnected(false);
 			bluetoothState.setDeviceName(null);
 			bluetoothState.setDeviceId(null);
+			bluetoothState.setDeviceMac(null);
 			// Propagate error to caller
 			return Promise.reject(err);
 		});

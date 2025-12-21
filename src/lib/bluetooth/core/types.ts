@@ -18,6 +18,8 @@ export interface CubeModel {
 	getBatteryLevel: () => Promise<[number, string]>;
 	/** Clear/disconnect */
 	clear: (isHardwareEvent?: boolean) => Promise<void>;
+	/** Get MAC Address if available */
+	getMacAddress?: () => Promise<string | null>;
 }
 
 /**

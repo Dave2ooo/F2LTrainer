@@ -7,6 +7,7 @@ export interface SavedCube {
 	id: string; // Bluetooth device ID (persistent)
 	customName: string; // User-provided name
 	deviceName: string; // Original Bluetooth device name
+	macAddress?: string; // MAC address if available
 	dateAdded: number; // Timestamp when added
 	lastConnected: number; // Timestamp of last connection
 }
@@ -42,12 +43,13 @@ export const savedCubesState = {
 		return cubes;
 	},
 
-	addCube(deviceId: string, deviceName: string, customName?: string) {
+	addCube(deviceId: string, deviceName: string, customName?: string, macAddress?: string) {
 		const now = Date.now();
 		const newCube: SavedCube = {
 			id: deviceId,
 			customName: customName || deviceName,
 			deviceName: deviceName,
+			macAddress: macAddress,
 			dateAdded: now,
 			lastConnected: now
 		};
@@ -59,6 +61,7 @@ export const savedCubesState = {
 			cubes[existingIndex] = {
 				...cubes[existingIndex],
 				customName: customName || cubes[existingIndex].customName,
+				macAddress: macAddress || cubes[existingIndex].macAddress,
 				lastConnected: now
 			};
 		} else {
