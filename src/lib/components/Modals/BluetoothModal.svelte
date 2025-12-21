@@ -216,8 +216,8 @@
 			<div class="mx-auto h-64 w-64">
 				<TwistyPlayer
 					side="right"
-					crossColor="white"
-					frontColor="red"
+					crossColor="yellow"
+					frontColor="green"
 					stickering="fully"
 					customAlgorithm={{ left: '', right: '' }}
 					algorithmSelection={{ left: null, right: null }}
