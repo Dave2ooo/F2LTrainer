@@ -372,7 +372,7 @@
 					frontColor={currentTrainCase.frontColor}
 					scrambleSelection={currentTrainCase.scramble}
 					stickering={globalState.trainHintStickering}
-					experimentalDragInput="none"
+					experimentalDragInput="auto"
 					class="size-full {inputMode === 'real' ? '' : 'hidden'}"
 					controlPanel="bottom-row"
 					onclick={onNext}

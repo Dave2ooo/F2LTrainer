@@ -18,8 +18,8 @@
 	import { logNormalizedKPattern } from '$lib/utils/logNormalizedKPattern';
 
 	interface Props {
-		groupId: GroupId;
-		caseId: number;
+		groupId?: GroupId;
+		caseId?: number;
 		scrambleSelection?: number;
 		algorithmSelection?: AlgorithmSelection;
 		customAlgorithm?: CustomAlgorithm;
@@ -81,31 +81,41 @@
 	// `size` prop for fixed pixel sizing.
 	const wrapperClass = $derived(['relative mx-auto', extraClass].filter(Boolean).join(' '));
 
-	const staticData = $derived(casesStatic[groupId][caseId]);
-	const caseState = $derived(casesState[groupId][caseId]);
+	const staticData = $derived(
+		groupId !== undefined && caseId !== undefined ? casesStatic[groupId]?.[caseId] : undefined
+	);
+	const caseState = $derived(
+		groupId !== undefined && caseId !== undefined ? casesState[groupId]?.[caseId] : undefined
+	);
 
 	// if (algorithmSelection === undefined) {
 	// 	algorithmSelection = caseState.algorithmSelection;
 	// }
 
 	const algWithoutAUF = $derived(
-		getCaseAlg(
-			staticData,
-			algorithmSelection ?? caseState.algorithmSelection,
-			customAlgorithm ?? caseState.customAlgorithm,
-			side
-		)
+		staticData
+			? getCaseAlg(
+					staticData,
+					algorithmSelection ?? caseState?.algorithmSelection ?? { left: 0, right: 0 },
+					customAlgorithm ?? caseState?.customAlgorithm ?? { left: '', right: '' },
+					side
+				)
+			: undefined
 	);
 
-	const scrambleWithoutAUF = $derived(getCaseScramble(staticData, side, scrambleSelection));
+	const scrambleWithoutAUF = $derived(
+		staticData ? getCaseScramble(staticData, side, scrambleSelection) : undefined
+	);
 
 	$effect(() => {
-		const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
-		scramble = newScramble;
-		if (showAlg) {
-			alg = newAlg;
-		} else {
-			alg = '';
+		if (scrambleWithoutAUF !== undefined && algWithoutAUF !== undefined) {
+			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+			scramble = newScramble;
+			if (showAlg) {
+				alg = newAlg;
+			} else {
+				alg = '';
+			}
 		}
 	});
 
@@ -156,7 +166,7 @@
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
 	let stickeringString = $derived(
-		stickering === 'f2l'
+		stickering === 'f2l' && staticData
 			? getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
 			: undefined
 	);
@@ -290,7 +300,7 @@
 					player.experimentalStickeringMaskOrbits = stickeringString;
 				}
 
-				if (logNormalizedPattern && kpuzzle) {
+				if (logNormalizedPattern && kpuzzle && staticData) {
 					await logNormalizedKPattern(
 						{ kpuzzle },
 						scramble,

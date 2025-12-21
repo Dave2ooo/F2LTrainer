@@ -195,8 +195,6 @@
 			<!-- Cube visualization -->
 			<div class="mx-auto h-64 w-64">
 				<TwistyPlayer
-					groupId="basic"
-					caseId={1}
 					side="right"
 					crossColor="white"
 					frontColor="red"
@@ -204,6 +202,7 @@
 					customAlgorithm={{ left: '', right: '' }}
 					algorithmSelection={{ left: null, right: null }}
 					controlPanel="none"
+					experimentalDragInput="auto"
 					showVisibilityToggle={false}
 					class="h-full w-full"
 					bind:this={twistyPlayerComponent}
