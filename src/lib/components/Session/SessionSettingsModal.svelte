@@ -6,6 +6,8 @@
     import Update from '$lib/components/Modals/Buttons/Update.svelte';
     import { CircleQuestionMark } from '@lucide/svelte';
     import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
+    import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
+    import resolveStickerColors from '$lib/utils/resolveStickerColors';
 
 	let { open = $bindable(), sessionId, isNew = false } = $props();
 
@@ -32,6 +34,12 @@
     // Color options for checkboxes
     const colors = ['white', 'yellow', 'green', 'blue', 'red', 'orange'];
 
+    // Resolved colors for TwistyPlayer in individual case selector
+    const [crossColor, frontColor] = $derived.by(() => {
+        if (!settings) return ['white', 'red'];
+        return resolveStickerColors(settings.crossColor, settings.frontColor);
+    });
+
 </script>
 
 {#if session && settings}
@@ -48,10 +56,7 @@
                     <div class="flex flex-col gap-5 mt-4">
 						<!-- Case Mode Section -->
 						<div class="space-y-3">
-							<div class="flex items-center justify-between">
-								<Label class="text-sm font-semibold">Case Selection Mode</Label>
-								<span class="text-xs text-gray-500 dark:text-gray-400">(Not fully implemented)</span>
-							</div>
+							<Label class="text-sm font-semibold">Case Selection Mode</Label>
                         	<ButtonGroup class="w-full *:flex-1">
                             	<Button color={settings.caseMode === 'group' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'group'}>Group</Button>
                             	<Button color={settings.caseMode === 'individual' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'individual'}>Individual</Button>
@@ -78,8 +83,14 @@
                                 </div>
                             </div>
                         {:else}
-                            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
-								<p class="text-sm">Individual case selection coming soon...</p>
+                            <div class="mt-4">
+								{#if settings}
+									<SessionIndividualCaseSelector
+										{crossColor}
+										{frontColor}
+										bind:selectedCases={settings.selectedCases}
+									/>
+								{/if}
 							</div>
                         {/if}
                     </div>

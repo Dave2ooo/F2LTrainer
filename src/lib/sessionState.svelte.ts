@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS: SessionSettings = {
 	trainStateSelection: { unlearned: false, learning: true, finished: false },
 	trainGroupSelection: { basic: true, basicBack: true, advanced: true, expert: true },
 	trainSideSelection: { left: true, right: true },
+	selectedCases: {},
 	frequencyMode: 'smart',
 	smartFrequencySolved: false,
 	smartFrequencyTime: false,

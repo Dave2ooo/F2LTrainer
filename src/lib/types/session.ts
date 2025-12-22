@@ -18,8 +18,9 @@ export interface SessionSettings {
 	trainGroupSelection: Record<GroupId, boolean>;
 	trainSideSelection: Record<Side, boolean>;
 	
-	// Case Selection (Individual Mode) - Future proofing, maybe just list of case IDs
-	// selectedCases?: string[]; 
+	
+	// Case Selection (Individual Mode)
+	selectedCases: Record<string, boolean>; // Key format: "groupId-caseId"
 
 	// Frequency
 	frequencyMode: FrequencyMode;
