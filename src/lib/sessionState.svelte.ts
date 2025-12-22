@@ -16,6 +16,7 @@ const DEFAULT_SETTINGS: SessionSettings = {
 	frequencyMode: 'smart',
 	smartFrequencySolved: false,
 	smartFrequencyTime: false,
+	trainMode: 'classic',
 	trainAddAuf: true,
 	trainShowTimer: true,
 	trainHintAlgorithm: 'step',

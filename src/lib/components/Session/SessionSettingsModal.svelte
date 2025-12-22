@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select } from 'flowbite-svelte';
+	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select, ButtonGroup } from 'flowbite-svelte';
     import Modal from '$lib/components/Modal.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
@@ -28,124 +28,194 @@
         { value: 'fully', name: 'Fully stickered' }
     ];
     
-
     
-    // For colors, just simple text inputs or selects for now
+    // Color options for checkboxes
     const colors = ['white', 'yellow', 'green', 'blue', 'red', 'orange'];
-    const colorOptions = colors.map(c => ({ value: c, name: c }));
 
 </script>
 
 {#if session && settings}
 	<Modal bind:open title="Session Settings" size="lg" autoclose={false}>
-		<div class="flex flex-col gap-4">
-			<!-- General -->
-			<div>
-				<Label for="session-name" class="mb-2">Session Name</Label>
+		<div class="flex flex-col gap-5">
+			<!-- General Settings Section -->
+			<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
+				<Label for="session-name" class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">Session Name</Label>
 				<Input id="session-name" bind:value={session.name} placeholder="Enter session name" />
 			</div>
 
-            <Checkbox bind:checked={settings.smartCubeEnabled}>Enable Smart Cube</Checkbox>
-
 			<Tabs style="underline">
 				<TabItem open title="Case Selection">
-                    <div class="flex flex-col gap-4 mt-2">
-                        <Label>Mode (Not yet fully implemented)</Label>
-                        <div class="flex gap-4">
-                            <Button color={settings.caseMode === 'group' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'group'}>Group</Button>
-                            <Button color={settings.caseMode === 'individual' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'individual'}>Individual</Button>
-                        </div>
+                    <div class="flex flex-col gap-5 mt-4">
+						<!-- Case Mode Section -->
+						<div class="space-y-3">
+							<div class="flex items-center justify-between">
+								<Label class="text-sm font-semibold">Case Selection Mode</Label>
+								<span class="text-xs text-gray-500 dark:text-gray-400">(Not fully implemented)</span>
+							</div>
+                        	<ButtonGroup class="w-full *:flex-1">
+                            	<Button color={settings.caseMode === 'group' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'group'}>Group</Button>
+                            	<Button color={settings.caseMode === 'individual' ? 'blue' : 'alternative'} onclick={() => settings.caseMode = 'individual'}>Individual</Button>
+                        	</ButtonGroup>
+						</div>
 
                         {#if settings.caseMode === 'group'}
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="border p-2 rounded">
-                                    <Label class="font-bold mb-2">Groups</Label>
-                                    {#each GROUP_IDS as groupId}
-                                        <Checkbox bind:checked={settings.trainGroupSelection[groupId]} class="mb-1">{GROUP_DEFINITIONS[groupId].name}</Checkbox>
-                                    {/each}
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+                                    <Label class="font-semibold mb-3 text-sm">F2L Groups</Label>
+									<div class="space-y-2">
+                                    	{#each GROUP_IDS as groupId}
+                                        	<Checkbox bind:checked={settings.trainGroupSelection[groupId]}>{GROUP_DEFINITIONS[groupId].name}</Checkbox>
+                                    	{/each}
+									</div>
                                 </div>
-                                <div class="border p-2 rounded">
-                                    <Label class="font-bold mb-2">Train State</Label>
-                                    <Checkbox bind:checked={settings.trainStateSelection.unlearned} class="mb-1" color="red">Unlearned</Checkbox>
-                                    <Checkbox bind:checked={settings.trainStateSelection.learning} class="mb-1" color="yellow">Learning</Checkbox>
-                                    <Checkbox bind:checked={settings.trainStateSelection.finished} class="mb-1" color="green">Finished</Checkbox>
+                                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+                                    <Label class="font-semibold mb-3 text-sm">Training State</Label>
+									<div class="space-y-2">
+                                    	<Checkbox bind:checked={settings.trainStateSelection.unlearned} color="red">Unlearned</Checkbox>
+                                    	<Checkbox bind:checked={settings.trainStateSelection.learning} color="yellow">Learning</Checkbox>
+                                    	<Checkbox bind:checked={settings.trainStateSelection.finished} color="green">Finished</Checkbox>
+									</div>
                                 </div>
                             </div>
                         {:else}
-                            <p>Individual case selection to be implemented.</p>
+                            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+								<p class="text-sm">Individual case selection coming soon...</p>
+							</div>
                         {/if}
                     </div>
 				</TabItem>
 				
-                <TabItem title="Train Settings">
-                    <div class="flex flex-col gap-4 mt-2">
-                        <div class="border p-2 rounded">
-                            <Label class="font-bold mb-2">Slots (Sides)</Label>
-                            <Checkbox bind:checked={settings.trainSideSelection.left} class="mb-1">Left Slots</Checkbox>
-                            <Checkbox bind:checked={settings.trainSideSelection.right} class="mb-1">Right Slots</Checkbox>
-                        </div>
+                <TabItem title="Training">
+                    <div class="flex flex-col gap-5 mt-4">
+						<!-- Cube and Training Mode Grid -->
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<!-- Cube Type Section -->
+							<div class="space-y-3">
+                        		<Label class="text-sm font-semibold">Cube</Label>
+                        		<ButtonGroup class="w-full *:flex-1">
+                            		<Button color={!settings.smartCubeEnabled ? 'blue' : 'alternative'} onclick={() => settings.smartCubeEnabled = false}>Classic</Button>
+                            		<Button color={settings.smartCubeEnabled ? 'blue' : 'alternative'} onclick={() => settings.smartCubeEnabled = true}>Smart Cube</Button>
+                        		</ButtonGroup>
+							</div>
 
-                        <Label class="font-bold">Frequency</Label>
-                         <div class="flex gap-4">
-                            <Button color={settings.frequencyMode === 'smart' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'smart'}>Smart Frequency</Button>
-                            <Button color={settings.frequencyMode === 'recap' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'recap'}>Recap Mode</Button>
-                        </div>
+							<!-- Train Mode Section -->
+							<div class="space-y-3">
+                        		<Label class="text-sm font-semibold">Training Mode</Label>
+                        		<ButtonGroup class="w-full *:flex-1">
+                            		<Button color={settings.trainMode === 'classic' ? 'blue' : 'alternative'} onclick={() => settings.trainMode = 'classic'}>Classic</Button>
+                            		<Button color={settings.trainMode === 'drill' ? 'blue' : 'alternative'} onclick={() => settings.trainMode = 'drill'}>Drill</Button>
+                        		</ButtonGroup>
+							</div>
+						</div>
 
-                        {#if settings.frequencyMode === 'smart'}
-                             <Checkbox bind:checked={settings.smartFrequencySolved}>Prioritize Unsolved/Few Solves</Checkbox>
-                             <Checkbox bind:checked={settings.smartFrequencyTime}>Prioritize Slow Solves</Checkbox>
-                        {:else}
-                            <p>Recap mode will cycle through all selected cases once.</p>
-                        {/if}
+						<!-- Slots and Additional Options Grid -->
+						<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+							<!-- Slots Section -->
+							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+								<Label class="font-semibold mb-3 text-sm">Cube Slots</Label>
+								<div class="space-y-2">
+									<Checkbox bind:checked={settings.trainSideSelection.left}>Left Slots</Checkbox>
+									<Checkbox bind:checked={settings.trainSideSelection.right}>Right Slots</Checkbox>
+								</div>
+							</div>
 
-                        <hr class="my-2" />
-                        
-                        <Label class="font-bold">Other Options</Label>
-                        <div class="grid grid-cols-1 gap-2">
-                            <div class="flex items-center gap-2">
-                                <Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
-                                <TooltipButton
-                                    id="btn-session-settings-auf"
-                                    tooltip="Adds a random U move to the end of the scramble"
-                                    icon={CircleQuestionMark}
-                                />
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
-                            </div>
-                        </div>
+							<!-- Additional Options Section -->
+							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+								<Label class="font-semibold mb-3 text-sm">Additional Options</Label>
+								<div class="space-y-2">
+									<div class="flex items-center gap-2">
+										<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
+										<TooltipButton
+											id="btn-session-settings-auf"
+											tooltip="Adds a random U move to the end of the scramble"
+											icon={CircleQuestionMark}
+										/>
+									</div>
+									<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
+								</div>
+							</div>
+						</div>
+
+						<!-- Frequency Section -->
+						<div class="space-y-3">
+                        	<Label class="text-sm font-semibold">Case Frequency</Label>
+                        	<ButtonGroup class="w-full *:flex-1">
+                            	<Button color={settings.frequencyMode === 'smart' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'smart'}>Smart Frequency</Button>
+                            	<Button color={settings.frequencyMode === 'recap' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'recap'}>Recap Mode</Button>
+                        	</ButtonGroup>
+
+                        	{#if settings.frequencyMode === 'smart'}
+								<div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-200 dark:border-blue-800 space-y-2">
+                             		<Checkbox bind:checked={settings.smartFrequencySolved} class="text-sm">Prioritize Unsolved/Few Solves</Checkbox>
+                             		<Checkbox bind:checked={settings.smartFrequencyTime} class="text-sm">Prioritize Slow Solves</Checkbox>
+								</div>
+                        	{:else}
+                            	<div class="bg-gray-50 dark:bg-gray-800 p-3 rounded-lg border border-gray-200 dark:border-gray-700">
+									<p class="text-sm text-gray-600 dark:text-gray-400">Recap mode cycles through all selected cases once.</p>
+								</div>
+                        	{/if}
+						</div>
                     </div>
                 </TabItem>
 
-				<TabItem title="Visuals & Hints">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
-                        <div>
-                            <Label>Algorithm Hint</Label>
-                            <Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
-                        </div>
-                         <div>
-                            <Label>Stickering Style</Label>
-                            <Select items={hintStickerOptions} bind:value={settings.trainHintStickering} />
-                        </div>
-                         <div>
-                            <Label>Cross Color</Label>
-                             <Select items={colorOptions} bind:value={settings.crossColor[0]} /> <!-- Simplified single color for now -->
-                        </div>
-                         <div>
-                            <Label>Front Color</Label>
-                             <Select items={colorOptions} bind:value={settings.frontColor[0]} />
-                        </div>
-                    </div>
+				<TabItem title="Visuals">
+					<div class="flex flex-col gap-5 mt-4">
+						<!-- Hint Settings -->
+						<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+							<Label class="font-semibold mb-4 text-sm">Hint Settings</Label>
+                     		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        		<div>
+                            		<Label class="mb-1.5 text-xs">Algorithm Hint</Label>
+                            		<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
+                        		</div>
+                         		<div>
+                            		<Label class="mb-1.5 text-xs">Stickering Style</Label>
+                            		<Select items={hintStickerOptions} bind:value={settings.trainHintStickering} />
+                        		</div>
+                    		</div>
+						</div>
 
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                        <div>
-                             <Label >Back View</Label>
-                             <Checkbox 
-                                checked={settings.backView === 'floating'}
-                                onchange={(e) => { settings.backView = (e.target as HTMLInputElement).checked ? 'floating' : 'none'}}
-                             >Show Back Slots</Checkbox>
-                        </div>
-                     </div>
+						<!-- Color Settings -->
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+							<!-- Cross Color -->
+							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+								<Label class="font-semibold mb-3 text-sm">Cross Color</Label>
+								<div class="grid grid-cols-2 gap-2">
+									{#each colors as color}
+										<Checkbox bind:group={settings.crossColor} value={color}>
+											{color.charAt(0).toUpperCase() + color.slice(1)}
+										</Checkbox>
+									{/each}
+								</div>
+							</div>
+
+							<!-- Front Color -->
+							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+								<Label class="font-semibold mb-3 text-sm">Front Color</Label>
+								<div class="grid grid-cols-2 gap-2">
+									{#each colors as color}
+										<Checkbox bind:group={settings.frontColor} value={color}>
+											{color.charAt(0).toUpperCase() + color.slice(1)}
+										</Checkbox>
+									{/each}
+								</div>
+								{#if settings.crossColor.length > 1}
+									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+										Randomized when multiple cross colors selected.
+									</p>
+								{/if}
+							</div>
+						</div>
+
+						<!-- View Settings -->
+						<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+							<Label class="font-semibold mb-3 text-sm">View Options</Label>
+                         	<Checkbox 
+                            	checked={settings.backView === 'floating'}
+                            	onchange={(e) => { settings.backView = (e.target as HTMLInputElement).checked ? 'floating' : 'none'}}
+                         	>Show Back Slots (Floating View)</Checkbox>
+						</div>
+					</div>
                 </TabItem>
 			</Tabs>
             

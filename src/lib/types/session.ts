@@ -6,6 +6,7 @@ import type { StickerColor } from './stickering';
 
 export type CaseMode = 'group' | 'individual';
 export type FrequencyMode = 'smart' | 'recap';
+export type TrainMode = 'classic' | 'drill';
 
 export interface SessionSettings {
 	// General
@@ -24,6 +25,7 @@ export interface SessionSettings {
 	frequencyMode: FrequencyMode;
 	smartFrequencySolved: boolean; // if frequencyMode === 'smart'
 	smartFrequencyTime: boolean;   // if frequencyMode === 'smart'
+	trainMode: TrainMode;
 	trainAddAuf: boolean;
 	trainShowTimer: boolean;
 
