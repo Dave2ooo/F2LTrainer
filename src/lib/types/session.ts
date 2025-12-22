@@ -1,7 +1,7 @@
 import type { GroupId } from './group';
 import type { TrainState } from './caseState';
 import type { Side } from './Side';
-import type { View } from './globalState';
+import type { View, HintAlgorithm, HintStickering } from './globalState';
 import type { StickerColor } from './stickering';
 
 export type CaseMode = 'group' | 'individual';
@@ -24,10 +24,13 @@ export interface SessionSettings {
 	frequencyMode: FrequencyMode;
 	smartFrequencySolved: boolean; // if frequencyMode === 'smart'
 	smartFrequencyTime: boolean;   // if frequencyMode === 'smart'
+	trainAddAuf: boolean;
+	trainShowTimer: boolean;
 
 	// Hints / Visuals
-	trainHintAlgorithm: 'none' | 'step' | 'full';
-	trainHintStickering: 'none' | 'cross' | 'f2l' | 'll' | 'full';
+	trainHintAlgorithm: HintAlgorithm;
+	trainHintStickering: HintStickering;
+	backView: 'none' | 'floating';
 	crossColor: string[];
 	frontColor: string[];
 

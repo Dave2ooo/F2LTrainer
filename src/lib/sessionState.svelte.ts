@@ -16,8 +16,11 @@ const DEFAULT_SETTINGS: SessionSettings = {
 	frequencyMode: 'smart',
 	smartFrequencySolved: false,
 	smartFrequencyTime: false,
+	trainAddAuf: true,
+	trainShowTimer: true,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	backView: 'none',
 	crossColor: ['white'],
 	frontColor: ['red'],
 	smartCubeEnabled: false
@@ -36,7 +39,10 @@ class SessionState {
 	load() {
 		const storedSessions = localStorage.getItem(STORAGE_KEY);
 		if (storedSessions) {
-			this.sessions = JSON.parse(storedSessions);
+			this.sessions = JSON.parse(storedSessions).map((s: Session) => ({
+				...s,
+				settings: { ...DEFAULT_SETTINGS, ...s.settings }
+			}));
 		} else {
 			// Create default session if none
 			this.createSession('Default Session', true);

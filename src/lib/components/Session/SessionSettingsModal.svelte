@@ -1,8 +1,11 @@
 <script lang="ts">
-	import { Modal, Button, Input, Label, Checkbox, Tabs, TabItem, Select } from 'flowbite-svelte';
+	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select } from 'flowbite-svelte';
+    import Modal from '$lib/components/Modal.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
-    import { Trash } from '@lucide/svelte';
+    import Update from '$lib/components/Modals/Buttons/Update.svelte';
+    import { CircleQuestionMark } from '@lucide/svelte';
+    import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 
 	let { open = $bindable(), sessionId, isNew = false } = $props();
 
@@ -15,17 +18,17 @@
 
     // Options for selects
     const hintAlgoOptions = [
-        { value: 'none', name: 'None' },
-        { value: 'step', name: 'Step by Step' },
-        { value: 'full', name: 'Full Algorithm' }
+        { value: 'step', name: 'Reveal step-by-step' },
+        { value: 'allAtOnce', name: 'Reveal all at once' },
+        { value: 'always', name: 'Show all time' }
     ];
 
      const hintStickerOptions = [
-        { value: 'none', name: 'None' },
-        { value: 'cross', name: 'Cross Only' },
-        { value: 'f2l', name: 'F2L' },
-        { value: 'll', name: 'Last Layer (Full)' } // Mapping 'full' to 'll' description or similar
+        { value: 'f2l', name: 'F2L Stickering' },
+        { value: 'fully', name: 'Fully stickered' }
     ];
+    
+
     
     // For colors, just simple text inputs or selects for now
     const colors = ['white', 'yellow', 'green', 'blue', 'red', 'orange'];
@@ -67,11 +70,6 @@
                                     <Checkbox bind:checked={settings.trainStateSelection.learning} class="mb-1" color="yellow">Learning</Checkbox>
                                     <Checkbox bind:checked={settings.trainStateSelection.finished} class="mb-1" color="green">Finished</Checkbox>
                                 </div>
-                                <div class="border p-2 rounded">
-                                    <Label class="font-bold mb-2">Slots (Sides)</Label>
-                                    <Checkbox bind:checked={settings.trainSideSelection.left} class="mb-1">Left Slots</Checkbox>
-                                    <Checkbox bind:checked={settings.trainSideSelection.right} class="mb-1">Right Slots</Checkbox>
-                                </div>
                             </div>
                         {:else}
                             <p>Individual case selection to be implemented.</p>
@@ -79,8 +77,15 @@
                     </div>
 				</TabItem>
 				
-                <TabItem title="Frequency">
+                <TabItem title="Train Settings">
                     <div class="flex flex-col gap-4 mt-2">
+                        <div class="border p-2 rounded">
+                            <Label class="font-bold mb-2">Slots (Sides)</Label>
+                            <Checkbox bind:checked={settings.trainSideSelection.left} class="mb-1">Left Slots</Checkbox>
+                            <Checkbox bind:checked={settings.trainSideSelection.right} class="mb-1">Right Slots</Checkbox>
+                        </div>
+
+                        <Label class="font-bold">Frequency</Label>
                          <div class="flex gap-4">
                             <Button color={settings.frequencyMode === 'smart' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'smart'}>Smart Frequency</Button>
                             <Button color={settings.frequencyMode === 'recap' ? 'blue' : 'alternative'} onclick={() => settings.frequencyMode = 'recap'}>Recap Mode</Button>
@@ -92,6 +97,23 @@
                         {:else}
                             <p>Recap mode will cycle through all selected cases once.</p>
                         {/if}
+
+                        <hr class="my-2" />
+                        
+                        <Label class="font-bold">Other Options</Label>
+                        <div class="grid grid-cols-1 gap-2">
+                            <div class="flex items-center gap-2">
+                                <Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
+                                <TooltipButton
+                                    id="btn-session-settings-auf"
+                                    tooltip="Adds a random U move to the end of the scramble"
+                                    icon={CircleQuestionMark}
+                                />
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
+                            </div>
+                        </div>
                     </div>
                 </TabItem>
 
@@ -114,17 +136,29 @@
                              <Select items={colorOptions} bind:value={settings.frontColor[0]} />
                         </div>
                     </div>
+
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                        <div>
+                             <Label >Back View</Label>
+                             <Checkbox 
+                                checked={settings.backView === 'floating'}
+                                onchange={(e) => { settings.backView = (e.target as HTMLInputElement).checked ? 'floating' : 'none'}}
+                             >Show Back Slots</Checkbox>
+                        </div>
+                     </div>
                 </TabItem>
 			</Tabs>
+            
+             <Update
+                onCancel={() => {
+                    if (isNew && sessionId) sessionState.deleteSession(sessionId);
+                    open = false;
+                }}
+                onSubmit={() => {
+                    sessionState.save();
+                    open = false;
+                }}
+            />
 		</div>
-        <svelte:fragment slot="footer">
-            <div class="flex w-full justify-between">
-                 <Button color="alternative" onclick={() => {
-                     if (isNew && sessionId) sessionState.deleteSession(sessionId);
-                     open = false;
-                 }}>Cancel</Button>
-                 <Button onclick={() => open = false}>{isNew ? 'Create' : 'Save'}</Button>
-            </div>
-        </svelte:fragment>
 	</Modal>
 {/if}
