@@ -1,44 +1,51 @@
 # Session ID 0 Bug Fix
 
 ## Issue
+
 After changing session IDs from UUIDs (strings) to incremental numbers starting from 0, the default session (ID: 0) was broken:
+
 - ❌ Could not open session settings
 - ❌ Solves were not being added to the history
 
 ## Root Cause
+
 JavaScript treats `0` as **falsy**, so code using truthy checks like `if (activeSessionId)` would fail when the session ID was `0`.
 
 ### Example of the Problem:
+
 ```javascript
 const activeSessionId = 0; // First session
 
 // ❌ WRONG - This evaluates to false!
 if (activeSessionId) {
-    // This code never runs for session 0
+	// This code never runs for session 0
 }
 
 // ✅ CORRECT - Explicit null check
 if (activeSessionId !== null) {
-    // This code runs for session 0
+	// This code runs for session 0
 }
 ```
 
 ## Files Fixed
 
 ### 1. `src/lib/components/TrainView/TrainView.svelte`
+
 **Line 71** - Session settings modal rendering
 
 **Before**:
+
 ```svelte
 {#if sessionState.activeSessionId}
-    <SessionSettingsModal ... />
+	<SessionSettingsModal ... />
 {/if}
 ```
 
 **After**:
+
 ```svelte
 {#if sessionState.activeSessionId !== null}
-    <SessionSettingsModal ... />
+	<SessionSettingsModal ... />
 {/if}
 ```
 
@@ -49,7 +56,9 @@ if (activeSessionId !== null) {
 ### 2. `src/lib/statisticsState.svelte.ts`
 
 #### Fix 1: Line 136 - Statistics filtering
+
 **Before**:
+
 ```typescript
 get statistics() {
     if (!sessionState.activeSessionId) return [];
@@ -58,6 +67,7 @@ get statistics() {
 ```
 
 **After**:
+
 ```typescript
 get statistics() {
     if (sessionState.activeSessionId === null) return [];
@@ -68,7 +78,9 @@ get statistics() {
 **Impact**: Statistics now show for session 0
 
 #### Fix 2: Line 146 - Auto-assign session ID to solves
+
 **Before**:
+
 ```typescript
 addSolve(solve: Solve) {
     if (!solve.sessionId && sessionState.activeSessionId) {
@@ -79,6 +91,7 @@ addSolve(solve: Solve) {
 ```
 
 **After**:
+
 ```typescript
 addSolve(solve: Solve) {
     if (!solve.sessionId && sessionState.activeSessionId !== null) {
@@ -95,6 +108,7 @@ addSolve(solve: Solve) {
 ## The Falsy vs Null Problem
 
 In JavaScript, these values are **falsy**:
+
 - `false`
 - `0` ⚠️ **(This is our problem!)**
 - `""` (empty string)
@@ -103,6 +117,7 @@ In JavaScript, these values are **falsy**:
 - `NaN`
 
 ### Rule of Thumb:
+
 When checking if a number exists, **NEVER** use truthy checks. Always use explicit comparisons:
 
 ```typescript
@@ -124,6 +139,7 @@ if (id != null) { ...} // Checks both null and undefined
 ## Testing
 
 After fixes, verify:
+
 - [x] Session 0 settings modal opens when clicking gear icon
 - [x] Solves are added to session 0
 - [x] History component shows solves for session 0

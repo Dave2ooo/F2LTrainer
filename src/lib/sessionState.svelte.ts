@@ -43,13 +43,13 @@ class SessionState {
 	// Get the next available session ID
 	private getNextId(): number {
 		if (this.sessions.length === 0) return 0;
-		const maxId = Math.max(...this.sessions.map(s => s.id));
+		const maxId = Math.max(...this.sessions.map((s) => s.id));
 		return maxId + 1;
 	}
 
 	load() {
 		const storedSessions = loadFromLocalStorage<Session[]>(STORAGE_KEY);
-		
+
 		// Check if we have any sessions in localStorage
 		if (storedSessions && Array.isArray(storedSessions) && storedSessions.length > 0) {
 			// Load existing sessions and merge with default settings to include any new settings
@@ -71,11 +71,15 @@ class SessionState {
 		const storedActiveIdStr = localStorage.getItem(ACTIVE_SESSION_KEY);
 		const storedActiveId = storedActiveIdStr ? parseInt(storedActiveIdStr, 10) : null;
 		// Validate that the stored active ID actually exists in our loaded sessions
-		if (storedActiveId !== null && !isNaN(storedActiveId) && this.sessions.find(s => s.id === storedActiveId)) {
+		if (
+			storedActiveId !== null &&
+			!isNaN(storedActiveId) &&
+			this.sessions.find((s) => s.id === storedActiveId)
+		) {
 			this.activeSessionId = storedActiveId;
 		} else {
 			// Fallback to the first non-archived session, or just the first one
-			const firstActive = this.sessions.find(s => !s.archived);
+			const firstActive = this.sessions.find((s) => !s.archived);
 			if (firstActive) {
 				this.activeSessionId = firstActive.id;
 			} else if (this.sessions.length > 0) {
@@ -115,7 +119,7 @@ class SessionState {
 	}
 
 	updateSession(id: number, updates: Partial<Session>) {
-		const session = this.sessions.find(s => s.id === id);
+		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			Object.assign(session, updates);
 			this.save();
@@ -123,11 +127,11 @@ class SessionState {
 	}
 
 	deleteSession(id: number) {
-		const session = this.sessions.find(s => s.id === id);
+		const session = this.sessions.find((s) => s.id === id);
 		if (!session) return;
 
 		// Count active (non-archived) sessions
-		const activeCount = this.sessions.filter(s => !s.archived).length;
+		const activeCount = this.sessions.filter((s) => !s.archived).length;
 
 		// Prevent deleting the last reachable session
 		if (activeCount <= 1 && !session.archived) {
@@ -137,17 +141,17 @@ class SessionState {
 
 		// Soft delete
 		session.archived = true;
-		
+
 		// If we deleted the current active session, switch to another valid one
 		if (this.activeSessionId === id) {
-			const nextSession = this.sessions.find(s => !s.archived && s.id !== id);
+			const nextSession = this.sessions.find((s) => !s.archived && s.id !== id);
 			this.activeSessionId = nextSession?.id || null;
 		}
 		this.save();
 	}
 
 	restoreSession(id: number) {
-		const session = this.sessions.find(s => s.id === id);
+		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			session.archived = false;
 			this.save();
@@ -160,7 +164,7 @@ class SessionState {
 	}
 
 	get activeSession() {
-		return this.sessions.find(s => s.id === this.activeSessionId);
+		return this.sessions.find((s) => s.id === this.activeSessionId);
 	}
 }
 

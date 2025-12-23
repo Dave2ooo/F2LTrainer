@@ -25,7 +25,7 @@ export function gernerateTrainCases(): TrainCase[] {
 
 	// Fallback to globalState proxies if sessionSettings not available (though globalState proxies to session anyway)
 	// But for new properties like caseMode, we need to access settings directly.
-	
+
 	const trainGroupSelection = globalState.trainGroupSelection;
 	const trainStateSelection = globalState.trainStateSelection;
 	const trainSideSelection = globalState.trainSideSelection;
@@ -43,9 +43,8 @@ export function gernerateTrainCases(): TrainCase[] {
 	const candidates: { groupId: GroupId; caseId: number; side: Side }[] = [];
 
 	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
-		
 		// In Group mode, we skip entire groups if unchecked.
-		// In Individual mode, we might iterate all groups to find selected cases 
+		// In Individual mode, we might iterate all groups to find selected cases
 		// (though we could optimize, iterating all is fine as there aren't that many).
 		if (caseMode === 'group' && !trainGroupSelection[groupId]) continue;
 
@@ -169,7 +168,7 @@ export function gernerateTrainCases(): TrainCase[] {
 	} else if (frequencyMode === 'recap') {
 		// Recap Mode: Keep weights at 1. ensuring uniform distribution.
 		// We might want to ensure we don't pick random scrambles if we want to cycle through them?
-		// But "recap" usually just means "review these cases". 
+		// But "recap" usually just means "review these cases".
 		// Since we shuffle at the end, standard weight=1 means 1 occurrence of each candidate per generation cycle.
 		// That fits "Recap" well.
 	}

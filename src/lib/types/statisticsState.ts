@@ -26,8 +26,8 @@ export type CompressedSolve = {
 	ts: number;
 	a: CompressedAuf;
 	s: CompressedSide;
-    ss: number;
-    sid?: number;
+	ss: number;
+	sid?: number;
 };
 
 export type StatisticsState = Solve[];

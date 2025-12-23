@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { P } from 'flowbite-svelte';
+	import { P } from 'flowbite-svelte';
 </script>
 
-<P class="text-center mt-10">Smart Cube Training Not Implemented Yet</P>
+<P class="mt-10 text-center">Smart Cube Training Not Implemented Yet</P>

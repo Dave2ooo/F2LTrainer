@@ -25,9 +25,13 @@
 	let activeCaseId = $state<CaseId>(1);
 
 	// Custom flip animation that handles NaN values
-	function safeFlip(node: Element, { from, to }: { from: DOMRect; to: DOMRect }, params?: { duration?: number }) {
+	function safeFlip(
+		node: Element,
+		{ from, to }: { from: DOMRect; to: DOMRect },
+		params?: { duration?: number }
+	) {
 		const flipAnimation = flip(node, { from, to }, params);
-		
+
 		// Wrap the animation to validate transform values
 		if (flipAnimation && flipAnimation.css) {
 			const originalCss = flipAnimation.css;
@@ -40,7 +44,7 @@
 				return css;
 			};
 		}
-		
+
 		return flipAnimation;
 	}
 

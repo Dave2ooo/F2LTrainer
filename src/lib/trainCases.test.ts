@@ -21,8 +21,8 @@ vi.mock('./globalState.svelte', () => ({
 
 vi.mock('./statisticsState.svelte', () => ({
 	statisticsState: {
-        statistics: []
-    }
+		statistics: []
+	}
 }));
 
 vi.mock('./casesState.svelte', () => ({

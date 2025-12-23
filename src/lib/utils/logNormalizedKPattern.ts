@@ -87,7 +87,7 @@ export async function logNormalizedKPattern(
 		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
 		const normalizedPattern = pattern.kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
-	/* 	console.log(
+		/* 	console.log(
 			'Normalized State (rotation removed) - Corners:',
 			normalizedPattern.patternData.CORNERS
 		);

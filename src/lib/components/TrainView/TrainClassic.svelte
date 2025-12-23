@@ -4,13 +4,13 @@
 	import {
 		advanceToNextTrainCase,
 		advanceToPreviousTrainCase,
-        getNumberOfSelectedCases,
+		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 	import { casesState } from '$lib/casesState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
-    import { sessionState } from '$lib/sessionState.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import { casesStatic } from '$lib/casesStatic';
@@ -47,24 +47,24 @@
 	$effect(() => {
 		// Depend on moveCounter to trigger updates
 		const currentCounter = bluetoothState.moveCounter;
-		
+
 		if (currentCounter > lastProcessedMoveCounter) {
-            const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
-            lastProcessedMoveCounter = currentCounter;
-            
-            if (physicalTwistyPlayerRef && inputMode === 'real') {
-                missedMoves.forEach(({ move }) => {
-                    try {
-                        const m = move.trim();
-                        if (m) {
-                            physicalTwistyPlayerRef.addMove(m);
-                        }
-                    } catch (e) {
-                        console.warn('Failed to apply move:', move, e);
-                    }
-                });
-            }
-        }
+			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
+			lastProcessedMoveCounter = currentCounter;
+
+			if (physicalTwistyPlayerRef && inputMode === 'real') {
+				missedMoves.forEach(({ move }) => {
+					try {
+						const m = move.trim();
+						if (m) {
+							physicalTwistyPlayerRef.addMove(m);
+						}
+					} catch (e) {
+						console.warn('Failed to apply move:', move, e);
+					}
+				});
+			}
+		}
 	});
 
 	// Create hint manager instance
@@ -113,7 +113,7 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-                    sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined
 				});
 
 				// Update the TrainCase with the solve ID so we don't record it again
@@ -195,7 +195,7 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-                    sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined
 				});
 
 				// Mark as solved
@@ -272,139 +272,138 @@
 		}
 	});
 
-
 	let settingsRef = $state<Settings>();
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
 <ResponsiveLayout>
-    {#snippet leftContent()}
-        <div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-            <Button
-                class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-                type="button"
-                onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
-            >
-            <div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
-                {scramble}
-            </div>
-            <Button
-                class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-                type="button"
-                onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
-            >
-        </div>
+	{#snippet leftContent()}
+		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+			<Button
+				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				type="button"
+				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+			>
+			<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
+				{scramble}
+			</div>
+			<Button
+				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				type="button"
+				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+			>
+		</div>
 
-        <div class="mb-4 flex justify-center">
-            <ToggleSwitch
-                bind:selected={inputMode}
-                leftLabel="Virtual"
-                rightLabel="Real"
-                leftValue="virtual"
-                rightValue="real"
-            />
-        </div>
+		<div class="mb-4 flex justify-center">
+			<ToggleSwitch
+				bind:selected={inputMode}
+				leftLabel="Virtual"
+				rightLabel="Real"
+				leftValue="virtual"
+				rightValue="real"
+			/>
+		</div>
 
-        <div
-            class="relative mx-auto size-60 md:size-80"
-            onpointerdowncapture={() => {
-                globalState.hasUsedTwistyPlayer = true;
-            }}
-        >
-{#if currentTrainCase}
-            <TwistyPlayer
-                bind:this={twistyPlayerRef}
-                bind:scramble
-                bind:alg
-                bind:hidePlayer={globalState.trainHideTwistyPlayer}
-                groupId={currentTrainCase.groupId}
-                caseId={currentTrainCase.caseId}
-                algorithmSelection={currentAlgorithmSelection}
-                auf={currentTrainCase.auf}
-                side={currentTrainCase.side}
-                crossColor={currentTrainCase.crossColor}
-                frontColor={currentTrainCase.frontColor}
-                scrambleSelection={currentTrainCase.scramble}
-                stickering={globalState.trainHintStickering}
-                backView={sessionState.activeSession?.settings.backView || 'none'}
-                backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-                experimentalDragInput="auto"
-                class="size-full {inputMode === 'virtual' ? '' : 'hidden'}"
-                controlPanel="bottom-row"
-                onclick={onNext}
-                showVisibilityToggle={true}
-            />
-            <TwistyPlayer
-                bind:this={physicalTwistyPlayerRef}
-                bind:scramble
-                alg={''}
-                groupId={currentTrainCase.groupId}
-                caseId={currentTrainCase.caseId}
-                algorithmSelection={currentAlgorithmSelection}
-                auf={currentTrainCase.auf}
-                side={currentTrainCase.side}
-                crossColor={currentTrainCase.crossColor}
-                frontColor={currentTrainCase.frontColor}
-                scrambleSelection={currentTrainCase.scramble}
-                stickering={globalState.trainHintStickering}
-                backView={sessionState.activeSession?.settings.backView || 'none'}
-                backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-                experimentalDragInput="auto"
-                class="size-full {inputMode === 'real' ? '' : 'hidden'}"
-                controlPanel="bottom-row"
-                onclick={onNext}
-                showVisibilityToggle={false}
-                tempoScale={5}
-                showAlg={false}
-            />
-            {#if !globalState.hasUsedTwistyPlayer}
-                <Pointer
-                    class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
-                />
-            {/if}
-        {:else}
-             <div class="flex items-center justify-center h-60">
-                 <P>Loading case...</P>
-             </div>
-        {/if}
-        </div>
+		<div
+			class="relative mx-auto size-60 md:size-80"
+			onpointerdowncapture={() => {
+				globalState.hasUsedTwistyPlayer = true;
+			}}
+		>
+			{#if currentTrainCase}
+				<TwistyPlayer
+					bind:this={twistyPlayerRef}
+					bind:scramble
+					bind:alg
+					bind:hidePlayer={globalState.trainHideTwistyPlayer}
+					groupId={currentTrainCase.groupId}
+					caseId={currentTrainCase.caseId}
+					algorithmSelection={currentAlgorithmSelection}
+					auf={currentTrainCase.auf}
+					side={currentTrainCase.side}
+					crossColor={currentTrainCase.crossColor}
+					frontColor={currentTrainCase.frontColor}
+					scrambleSelection={currentTrainCase.scramble}
+					stickering={globalState.trainHintStickering}
+					backView={sessionState.activeSession?.settings.backView || 'none'}
+					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+					experimentalDragInput="auto"
+					class="size-full {inputMode === 'virtual' ? '' : 'hidden'}"
+					controlPanel="bottom-row"
+					onclick={onNext}
+					showVisibilityToggle={true}
+				/>
+				<TwistyPlayer
+					bind:this={physicalTwistyPlayerRef}
+					bind:scramble
+					alg={''}
+					groupId={currentTrainCase.groupId}
+					caseId={currentTrainCase.caseId}
+					algorithmSelection={currentAlgorithmSelection}
+					auf={currentTrainCase.auf}
+					side={currentTrainCase.side}
+					crossColor={currentTrainCase.crossColor}
+					frontColor={currentTrainCase.frontColor}
+					scrambleSelection={currentTrainCase.scramble}
+					stickering={globalState.trainHintStickering}
+					backView={sessionState.activeSession?.settings.backView || 'none'}
+					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+					experimentalDragInput="auto"
+					class="size-full {inputMode === 'real' ? '' : 'hidden'}"
+					controlPanel="bottom-row"
+					onclick={onNext}
+					showVisibilityToggle={false}
+					tempoScale={5}
+					showAlg={false}
+				/>
+				{#if !globalState.hasUsedTwistyPlayer}
+					<Pointer
+						class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+					/>
+				{/if}
+			{:else}
+				<div class="flex h-60 items-center justify-center">
+					<P>Loading case...</P>
+				</div>
+			{/if}
+		</div>
 
-        <HintButton
-            {alg}
-            bind:algViewerContainer
-            showAlgViewer={hintManager.showAlgViewer}
-            visible={hintManager.showHintButton}
-            hintCounter={hintManager.counter}
-            hintMode={globalState.trainHintAlgorithm}
-            onclick={showHintAlg}
-            onEditAlg={() => {
-                editAlgRef?.openModal();
-            }}
-        />
-        {#if globalState.trainShowTimer}
-            <Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
-        {/if}
+		<HintButton
+			{alg}
+			bind:algViewerContainer
+			showAlgViewer={hintManager.showAlgViewer}
+			visible={hintManager.showHintButton}
+			hintCounter={hintManager.counter}
+			hintMode={globalState.trainHintAlgorithm}
+			onclick={showHintAlg}
+			onEditAlg={() => {
+				editAlgRef?.openModal();
+			}}
+		/>
+		{#if globalState.trainShowTimer}
+			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
+		{/if}
 
-        <div class="flex flex-row justify-center gap-2">
-            <TrainStateSelect />
+		<div class="flex flex-row justify-center gap-2">
+			<TrainStateSelect />
 
-            <Button onclick={() => settingsRef?.openModal()}
-                >{getNumberOfSelectedCases()} cases selected</Button
-            >
-        </div>
+			<Button onclick={() => settingsRef?.openModal()}
+				>{getNumberOfSelectedCases()} cases selected</Button
+			>
+		</div>
 
-        <Details />
+		<Details />
 
-        <Settings bind:this={settingsRef} />
+		<Settings bind:this={settingsRef} />
 
-        {#if currentTrainCase}
-            <EditAlg
-                bind:this={editAlgRef}
-                groupId={currentTrainCase.groupId}
-                caseId={currentTrainCase.caseId}
-                side={currentTrainCase.side}
-            />
-        {/if}
-    {/snippet}
+		{#if currentTrainCase}
+			<EditAlg
+				bind:this={editAlgRef}
+				groupId={currentTrainCase.groupId}
+				caseId={currentTrainCase.caseId}
+				side={currentTrainCase.side}
+			/>
+		{/if}
+	{/snippet}
 </ResponsiveLayout>

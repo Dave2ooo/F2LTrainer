@@ -77,7 +77,12 @@ export const bluetoothState = {
 		errorMessage = msg;
 	},
 	// MAC Address Request Handling
-	requestMacAddress(isWrongKey: boolean, deviceMac: string | null, defaultMac: string | null, resolve: (mac: string | undefined) => void) {
+	requestMacAddress(
+		isWrongKey: boolean,
+		deviceMac: string | null,
+		defaultMac: string | null,
+		resolve: (mac: string | undefined) => void
+	) {
 		macAddressRequest.isOpen = true;
 		macAddressRequest.isWrongKey = isWrongKey;
 		macAddressRequest.deviceMac = deviceMac;

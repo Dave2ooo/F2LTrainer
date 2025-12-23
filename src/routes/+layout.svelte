@@ -21,7 +21,6 @@
 			saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
 		});
 
-
 		// Initialize the PWA manager which centralizes service worker
 		// registration and `beforeinstallprompt` handling.
 		startPwaManager();

@@ -21,7 +21,7 @@
 	function getGroupCaseCounts(groupId: GroupId) {
 		const caseIds = Object.keys(casesStatic[groupId]);
 		const totalCases = caseIds.length;
-		const selectedCount = caseIds.filter(caseId => selectedCases[`${groupId}-${caseId}`]).length;
+		const selectedCount = caseIds.filter((caseId) => selectedCases[`${groupId}-${caseId}`]).length;
 		return { selected: selectedCount, total: totalCases };
 	}
 </script>
@@ -39,18 +39,12 @@
 			{#snippet titleSlot()}
 				<span class="text-sm font-semibold">
 					{GROUP_DEFINITIONS[groupId].name}
-					<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">
+					<span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
 						({counts.selected}/{counts.total})
 					</span>
 				</span>
 			{/snippet}
-			<SessionGroupComponent
-				{groupId}
-				{crossColor}
-				{frontColor}
-				bind:selectedCases
-			/>
+			<SessionGroupComponent {groupId} {crossColor} {frontColor} bind:selectedCases />
 		</TabItem>
 	{/each}
 </Tabs>
-

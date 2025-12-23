@@ -1,5 +1,5 @@
 /**
- * QiYi Cube implementation  
+ * QiYi Cube implementation
  * Ported from csTimer's qiyicube.js with minimal changes
  * Note: This implementation requires lz-string for key decompression
  */
@@ -30,7 +30,8 @@ async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 	if (_deviceName && /^(QY-QYSC|XMD-TornadoV4-i)-.-[0-9A-F]{4}$/.exec(_deviceName)) {
 		defaultMac = 'CC:A3:00:00:' + _deviceName.slice(-4, -2) + ':' + _deviceName.slice(-2);
 	}
-	deviceMac = (await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
+	deviceMac =
+		(await giikerutil.reqMacAddr(forcePrompt, isWrongKey || false, deviceMac, defaultMac)) || null;
 
 	if (!deviceMac) {
 		throw new Error('MAC address required');
@@ -38,7 +39,7 @@ async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 }
 
 function crc16modbus(data: number[]): number {
-	let crc = 0xFFFF;
+	let crc = 0xffff;
 	for (let i = 0; i < data.length; i++) {
 		crc ^= data[i];
 		for (let j = 0; j < 8; j++) {
@@ -60,7 +61,7 @@ function sendMessage(content: number[]): Promise<void> {
 	}
 	const crc = crc16modbus(msg);
 	msg.push(crc & 0xff, crc >> 8);
-	const npad = (16 - msg.length % 16) % 16;
+	const npad = (16 - (msg.length % 16)) % 16;
 	for (let i = 0; i < npad; i++) {
 		msg.push(0);
 	}
@@ -89,12 +90,15 @@ function sendHello(mac: string | undefined | null): Promise<void> {
 }
 
 function getManufacturerDataBytes(mfData: any): DataView | undefined {
-	if (mfData instanceof DataView) { // workaround for Bluefy browser
+	if (mfData instanceof DataView) {
+		// workaround for Bluefy browser
 		return new DataView(mfData.buffer.slice(2));
 	}
 	for (const id of QIYI_CIC_LIST) {
 		if (mfData.has(id)) {
-			giikerutil.log('[qiyicube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0'));
+			giikerutil.log(
+				'[qiyicube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0')
+			);
 			return mfData.get(id);
 		}
 	}
@@ -106,41 +110,55 @@ function init(device: BluetoothDevice): Promise<void> {
 	clear();
 	_deviceName = device.name ? device.name.trim() : 'QiYi';
 	giikerutil.log('[qiyicube] start init device');
-	return GiikerCube.waitForAdvs().then(function (mfData) {
-		const dataView = getManufacturerDataBytes(mfData);
-		if (dataView && dataView.byteLength >= 6) {
-			const mac: string[] = [];
-			for (let i = 5; i >= 0; i--) {
-				mac.push((dataView.getUint8(i) + 0x100).toString(16).slice(1));
+	return GiikerCube.waitForAdvs()
+		.then(function (mfData) {
+			const dataView = getManufacturerDataBytes(mfData);
+			if (dataView && dataView.byteLength >= 6) {
+				const mac: string[] = [];
+				for (let i = 5; i >= 0; i--) {
+					mac.push((dataView.getUint8(i) + 0x100).toString(16).slice(1));
+				}
+				return Promise.resolve(mac.join(':'));
 			}
-			return Promise.resolve(mac.join(':'));
-		}
-		return Promise.reject(-3);
-	}).then(function (mac: string) {
-		giikerutil.log('[qiyicube] init, found cube bluetooth hardware MAC = ' + mac);
-		deviceMac = mac;
-	}, function (err: any) {
-		giikerutil.log('[qiyicube] init, unable to automatically determine cube MAC, error code = ' + err);
-	}).then(function () {
-		return device.gatt!.connect();
-	}).then(function (gatt) {
-		_gatt = gatt;
-		return gatt.getPrimaryService(SERVICE_UUID);
-	}).then(function (service) {
-		_service = service;
-		giikerutil.log('[qiyicube] got primary service', SERVICE_UUID);
-		return _service.getCharacteristics();
-	}).then(function (chrcts) {
-		giikerutil.log('[qiyicube] find chrcts', chrcts);
-		_chrct_cube = GiikerCube.findUUID(chrcts, CHRCT_UUID_CUBE);
-	}).then(function () {
-		_chrct_cube!.addEventListener('characteristicvaluechanged', onCubeEvent);
-		return _chrct_cube!.startNotifications();
-	}).then(function () {
-		return initMac(false);
-	}).then(function () {
-		return sendHello(deviceMac);
-	});
+			return Promise.reject(-3);
+		})
+		.then(
+			function (mac: string) {
+				giikerutil.log('[qiyicube] init, found cube bluetooth hardware MAC = ' + mac);
+				deviceMac = mac;
+			},
+			function (err: any) {
+				giikerutil.log(
+					'[qiyicube] init, unable to automatically determine cube MAC, error code = ' + err
+				);
+			}
+		)
+		.then(function () {
+			return device.gatt!.connect();
+		})
+		.then(function (gatt) {
+			_gatt = gatt;
+			return gatt.getPrimaryService(SERVICE_UUID);
+		})
+		.then(function (service) {
+			_service = service;
+			giikerutil.log('[qiyicube] got primary service', SERVICE_UUID);
+			return _service.getCharacteristics();
+		})
+		.then(function (chrcts) {
+			giikerutil.log('[qiyicube] find chrcts', chrcts);
+			_chrct_cube = GiikerCube.findUUID(chrcts, CHRCT_UUID_CUBE);
+		})
+		.then(function () {
+			_chrct_cube!.addEventListener('characteristicvaluechanged', onCubeEvent);
+			return _chrct_cube!.startNotifications();
+		})
+		.then(function () {
+			return initMac(false);
+		})
+		.then(function () {
+			return sendHello(deviceMac);
+		});
 }
 
 function onCubeEvent(event: Event) {
@@ -182,21 +200,23 @@ function parseCubeData(msg: number[]) {
 		return;
 	}
 	const opcode = msg[2];
-	const ts = (msg[3] << 24 | msg[4] << 16 | msg[5] << 8 | msg[6]);
-	if (opcode === 0x2) { // cube hello
+	const ts = (msg[3] << 24) | (msg[4] << 16) | (msg[5] << 8) | msg[6];
+	if (opcode === 0x2) {
+		// cube hello
 		batteryLevel = msg[35];
 		sendMessage(msg.slice(2, 7));
 		const newFacelet = parseFacelet(msg.slice(7, 34));
 		GiikerCube.callback(newFacelet, [], [Math.trunc(ts / 1.6), locTime], _deviceName || undefined);
 		prevCubie.fromFacelet(newFacelet);
 		// Skip solved state check for now
-	} else if (opcode === 0x3) { // state change
+	} else if (opcode === 0x3) {
+		// state change
 		sendMessage(msg.slice(2, 7));
 		// check timestamps
 		const todoMoves: [number, number][] = [[msg[34], ts]];
 		while (todoMoves.length < 10) {
 			const off = 91 - 5 * todoMoves.length;
-			const hisTs = (msg[off] << 24 | msg[off + 1] << 16 | msg[off + 2] << 8 | msg[off + 3]);
+			const hisTs = (msg[off] << 24) | (msg[off + 1] << 16) | (msg[off + 2] << 8) | msg[off + 3];
 			const hisMv = msg[off + 4];
 			if (hisTs <= lastTs) {
 				break;
@@ -213,10 +233,15 @@ function parseCubeData(msg: number[]) {
 			const power = [0, 2][todoMoves[i][0] & 1];
 			const m = axis * 3 + power;
 			CubieCube.CubeMult(prevCubie, CubieCube.moveCube[m], curCubie);
-			prevMoves.unshift("URFDLB".charAt(axis) + " 2'".charAt(power));
+			prevMoves.unshift('URFDLB'.charAt(axis) + " 2'".charAt(power));
 			prevMoves = prevMoves.slice(0, 8);
 			curFacelet = curCubie.toFaceCube();
-			toCallback.push([curFacelet, prevMoves.slice(), [Math.trunc(todoMoves[i][1] / 1.6), locTime], _deviceName || undefined]);
+			toCallback.push([
+				curFacelet,
+				prevMoves.slice(),
+				[Math.trunc(todoMoves[i][1] / 1.6), locTime],
+				_deviceName || undefined
+			]);
 			const tmp = curCubie;
 			curCubie = prevCubie;
 			prevCubie = tmp;
@@ -225,7 +250,12 @@ function parseCubeData(msg: number[]) {
 		if (newFacelet !== curFacelet) {
 			giikerutil.log('[qiyicube] facelet', newFacelet);
 			curCubie.fromFacelet(newFacelet);
-			GiikerCube.callback(newFacelet, prevMoves, [Math.trunc(ts / 1.6), locTime], _deviceName || undefined);
+			GiikerCube.callback(
+				newFacelet,
+				prevMoves,
+				[Math.trunc(ts / 1.6), locTime],
+				_deviceName || undefined
+			);
 			const tmp = curCubie;
 			curCubie = prevCubie;
 			prevCubie = tmp;
@@ -246,9 +276,9 @@ function parseCubeData(msg: number[]) {
 function parseFacelet(faceMsg: number[]): string {
 	const ret: string[] = [];
 	for (let i = 0; i < 54; i++) {
-		ret.push("LRDUFB".charAt(faceMsg[i >> 1] >> ((i % 2) << 2) & 0xf));
+		ret.push('LRDUFB'.charAt((faceMsg[i >> 1] >> (i % 2 << 2)) & 0xf));
 	}
-	return ret.join("");
+	return ret.join('');
 }
 
 function getBatteryLevel(): Promise<[number, string]> {

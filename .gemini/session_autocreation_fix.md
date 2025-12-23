@@ -1,10 +1,13 @@
 # Session Auto-Creation Fix
 
 ## Issue
+
 After page reload, a "New Session" was being automatically created, leading to duplicate or unwanted sessions accumulating over time.
 
 ## Root Cause
+
 The session loading logic in `sessionState.svelte.ts` wasn't clearly distinguishing between:
+
 1. **First-time visit** (no sessions in localStorage) - Should create "Default Session"
 2. **Subsequent visits** (sessions exist in localStorage) - Should only load existing sessions
 
@@ -13,14 +16,16 @@ The session loading logic in `sessionState.svelte.ts` wasn't clearly distinguish
 ### Updated `load()` method in `sessionState.svelte.ts`
 
 **Before:**
+
 - Settings merge happened, but the flow wasn't explicit about when to create vs load
 - Fallback logic could potentially create sessions unexpectedly
 
 **After:**
+
 ```typescript
 load() {
     const storedSessions = loadFromLocalStorage<Session[]>(STORAGE_KEY);
-    
+
     // Check if we have any sessions in localStorage
     if (storedSessions && Array.isArray(storedSessions) && storedSessions.length > 0) {
         // Load existing sessions and merge with default settings
@@ -76,6 +81,7 @@ load() {
 ## Expected Behavior
 
 ### First Visit (Empty localStorage)
+
 1. User visits site for the first time
 2. `loadFromLocalStorage` returns `null` or `[]`
 3. Code creates "Default Session"
@@ -83,6 +89,7 @@ load() {
 5. Returns early ✅
 
 ### Subsequent Visits (Sessions in localStorage)
+
 1. User reloads page
 2. `loadFromLocalStorage` returns existing sessions array
 3. Sessions loaded and merged with DEFAULT_SETTINGS (for new settings)
@@ -90,6 +97,7 @@ load() {
 5. **No new sessions created** ✅
 
 ### Edge Case (Corrupted/Empty)
+
 1. If localStorage has sessions but they're all invalid
 2. Warning logged to console
 3. Creates Default Session as emergency fallback
@@ -117,6 +125,7 @@ To test the fix:
    - Verify no duplicates created
 
 ## Result
+
 ✅ Only "Default Session" is created on first visit
 ✅ No automatic session creation on subsequent page loads
 ✅ Existing sessions properly preserved

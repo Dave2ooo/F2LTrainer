@@ -49,13 +49,13 @@
 <button
 	type="button"
 	onclick={toggleSelection}
-	class="flex items-center gap-3 rounded-lg border-2 p-3 transition-all cursor-pointer hover:shadow-md
-		{checked 
-			? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30' 
-			: 'border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600'}"
+	class="flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition-all hover:shadow-md
+		{checked
+		? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
+		: 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'}"
 >
 	<!-- Case Name -->
-	<span class="font-semibold text-sm {checked ? 'text-blue-700 dark:text-blue-300' : ''}">
+	<span class="text-sm font-semibold {checked ? 'text-blue-700 dark:text-blue-300' : ''}">
 		{getCaseName(staticData)}
 	</span>
 

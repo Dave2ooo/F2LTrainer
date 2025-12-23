@@ -26,7 +26,7 @@
 <Modal bind:open title="Settings" size="sm" outsideclose={true}>
 	<div class="space-y-4">
 		<!-- Appearance Section -->
-		<section class="rounded-lg border border-gray-300 dark:border-gray-600 p-4">
+		<section class="rounded-lg border border-gray-300 p-4 dark:border-gray-600">
 			<div class="flex items-center justify-between">
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Appearance</h3>
 				<ThemeSwitch />
@@ -34,10 +34,13 @@
 		</section>
 
 		<!-- Danger Zone Section -->
-		<section class="rounded-lg border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-900/10 p-4">
-			<h3 class="text-lg font-semibold text-red-700 dark:text-red-500 mb-3">Danger Zone</h3>
+		<section
+			class="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/10"
+		>
+			<h3 class="mb-3 text-lg font-semibold text-red-700 dark:text-red-500">Danger Zone</h3>
 			<p class="mb-4 text-sm text-red-600 dark:text-red-400">
-				This will permanently delete all your progress, sessions, and settings. This action cannot be undone.
+				This will permanently delete all your progress, sessions, and settings. This action cannot
+				be undone.
 			</p>
 			<Button
 				size="sm"

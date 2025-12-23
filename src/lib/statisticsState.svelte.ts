@@ -14,7 +14,6 @@ import type { Side } from './types/Side';
 
 export const STATISTICS_STATE_STORAGE_KEY = 'solves';
 
-
 const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
 	basic: 'b',
 	basicBack: 'bb',
@@ -110,58 +109,57 @@ if (persistedData && Array.isArray(persistedData)) {
 	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
 
-
 // Internal state holding ALL solves
 class StatisticsStateManager {
-    allSolves: StatisticsState = $state([]);
-    nextSolveId = $state(0);
+	allSolves: StatisticsState = $state([]);
+	nextSolveId = $state(0);
 
-    constructor(initialData: StatisticsState) {
-        this.allSolves = initialData;
-        
-        let maxId = -1;
-        for (const solve of initialData) {
-            if (solve.id > maxId) maxId = solve.id;
-        }
-        this.nextSolveId = maxId + 1;
+	constructor(initialData: StatisticsState) {
+		this.allSolves = initialData;
 
-        $effect.root(() => {
-            $effect(() => {
-                saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
-            });
-        });
-    }
+		let maxId = -1;
+		for (const solve of initialData) {
+			if (solve.id > maxId) maxId = solve.id;
+		}
+		this.nextSolveId = maxId + 1;
 
-    get statistics() {
-        if (sessionState.activeSessionId === null) return [];
-        return this.allSolves.filter(s => s.sessionId === sessionState.activeSessionId);
-    }
+		$effect.root(() => {
+			$effect(() => {
+				saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
+			});
+		});
+	}
 
-    getNextSolveId(): number {
-        return this.nextSolveId++;
-    }
+	get statistics() {
+		if (sessionState.activeSessionId === null) return [];
+		return this.allSolves.filter((s) => s.sessionId === sessionState.activeSessionId);
+	}
 
-    addSolve(solve: Solve) {
-        // Auto-assign active session ID if missing
-        if (!solve.sessionId && sessionState.activeSessionId !== null) {
-            solve.sessionId = sessionState.activeSessionId;
-        }
-        this.allSolves.push(solve);
-    }
+	getNextSolveId(): number {
+		return this.nextSolveId++;
+	}
 
-    updateSolve(id: number, time: number) {
-        const solve = this.allSolves.find((s) => s.id === id);
-        if (solve) {
-            solve.time = time;
-        }
-    }
+	addSolve(solve: Solve) {
+		// Auto-assign active session ID if missing
+		if (!solve.sessionId && sessionState.activeSessionId !== null) {
+			solve.sessionId = sessionState.activeSessionId;
+		}
+		this.allSolves.push(solve);
+	}
 
-    removeSolve(id: number) {
-        const index = this.allSolves.findIndex((s) => s.id === id);
-        if (index !== -1) {
-            this.allSolves.splice(index, 1);
-        }
-    }
+	updateSolve(id: number, time: number) {
+		const solve = this.allSolves.find((s) => s.id === id);
+		if (solve) {
+			solve.time = time;
+		}
+	}
+
+	removeSolve(id: number) {
+		const index = this.allSolves.findIndex((s) => s.id === id);
+		if (index !== -1) {
+			this.allSolves.splice(index, 1);
+		}
+	}
 }
 
 export const statisticsState = new StatisticsStateManager(initialState);

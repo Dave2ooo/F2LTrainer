@@ -94,7 +94,9 @@ export function advanceToPreviousTrainCase() {
 
 		if (currentCase.solveId !== undefined) {
 			// Find the current solve in statistics
-			const currentSolveIndex = statisticsState.statistics.findIndex((s) => s.id === currentCase.solveId);
+			const currentSolveIndex = statisticsState.statistics.findIndex(
+				(s) => s.id === currentCase.solveId
+			);
 			if (currentSolveIndex > 0) {
 				previousSolveIndex = currentSolveIndex - 1;
 			}
@@ -197,7 +199,11 @@ export function jumpToSolve(solveId: number) {
 
 		// Convert to TrainCases
 		const newCases = solvesToAdd.map((s) =>
-			TrainCase.fromSolve(s, (sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any, (sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any)
+			TrainCase.fromSolve(
+				s,
+				(sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any,
+				(sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any
+			)
 		);
 
 		// Prepend to queue
@@ -249,7 +255,7 @@ export function getNumberOfSelectedCases(): number {
 
 	const trainGroupSelection = globalState.trainGroupSelection;
 	const trainStateSelection = globalState.trainStateSelection;
-	
+
 	const caseMode = sessionSettings?.caseMode || 'group';
 	const selectedCases = sessionSettings?.selectedCases || {};
 

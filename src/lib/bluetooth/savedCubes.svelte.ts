@@ -55,7 +55,7 @@ export const savedCubesState = {
 		};
 
 		// Check if cube already exists
-		const existingIndex = cubes.findIndex(c => c.id === deviceId);
+		const existingIndex = cubes.findIndex((c) => c.id === deviceId);
 		if (existingIndex >= 0) {
 			// Update existing cube
 			cubes[existingIndex] = {
@@ -73,12 +73,12 @@ export const savedCubesState = {
 	},
 
 	removeCube(deviceId: string) {
-		cubes = cubes.filter(c => c.id !== deviceId);
+		cubes = cubes.filter((c) => c.id !== deviceId);
 		saveCubesToStorage(cubes);
 	},
 
 	renameCube(deviceId: string, newName: string) {
-		const cube = cubes.find(c => c.id === deviceId);
+		const cube = cubes.find((c) => c.id === deviceId);
 		if (cube) {
 			cube.customName = newName;
 			cubes = [...cubes]; // Trigger reactivity
@@ -87,7 +87,7 @@ export const savedCubesState = {
 	},
 
 	updateLastConnected(deviceId: string) {
-		const cube = cubes.find(c => c.id === deviceId);
+		const cube = cubes.find((c) => c.id === deviceId);
 		if (cube) {
 			cube.lastConnected = Date.now();
 			cubes = [...cubes]; // Trigger reactivity
@@ -96,6 +96,6 @@ export const savedCubesState = {
 	},
 
 	getCube(deviceId: string): SavedCube | undefined {
-		return cubes.find(c => c.id === deviceId);
+		return cubes.find((c) => c.id === deviceId);
 	}
 };

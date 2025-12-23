@@ -11,21 +11,20 @@ export type TrainMode = 'classic' | 'drill';
 export interface SessionSettings {
 	// General
 	caseMode: CaseMode;
-	
+
 	// Case Selection (Group Mode)
 	categorySelection: Record<GroupId, boolean[]>; // Mirror logic from GlobalState but scoped
 	trainStateSelection: Record<TrainState, boolean>;
 	trainGroupSelection: Record<GroupId, boolean>;
 	trainSideSelection: Record<Side, boolean>;
-	
-	
+
 	// Case Selection (Individual Mode)
 	selectedCases: Record<string, boolean>; // Key format: "groupId-caseId"
 
 	// Frequency
 	frequencyMode: FrequencyMode;
 	smartFrequencySolved: boolean; // if frequencyMode === 'smart'
-	smartFrequencyTime: boolean;   // if frequencyMode === 'smart'
+	smartFrequencyTime: boolean; // if frequencyMode === 'smart'
 	trainMode: TrainMode;
 	trainAddAuf: boolean;
 	trainShowTimer: boolean;
