@@ -245,13 +245,17 @@ export function jumpToFirstUnsolved() {
 export function getNumberOfSelectedCases(): number {
 	let count = 0;
 
+	const sessionSettings = sessionState.activeSession?.settings;
+
 	const trainGroupSelection = globalState.trainGroupSelection;
 	const trainStateSelection = globalState.trainStateSelection;
-	const trainSideSelection = globalState.trainSideSelection;
+	
+	const caseMode = sessionSettings?.caseMode || 'group';
+	const selectedCases = sessionSettings?.selectedCases || {};
 
 	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
-		// 1. check if this group is selected
-		if (!trainGroupSelection[groupId]) {
+		// 1. check if this group is selected (only relevant for group mode)
+		if (caseMode === 'group' && !trainGroupSelection[groupId]) {
 			// console.log("groupId", groupId, "not selected");
 			continue;
 		}
@@ -263,10 +267,14 @@ export function getNumberOfSelectedCases(): number {
 			// console.log("groupId", groupId, "caseId", caseId);
 			if (Number.isNaN(caseId)) continue;
 
-			const caseState = groupCaseStates[caseId];
-			const caseTrainState = caseState.trainState;
+			if (caseMode === 'individual') {
+				if (selectedCases[`${groupId}-${caseId}`]) count++;
+			} else {
+				const caseState = groupCaseStates[caseId];
+				const caseTrainState = caseState.trainState;
 
-			if (trainStateSelection[caseTrainState]) count++;
+				if (trainStateSelection[caseTrainState]) count++;
+			}
 		}
 	}
 	return count;
