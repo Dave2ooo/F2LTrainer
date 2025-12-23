@@ -17,7 +17,7 @@
 	import { type Side, OPPOSITE_SIDE } from '$lib/types/Side';
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis, Pointer } from '@lucide/svelte';
-	import { statistics } from '$lib/statisticsState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 	import {
 		calculateBestTime,
 		calculateAo5,
@@ -48,7 +48,7 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 
-	const caseSolves = $derived(getSolvesForCase(statistics, groupId, caseId));
+	const caseSolves = $derived(getSolvesForCase(statisticsState.statistics, groupId, caseId));
 	const bestTime = $derived(calculateBestTime(caseSolves));
 	const ao5 = $derived(calculateAo5(caseSolves));
 

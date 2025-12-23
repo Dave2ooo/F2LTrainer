@@ -3,7 +3,7 @@
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
-	import { statistics } from '$lib/statisticsState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 
 	let currentTrainCase = $derived(trainState.current);
 	let caseState = $derived(
@@ -27,7 +27,7 @@
 
 	let solveCount = $derived(
 		currentTrainCase
-			? statistics.filter(
+			? statisticsState.statistics.filter(
 					(s) =>
 						s.groupId === currentTrainCase!.groupId &&
 						s.caseId === currentTrainCase!.caseId &&

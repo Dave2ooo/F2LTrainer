@@ -11,6 +11,7 @@ export type Solve = {
 	auf: Auf;
 	side: Side;
 	scrambleSelection: number;
+	sessionId?: string;
 };
 
 export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
@@ -25,7 +26,8 @@ export type CompressedSolve = {
 	ts: number;
 	a: CompressedAuf;
 	s: CompressedSide;
-	ss: number;
+    ss: number;
+    sid?: string;
 };
 
 export type StatisticsState = Solve[];

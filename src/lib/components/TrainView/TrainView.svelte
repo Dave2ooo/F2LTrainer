@@ -26,12 +26,12 @@
             </Button>
             <Dropdown class="w-60 shadow-xl rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
                  <DropdownHeader class="bg-gray-50 dark:bg-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider border-b border-gray-200 dark:border-gray-600">Switch Session</DropdownHeader>
-                 {#each sessionState.sessions.filter(s => s.id !== sessionState.activeSessionId) as session (session.id)}
+                 {#each sessionState.sessions.filter(s => s.id !== sessionState.activeSessionId && !s.archived) as session (session.id)}
                     <DropdownItem class="font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => sessionState.setActiveSession(session.id)}>
                         {session.name}
                     </DropdownItem>
                  {/each}
-                 {#if sessionState.sessions.length > 1}
+                 {#if sessionState.sessions.filter(s => !s.archived).length > 1}
                     <DropdownDivider class="border-gray-200 dark:border-gray-600" />
                  {/if}
                  <DropdownItem class="hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => {

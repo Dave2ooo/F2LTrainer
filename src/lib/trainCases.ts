@@ -13,7 +13,7 @@ import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
 import shuffleArray from './utils/shuffleArray';
 
-import { statistics } from './statisticsState.svelte';
+import { statisticsState } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
 
 export function gernerateTrainCases(): TrainCase[] {
@@ -59,7 +59,7 @@ export function gernerateTrainCases(): TrainCase[] {
 	if (trainSmartFrequencySolved || trainSmartFrequencyTime) {
 		// Pre-calculate stats for candidates
 		const candidateStats = candidates.map((c) => {
-			const caseSolves = statistics.filter(
+			const caseSolves = statisticsState.statistics.filter(
 				(s) => s.groupId === c.groupId && s.caseId === c.caseId && s.side === c.side
 			);
 			return {

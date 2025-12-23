@@ -11,7 +11,7 @@
 </script>
 
 <div class="mt-4 flex w-full justify-center gap-3">
-	<Button type="submit" class="gap-2 py-2 md:text-lg"><Check />Update</Button>
+	<Button type="submit" class="gap-2 py-2 md:text-lg" onclick={onSubmit}><Check />Update</Button>
 	<Button type="button" color="gray" outline onclick={onCancel} class="gap-2 py-2 md:text-lg"
 		>Cancel<X /></Button
 	>

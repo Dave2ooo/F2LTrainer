@@ -5,7 +5,7 @@ import { GROUP_IDS, GROUP_DEFINITIONS } from './types/group';
 const STORAGE_KEY = 'sessions';
 const ACTIVE_SESSION_KEY = 'activeSessionId';
 
-const DEFAULT_SETTINGS: SessionSettings = {
+export const DEFAULT_SETTINGS: SessionSettings = {
 	caseMode: 'group',
 	categorySelection: Object.fromEntries(
 		GROUP_IDS.map((id) => [id, GROUP_DEFINITIONS[id].categories.map(() => true)])
@@ -66,11 +66,11 @@ class SessionState {
 		}
 	}
 
-	createSession(name: string, isDefault = false) {
+	createSession(name: string, isDefault = false, settings: Partial<SessionSettings> = {}) {
 		const newSession: Session = {
 			id: crypto.randomUUID(),
 			name,
-			settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
+			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
 			lastPlayedAt: Date.now(),
 			solveCount: 0
@@ -92,11 +92,35 @@ class SessionState {
 	}
 
 	deleteSession(id: string) {
-		this.sessions = this.sessions.filter(s => s.id !== id);
+		const session = this.sessions.find(s => s.id === id);
+		if (!session) return;
+
+		// Count active (non-archived) sessions
+		const activeCount = this.sessions.filter(s => !s.archived).length;
+
+		// Prevent deleting the last reachable session
+		if (activeCount <= 1 && !session.archived) {
+			console.warn('Cannot delete the last active session');
+			return;
+		}
+
+		// Soft delete
+		session.archived = true;
+		
+		// If we deleted the current active session, switch to another valid one
 		if (this.activeSessionId === id) {
-			this.activeSessionId = this.sessions[0]?.id || null;
+			const nextSession = this.sessions.find(s => !s.archived && s.id !== id);
+			this.activeSessionId = nextSession?.id || null;
 		}
 		this.save();
+	}
+
+	restoreSession(id: string) {
+		const session = this.sessions.find(s => s.id === id);
+		if (session) {
+			session.archived = false;
+			this.save();
+		}
 	}
 
 	setActiveSession(id: string) {

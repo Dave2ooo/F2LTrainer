@@ -63,6 +63,8 @@ const REVERSE_AUF_MAP: Record<CompressedAuf, Auf> = {
 	3: "U'"
 };
 
+import { sessionState } from '$lib/sessionState.svelte';
+
 function compressSolve(solve: Solve): CompressedSolve {
 	return {
 		id: solve.id,
@@ -72,7 +74,8 @@ function compressSolve(solve: Solve): CompressedSolve {
 		ts: Math.floor(solve.timestamp / 1000),
 		a: AUF_MAP[solve.auf],
 		s: SIDE_MAP[solve.side],
-		ss: solve.scrambleSelection
+		ss: solve.scrambleSelection,
+		sid: solve.sessionId
 	};
 }
 
@@ -86,7 +89,8 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		// Default values for legacy data if fields are missing
 		auf: compressed.a !== undefined ? REVERSE_AUF_MAP[compressed.a] : '',
 		side: compressed.s !== undefined ? REVERSE_SIDE_MAP[compressed.s] : 'right',
-		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0
+		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0,
+		sessionId: compressed.sid
 	};
 }
 
@@ -130,26 +134,66 @@ if (initialState.length > 0) {
 // Set the next solve ID to be one more than the highest found
 nextSolveId = maxSolveId + 1;
 
-export const statistics: StatisticsState = $state(initialState);
+// Internal state holding ALL solves
+class StatisticsStateManager {
+    allSolves: StatisticsState = $state([]);
+
+    constructor(initialData: StatisticsState) {
+        this.allSolves = initialData;
+        
+        $effect.root(() => {
+            $effect(() => {
+                saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
+            });
+        });
+    }
+
+    get statistics() {
+        if (!sessionState.activeSessionId) return [];
+        return this.allSolves.filter(s => s.sessionId === sessionState.activeSessionId);
+    }
+
+    addSolve(solve: Solve) {
+        // Auto-assign active session ID if missing
+        if (!solve.sessionId && sessionState.activeSessionId) {
+            solve.sessionId = sessionState.activeSessionId;
+        }
+        this.allSolves.push(solve);
+    }
+
+    updateSolve(id: number, time: number) {
+        const solve = this.allSolves.find((s) => s.id === id);
+        if (solve) {
+            solve.time = time;
+        }
+    }
+
+    removeSolve(id: number) {
+        const index = this.allSolves.findIndex((s) => s.id === id);
+        if (index !== -1) {
+            this.allSolves.splice(index, 1);
+        }
+    }
+}
+
+export const statisticsState = new StatisticsStateManager(initialState);
+
+// Export proxy functions for backward compatibility where possible
+// Note: 'statistics' cannot be exported as a simple variable if it is reactive.
+// Consumers must switch to `statisticsState.statistics`.
 
 export function compressStatistics(stats: StatisticsState): CompressedSolve[] {
 	return stats.map(compressSolve);
 }
 
 export function addSolve(solve: Solve) {
-	statistics.push(solve);
+    statisticsState.addSolve(solve);
 }
 
 export function updateSolve(id: number, time: number) {
-	const solve = statistics.find((s) => s.id === id);
-	if (solve) {
-		solve.time = time;
-	}
+    statisticsState.updateSolve(id, time);
 }
 
 export function removeSolve(id: number) {
-	const index = statistics.findIndex((s) => s.id === id);
-	if (index !== -1) {
-		statistics.splice(index, 1);
-	}
+    statisticsState.removeSolve(id);
 }

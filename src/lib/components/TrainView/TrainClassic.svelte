@@ -9,7 +9,8 @@
 	} from '$lib/trainCaseQueue.svelte';
 	import { tick, onMount } from 'svelte';
 	import { casesState } from '$lib/casesState.svelte';
-	import { getNextSolveId, addSolve, updateSolve } from '$lib/statisticsState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
+    import { sessionState } from '$lib/sessionState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import { casesStatic } from '$lib/casesStatic';
@@ -111,7 +112,8 @@
 					timestamp: Date.now(),
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
-					scrambleSelection: currentTrainCase.scramble
+					scrambleSelection: currentTrainCase.scramble,
+                    sessionId: sessionState.activeSessionId
 				});
 
 				// Update the TrainCase with the solve ID so we don't record it again
@@ -168,7 +170,7 @@
 			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
 			if (currentTrainCase.solveId !== undefined) {
 				// Update existing solve
-				updateSolve(currentTrainCase.solveId, timeInCentiseconds);
+				statisticsState.updateSolve(currentTrainCase.solveId, timeInCentiseconds);
 
 				// Update the time in the TrainCase
 				currentTrainCase.time = timeInCentiseconds;
@@ -176,7 +178,7 @@
 				trainState.lastDisplayedTime = timeInCentiseconds;
 			} else {
 				// This is a new solve - get the next solve ID
-				const solveId = getNextSolveId();
+				const solveId = statisticsState.getNextSolveId();
 				// Save time and solve ID to the TrainCase
 				currentTrainCase.time = timeInCentiseconds;
 				currentTrainCase.solveId = solveId;
@@ -184,7 +186,7 @@
 				trainState.lastDisplayedTime = timeInCentiseconds;
 
 				// Add new solve
-				addSolve({
+				statisticsState.addSolve({
 					id: solveId,
 					groupId,
 					caseId,
@@ -192,7 +194,8 @@
 					timestamp: Date.now(),
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
-					scrambleSelection: currentTrainCase.scramble
+					scrambleSelection: currentTrainCase.scramble,
+                    sessionId: sessionState.activeSessionId
 				});
 
 				// Mark as solved

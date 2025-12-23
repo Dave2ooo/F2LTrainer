@@ -76,7 +76,7 @@ export function advanceToNextTrainCase() {
 	trainState.current = trainCaseQueue[trainState.index];
 }
 
-import { statistics } from '$lib/statisticsState.svelte';
+import { statisticsState } from '$lib/statisticsState.svelte';
 
 export function advanceToPreviousTrainCase() {
 	const prev = trainState.index - 1;
@@ -93,19 +93,19 @@ export function advanceToPreviousTrainCase() {
 
 		if (currentCase.solveId !== undefined) {
 			// Find the current solve in statistics
-			const currentSolveIndex = statistics.findIndex((s) => s.id === currentCase.solveId);
+			const currentSolveIndex = statisticsState.statistics.findIndex((s) => s.id === currentCase.solveId);
 			if (currentSolveIndex > 0) {
 				previousSolveIndex = currentSolveIndex - 1;
 			}
 		} else {
 			// Current case is new (not solved yet), so previous is the last one in statistics
-			if (statistics.length > 0) {
-				previousSolveIndex = statistics.length - 1;
+			if (statisticsState.statistics.length > 0) {
+				previousSolveIndex = statisticsState.statistics.length - 1;
 			}
 		}
 
 		if (previousSolveIndex !== -1) {
-			const previousSolve = statistics[previousSolveIndex];
+			const previousSolve = statisticsState.statistics[previousSolveIndex];
 			// Create a TrainCase from the solve
 			// Use current global colors as we don't store colors in history
 			const newCase = TrainCase.fromSolve(
@@ -140,7 +140,7 @@ export function jumpToSolve(solveId: number) {
 	}
 
 	// 2. If not in queue, find it in statistics
-	const solveIndex = statistics.findIndex((s) => s.id === solveId);
+	const solveIndex = statisticsState.statistics.findIndex((s) => s.id === solveId);
 	if (solveIndex === -1) {
 		console.warn(`Solve with ID ${solveId} not found in statistics`);
 		return;
@@ -166,16 +166,15 @@ export function jumpToSolve(solveId: number) {
 	// Hitting next would go from 100 to 200, skipping 101-199.
 	// This might be acceptable, OR we should fill the gap.
 	// Filling the gap seems better for a "history" view.
-
-	// Find the solveId of the current head of the queue
+	// Finding the solveId of the current head of the queue
 	const headCase = trainCaseQueue[0];
 	let headSolveIndex = -1;
 
 	if (headCase && headCase.solveId !== undefined) {
-		headSolveIndex = statistics.findIndex((s) => s.id === headCase.solveId);
+		headSolveIndex = statisticsState.statistics.findIndex((s) => s.id === headCase.solveId);
 	} else {
 		// Head is new, so it's "after" the last solve in statistics
-		headSolveIndex = statistics.length;
+		headSolveIndex = statisticsState.statistics.length;
 	}
 
 	// We want to load solves from solveIndex up to (but not including) headSolveIndex
@@ -192,7 +191,7 @@ export function jumpToSolve(solveId: number) {
 
 		const solvesToAdd = [];
 		for (let i = solveIndex; i < headSolveIndex; i++) {
-			solvesToAdd.push(statistics[i]);
+			solvesToAdd.push(statisticsState.statistics[i]);
 		}
 
 		// Convert to TrainCases

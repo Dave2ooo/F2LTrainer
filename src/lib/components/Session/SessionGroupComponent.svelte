@@ -25,11 +25,12 @@
 
 <Accordion multiple>
 	{#each categories as category, categoryIndex}
+		{@const selectedCount = category.cases.filter(id => selectedCases[`${groupId}-${id}`]).length}
 		<AccordionItem bind:open={categoriesOpen[categoryIndex]}>
 			{#snippet header()}
 				<div class="flex items-center gap-3">
 					<span class="text-base font-semibold">{category.name}</span>
-					<span class="text-sm text-gray-500 dark:text-gray-400">({category.cases.length} cases)</span>
+					<span class="text-sm text-gray-500 dark:text-gray-400">({selectedCount}/{category.cases.length} selected)</span>
 				</div>
 			{/snippet}
 			<SessionCategoryComponent

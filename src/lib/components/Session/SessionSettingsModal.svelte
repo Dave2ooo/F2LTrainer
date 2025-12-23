@@ -1,23 +1,47 @@
 <script lang="ts">
 	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select, ButtonGroup } from 'flowbite-svelte';
     import Modal from '$lib/components/Modal.svelte';
-	import { sessionState } from '$lib/sessionState.svelte';
+	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
     import Update from '$lib/components/Modals/Buttons/Update.svelte';
     import { CircleQuestionMark } from '@lucide/svelte';
     import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
     import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
     import resolveStickerColors from '$lib/utils/resolveStickerColors';
+    import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
 
 	let { open = $bindable(), sessionId, isNew = false } = $props();
 
-	let session = $derived(sessionState.sessions.find((s) => s.id === sessionId));
-    // We bind to a local copy or direct to session settings? 
-    // Direct binding is risky if we want 'cancel', but for now let's do direct for simplicity as per "prototype" request.
-    // Actually, Svelte 5 state is fine.
+    let showDeleteConfirmation = $state(false);
 
-    let settings = $derived(session?.settings);
+    // Working copy for editing (reactive)
+    // We initialize with default, but it will be overwritten by the effect below
+    let workingSession = $state({
+        name: '',
+        settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS))
+    });
 
+    // Load session data into working copy when modal opens or sessionId changes
+    $effect(() => {
+        if (open) {
+            if (isNew) {
+                workingSession.name = 'New Session';
+                workingSession.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
+            } else if (sessionId) {
+                const existingSession = sessionState.sessions.find(s => s.id === sessionId);
+                if (existingSession) {
+                    workingSession.name = existingSession.name;
+                    // Deep copy settings to avoid reference issues
+                    workingSession.settings = JSON.parse(JSON.stringify(existingSession.settings));
+                }
+            }
+        }
+    });
+
+    // Use workingSession for all derived values
+    let settings = $derived(workingSession.settings);
+	let session = $derived(workingSession);
+    
     // Options for selects
     const hintAlgoOptions = [
         { value: 'step', name: 'Reveal step-by-step' },
@@ -43,7 +67,7 @@
 </script>
 
 {#if session && settings}
-	<Modal bind:open title="Session Settings" size="lg" autoclose={false}>
+<Modal bind:open title="Session Settings" size="lg" outsideclose={true}>
 		<div class="flex flex-col gap-5">
 			<!-- General Settings Section -->
 			<div class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
@@ -230,16 +254,58 @@
                 </TabItem>
 			</Tabs>
             
-             <Update
-                onCancel={() => {
-                    if (isNew && sessionId) sessionState.deleteSession(sessionId);
-                    open = false;
-                }}
-                onSubmit={() => {
-                    sessionState.save();
-                    open = false;
-                }}
-            />
+            <div class="flex justify-between items-center w-full">
+                 {#if !isNew}
+                    <Button color="red" outline onclick={() => showDeleteConfirmation = true}>Delete Session</Button>
+                 {:else}
+                    <div></div> <!-- Spacer -->
+                 {/if}
+
+                 <Update
+                    onCancel={() => {
+                        // Discard changes by simply closing the modal
+                        open = false;
+                    }}
+                    onSubmit={() => {
+                        if (isNew) {
+                             const created = sessionState.createSession(workingSession.name, false, workingSession.settings);
+                             sessionState.setActiveSession(created.id);
+                        } else if (sessionId) {
+                            // Update existing session
+                            sessionState.updateSession(sessionId, {
+                                name: workingSession.name,
+                                settings: workingSession.settings
+                            });
+                        }
+                        open = false;
+                    }}
+                />
+            </div>
 		</div>
 	</Modal>
+
+    <ConfirmationModal
+        bind:open={showDeleteConfirmation}
+        title="Delete Session"
+        message="Are you sure you want to delete this session? You can recover it later if needed."
+        onConfirm={() => {
+            if (sessionId) {
+                // Check if it's safe to delete (not the last one)
+                const activeCount = sessionState.sessions.filter(s => !s.archived).length;
+                 if (activeCount <= 1 && !sessionState.sessions.find(s => s.id === sessionId)?.archived) {
+                    // This check is also in the state, but good to have UI feedback or prevent it here if we want custom message
+                    // For now, the state logs a warning. We could show a toast or alert.
+                    // But simpler: just call delete. If it fails (in state), nothing happens to data.
+                    // Ideally we check before closing.
+                     if (activeCount <= 1) {
+                         alert("Cannot delete the last active session.");
+                         return;
+                     }
+                }
+                
+                sessionState.deleteSession(sessionId);
+                open = false;
+            }
+        }}
+    />
 {/if}
