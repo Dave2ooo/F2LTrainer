@@ -82,6 +82,13 @@
         }
     });
 
+    // Auto-switch to Classic mode when Classic cube is selected (Drill mode requires Smart Cube)
+    $effect(() => {
+        if (!settings) return;
+        if (!settings.smartCubeEnabled && settings.trainMode === 'drill') {
+            settings.trainMode = 'classic';
+        }
+    });
 
     // Resolved colors for TwistyPlayer in individual case selector
     const [crossColor, frontColor] = $derived.by(() => {
@@ -163,8 +170,15 @@
                         		<Label class="text-sm font-semibold">Training Mode</Label>
                         		<ButtonGroup class="w-full *:flex-1">
                             		<Button color={settings.trainMode === 'classic' ? 'blue' : 'alternative'} onclick={() => settings.trainMode = 'classic'}>Classic</Button>
-                            		<Button color={settings.trainMode === 'drill' ? 'blue' : 'alternative'} onclick={() => settings.trainMode = 'drill'}>Drill</Button>
+                            		<Button 
+                                    	color={settings.trainMode === 'drill' ? 'blue' : 'alternative'} 
+                                    	onclick={() => settings.trainMode = 'drill'}
+                                    	disabled={!settings.smartCubeEnabled}
+                                	>Drill</Button>
                         		</ButtonGroup>
+                        		{#if !settings.smartCubeEnabled}
+                            		<p class="text-xs text-gray-500 dark:text-gray-400">Drill mode requires Smart Cube</p>
+                        		{/if}
 							</div>
 						</div>
 
