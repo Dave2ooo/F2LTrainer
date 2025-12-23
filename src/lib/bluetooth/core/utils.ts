@@ -3,9 +3,10 @@
  * Provides jQuery and giikerutil replacements for ES modules
  */
 
-// Debug flag
-const DEBUG = import.meta.env.DEV || false;
+// Debug flags - disabled in library mode to ensure compatibility everywhere
+const DEBUG = false;
 const DEBUGBL = false; // Bluetooth debugging
+
 
 import { AES128 } from './aes';
 import { bluetoothState } from '../store.svelte';
