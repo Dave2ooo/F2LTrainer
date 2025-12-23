@@ -41,6 +41,7 @@
 		tempoScale?: number;
 		showAlg?: boolean;
 		logNormalizedPattern?: boolean;
+		backView?: 'none' | 'floating';
 	}
 
 	let {
@@ -64,7 +65,8 @@
 		showVisibilityToggle = false,
 		tempoScale = 1,
 		showAlg = true,
-		logNormalizedPattern = true
+		logNormalizedPattern = true,
+		backView = 'none'
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -359,7 +361,7 @@
 		control-panel={controlPanel}
 		experimental-drag-input={experimentalDragInput}
 		background="none"
-		hint-facelets="none"
+		hint-facelets={backView}
 		viewer-link="none"
 		camera-distance="4.7"
 		tempo-scale={tempoScale}

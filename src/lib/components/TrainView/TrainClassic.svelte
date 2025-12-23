@@ -327,6 +327,7 @@
                 frontColor={currentTrainCase.frontColor}
                 scrambleSelection={currentTrainCase.scramble}
                 stickering={globalState.trainHintStickering}
+                backView={sessionState.activeSession?.settings.backView || 'none'}
                 experimentalDragInput="auto"
                 class="size-full {inputMode === 'virtual' ? '' : 'hidden'}"
                 controlPanel="bottom-row"
@@ -346,6 +347,7 @@
                 frontColor={currentTrainCase.frontColor}
                 scrambleSelection={currentTrainCase.scramble}
                 stickering={globalState.trainHintStickering}
+                backView={sessionState.activeSession?.settings.backView || 'none'}
                 experimentalDragInput="auto"
                 class="size-full {inputMode === 'real' ? '' : 'hidden'}"
                 controlPanel="bottom-row"
