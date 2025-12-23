@@ -274,13 +274,18 @@
 						</div>
 
 						<!-- View Settings -->
-						<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
-							<Label class="font-semibold mb-3 text-sm">View Options</Label>
-                         	<Checkbox 
-                            	checked={settings.backView === 'floating'}
-                            	onchange={(e) => { settings.backView = (e.target as HTMLInputElement).checked ? 'floating' : 'none'}}
-                         	>Show Back Slots (Floating View)</Checkbox>
+					<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
+						<Label class="font-semibold mb-3 text-sm">View Options</Label>
+						<div class="space-y-2">
+							<Checkbox 
+								checked={settings.backView === 'floating'}
+								onchange={(e) => { settings.backView = (e.target as HTMLInputElement).checked ? 'floating' : 'none'}}
+							>Show Back Slots (Floating View)</Checkbox>
+							<Checkbox 
+								bind:checked={settings.backViewEnabled}
+							>Show Back View</Checkbox>
 						</div>
+					</div>
 					</div>
                 </TabItem>
 			</Tabs>

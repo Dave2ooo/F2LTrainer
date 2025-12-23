@@ -42,6 +42,7 @@
 		showAlg?: boolean;
 		logNormalizedPattern?: boolean;
 		backView?: 'none' | 'floating';
+		backViewEnabled?: boolean;
 	}
 
 	let {
@@ -66,7 +67,8 @@
 		tempoScale = 1,
 		showAlg = true,
 		logNormalizedPattern = true,
-		backView = 'none'
+		backView = 'none',
+		backViewEnabled = false
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -362,6 +364,7 @@
 		experimental-drag-input={experimentalDragInput}
 		background="none"
 		hint-facelets={backView}
+		back-view={backViewEnabled ? 'top-right' : 'none'}
 		viewer-link="none"
 		camera-distance="4.7"
 		tempo-scale={tempoScale}

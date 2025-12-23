@@ -328,6 +328,7 @@
                 scrambleSelection={currentTrainCase.scramble}
                 stickering={globalState.trainHintStickering}
                 backView={sessionState.activeSession?.settings.backView || 'none'}
+                backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
                 experimentalDragInput="auto"
                 class="size-full {inputMode === 'virtual' ? '' : 'hidden'}"
                 controlPanel="bottom-row"
@@ -348,6 +349,7 @@
                 scrambleSelection={currentTrainCase.scramble}
                 stickering={globalState.trainHintStickering}
                 backView={sessionState.activeSession?.settings.backView || 'none'}
+                backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
                 experimentalDragInput="auto"
                 class="size-full {inputMode === 'real' ? '' : 'hidden'}"
                 controlPanel="bottom-row"
