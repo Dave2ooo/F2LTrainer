@@ -3,6 +3,7 @@
 	import SessionGroupComponent from '$lib/components/Session/SessionGroupComponent.svelte';
 	import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from '$lib/types/group';
 	import type { StickerColor } from '$lib/types/stickering';
+	import { casesStatic } from '$lib/casesStatic';
 
 	let {
 		crossColor,
@@ -15,6 +16,14 @@
 	} = $props();
 
 	let selectedGroup: GroupId = $state('basic');
+
+	// Calculate selected and total cases per group
+	function getGroupCaseCounts(groupId: GroupId) {
+		const caseIds = Object.keys(casesStatic[groupId]);
+		const totalCases = caseIds.length;
+		const selectedCount = caseIds.filter(caseId => selectedCases[`${groupId}-${caseId}`]).length;
+		return { selected: selectedCount, total: totalCases };
+	}
 </script>
 
 <Tabs
@@ -25,9 +34,15 @@
 	}}
 >
 	{#each GROUP_IDS as groupId}
+		{@const counts = getGroupCaseCounts(groupId)}
 		<TabItem key={groupId}>
 			{#snippet titleSlot()}
-				<span class="text-sm font-semibold">{GROUP_DEFINITIONS[groupId].name}</span>
+				<span class="text-sm font-semibold">
+					{GROUP_DEFINITIONS[groupId].name}
+					<span class="text-xs text-gray-500 dark:text-gray-400 ml-1">
+						({counts.selected}/{counts.total})
+					</span>
+				</span>
 			{/snippet}
 			<SessionGroupComponent
 				{groupId}
@@ -38,3 +53,4 @@
 		</TabItem>
 	{/each}
 </Tabs>
+

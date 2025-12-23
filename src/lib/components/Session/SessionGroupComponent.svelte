@@ -30,7 +30,7 @@
 			{#snippet header()}
 				<div class="flex items-center gap-3">
 					<span class="text-base font-semibold">{category.name}</span>
-					<span class="text-sm text-gray-500 dark:text-gray-400">({selectedCount}/{category.cases.length} selected)</span>
+					<span class="text-sm text-gray-500 dark:text-gray-400">({selectedCount}/{category.cases.length})</span>
 				</div>
 			{/snippet}
 			<SessionCategoryComponent
