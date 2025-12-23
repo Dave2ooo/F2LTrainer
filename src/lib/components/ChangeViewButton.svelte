@@ -4,10 +4,6 @@
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
 	import { MousePointer2, Play } from '@lucide/svelte';
 
-	import SessionSelector from '$lib/components/Session/SessionSelector.svelte';
-
-	let sessionSelectorOpen = $state(false);
-
 	let buttonText = $derived(
 		globalState.view == 'select'
 			? `Start Training (${getNumberOfSelectedCases()} cases)`
@@ -17,8 +13,7 @@
 	function onToggleView() {
 		if (globalState.view == 'select') {
 			if (getNumberOfSelectedCases() > 0) {
-				sessionSelectorOpen = true; // Open session selector
-				// globalState.view = 'train'; // This will be done by SessionSelector
+				globalState.view = 'train';
 			}
 		} else {
 			globalState.view = 'select';
@@ -46,5 +41,3 @@
 >
 	{buttonText}
 </Button>
-
-<SessionSelector bind:open={sessionSelectorOpen} />

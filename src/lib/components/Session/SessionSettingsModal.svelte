@@ -37,7 +37,7 @@
     // Resolved colors for TwistyPlayer in individual case selector
     const [crossColor, frontColor] = $derived.by(() => {
         if (!settings) return ['white', 'red'];
-        return resolveStickerColors(settings.crossColor, settings.frontColor);
+        return resolveStickerColors(settings.crossColor as any, settings.frontColor as any);
     });
 
 </script>
@@ -86,8 +86,8 @@
                             <div class="mt-4">
 								{#if settings}
 									<SessionIndividualCaseSelector
-										{crossColor}
-										{frontColor}
+										crossColor={crossColor as any}
+										frontColor={frontColor as any}
 										bind:selectedCases={settings.selectedCases}
 									/>
 								{/if}

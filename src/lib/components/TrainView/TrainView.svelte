@@ -28,6 +28,10 @@
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import ToggleSwitch from '$lib/components/ToggleSwitch.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
+    import { Dropdown, DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-svelte';
+    import { sessionState } from '$lib/sessionState.svelte';
+    import { Settings as SettingsIcon, Edit2, Plus, ChevronDown } from '@lucide/svelte';
+    import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -302,10 +306,61 @@
 		};
 	});
 
+    let showSessionSettings = $state(false);
+    let isNewSession = $state(false);
+
 	let settingsRef = $state<Settings>();
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+
+<!-- Session Toolbar -->
+<div class="w-full py-2 px-4 flex justify-center items-center mb-4 relative z-40">
+    <div class="flex items-center gap-2">
+        <div class="relative">
+            <Button color="light" class="flex items-center gap-2 !px-3 font-medium border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 text-gray-900 dark:text-white">
+                 <span class="truncate max-w-[150px] sm:max-w-[200px]">{sessionState.activeSession?.name || 'Default Session'}</span>
+                 <ChevronDown size={14} class="text-gray-500 dark:text-gray-400" />
+            </Button>
+            <Dropdown class="w-60 shadow-xl rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
+                 <DropdownHeader class="bg-gray-50 dark:bg-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider border-b border-gray-200 dark:border-gray-600">Switch Session</DropdownHeader>
+                 {#each sessionState.sessions.filter(s => s.id !== sessionState.activeSessionId) as session (session.id)}
+                    <DropdownItem class="font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => sessionState.setActiveSession(session.id)}>
+                        {session.name}
+                    </DropdownItem>
+                 {/each}
+                 {#if sessionState.sessions.length > 1}
+                    <DropdownDivider class="border-gray-200 dark:border-gray-600" />
+                 {/if}
+                 <DropdownItem class="hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => {
+                     const newSession = sessionState.createSession('New Session');
+                     sessionState.setActiveSession(newSession.id);
+                     showSessionSettings = true;
+                     isNewSession = true;
+                 }}>
+                    <div class="flex items-center gap-2 text-primary-600 dark:text-primary-400 font-semibold">
+                        <Plus size={16} /> Create New Session
+                    </div>
+                 </DropdownItem>
+            </Dropdown>
+        </div>
+
+        <Button color="light" size="sm" class="!p-2.5 border-gray-300 dark:border-gray-600 shadow-sm bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600" onclick={() => {
+             showSessionSettings = true;
+             isNewSession = false;
+         }}>
+            <SettingsIcon size={16} class="text-gray-600 dark:text-gray-300" />
+        </Button>
+    </div>
+</div>
+
+{#if sessionState.activeSessionId}
+    <SessionSettingsModal 
+        bind:open={showSessionSettings} 
+        sessionId={sessionState.activeSessionId}
+        isNew={isNewSession}
+    />
+{/if}
 
 {#if currentTrainCase && getNumberOfSelectedCases() > 0}
 	<ResponsiveLayout>
