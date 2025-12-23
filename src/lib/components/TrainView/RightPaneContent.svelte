@@ -24,6 +24,26 @@
 	let activeGroupId = $state<GroupId>('basic');
 	let activeCaseId = $state<CaseId>(1);
 
+	// Custom flip animation that handles NaN values
+	function safeFlip(node: Element, { from, to }: { from: DOMRect; to: DOMRect }, params?: { duration?: number }) {
+		const flipAnimation = flip(node, { from, to }, params);
+		
+		// Wrap the animation to validate transform values
+		if (flipAnimation && flipAnimation.css) {
+			const originalCss = flipAnimation.css;
+			flipAnimation.css = (t: number, u: number) => {
+				const css = originalCss(t, u);
+				// Check if transform contains NaN and return empty string if so
+				if (css && css.includes('NaN')) {
+					return '';
+				}
+				return css;
+			};
+		}
+		
+		return flipAnimation;
+	}
+
 	// Find the most recent unsolved case in the queue
 	const mostRecentUnsolvedCase = $derived(() => {
 		// Go through the queue from current index forward to find first unsolved
@@ -138,7 +158,7 @@
 							: () => jumpToSolve(item.solve!.id)}
 						role="button"
 						tabindex="0"
-						animate:flip={{ duration: 400 }}
+						animate:safeFlip={{ duration: 400 }}
 						transition:slide={{ duration: 300 }}
 					>
 						<div class="flex w-full items-center justify-between gap-4">

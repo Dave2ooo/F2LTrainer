@@ -298,13 +298,17 @@
                         open = false;
                     }}
                     onSubmit={() => {
+                        // Validate and clean session name
+                        const trimmedName = workingSession.name.trim();
+                        const finalName = trimmedName || 'Unnamed Session';
+                        
                         if (isNew) {
-                             const created = sessionState.createSession(workingSession.name, false, workingSession.settings);
+                             const created = sessionState.createSession(finalName, false, workingSession.settings);
                              sessionState.setActiveSession(created.id);
                         } else if (sessionId) {
                             // Update existing session
                             sessionState.updateSession(sessionId, {
-                                name: workingSession.name,
+                                name: finalName,
                                 settings: workingSession.settings
                             });
                         }

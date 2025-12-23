@@ -36,7 +36,7 @@
                  <DropdownHeader class="bg-gray-50 dark:bg-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider border-b border-gray-200 dark:border-gray-600">Switch Session</DropdownHeader>
                  {#each sessionState.sessions.filter(s => !s.archived) as session (session.id)}
                     <DropdownItem class="font-medium flex justify-between items-center gap-3 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 !list-none" onclick={() => sessionState.setActiveSession(session.id)}>
-                        <span class="flex-1 truncate">{session.name}</span>
+                        <span class="flex-1 truncate max-w-[200px]">{session.name || 'Unnamed Session'}</span>
                         {#if session.id === sessionState.activeSessionId}
                              <!-- Simple indicator for active session -->
                              <span class="w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-500 flex-shrink-0"></span>
