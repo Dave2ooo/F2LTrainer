@@ -50,10 +50,10 @@ const ephemeralState = $state<EphemeralState>({
 // and keeps UI state local.
 export const globalState: GlobalState = {
     // Proxy Properties (Read/Write from Active Session)
-    get crossColor() { return sessionState.activeSession?.settings.crossColor ?? DEFAULT_SETTINGS.crossColor },
+    get crossColor() { return (sessionState.activeSession?.settings.crossColor ?? DEFAULT_SETTINGS.crossColor) as any },
     set crossColor(v) { if (sessionState.activeSession) sessionState.activeSession.settings.crossColor = v },
 
-    get frontColor() { return sessionState.activeSession?.settings.frontColor ?? DEFAULT_SETTINGS.frontColor },
+    get frontColor() { return (sessionState.activeSession?.settings.frontColor ?? DEFAULT_SETTINGS.frontColor) as any },
     set frontColor(v) { if (sessionState.activeSession) sessionState.activeSession.settings.frontColor = v },
 
     get trainStateSelection() { return sessionState.activeSession?.settings.trainStateSelection ?? DEFAULT_SETTINGS.trainStateSelection },

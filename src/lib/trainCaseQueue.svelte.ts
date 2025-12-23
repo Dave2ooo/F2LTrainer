@@ -18,6 +18,7 @@ export function getNumberOfSelectedCasesFromSelections(
 	return count;
 }
 import { casesState } from './casesState.svelte';
+import { sessionState } from '$lib/sessionState.svelte';
 import { globalState } from './globalState.svelte';
 import TrainCase, { gernerateTrainCases } from './trainCases';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
@@ -110,8 +111,8 @@ export function advanceToPreviousTrainCase() {
 			// Use current global colors as we don't store colors in history
 			const newCase = TrainCase.fromSolve(
 				previousSolve,
-				globalState.crossColor,
-				globalState.frontColor
+				(sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any,
+				(sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any
 			);
 
 			// Prepend to queue
@@ -196,7 +197,7 @@ export function jumpToSolve(solveId: number) {
 
 		// Convert to TrainCases
 		const newCases = solvesToAdd.map((s) =>
-			TrainCase.fromSolve(s, globalState.crossColor, globalState.frontColor)
+			TrainCase.fromSolve(s, (sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any, (sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any)
 		);
 
 		// Prepend to queue

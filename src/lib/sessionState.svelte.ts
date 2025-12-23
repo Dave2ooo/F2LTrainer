@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
 import type { Session, SessionSettings } from './types/session';
 import { GROUP_IDS, GROUP_DEFINITIONS } from './types/group';
+import { loadFromLocalStorage } from '$lib/utils/localStorage';
 
 const STORAGE_KEY = 'sessions';
 const ACTIVE_SESSION_KEY = 'activeSessionId';
@@ -39,22 +40,26 @@ class SessionState {
 	}
 
 	load() {
-		const storedSessions = localStorage.getItem(STORAGE_KEY);
-		if (storedSessions) {
-			this.sessions = JSON.parse(storedSessions).map((s: Session) => ({
+		const storedSessions = loadFromLocalStorage<Session[]>(STORAGE_KEY);
+		if (storedSessions && Array.isArray(storedSessions) && storedSessions.length > 0) {
+			this.sessions = storedSessions.map((s: Session) => ({
 				...s,
 				settings: { ...DEFAULT_SETTINGS, ...s.settings }
 			}));
 		} else {
-			// Create default session if none
+			// Create default session if none found or loaded array was empty
+            this.sessions = []; // Ensure it's empty before pushing to avoid duplicates if something weird happened
 			this.createSession('Default Session', true);
 		}
 
 		const storedActiveId = localStorage.getItem(ACTIVE_SESSION_KEY);
+		// Validate that the stored active ID actually exists in our loaded sessions
 		if (storedActiveId && this.sessions.find(s => s.id === storedActiveId)) {
 			this.activeSessionId = storedActiveId;
-		} else if (this.sessions.length > 0) {
-			this.activeSessionId = this.sessions[0].id;
+		} else {
+            // Fallback to the first non-archived session, or just the first one
+            const firstActive = this.sessions.find(s => !s.archived);
+			this.activeSessionId = firstActive ? firstActive.id : this.sessions[0].id;
 		}
 	}
 
@@ -100,7 +105,7 @@ class SessionState {
 
 		// Prevent deleting the last reachable session
 		if (activeCount <= 1 && !session.archived) {
-			console.warn('Cannot delete the last active session');
+			alert('Cannot delete the last active session');
 			return;
 		}
 

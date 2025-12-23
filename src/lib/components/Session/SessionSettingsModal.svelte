@@ -3,6 +3,7 @@
     import Modal from '$lib/components/Modal.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
+    import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
     import Update from '$lib/components/Modals/Buttons/Update.svelte';
     import { CircleQuestionMark } from '@lucide/svelte';
     import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
@@ -55,8 +56,32 @@
     ];
     
     
-    // Color options for checkboxes
-    const colors = ['white', 'yellow', 'green', 'blue', 'red', 'orange'];
+    // Color options for checkboxes (using imported STICKER_COLORS)
+    
+    // Auto-unselect invalid front colors or clear if multiple cross colors selected
+    $effect(() => {
+        if (!settings) return;
+        const crossColors = settings.crossColor;
+        if (!crossColors || crossColors.length === 0) return;
+
+        // If multiple cross colors are selected, clear front colors
+        if (crossColors.length > 1) {
+            if (settings.frontColor.length > 0) {
+                settings.frontColor = [];
+            }
+            return;
+        }
+
+        const currentFrontColors = settings.frontColor;
+        const validFrontColors = currentFrontColors.filter((front: any) => {
+            return crossColors.every((cross: any) => cross !== front && OPPOSITE_COLOR[cross as StickerColor] !== front);
+        });
+
+        if (validFrontColors.length !== currentFrontColors.length) {
+            settings.frontColor = validFrontColors;
+        }
+    });
+
 
     // Resolved colors for TwistyPlayer in individual case selector
     const [crossColor, frontColor] = $derived.by(() => {
@@ -216,7 +241,7 @@
 							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
 								<Label class="font-semibold mb-3 text-sm">Cross Color</Label>
 								<div class="grid grid-cols-2 gap-2">
-									{#each colors as color}
+									{#each STICKER_COLORS as color}
 										<Checkbox bind:group={settings.crossColor} value={color}>
 											{color.charAt(0).toUpperCase() + color.slice(1)}
 										</Checkbox>
@@ -228,8 +253,14 @@
 							<div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 rounded-lg">
 								<Label class="font-semibold mb-3 text-sm">Front Color</Label>
 								<div class="grid grid-cols-2 gap-2">
-									{#each colors as color}
-										<Checkbox bind:group={settings.frontColor} value={color}>
+									{#each STICKER_COLORS as color}
+                                        {@const isDisabled =
+                                            settings.crossColor.length > 1 ||
+                                            (settings.crossColor.length === 1 &&
+                                                !settings.crossColor.every(
+                                                    (c: any) => c !== color && OPPOSITE_COLOR[c as StickerColor] !== color
+                                                ))}
+										<Checkbox bind:group={settings.frontColor} value={color} disabled={isDisabled}>
 											{color.charAt(0).toUpperCase() + color.slice(1)}
 										</Checkbox>
 									{/each}

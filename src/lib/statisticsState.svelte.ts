@@ -14,16 +14,6 @@ import type { Side } from './types/Side';
 
 export const STATISTICS_STATE_STORAGE_KEY = 'solves';
 
-// Global solve ID counter - starts from 0 and increments with each solve
-let nextSolveId = $state(0);
-
-export function getNextSolveId(): number {
-	return nextSolveId++;
-}
-
-export function setNextSolveId(id: number): void {
-	nextSolveId = id;
-}
 
 const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
 	basic: 'b',
@@ -120,27 +110,21 @@ if (persistedData && Array.isArray(persistedData)) {
 	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
 
-// Track the highest solve ID found in persisted data
-let maxSolveId = -1;
-
-if (initialState.length > 0) {
-	for (const solve of initialState) {
-		if (solve.id > maxSolveId) {
-			maxSolveId = solve.id;
-		}
-	}
-}
-
-// Set the next solve ID to be one more than the highest found
-nextSolveId = maxSolveId + 1;
 
 // Internal state holding ALL solves
 class StatisticsStateManager {
     allSolves: StatisticsState = $state([]);
+    nextSolveId = $state(0);
 
     constructor(initialData: StatisticsState) {
         this.allSolves = initialData;
         
+        let maxId = -1;
+        for (const solve of initialData) {
+            if (solve.id > maxId) maxId = solve.id;
+        }
+        this.nextSolveId = maxId + 1;
+
         $effect.root(() => {
             $effect(() => {
                 saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
@@ -151,6 +135,10 @@ class StatisticsStateManager {
     get statistics() {
         if (!sessionState.activeSessionId) return [];
         return this.allSolves.filter(s => s.sessionId === sessionState.activeSessionId);
+    }
+
+    getNextSolveId(): number {
+        return this.nextSolveId++;
     }
 
     addSolve(solve: Solve) {
@@ -178,22 +166,6 @@ class StatisticsStateManager {
 
 export const statisticsState = new StatisticsStateManager(initialState);
 
-// Export proxy functions for backward compatibility where possible
-// Note: 'statistics' cannot be exported as a simple variable if it is reactive.
-// Consumers must switch to `statisticsState.statistics`.
-
 export function compressStatistics(stats: StatisticsState): CompressedSolve[] {
 	return stats.map(compressSolve);
-}
-
-export function addSolve(solve: Solve) {
-    statisticsState.addSolve(solve);
-}
-
-export function updateSolve(id: number, time: number) {
-    statisticsState.updateSolve(id, time);
-}
-
-export function removeSolve(id: number) {
-    statisticsState.removeSolve(id);
 }

@@ -15,6 +15,7 @@ import shuffleArray from './utils/shuffleArray';
 
 import { statisticsState } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
+import { sessionState } from '$lib/sessionState.svelte';
 
 export function gernerateTrainCases(): TrainCase[] {
 	// console.log('gernerateTrainCases() called');

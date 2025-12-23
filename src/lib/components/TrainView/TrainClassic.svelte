@@ -101,10 +101,10 @@
 
 			// If no solve has been recorded for this case instance yet, record an untimed solve
 			if (currentTrainCase.solveId === undefined) {
-				const solveId = getNextSolveId();
+				const solveId = statisticsState.getNextSolveId();
 
 				// Add new untimed solve
-				addSolve({
+				statisticsState.addSolve({
 					id: solveId,
 					groupId,
 					caseId,
@@ -113,7 +113,7 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-                    sessionId: sessionState.activeSessionId
+                    sessionId: sessionState.activeSessionId || undefined
 				});
 
 				// Update the TrainCase with the solve ID so we don't record it again
@@ -195,7 +195,7 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-                    sessionId: sessionState.activeSessionId
+                    sessionId: sessionState.activeSessionId || undefined
 				});
 
 				// Mark as solved

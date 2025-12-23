@@ -1,5 +1,5 @@
 <script lang="ts">
-   	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
+	import { getNumberOfSelectedCases, regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
 	import { Button, P } from 'flowbite-svelte';
     import { Dropdown, DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-svelte';
     import { sessionState } from '$lib/sessionState.svelte';
@@ -14,6 +14,14 @@
     let isNewSession = $state(false);
 	
 	let activeSettings = $derived(sessionState.activeSession?.settings);
+
+    $effect(() => {
+        // Regenerate queue when session changes to apply new settings (colors, selected cases)
+        // We use the ID as a key trigger
+        if (sessionState.activeSessionId) {
+            regenerateTrainCaseQueue();
+        }
+    });
 </script>
 
 <!-- Session Toolbar -->
@@ -26,9 +34,13 @@
             </Button>
             <Dropdown class="w-60 shadow-xl rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700">
                  <DropdownHeader class="bg-gray-50 dark:bg-gray-800 font-semibold text-gray-500 dark:text-gray-400 uppercase text-xs tracking-wider border-b border-gray-200 dark:border-gray-600">Switch Session</DropdownHeader>
-                 {#each sessionState.sessions.filter(s => s.id !== sessionState.activeSessionId && !s.archived) as session (session.id)}
-                    <DropdownItem class="font-medium text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => sessionState.setActiveSession(session.id)}>
+                 {#each sessionState.sessions.filter(s => !s.archived) as session (session.id)}
+                    <DropdownItem class="font-medium flex justify-between items-center text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600" onclick={() => sessionState.setActiveSession(session.id)}>
                         {session.name}
+                        {#if session.id === sessionState.activeSessionId}
+                             <!-- Simple indicator for active session -->
+                             <span class="w-2 h-2 rounded-full bg-primary-600 dark:bg-primary-500"></span>
+                        {/if}
                     </DropdownItem>
                  {/each}
                  {#if sessionState.sessions.filter(s => !s.archived).length > 1}
