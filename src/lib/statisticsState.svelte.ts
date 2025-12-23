@@ -133,7 +133,7 @@ class StatisticsStateManager {
     }
 
     get statistics() {
-        if (!sessionState.activeSessionId) return [];
+        if (sessionState.activeSessionId === null) return [];
         return this.allSolves.filter(s => s.sessionId === sessionState.activeSessionId);
     }
 
@@ -143,7 +143,7 @@ class StatisticsStateManager {
 
     addSolve(solve: Solve) {
         // Auto-assign active session ID if missing
-        if (!solve.sessionId && sessionState.activeSessionId) {
+        if (!solve.sessionId && sessionState.activeSessionId !== null) {
             solve.sessionId = sessionState.activeSessionId;
         }
         this.allSolves.push(solve);

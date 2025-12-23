@@ -11,7 +11,7 @@
     import resolveStickerColors from '$lib/utils/resolveStickerColors';
     import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
 
-	let { open = $bindable(), sessionId, isNew = false } = $props();
+	let { open = $bindable(), sessionId, isNew = false }: { open: boolean; sessionId?: number; isNew?: boolean } = $props();
 
     let showDeleteConfirmation = $state(false);
 
@@ -28,7 +28,7 @@
             if (isNew) {
                 workingSession.name = 'New Session';
                 workingSession.settings = JSON.parse(JSON.stringify(DEFAULT_SETTINGS));
-            } else if (sessionId) {
+            } else if (sessionId !== undefined) {
                 const existingSession = sessionState.sessions.find(s => s.id === sessionId);
                 if (existingSession) {
                     workingSession.name = existingSession.name;
@@ -322,9 +322,14 @@
                         const finalName = trimmedName || 'Unnamed Session';
                         
                         if (isNew) {
-                             const created = sessionState.createSession(finalName, false, workingSession.settings);
-                             sessionState.setActiveSession(created.id);
-                        } else if (sessionId) {
+                             // New session - update the existing one that was created
+                             if (sessionId !== undefined) {
+                                 sessionState.updateSession(sessionId, {
+                                     name: finalName,
+                                     settings: workingSession.settings
+                                 });
+                             }
+                        } else if (sessionId !== undefined) {
                             // Update existing session
                             sessionState.updateSession(sessionId, {
                                 name: finalName,
@@ -343,7 +348,7 @@
         title="Delete Session"
         message="Are you sure you want to delete this session? You can recover it later if needed."
         onConfirm={() => {
-            if (sessionId) {
+            if (sessionId !== undefined) {
                 // Check if it's safe to delete (not the last one)
                 const activeCount = sessionState.sessions.filter(s => !s.archived).length;
                  if (activeCount <= 1 && !sessionState.sessions.find(s => s.id === sessionId)?.archived) {

@@ -32,12 +32,19 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 
 class SessionState {
 	sessions: Session[] = $state([]);
-	activeSessionId: string | null = $state(null);
+	activeSessionId: number | null = $state(null);
 
 	constructor() {
 		if (browser) {
 			this.load();
 		}
+	}
+
+	// Get the next available session ID
+	private getNextId(): number {
+		if (this.sessions.length === 0) return 0;
+		const maxId = Math.max(...this.sessions.map(s => s.id));
+		return maxId + 1;
 	}
 
 	load() {
@@ -61,9 +68,10 @@ class SessionState {
 		}
 
 		// Handle active session selection
-		const storedActiveId = localStorage.getItem(ACTIVE_SESSION_KEY);
+		const storedActiveIdStr = localStorage.getItem(ACTIVE_SESSION_KEY);
+		const storedActiveId = storedActiveIdStr ? parseInt(storedActiveIdStr, 10) : null;
 		// Validate that the stored active ID actually exists in our loaded sessions
-		if (storedActiveId && this.sessions.find(s => s.id === storedActiveId)) {
+		if (storedActiveId !== null && !isNaN(storedActiveId) && this.sessions.find(s => s.id === storedActiveId)) {
 			this.activeSessionId = storedActiveId;
 		} else {
 			// Fallback to the first non-archived session, or just the first one
@@ -84,14 +92,14 @@ class SessionState {
 	save() {
 		if (!browser) return;
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(this.sessions));
-		if (this.activeSessionId) {
-			localStorage.setItem(ACTIVE_SESSION_KEY, this.activeSessionId);
+		if (this.activeSessionId !== null) {
+			localStorage.setItem(ACTIVE_SESSION_KEY, this.activeSessionId.toString());
 		}
 	}
 
 	createSession(name: string, isDefault = false, settings: Partial<SessionSettings> = {}) {
 		const newSession: Session = {
-			id: crypto.randomUUID(),
+			id: this.getNextId(),
 			name,
 			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
@@ -106,7 +114,7 @@ class SessionState {
 		return newSession;
 	}
 
-	updateSession(id: string, updates: Partial<Session>) {
+	updateSession(id: number, updates: Partial<Session>) {
 		const session = this.sessions.find(s => s.id === id);
 		if (session) {
 			Object.assign(session, updates);
@@ -114,7 +122,7 @@ class SessionState {
 		}
 	}
 
-	deleteSession(id: string) {
+	deleteSession(id: number) {
 		const session = this.sessions.find(s => s.id === id);
 		if (!session) return;
 
@@ -138,7 +146,7 @@ class SessionState {
 		this.save();
 	}
 
-	restoreSession(id: string) {
+	restoreSession(id: number) {
 		const session = this.sessions.find(s => s.id === id);
 		if (session) {
 			session.archived = false;
@@ -146,7 +154,7 @@ class SessionState {
 		}
 	}
 
-	setActiveSession(id: string) {
+	setActiveSession(id: number) {
 		this.activeSessionId = id;
 		this.save();
 	}

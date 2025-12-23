@@ -68,7 +68,7 @@
     </div>
 </div>
 
-{#if sessionState.activeSessionId}
+{#if sessionState.activeSessionId !== null}
     <SessionSettingsModal 
         bind:open={showSessionSettings} 
         sessionId={sessionState.activeSessionId}
