@@ -1,14 +1,20 @@
 <script lang="ts">
-	import type { Side } from '$lib/types/Side';
-
 	let {
 		selected = $bindable(),
 		leftLabel = 'Left',
-		rightLabel = 'Right'
-	}: { selected: Side; leftLabel?: string; rightLabel?: string } = $props();
+		rightLabel = 'Right',
+		leftValue = 'left',
+		rightValue = 'right'
+	}: {
+		selected: any;
+		leftLabel?: string;
+		rightLabel?: string;
+		leftValue?: any;
+		rightValue?: any;
+	} = $props();
 
-	function handleChange(side: Side) {
-		selected = side;
+	function handleChange(value: any) {
+		selected = value;
 	}
 </script>
 
@@ -18,23 +24,23 @@
 			type="radio"
 			id="switch-left"
 			name="switch"
-			value="left"
-			checked={selected === 'left'}
-			onchange={() => handleChange('left')}
-			aria-label="Left side"
+			value={leftValue}
+			checked={selected === leftValue}
+			onchange={() => handleChange(leftValue)}
+			aria-label={leftLabel}
 		/>
 		<label for="switch-left">{leftLabel}</label>
 		<input
 			type="radio"
 			id="switch-right"
 			name="switch"
-			value="right"
-			checked={selected === 'right'}
-			onchange={() => handleChange('right')}
-			aria-label="Right side"
+			value={rightValue}
+			checked={selected === rightValue}
+			onchange={() => handleChange(rightValue)}
+			aria-label={rightLabel}
 		/>
 		<label for="switch-right">{rightLabel}</label>
-		<div class="indicator" class:right={selected === 'right'}></div>
+		<div class="indicator" class:right={selected === rightValue}></div>
 	</div>
 </div>
 

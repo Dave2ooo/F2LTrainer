@@ -2,7 +2,7 @@
 	import { P, Button } from 'flowbite-svelte';
 	import { flip } from 'svelte/animate';
 	import { slide } from 'svelte/transition';
-	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 	import {
 		trainState,
 		trainCaseQueue,
@@ -23,6 +23,26 @@
 	// State for the currently active case in the modal
 	let activeGroupId = $state<GroupId>('basic');
 	let activeCaseId = $state<CaseId>(1);
+
+	// Custom flip animation that handles NaN values
+	function safeFlip(node: Element, { from, to }: { from: DOMRect; to: DOMRect }, params?: { duration?: number }) {
+		const flipAnimation = flip(node, { from, to }, params);
+		
+		// Wrap the animation to validate transform values
+		if (flipAnimation && flipAnimation.css) {
+			const originalCss = flipAnimation.css;
+			flipAnimation.css = (t: number, u: number) => {
+				const css = originalCss(t, u);
+				// Check if transform contains NaN and return empty string if so
+				if (css && css.includes('NaN')) {
+					return '';
+				}
+				return css;
+			};
+		}
+		
+		return flipAnimation;
+	}
 
 	// Find the most recent unsolved case in the queue
 	const mostRecentUnsolvedCase = $derived(() => {
@@ -55,7 +75,7 @@
 		}
 
 		// Add all solves in reverse chronological order
-		const solves = [...statistics].reverse();
+		const solves = [...statisticsState.statistics].reverse();
 		for (const solve of solves) {
 			items.push({
 				key: `solve-${solve.id}`,
@@ -92,11 +112,11 @@
 
 		if (isCurrentlySelected) {
 			// Find the index of the solve being deleted in the statistics array
-			const deleteIndex = statistics.findIndex((s) => s.id === solveId);
+			const deleteIndex = statisticsState.statistics.findIndex((s) => s.id === solveId);
 
 			if (deleteIndex > 0) {
 				// Navigate to the previous solve (earlier in time, lower index)
-				const previousSolve = statistics[deleteIndex - 1];
+				const previousSolve = statisticsState.statistics[deleteIndex - 1];
 				jumpToSolve(previousSolve.id);
 			} else {
 				// This is the first solve, navigate to the unsolved case if it exists
@@ -105,7 +125,7 @@
 		}
 
 		// Now remove the solve
-		removeSolve(solveId);
+		statisticsState.removeSolve(solveId);
 	}
 
 	function createDeleteHandler(solveId: number) {
@@ -138,7 +158,7 @@
 							: () => jumpToSolve(item.solve!.id)}
 						role="button"
 						tabindex="0"
-						animate:flip={{ duration: 400 }}
+						animate:safeFlip={{ duration: 400 }}
 						transition:slide={{ duration: 300 }}
 					>
 						<div class="flex w-full items-center justify-between gap-4">

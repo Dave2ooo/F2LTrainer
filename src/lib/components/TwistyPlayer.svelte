@@ -15,10 +15,11 @@
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
+	import { logNormalizedKPattern } from '$lib/utils/logNormalizedKPattern';
 
 	interface Props {
-		groupId: GroupId;
-		caseId: number;
+		groupId?: GroupId;
+		caseId?: number;
 		scrambleSelection?: number;
 		algorithmSelection?: AlgorithmSelection;
 		customAlgorithm?: CustomAlgorithm;
@@ -37,6 +38,11 @@
 		class?: string;
 		hidePlayer?: boolean;
 		showVisibilityToggle?: boolean;
+		tempoScale?: number;
+		showAlg?: boolean;
+		logNormalizedPattern?: boolean;
+		backView?: 'none' | 'floating';
+		backViewEnabled?: boolean;
 	}
 
 	let {
@@ -57,12 +63,19 @@
 		onclick,
 		class: extraClass = '',
 		hidePlayer = $bindable(false),
-		showVisibilityToggle = false
+		showVisibilityToggle = false,
+		tempoScale = 1,
+		showAlg = true,
+		logNormalizedPattern = true,
+		backView = 'none',
+		backViewEnabled = false
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
 	let isPlayerInitialized = $state(false);
+	let movesAdded = $state('');
+	let kpuzzle: any = null;
 
 	// Compute width/height based on size and control panel configuration
 	const aspectRatio = $derived(controlPanel === 'bottom-row' ? 1.15 : 1);
@@ -72,26 +85,42 @@
 	// `size` prop for fixed pixel sizing.
 	const wrapperClass = $derived(['relative mx-auto', extraClass].filter(Boolean).join(' '));
 
-	const staticData = $derived(casesStatic[groupId][caseId]);
-	const caseState = $derived(casesState[groupId][caseId]);
+	const staticData = $derived(
+		groupId !== undefined && caseId !== undefined ? casesStatic[groupId]?.[caseId] : undefined
+	);
+	const caseState = $derived(
+		groupId !== undefined && caseId !== undefined ? casesState[groupId]?.[caseId] : undefined
+	);
 
 	// if (algorithmSelection === undefined) {
 	// 	algorithmSelection = caseState.algorithmSelection;
 	// }
 
 	const algWithoutAUF = $derived(
-		getCaseAlg(
-			staticData,
-			algorithmSelection ?? caseState.algorithmSelection,
-			customAlgorithm ?? caseState.customAlgorithm,
-			side
-		)
+		staticData
+			? getCaseAlg(
+					staticData,
+					algorithmSelection ?? caseState?.algorithmSelection ?? { left: 0, right: 0 },
+					customAlgorithm ?? caseState?.customAlgorithm ?? { left: '', right: '' },
+					side
+				)
+			: undefined
 	);
 
-	const scrambleWithoutAUF = $derived(getCaseScramble(staticData, side, scrambleSelection));
+	const scrambleWithoutAUF = $derived(
+		staticData ? getCaseScramble(staticData, side, scrambleSelection) : undefined
+	);
 
 	$effect(() => {
-		[scramble, alg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+		if (scrambleWithoutAUF !== undefined && algWithoutAUF !== undefined) {
+			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+			scramble = newScramble;
+			if (showAlg) {
+				alg = newAlg;
+			} else {
+				alg = '';
+			}
+		}
 	});
 
 	// Auto-reset animation when key props change
@@ -109,16 +138,23 @@
 		void auf;
 		void crossColor;
 		void frontColor;
-		void scramble;
-		void alg;
 
 		// Call jumpToStart and resetView when any tracked prop changes
 		// Wait for the player to be initialized and add a small delay to ensure it's ready
 		if (el && isPlayerInitialized) {
+			// Reset moves added via smart cube when case changes
+			movesAdded = '';
+
 			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
 			setTimeout(() => {
-				jumpToStart();
-				resetView();
+				const player = el as any;
+				// Explicitly reset properties to ensure any added moves are cleared
+				if (player) {
+					player.alg = alg || '';
+					player.experimentalSetupAlg = [setupRotation, scramble].join(' ');
+					jumpToStart();
+					resetView();
+				}
 			}, 10);
 		}
 	});
@@ -134,7 +170,7 @@
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
 	let stickeringString = $derived(
-		stickering === 'f2l'
+		stickering === 'f2l' && staticData
 			? getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
 			: undefined
 	);
@@ -235,6 +271,13 @@
 						);
 					}
 
+					// We store the kpuzzle to use it there.
+					if (player.experimentalModel?.kpuzzle) {
+						player.experimentalModel.kpuzzle.addFreshListener((kp: any) => {
+							kpuzzle = kp;
+						});
+					}
+
 					// Add click detection event listeners if onclick handler is provided
 					if (onclick) {
 						const { cleanup } = setupTwistyPlayerClickHandlers(player, onclick);
@@ -246,6 +289,33 @@
 			}
 		}, TWISTY_PLAYER_INIT_DELAY);
 	});
+
+	// Public method to add a move to the player dynamically (e.g. from Bluetooth)
+	export async function addMove(move: string) {
+		if (el) {
+			const player = el as any;
+			if (player.experimentalAddMove) {
+				player.experimentalAddMove(move);
+				movesAdded += (movesAdded ? ' ' : '') + move;
+
+				// Re-apply stickering if needed
+				// Sometimes adding a move might reset internal state depending on twisty-player version/behavior
+				if (stickeringString) {
+					player.experimentalStickeringMaskOrbits = stickeringString;
+				}
+
+				if (logNormalizedPattern && kpuzzle && staticData) {
+					await logNormalizedKPattern(
+						{ kpuzzle },
+						scramble,
+						movesAdded.trim(),
+						staticData.pieceToHide,
+						side
+					);
+				}
+			}
+		}
+	}
 
 	// Cleanup event listeners when component is destroyed
 	onDestroy(() => {
@@ -293,9 +363,11 @@
 		control-panel={controlPanel}
 		experimental-drag-input={experimentalDragInput}
 		background="none"
-		hint-facelets="none"
+		hint-facelets={backView}
+		back-view={backViewEnabled ? 'top-right' : 'none'}
 		viewer-link="none"
 		camera-distance="4.7"
+		tempo-scale={tempoScale}
 	></twisty-player>
 
 	<!-- Visibility toggle button (top-left corner) -->

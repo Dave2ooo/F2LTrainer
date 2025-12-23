@@ -12,9 +12,9 @@
 
 	function onToggleView() {
 		if (globalState.view == 'select') {
-			if (getNumberOfSelectedCases() > 0) {
+			// if (getNumberOfSelectedCases() > 0) {
 				globalState.view = 'train';
-			}
+			// }
 		} else {
 			globalState.view = 'select';
 		}

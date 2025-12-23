@@ -14,16 +14,6 @@ import type { Side } from './types/Side';
 
 export const STATISTICS_STATE_STORAGE_KEY = 'solves';
 
-// Global solve ID counter - starts from 0 and increments with each solve
-let nextSolveId = $state(0);
-
-export function getNextSolveId(): number {
-	return nextSolveId++;
-}
-
-export function setNextSolveId(id: number): void {
-	nextSolveId = id;
-}
 
 const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
 	basic: 'b',
@@ -63,6 +53,8 @@ const REVERSE_AUF_MAP: Record<CompressedAuf, Auf> = {
 	3: "U'"
 };
 
+import { sessionState } from '$lib/sessionState.svelte';
+
 function compressSolve(solve: Solve): CompressedSolve {
 	return {
 		id: solve.id,
@@ -72,7 +64,8 @@ function compressSolve(solve: Solve): CompressedSolve {
 		ts: Math.floor(solve.timestamp / 1000),
 		a: AUF_MAP[solve.auf],
 		s: SIDE_MAP[solve.side],
-		ss: solve.scrambleSelection
+		ss: solve.scrambleSelection,
+		sid: solve.sessionId
 	};
 }
 
@@ -86,7 +79,8 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		// Default values for legacy data if fields are missing
 		auf: compressed.a !== undefined ? REVERSE_AUF_MAP[compressed.a] : '',
 		side: compressed.s !== undefined ? REVERSE_SIDE_MAP[compressed.s] : 'right',
-		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0
+		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0,
+		sessionId: compressed.sid
 	};
 }
 
@@ -116,40 +110,62 @@ if (persistedData && Array.isArray(persistedData)) {
 	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
 
-// Track the highest solve ID found in persisted data
-let maxSolveId = -1;
 
-if (initialState.length > 0) {
-	for (const solve of initialState) {
-		if (solve.id > maxSolveId) {
-			maxSolveId = solve.id;
-		}
-	}
+// Internal state holding ALL solves
+class StatisticsStateManager {
+    allSolves: StatisticsState = $state([]);
+    nextSolveId = $state(0);
+
+    constructor(initialData: StatisticsState) {
+        this.allSolves = initialData;
+        
+        let maxId = -1;
+        for (const solve of initialData) {
+            if (solve.id > maxId) maxId = solve.id;
+        }
+        this.nextSolveId = maxId + 1;
+
+        $effect.root(() => {
+            $effect(() => {
+                saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
+            });
+        });
+    }
+
+    get statistics() {
+        if (sessionState.activeSessionId === null) return [];
+        return this.allSolves.filter(s => s.sessionId === sessionState.activeSessionId);
+    }
+
+    getNextSolveId(): number {
+        return this.nextSolveId++;
+    }
+
+    addSolve(solve: Solve) {
+        // Auto-assign active session ID if missing
+        if (!solve.sessionId && sessionState.activeSessionId !== null) {
+            solve.sessionId = sessionState.activeSessionId;
+        }
+        this.allSolves.push(solve);
+    }
+
+    updateSolve(id: number, time: number) {
+        const solve = this.allSolves.find((s) => s.id === id);
+        if (solve) {
+            solve.time = time;
+        }
+    }
+
+    removeSolve(id: number) {
+        const index = this.allSolves.findIndex((s) => s.id === id);
+        if (index !== -1) {
+            this.allSolves.splice(index, 1);
+        }
+    }
 }
 
-// Set the next solve ID to be one more than the highest found
-nextSolveId = maxSolveId + 1;
-
-export const statistics: StatisticsState = $state(initialState);
+export const statisticsState = new StatisticsStateManager(initialState);
 
 export function compressStatistics(stats: StatisticsState): CompressedSolve[] {
 	return stats.map(compressSolve);
-}
-
-export function addSolve(solve: Solve) {
-	statistics.push(solve);
-}
-
-export function updateSolve(id: number, time: number) {
-	const solve = statistics.find((s) => s.id === id);
-	if (solve) {
-		solve.time = time;
-	}
-}
-
-export function removeSolve(id: number) {
-	const index = statistics.findIndex((s) => s.id === id);
-	if (index !== -1) {
-		statistics.splice(index, 1);
-	}
 }

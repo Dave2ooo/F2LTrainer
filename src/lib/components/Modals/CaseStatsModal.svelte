@@ -2,7 +2,7 @@
 	import { Badge } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
-	import { statistics, removeSolve } from '$lib/statisticsState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 	import {
 		calculateBestTime,
 		calculateAo5,
@@ -35,11 +35,11 @@
 	function removeTime(index: number) {
 		const solve = caseSolves[index];
 		if (solve) {
-			removeSolve(solve.id);
+			statisticsState.removeSolve(solve.id);
 		}
 	}
 
-	const caseSolves = $derived(getSolvesForCase(statistics, groupId, caseId));
+	const caseSolves = $derived(getSolvesForCase(statisticsState.statistics, groupId, caseId));
 	const bestTime = $derived(calculateBestTime(caseSolves));
 	const ao5 = $derived(calculateAo5(caseSolves));
 	const ao12 = $derived(calculateAo12(caseSolves));

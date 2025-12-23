@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { gernerateTrainCases } from './trainCases';
 import { globalState } from './globalState.svelte';
-import { statistics } from './statisticsState.svelte';
+import { statisticsState } from './statisticsState.svelte';
 import { GROUP_DEFINITIONS } from './types/group';
 import { casesState } from './casesState.svelte';
 
@@ -20,7 +20,9 @@ vi.mock('./globalState.svelte', () => ({
 }));
 
 vi.mock('./statisticsState.svelte', () => ({
-	statistics: []
+	statisticsState: {
+        statistics: []
+    }
 }));
 
 vi.mock('./casesState.svelte', () => ({
@@ -56,7 +58,7 @@ describe('gernerateTrainCases', () => {
 		// Reset global state defaults
 		globalState.trainSmartFrequencySolved = false;
 		globalState.trainSmartFrequencyTime = false;
-		statistics.length = 0;
+		statisticsState.statistics.length = 0;
 	});
 
 	it('should generate cases with equal frequency when smart frequency is disabled', () => {
@@ -90,7 +92,7 @@ describe('gernerateTrainCases', () => {
 			...Array(20).fill({ groupId: 'basic', caseId: 3, side: 'right', time: 100 })
 		];
 		// @ts-ignore
-		statistics.push(...mockStats);
+		statisticsState.statistics.push(...mockStats);
 
 		const result = gernerateTrainCases();
 
@@ -130,7 +132,7 @@ describe('gernerateTrainCases', () => {
 		];
 
 		// @ts-ignore
-		statistics.push(...mockStats);
+		statisticsState.statistics.push(...mockStats);
 
 		const result = gernerateTrainCases();
 

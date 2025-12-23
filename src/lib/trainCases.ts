@@ -13,13 +13,19 @@ import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
 import shuffleArray from './utils/shuffleArray';
 
-import { statistics } from './statisticsState.svelte';
+import { statisticsState } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
+import { sessionState } from '$lib/sessionState.svelte';
 
 export function gernerateTrainCases(): TrainCase[] {
 	// console.log('gernerateTrainCases() called');
 	const result: TrainCase[] = [];
 
+	const sessionSettings = sessionState.activeSession?.settings;
+
+	// Fallback to globalState proxies if sessionSettings not available (though globalState proxies to session anyway)
+	// But for new properties like caseMode, we need to access settings directly.
+	
 	const trainGroupSelection = globalState.trainGroupSelection;
 	const trainStateSelection = globalState.trainStateSelection;
 	const trainSideSelection = globalState.trainSideSelection;
@@ -29,11 +35,19 @@ export function gernerateTrainCases(): TrainCase[] {
 	const crossColor = globalState.crossColor;
 	const frontColor = globalState.frontColor;
 
+	const caseMode = sessionSettings?.caseMode || 'group';
+	const selectedCases = sessionSettings?.selectedCases || {};
+	const frequencyMode = sessionSettings?.frequencyMode || 'smart';
+
 	// Collect all candidates first
 	const candidates: { groupId: GroupId; caseId: number; side: Side }[] = [];
 
 	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
-		if (!trainGroupSelection[groupId]) continue;
+		
+		// In Group mode, we skip entire groups if unchecked.
+		// In Individual mode, we might iterate all groups to find selected cases 
+		// (though we could optimize, iterating all is fine as there aren't that many).
+		if (caseMode === 'group' && !trainGroupSelection[groupId]) continue;
 
 		const groupCaseStates = casesState[groupId];
 
@@ -41,10 +55,17 @@ export function gernerateTrainCases(): TrainCase[] {
 			const caseId = Number(caseIdStr);
 			if (Number.isNaN(caseId)) continue;
 
-			const caseState = groupCaseStates[caseId];
-			const caseTrainState = caseState.trainState;
-
-			if (!trainStateSelection[caseTrainState]) continue;
+			// Check Selection Logic
+			if (caseMode === 'individual') {
+				// Check if specifically selected
+				// Key format: `${groupId}-${caseId}`
+				if (!selectedCases[`${groupId}-${caseId}`]) continue;
+			} else {
+				// Group Mode Logic
+				const caseState = groupCaseStates[caseId];
+				const caseTrainState = caseState.trainState;
+				if (!trainStateSelection[caseTrainState]) continue;
+			}
 
 			if (trainSideSelection.right) candidates.push({ groupId, caseId, side: 'right' });
 			if (trainSideSelection.left) candidates.push({ groupId, caseId, side: 'left' });
@@ -53,13 +74,14 @@ export function gernerateTrainCases(): TrainCase[] {
 
 	if (candidates.length === 0) return result;
 
-	// Calculate weights if smart frequency is enabled
+	// Calculate weights
 	let weights: number[] = new Array(candidates.length).fill(1);
 
-	if (trainSmartFrequencySolved || trainSmartFrequencyTime) {
+	// Apply Smart Frequency ONLY if in 'smart' mode
+	if (frequencyMode === 'smart' && (trainSmartFrequencySolved || trainSmartFrequencyTime)) {
 		// Pre-calculate stats for candidates
 		const candidateStats = candidates.map((c) => {
-			const caseSolves = statistics.filter(
+			const caseSolves = statisticsState.statistics.filter(
 				(s) => s.groupId === c.groupId && s.caseId === c.caseId && s.side === c.side
 			);
 			return {
@@ -83,8 +105,6 @@ export function gernerateTrainCases(): TrainCase[] {
 		let timeWeights = new Array(candidates.length).fill(1);
 		if (trainSmartFrequencyTime) {
 			// Calculate average time of the SELECTED candidates
-			// We use the same "avgTime" metric for the baseline as we do for the individual cases
-			// to ensure a fair comparison.
 			const candidateAvgTimes = candidateStats
 				.map((s) => {
 					const recentSolves = s.solves
@@ -146,6 +166,12 @@ export function gernerateTrainCases(): TrainCase[] {
 			})
 		);
 		console.groupEnd();
+	} else if (frequencyMode === 'recap') {
+		// Recap Mode: Keep weights at 1. ensuring uniform distribution.
+		// We might want to ensure we don't pick random scrambles if we want to cycle through them?
+		// But "recap" usually just means "review these cases". 
+		// Since we shuffle at the end, standard weight=1 means 1 occurrence of each candidate per generation cycle.
+		// That fits "Recap" well.
 	}
 
 	// Generate result array based on weights
