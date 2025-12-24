@@ -16,12 +16,12 @@ interface EventListenerInfo {
  * Returns cleanup function and event listener array.
  *
  * @param player - The TwistyPlayer element
- * @param onclick - The callback to invoke on click
+ * @param onClick - The callback to invoke on click
  * @returns Object with event listeners array and cleanup function
  */
 export function setupTwistyPlayerClickHandlers(
 	player: any,
-	onclick: () => void
+	onClick: () => void
 ): {
 	eventListeners: EventListenerInfo[];
 	cleanup: () => void;
@@ -33,8 +33,10 @@ export function setupTwistyPlayerClickHandlers(
 	// that are fired by the browser after touch interactions on some devices.
 	let lastTouchTimestamp = 0;
 
-	if (onclick && player.contentWrapper?.firstChild) {
-		const playerBody = player.contentWrapper.firstChild as HTMLElement;
+	// Use contentWrapper directly as it is available earlier than its children
+	// and events should bubble up to it.
+	if (onClick && player.contentWrapper) {
+		const targetElement = player.contentWrapper as HTMLElement;
 
 		// Create handler functions
 		const handleMouseDown = (event: MouseEvent) => {
@@ -52,7 +54,7 @@ export function setupTwistyPlayerClickHandlers(
 			}
 
 			if (clickDetector.onPointerUp(event)) {
-				onclick();
+				onClick();
 			}
 		};
 
@@ -66,35 +68,35 @@ export function setupTwistyPlayerClickHandlers(
 			lastTouchTimestamp = Date.now();
 
 			if (clickDetector.onPointerUp(event)) {
-				onclick();
+				onClick();
 			}
 		};
 
 		// Add event listeners
-		playerBody.addEventListener('mousedown', handleMouseDown);
-		playerBody.addEventListener('mouseup', handleMouseUp);
-		playerBody.addEventListener('touchstart', handleTouchStart);
-		playerBody.addEventListener('touchend', handleTouchEnd);
+		targetElement.addEventListener('mousedown', handleMouseDown);
+		targetElement.addEventListener('mouseup', handleMouseUp);
+		targetElement.addEventListener('touchstart', handleTouchStart);
+		targetElement.addEventListener('touchend', handleTouchEnd);
 
 		// Store for cleanup
 		eventListeners.push(
 			{
-				element: playerBody,
+				element: targetElement,
 				event: 'mousedown',
 				handler: handleMouseDown as (event: Event) => void
 			},
 			{
-				element: playerBody,
+				element: targetElement,
 				event: 'mouseup',
 				handler: handleMouseUp as (event: Event) => void
 			},
 			{
-				element: playerBody,
+				element: targetElement,
 				event: 'touchstart',
 				handler: handleTouchStart as (event: Event) => void
 			},
 			{
-				element: playerBody,
+				element: targetElement,
 				event: 'touchend',
 				handler: handleTouchEnd as (event: Event) => void
 			}
