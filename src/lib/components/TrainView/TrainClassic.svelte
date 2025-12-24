@@ -101,7 +101,7 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		
+
 		hintManager.initialize(
 			globalState.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
@@ -114,7 +114,7 @@
 		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		
+
 		hintManager.initialize(
 			globalState.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
