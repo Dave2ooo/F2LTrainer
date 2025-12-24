@@ -1,5 +1,368 @@
 <script lang="ts">
-	import { P } from 'flowbite-svelte';
+	import { Button, P } from 'flowbite-svelte';
+	import TwistyPlayer from '../TwistyPlayer.svelte';
+	import {
+		advanceToNextTrainCase,
+		advanceToPreviousTrainCase,
+		getNumberOfSelectedCases,
+		trainState
+	} from '$lib/trainCaseQueue.svelte';
+	import { tick, onMount } from 'svelte';
+	import { casesState } from '$lib/casesState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
+	import Settings from '$lib/components/Modals/Settings.svelte';
+	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
+	import { casesStatic } from '$lib/casesStatic';
+	import HintButton from './HintButton.svelte';
+	import { globalState } from '$lib/globalState.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
+	import { ArrowLeft, ArrowRight, Pointer } from '@lucide/svelte';
+	import Details from './Details.svelte';
+	import TrainStateSelect from './TrainStateSelect.svelte';
+	import Timer from './Timer.svelte';
+	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
+	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
+
+	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
+	const TWISTY_PLAYER_INIT_DELAY = 100;
+
+	let editAlgRef = $state<EditAlg>();
+	let timerRef = $state<Timer>();
+
+	let twistyPlayerRef = $state<any>();
+	let algViewerContainer = $state<HTMLElement>();
+	let twistyAlgViewerLoaded = $state(false);
+
+	let scramble = $state('');
+	let alg = $state('');
+
+	let lastProcessedMoveCounter = -1;
+
+	$effect(() => {
+		// Depend on moveCounter to trigger updates
+		const currentCounter = bluetoothState.moveCounter;
+
+		if (currentCounter > lastProcessedMoveCounter) {
+			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
+			lastProcessedMoveCounter = currentCounter;
+
+			if (twistyPlayerRef) {
+				missedMoves.forEach(({ move }) => {
+					try {
+						const m = move.trim();
+						if (m) {
+							twistyPlayerRef.addMove(m);
+						}
+					} catch (e) {
+						console.warn('Failed to apply move:', move, e);
+					}
+				});
+			}
+		}
+	});
+
+	// Create hint manager instance
+	const hintManager = createHintManager();
+
+	// local reactive mirror of the global state.current
+	let currentTrainCase = $derived(trainState.current);
+
+	// Compute the time to display: use case time if available, otherwise keep last displayed time
+	// Note: currentTrainCase.time can be null (untimed) or undefined (new case)
+	// We only want to fallback to lastDisplayedTime if it is undefined.
+	// If it is null, we want to pass null to the timer so it shows 00.00
+	let displayTime = $derived(
+		currentTrainCase?.time !== undefined ? currentTrainCase.time : trainState.lastDisplayedTime
+	);
+
+	let currentAlgorithmSelection = $derived(
+		currentTrainCase
+			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].algorithmSelection
+			: undefined
+	);
+
+	function markAsSolved(force: boolean = false) {
+		if (currentTrainCase) {
+			if (force || !currentTrainCase.solved) {
+				currentTrainCase.solved = true;
+			}
+		}
+	}
+
+	async function onNext() {
+		if (currentTrainCase) {
+			const { groupId, caseId } = currentTrainCase;
+
+			// If no solve has been recorded for this case instance yet, record an untimed solve
+			if (currentTrainCase.solveId === undefined) {
+				const solveId = statisticsState.getNextSolveId();
+
+				// Add new untimed solve
+				statisticsState.addSolve({
+					id: solveId,
+					groupId,
+					caseId,
+					time: null,
+					timestamp: Date.now(),
+					auf: currentTrainCase.auf,
+					side: currentTrainCase.side,
+					scrambleSelection: currentTrainCase.scramble,
+					sessionId: sessionState.activeSessionId || undefined
+				});
+
+				// Update the TrainCase with the solve ID so we don't record it again
+				currentTrainCase.solveId = solveId;
+			}
+		}
+
+		markAsSolved();
+		advanceToNextTrainCase();
+		hintManager.reset();
+		// Wait for next tick to ensure DOM is updated
+		await tick();
+		// Sync the move counter so we don't apply old moves to the new case
+		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
+		hintManager.initialize(
+			globalState.trainHintAlgorithm,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
+	}
+
+	async function onPrevious() {
+		advanceToPreviousTrainCase();
+		hintManager.reset();
+		// Wait for next tick to ensure DOM is updated
+		await tick();
+		// Sync the move counter so we don't apply old moves to the new case
+		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
+		hintManager.initialize(
+			globalState.trainHintAlgorithm,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
+	}
+
+	function showHintAlg() {
+		hintManager.revealHint(
+			globalState.trainHintAlgorithm,
+			alg,
+			twistyAlgViewerLoaded,
+			algViewerContainer
+		);
+	}
+
+	function handleTimerStop(timeInCentiseconds: number) {
+		if (currentTrainCase) {
+			const { groupId, caseId } = currentTrainCase;
+
+			// Time is already in centiseconds (1/100s), no conversion needed
+			// This eliminates all floating-point precision issues
+
+			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
+			if (currentTrainCase.solveId !== undefined) {
+				// Update existing solve
+				statisticsState.updateSolve(currentTrainCase.solveId, timeInCentiseconds);
+
+				// Update the time in the TrainCase
+				currentTrainCase.time = timeInCentiseconds;
+				// Update the last displayed time
+				trainState.lastDisplayedTime = timeInCentiseconds;
+			} else {
+				// This is a new solve - get the next solve ID
+				const solveId = statisticsState.getNextSolveId();
+				// Save time and solve ID to the TrainCase
+				currentTrainCase.time = timeInCentiseconds;
+				currentTrainCase.solveId = solveId;
+				// Update the last displayed time
+				trainState.lastDisplayedTime = timeInCentiseconds;
+
+				// Add new solve
+				statisticsState.addSolve({
+					id: solveId,
+					groupId,
+					caseId,
+					time: timeInCentiseconds,
+					timestamp: Date.now(),
+					auf: currentTrainCase.auf,
+					side: currentTrainCase.side,
+					scrambleSelection: currentTrainCase.scramble,
+					sessionId: sessionState.activeSessionId || undefined
+				});
+
+				// Mark as solved
+				markAsSolved(true);
+			}
+		}
+		onNext();
+	}
+
+	// Create keyboard event handlers
+	const { handleKeydown, handleKeyup } = createKeyboardHandlers(
+		() => timerRef,
+		onNext,
+		handleTimerStop
+	);
+
+	async function loadTwistyAlgViewer() {
+		try {
+			// Wait for the TwistyPlayer element to be ready
+			await tick();
+
+			// Check if twistyPlayerRef is available
+			if (!twistyPlayerRef) {
+				console.warn('TwistyPlayer ref not available yet');
+				return;
+			}
+
+			const [{ TwistyAlgViewer }] = await Promise.all([
+				import('cubing/twisty'),
+				import('cubing/alg')
+			]);
+
+			const twistyPlayerElement = twistyPlayerRef?.getElement();
+			if (twistyPlayerElement && algViewerContainer) {
+				// Clear any existing content
+				algViewerContainer.innerHTML = '';
+				// Create and append the TwistyAlgViewer
+				const algViewer = new TwistyAlgViewer({ twistyPlayer: twistyPlayerElement });
+				algViewerContainer.appendChild(algViewer);
+				twistyAlgViewerLoaded = true;
+				// console.log('TwistyAlgViewer loaded successfully');
+			}
+		} catch (error) {
+			console.error('Failed to load TwistyAlgViewer:', error);
+			twistyAlgViewerLoaded = false;
+		}
+	}
+
+	onMount(async () => {
+		// Wait a bit for TwistyPlayer to fully initialize
+		await tick();
+		// Small delay to ensure TwistyPlayer's onMount has completed
+		setTimeout(() => {
+			loadTwistyAlgViewer();
+		}, TWISTY_PLAYER_INIT_DELAY);
+	});
+
+	// Initialize hint display when TwistyAlgViewer loads or case changes
+	$effect(() => {
+		// Track dependencies
+		void twistyAlgViewerLoaded;
+		void currentTrainCase;
+
+		if (twistyAlgViewerLoaded && currentTrainCase) {
+			// Small delay to ensure AlgViewer is fully rendered
+			setTimeout(() => {
+				hintManager.reset();
+				hintManager.initialize(
+					globalState.trainHintAlgorithm,
+					twistyAlgViewerLoaded,
+					algViewerContainer
+				);
+			}, 50);
+		}
+	});
+
+	let settingsRef = $state<Settings>();
 </script>
 
-<P class="mt-10 text-center">Smart Cube Training Not Implemented Yet</P>
+<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+
+<ResponsiveLayout>
+	{#snippet leftContent()}
+		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+			<Button
+				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				type="button"
+				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+			>
+			<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
+				{scramble}
+			</div>
+			<Button
+				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				type="button"
+				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+			>
+		</div>
+
+		<div
+			class="relative mx-auto size-60 md:size-80"
+			onpointerdowncapture={() => {
+				globalState.hasUsedTwistyPlayer = true;
+			}}
+		>
+			{#if currentTrainCase}
+				<TwistyPlayer
+					bind:this={twistyPlayerRef}
+					bind:scramble
+					alg={''}
+					groupId={currentTrainCase.groupId}
+					caseId={currentTrainCase.caseId}
+					algorithmSelection={currentAlgorithmSelection}
+					auf={currentTrainCase.auf}
+					side={currentTrainCase.side}
+					crossColor={currentTrainCase.crossColor}
+					frontColor={currentTrainCase.frontColor}
+					scrambleSelection={currentTrainCase.scramble}
+					stickering={globalState.trainHintStickering}
+					backView={sessionState.activeSession?.settings.backView || 'none'}
+					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+					experimentalDragInput="auto"
+					class="size-full"
+					controlPanel="none"
+					onclick={onNext}
+					showVisibilityToggle={false}
+					tempoScale={5}
+					showAlg={false}
+				/>
+			{:else}
+				<div class="flex h-60 items-center justify-center">
+					<P>Loading case...</P>
+				</div>
+			{/if}
+		</div>
+
+		<HintButton
+			{alg}
+			bind:algViewerContainer
+			showAlgViewer={hintManager.showAlgViewer}
+			visible={hintManager.showHintButton}
+			hintCounter={hintManager.counter}
+			hintMode={globalState.trainHintAlgorithm}
+			onclick={showHintAlg}
+			onEditAlg={() => {
+				editAlgRef?.openModal();
+			}}
+		/>
+		{#if globalState.trainShowTimer}
+			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
+		{/if}
+
+		<div class="flex flex-row justify-center gap-2">
+			<TrainStateSelect />
+
+			<Button onclick={() => settingsRef?.openModal()}
+				>{getNumberOfSelectedCases()} cases selected</Button
+			>
+		</div>
+
+		<Details />
+
+		<Settings bind:this={settingsRef} />
+
+		{#if currentTrainCase}
+			<EditAlg
+				bind:this={editAlgRef}
+				groupId={currentTrainCase.groupId}
+				caseId={currentTrainCase.caseId}
+				side={currentTrainCase.side}
+			/>
+		{/if}
+	{/snippet}
+</ResponsiveLayout>
