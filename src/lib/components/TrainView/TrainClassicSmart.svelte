@@ -148,6 +148,8 @@
 		);
 	}
 
+
+
 	function showHintAlg() {
 		hintManager.revealHint(
 			globalState.trainHintAlgorithm,
@@ -317,7 +319,7 @@
                 backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
                 experimentalDragInput="auto"
                 class="size-full"
-                controlPanel="bottom-row"
+                controlPanel="none"
                 onclick={onNext}
                 showVisibilityToggle={false}
                 tempoScale={5}
