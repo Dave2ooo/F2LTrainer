@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getNumberOfSelectedCases, regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
+	import type { SessionSettings } from '$lib/types/session';
 	import { Button, P } from 'flowbite-svelte';
 	import { Dropdown, DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
@@ -13,7 +14,9 @@
 	let showSessionSettings = $state(false);
 	let isNewSession = $state(false);
 
-	let activeSettings = $derived(sessionState.activeSession?.settings);
+
+
+	let activeSettings = $derived(sessionState.activeSession?.settings as SessionSettings | undefined);
 
 	$effect(() => {
 		// Regenerate queue when session changes to apply new settings (colors, selected cases)

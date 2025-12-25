@@ -8,6 +8,7 @@ export type CaseMode = 'group' | 'individual';
 export type FrequencyMode = 'smart' | 'recap';
 export type TrainMode = 'classic' | 'drill';
 
+// Settings for a training session
 export interface SessionSettings {
 	// General
 	caseMode: CaseMode;
