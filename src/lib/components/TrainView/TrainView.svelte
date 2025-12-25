@@ -14,9 +14,9 @@
 	let showSessionSettings = $state(false);
 	let isNewSession = $state(false);
 
-
-
-	let activeSettings = $derived(sessionState.activeSession?.settings as SessionSettings | undefined);
+	let activeSettings = $derived(
+		sessionState.activeSession?.settings as SessionSettings | undefined
+	);
 
 	$effect(() => {
 		// Regenerate queue when session changes to apply new settings (colors, selected cases)
@@ -66,7 +66,7 @@
 				<DropdownItem
 					class="hover:bg-gray-100 dark:hover:bg-gray-600"
 					onclick={() => {
-                        // Don't create session yet, let the modal handle it on save
+						// Don't create session yet, let the modal handle it on save
 						isNewSession = true;
 						showSessionSettings = true;
 					}}
@@ -95,7 +95,7 @@
 {#if sessionState.activeSessionId !== null || isNewSession}
 	<SessionSettingsModal
 		bind:open={showSessionSettings}
-		sessionId={isNewSession ? undefined : sessionState.activeSessionId ?? undefined}
+		sessionId={isNewSession ? undefined : (sessionState.activeSessionId ?? undefined)}
 		isNew={isNewSession}
 	/>
 {/if}

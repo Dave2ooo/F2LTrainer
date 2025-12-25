@@ -66,7 +66,7 @@
 		{ value: 'fully', name: 'Fully stickered' }
 	];
 
-    let showDeleteConfirmation = $state(false);
+	let showDeleteConfirmation = $state(false);
 
 	// Color options for checkboxes (using imported STICKER_COLORS)
 
@@ -405,8 +405,8 @@
 
 						if (isNew) {
 							// New session - verify we create it now
-                            // We don't have an ID yet, so we create it
-                            sessionState.createSession(finalName, true, workingSession.settings);
+							// We don't have an ID yet, so we create it
+							sessionState.createSession(finalName, true, workingSession.settings);
 						} else if (sessionId !== undefined) {
 							// Update existing session
 							sessionState.updateSession(sessionId, {
