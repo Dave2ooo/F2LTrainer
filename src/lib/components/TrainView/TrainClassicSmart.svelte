@@ -321,6 +321,7 @@
 					showVisibilityToggle={false}
 					tempoScale={5}
 					showAlg={false}
+					onF2LSolved={onNext}
 				/>
 				{#if !globalState.hasUsedTwistyPlayer}
 					<Pointer

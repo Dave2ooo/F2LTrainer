@@ -15,7 +15,7 @@
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
-	import { logNormalizedKPattern } from '$lib/utils/logNormalizedKPattern';
+	import { checkF2LState } from '$lib/utils/checkF2LState';
 
 	interface Props {
 		groupId?: GroupId;
@@ -41,6 +41,8 @@
 		tempoScale?: number;
 		showAlg?: boolean;
 		logNormalizedPattern?: boolean;
+		onF2LSolved?: () => void;
+		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
 	}
@@ -67,6 +69,8 @@
 		tempoScale = 1,
 		showAlg = true,
 		logNormalizedPattern = true,
+		onF2LSolved,
+		onCubeSolved,
 		backView = 'none',
 		backViewEnabled = false
 	}: Props = $props();
@@ -305,12 +309,14 @@
 				}
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
-					await logNormalizedKPattern(
+					await checkF2LState(
 						{ kpuzzle },
 						scramble,
 						movesAdded.trim(),
 						staticData.pieceToHide,
-						side
+						side,
+						onF2LSolved,
+						onCubeSolved
 					);
 				}
 			}
