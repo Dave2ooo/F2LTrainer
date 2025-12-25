@@ -18,7 +18,7 @@
 	$effect(() => {
 		// Regenerate queue when session changes to apply new settings (colors, selected cases)
 		// We use the ID as a key trigger
-		if (sessionState.activeSessionId) {
+		if (sessionState.activeSessionId !== null) {
 			regenerateTrainCaseQueue();
 		}
 	});

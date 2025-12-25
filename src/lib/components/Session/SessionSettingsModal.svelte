@@ -177,11 +177,13 @@
 						{:else}
 							<div class="mt-4">
 								{#if settings}
-									<SessionIndividualCaseSelector
-										crossColor={crossColor as any}
-										frontColor={frontColor as any}
-										bind:selectedCases={settings.selectedCases}
-									/>
+									{#key sessionId ?? 'new'}
+										<SessionIndividualCaseSelector
+											crossColor={crossColor as any}
+											frontColor={frontColor as any}
+											bind:selectedCases={settings.selectedCases}
+										/>
+									{/key}
 								{/if}
 							</div>
 						{/if}

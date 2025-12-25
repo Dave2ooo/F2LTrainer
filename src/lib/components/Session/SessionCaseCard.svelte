@@ -26,23 +26,10 @@
 	const staticData = casesStatic[groupId][caseId];
 	const side = 'right'; // Always use right side for simplicity
 
-	// Local state for checkbox that's always defined
-	let checked = $state(selected ?? false);
-
-	// Sync checkbox changes back to parent
-	$effect(() => {
-		selected = checked;
-	});
-
-	// Sync parent changes to checkbox
-	$effect(() => {
-		if (selected !== undefined) {
-			checked = selected;
-		}
-	});
+	let isSelected = $derived(selected ?? false);
 
 	function toggleSelection() {
-		checked = !checked;
+		selected = !isSelected;
 	}
 </script>
 
@@ -50,12 +37,12 @@
 	type="button"
 	onclick={toggleSelection}
 	class="flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition-all hover:shadow-md
-		{checked
+		{isSelected
 		? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
 		: 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'}"
 >
 	<!-- Case Name -->
-	<span class="text-sm font-semibold {checked ? 'text-blue-700 dark:text-blue-300' : ''}">
+	<span class="text-sm font-semibold {isSelected ? 'text-blue-700 dark:text-blue-300' : ''}">
 		{getCaseName(staticData)}
 	</span>
 
