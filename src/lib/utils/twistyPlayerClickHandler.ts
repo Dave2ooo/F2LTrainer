@@ -33,10 +33,8 @@ export function setupTwistyPlayerClickHandlers(
 	// that are fired by the browser after touch interactions on some devices.
 	let lastTouchTimestamp = 0;
 
-	// Use contentWrapper directly as it is available earlier than its children
-	// and events should bubble up to it.
-	if (onClick && player.contentWrapper) {
-		const targetElement = player.contentWrapper as HTMLElement;
+	if (onClick && player.contentWrapper?.firstChild) {
+		const targetElement = player.contentWrapper.firstChild as HTMLElement;
 
 		// Create handler functions
 		const handleMouseDown = (event: MouseEvent) => {
