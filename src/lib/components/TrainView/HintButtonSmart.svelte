@@ -32,7 +32,8 @@
 	const algContainerClass =
 		'mr-10 inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
 
-	const chipClass = 'rounded bg-gray-100 dark:bg-gray-600 px-2 py-1 font-mono font-semibold text-theme-text';
+	const chipClass =
+		'rounded bg-gray-100 dark:bg-gray-600 px-2 py-1 font-mono font-semibold text-theme-text';
 
 	const editButtonClass =
 		'hover:bg-opacity-90 absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 text-primary-500 transition-all duration-200 md:translate-x-10';

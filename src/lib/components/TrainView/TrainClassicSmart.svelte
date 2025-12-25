@@ -84,10 +84,10 @@
 		if (currentTrainCase) {
 			const { groupId, caseId, auf, side, scramble: scrambleSelection } = currentTrainCase;
 			const staticData = casesStatic[groupId]?.[caseId];
-			
+
 			if (staticData) {
 				const caseState = casesState[groupId]?.[caseId];
-				
+
 				// Get the algorithm without AUF
 				const algWithoutAUF = getCaseAlg(
 					staticData,
@@ -95,10 +95,10 @@
 					caseState?.customAlgorithm ?? { left: '', right: '' },
 					side
 				);
-				
+
 				// Get the scramble without AUF
 				const scrambleWithoutAUF = getCaseScramble(staticData, side, scrambleSelection);
-				
+
 				// Add AUF to the algorithm
 				if (algWithoutAUF && scrambleWithoutAUF && auf !== undefined) {
 					const [, algWithAUF] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
@@ -113,7 +113,6 @@
 			displayAlg = '';
 		}
 	});
-
 
 	function markAsSolved(force: boolean = false) {
 		if (currentTrainCase) {
