@@ -7,16 +7,16 @@
 		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
-	import { tick, onMount } from 'svelte';
-	import { casesState } from '$lib/casesState.svelte';
+	import { tick } from 'svelte';
+	import { casesState, getCaseAlg, getCaseScramble } from '$lib/casesState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import { casesStatic } from '$lib/casesStatic';
-	import HintButton from './HintButton.svelte';
+	import { concatinateAuf } from '$lib/utils/addAuf';
+	import HintButtonSmart from './HintButtonSmart.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import { ArrowLeft, ArrowRight, Pointer } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
@@ -25,19 +25,17 @@
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 
-	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
-	const TWISTY_PLAYER_INIT_DELAY = 100;
-
 	let editAlgRef = $state<EditAlg>();
 	let timerRef = $state<Timer>();
 
 	let twistyPlayerRef = $state<any>();
-	let algViewerContainer = $state<HTMLElement>();
-	let twistyAlgViewerLoaded = $state(false);
 
 	let scramble = $state('');
 
 	let alg = $state('');
+
+	// Separate display algorithm for HintButtonSmart (calculated with AUF)
+	let displayAlg = $state('');
 
 	let lastProcessedMoveCounter = -1;
 
@@ -64,9 +62,6 @@
 		}
 	});
 
-	// Create hint manager instance
-	const hintManager = createHintManager();
-
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
 
@@ -83,6 +78,42 @@
 			? casesState[currentTrainCase.groupId][currentTrainCase.caseId].algorithmSelection
 			: undefined
 	);
+
+	// Calculate the display algorithm with AUF for HintButtonSmart
+	$effect(() => {
+		if (currentTrainCase) {
+			const { groupId, caseId, auf, side, scramble: scrambleSelection } = currentTrainCase;
+			const staticData = casesStatic[groupId]?.[caseId];
+			
+			if (staticData) {
+				const caseState = casesState[groupId]?.[caseId];
+				
+				// Get the algorithm without AUF
+				const algWithoutAUF = getCaseAlg(
+					staticData,
+					currentAlgorithmSelection ?? caseState?.algorithmSelection ?? { left: 0, right: 0 },
+					caseState?.customAlgorithm ?? { left: '', right: '' },
+					side
+				);
+				
+				// Get the scramble without AUF
+				const scrambleWithoutAUF = getCaseScramble(staticData, side, scrambleSelection);
+				
+				// Add AUF to the algorithm
+				if (algWithoutAUF && scrambleWithoutAUF && auf !== undefined) {
+					const [, algWithAUF] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
+					displayAlg = algWithAUF;
+				} else {
+					displayAlg = '';
+				}
+			} else {
+				displayAlg = '';
+			}
+		} else {
+			displayAlg = '';
+		}
+	});
+
 
 	function markAsSolved(force: boolean = false) {
 		if (currentTrainCase) {
@@ -120,32 +151,18 @@
 
 		markAsSolved();
 		advanceToNextTrainCase();
-		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
-
-		hintManager.initialize(
-			globalState.trainHintAlgorithm,
-			twistyAlgViewerLoaded,
-			algViewerContainer
-		);
 	}
 
 	async function onPrevious() {
 		advanceToPreviousTrainCase();
-		hintManager.reset();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
-
-		hintManager.initialize(
-			globalState.trainHintAlgorithm,
-			twistyAlgViewerLoaded,
-			algViewerContainer
-		);
 	}
 
 	function showHintAlg() {
@@ -208,66 +225,6 @@
 		onNext,
 		handleTimerStop
 	);
-
-	async function loadTwistyAlgViewer() {
-		try {
-			// Wait for the TwistyPlayer element to be ready
-			await tick();
-
-			// Check if twistyPlayerRef is available
-			if (!twistyPlayerRef) {
-				console.warn('TwistyPlayer ref not available yet');
-				return;
-			}
-
-			const [{ TwistyAlgViewer }] = await Promise.all([
-				import('cubing/twisty'),
-				import('cubing/alg')
-			]);
-
-			const twistyPlayerElement = twistyPlayerRef?.getElement();
-			if (twistyPlayerElement && algViewerContainer) {
-				// Clear any existing content
-				algViewerContainer.innerHTML = '';
-				// Create and append the TwistyAlgViewer
-				const algViewer = new TwistyAlgViewer({ twistyPlayer: twistyPlayerElement });
-				algViewerContainer.appendChild(algViewer);
-				twistyAlgViewerLoaded = true;
-				// console.log('TwistyAlgViewer loaded successfully');
-			}
-		} catch (error) {
-			console.error('Failed to load TwistyAlgViewer:', error);
-			twistyAlgViewerLoaded = false;
-		}
-	}
-
-	onMount(async () => {
-		// Wait a bit for TwistyPlayer to fully initialize
-		await tick();
-		// Small delay to ensure TwistyPlayer's onMount has completed
-		setTimeout(() => {
-			loadTwistyAlgViewer();
-		}, TWISTY_PLAYER_INIT_DELAY);
-	});
-
-	// Initialize hint display when TwistyAlgViewer loads or case changes
-	$effect(() => {
-		// Track dependencies
-		void twistyAlgViewerLoaded;
-		void currentTrainCase;
-
-		if (twistyAlgViewerLoaded && currentTrainCase) {
-			// Small delay to ensure AlgViewer is fully rendered
-			setTimeout(() => {
-				hintManager.reset();
-				hintManager.initialize(
-					globalState.trainHintAlgorithm,
-					twistyAlgViewerLoaded,
-					algViewerContainer
-				);
-			}, 50);
-		}
-	});
 
 	let settingsRef = $state<Settings>();
 </script>
@@ -335,14 +292,8 @@
 			{/if}
 		</div>
 
-		<HintButton
-			{alg}
-			bind:algViewerContainer
-			showAlgViewer={hintManager.showAlgViewer}
-			visible={hintManager.showHintButton}
-			hintCounter={hintManager.counter}
-			hintMode={globalState.trainHintAlgorithm}
-			onclick={showHintAlg}
+		<HintButtonSmart
+			alg={displayAlg}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
 			}}
