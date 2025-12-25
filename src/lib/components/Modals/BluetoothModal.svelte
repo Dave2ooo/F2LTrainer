@@ -228,6 +228,11 @@
 				{:else if bluetoothState.deviceName}
 					<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
 				{/if}
+				{#if bluetoothState.deviceMac}
+					<p class="text-xs text-gray-400 dark:text-gray-500 font-mono">
+						MAC: {bluetoothState.deviceMac}
+					</p>
+				{/if}
 				{#if bluetoothState.batteryLevel !== null}
 					<p class="text-sm text-gray-500 dark:text-gray-400">
 						Battery: {bluetoothState.batteryLevel}%
