@@ -101,7 +101,7 @@ class SessionState {
 		}
 	}
 
-	createSession(name: string, isDefault = false, settings: Partial<SessionSettings> = {}) {
+	createSession(name: string, isDefault = false, settings: Partial<SessionSettings> = {}, save = true) {
 		const newSession: Session = {
 			id: this.getNextId(),
 			name,
@@ -114,9 +114,26 @@ class SessionState {
 		if (isDefault) {
 			this.activeSessionId = newSession.id;
 		}
-		this.save();
+		if (save) {
+            this.save();
+        }
 		return newSession;
 	}
+    
+    // Completely remove a session from the list (used for cancelling creation)
+    hardDeleteSession(id: number) {
+        const index = this.sessions.findIndex(s => s.id === id);
+        if (index !== -1) {
+            // If we are deleting the active session, switch to another one first
+            if (this.activeSessionId === id) {
+                 const nextSession = this.sessions.find((s) => !s.archived && s.id !== id);
+			     this.activeSessionId = nextSession?.id || null;
+            }
+            
+            this.sessions.splice(index, 1);
+            this.save();
+        }
+    }
 
 	updateSession(id: number, updates: Partial<Session>) {
 		const session = this.sessions.find((s) => s.id === id);

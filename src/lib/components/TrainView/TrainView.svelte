@@ -63,10 +63,9 @@
 				<DropdownItem
 					class="hover:bg-gray-100 dark:hover:bg-gray-600"
 					onclick={() => {
-						const newSession = sessionState.createSession('New Session');
-						sessionState.setActiveSession(newSession.id);
-						showSessionSettings = true;
+                        // Don't create session yet, let the modal handle it on save
 						isNewSession = true;
+						showSessionSettings = true;
 					}}
 				>
 					<div class="flex items-center gap-2 font-semibold text-primary-600 dark:text-primary-400">
@@ -90,10 +89,10 @@
 	</div>
 </div>
 
-{#if sessionState.activeSessionId !== null}
+{#if sessionState.activeSessionId !== null || isNewSession}
 	<SessionSettingsModal
 		bind:open={showSessionSettings}
-		sessionId={sessionState.activeSessionId}
+		sessionId={isNewSession ? undefined : sessionState.activeSessionId ?? undefined}
 		isNew={isNewSession}
 	/>
 {/if}

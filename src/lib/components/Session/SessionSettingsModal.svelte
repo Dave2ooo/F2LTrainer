@@ -26,8 +26,6 @@
 		isNew = false
 	}: { open: boolean; sessionId?: number; isNew?: boolean } = $props();
 
-	let showDeleteConfirmation = $state(false);
-
 	// Working copy for editing (reactive)
 	// We initialize with default, but it will be overwritten by the effect below
 	let workingSession = $state({
@@ -67,6 +65,8 @@
 		{ value: 'f2l', name: 'F2L Stickering' },
 		{ value: 'fully', name: 'Fully stickered' }
 	];
+
+    let showDeleteConfirmation = $state(false);
 
 	// Color options for checkboxes (using imported STICKER_COLORS)
 
@@ -395,7 +395,7 @@
 
 				<Update
 					onCancel={() => {
-						// Discard changes by simply closing the modal
+						// Simply close, no cleanup needed as we haven't created anything yet
 						open = false;
 					}}
 					onSubmit={() => {
@@ -404,13 +404,9 @@
 						const finalName = trimmedName || 'Unnamed Session';
 
 						if (isNew) {
-							// New session - update the existing one that was created
-							if (sessionId !== undefined) {
-								sessionState.updateSession(sessionId, {
-									name: finalName,
-									settings: workingSession.settings
-								});
-							}
+							// New session - verify we create it now
+                            // We don't have an ID yet, so we create it
+                            sessionState.createSession(finalName, true, workingSession.settings);
 						} else if (sessionId !== undefined) {
 							// Update existing session
 							sessionState.updateSession(sessionId, {
