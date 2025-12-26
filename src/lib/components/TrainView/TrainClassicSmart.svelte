@@ -30,7 +30,10 @@
 		normalizeMoves,
 		applyRotationToMove,
 		combineRotations,
-		inverseRotation
+		inverseRotation,
+		isWideMove,
+		wideToSingleLayerMove,
+		getWideImplicitRotation
 	} from '$lib/utils/moveValidator';
 
 	let editAlgRef = $state<EditAlg>();
@@ -77,15 +80,23 @@
 					try {
 						const m = move.trim();
 						if (m) {
-							// Transform move for TwistyPlayer (algorithm frame)
-							const inverseRot = inverseRotation(cumulativeRotation);
-							const transformedMove = applyRotationToMove(m, inverseRot);
-
-							// Send transformed move for display, raw move for F2L checking
-							twistyPlayerRef.addMove(transformedMove, m);
-
 							// Add raw move to buffer for validation
 							moveBuffer = [...moveBuffer, m];
+
+							// Check if next expected move is a wide move
+							const nextExpectedMove = algMovesParsed[currentMoveIndex];
+							const isNextWideMove = nextExpectedMove && isWideMove(nextExpectedMove);
+
+							// If next expected move is NOT a wide move, add to TwistyPlayer now
+							// (Wide moves will be added during validation to avoid double-application)
+							if (!isNextWideMove) {
+								// Transform move for TwistyPlayer (algorithm frame)
+								const inverseRot = inverseRotation(cumulativeRotation);
+								const transformedMove = applyRotationToMove(m, inverseRot);
+
+								// Send transformed move for display, raw move for F2L checking
+								twistyPlayerRef.addMove(transformedMove, m);
+							}
 
 							// Validate against algorithm
 							validateMoveProgress();
@@ -167,6 +178,54 @@
 
 			// Advance index past all rotations
 			currentMoveIndex = rotationIndex;
+		}
+
+		// Check if next expected move is a wide move
+		if (currentMoveIndex < algMovesParsed.length && isWideMove(algMovesParsed[currentMoveIndex])) {
+			const wideMove = algMovesParsed[currentMoveIndex];
+			const singleLayerMove = wideToSingleLayerMove(wideMove);
+			const implicitRotation = getWideImplicitRotation(wideMove);
+
+			console.log('[Wide Move] Detected wide move:', wideMove);
+			console.log('[Wide Move] Looking for single-layer equivalent:', singleLayerMove);
+			console.log('[Wide Move] Implicit rotation:', implicitRotation);
+
+			if (singleLayerMove) {
+				// Transform buffer and check for single-layer move match
+				const inverseRot = inverseRotation(cumulativeRotation);
+				const transformedBuffer = moveBuffer.map((move) => applyRotationToMove(move, inverseRot));
+				const normalized = normalizeMoves(transformedBuffer);
+
+				console.log('[Wide Move] Checking buffer:', normalized, 'against:', [singleLayerMove]);
+
+				// Try to match against the single-layer equivalent
+				const { match, consumedCount } = matchesMoveSequence(normalized, [singleLayerMove]);
+
+				if (match && consumedCount > 0) {
+					console.log('[Wide Move] ✓ Match found! Applying wide move');
+
+					// Apply wide move to TwistyPlayer for visualization
+					// (the wide move already includes the rotation visually)
+					twistyPlayerRef.addMove(wideMove, wideMove);
+
+					// Track the implicit rotation internally for transforming subsequent moves
+					const rotationsToUpdate = [cumulativeRotation, implicitRotation].filter((r) => r !== '');
+					cumulativeRotation = combineRotations(rotationsToUpdate);
+					console.log('[Wide Move] Updated cumulative rotation:', cumulativeRotation);
+
+					// Advance past the wide move
+					currentMoveIndex++;
+					moveBuffer = [];
+					validationFeedback = 'correct';
+
+					// Reset feedback after brief delay
+					setTimeout(() => {
+						validationFeedback = 'neutral';
+					}, 500);
+
+					return; // Exit early
+				}
+			}
 		}
 
 		// Get expected moves (lookahead window)

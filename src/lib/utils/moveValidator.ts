@@ -12,6 +12,83 @@ export function isRotationMove(move: string): boolean {
 }
 
 /**
+ * Check if a move is a wide move (r, l, u, d, f, b)
+ */
+export function isWideMove(move: string): boolean {
+	const baseFace = getBaseFace(move);
+	return ['r', 'l', 'u', 'd', 'f', 'b'].includes(baseFace);
+}
+
+/**
+ * Map a wide move to the detectable single-layer move
+ * Wide moves are detected as the opposite face's single-layer move
+ * Examples:
+ * - r -> L, r' -> L', r2 -> L2
+ * - l -> R, l' -> R', l2 -> R2
+ * - u -> D, u' -> D', u2 -> D2
+ * - d -> U, d' -> U', d2 -> U2
+ * - f -> B, f' -> B', f2 -> B2
+ * - b -> F, b' -> F', b2 -> F2
+ */
+export function wideToSingleLayerMove(move: string): string | null {
+	const baseFace = getBaseFace(move);
+	const modifier = move.replace(baseFace, ''); // Get ' or 2 or empty
+
+	const mapping: Record<string, string> = {
+		r: 'L',
+		l: 'R',
+		u: 'D',
+		d: 'U',
+		f: 'B',
+		b: 'F'
+	};
+
+	const singleLayerFace = mapping[baseFace];
+	if (!singleLayerFace) return null;
+
+	return singleLayerFace + modifier;
+}
+
+/**
+ * Get the rotation caused by a wide move
+ * Examples:
+ * - r -> x, r' -> x', r2 -> x2
+ * - l -> x', l' -> x, l2 -> x2
+ * - u -> y, u' -> y', u2 -> y2
+ * - d -> y', d' -> y, d2 -> y2
+ * - f -> z, f' -> z', f2 -> z2
+ * - b -> z', b' -> z, b2 -> z2
+ */
+export function getWideImplicitRotation(move: string): string {
+	const baseFace = getBaseFace(move);
+	const modifier = move.replace(baseFace, ''); // Get ' or 2 or empty
+
+	// Base rotation for each wide move
+	const rotationMapping: Record<string, string> = {
+		r: 'x',
+		l: "x'",
+		u: 'y',
+		d: "y'",
+		f: 'z',
+		b: "z'"
+	};
+
+	const baseRotation = rotationMapping[baseFace];
+	if (!baseRotation) return '';
+
+	// Handle modifiers
+	if (modifier === '2') {
+		// For double wide moves, rotation is always the base rotation + 2
+		return getBaseFace(baseRotation) + '2';
+	} else if (modifier === "'") {
+		// For prime wide moves, invert the base rotation
+		return inverseRotation(baseRotation);
+	}
+
+	return baseRotation;
+}
+
+/**
  * Apply a rotation to a move
  * For example: if rotation is 'x', then U becomes F, F becomes D, etc.
  */
