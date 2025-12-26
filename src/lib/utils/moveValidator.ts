@@ -89,6 +89,34 @@ export function getWideImplicitRotation(move: string): string {
 }
 
 /**
+ * Expand a wide move to its equivalent outer-layer + same-face move for F2L checking
+ * cubing.js uses uppercase notation for wide moves (e.g., "Rw" not "r")
+ * Examples:
+ * - r -> Rw
+ * - l -> Lw
+ * - r' -> Rw'
+ * - l2 -> Lw2
+ */
+export function expandWideForF2L(move: string): string {
+	const baseFace = getBaseFace(move);
+	const modifier = move.replace(baseFace, ''); // Get ' or 2 or empty
+
+	const mapping: Record<string, string> = {
+		r: 'R',
+		l: 'L',
+		u: 'U',
+		d: 'D',
+		f: 'F',
+		b: 'B'
+	};
+
+	const wideFace = mapping[baseFace];
+	if (!wideFace) return move; // Return original if not a wide move
+
+	return wideFace + modifier;
+}
+
+/**
  * Apply a rotation to a move
  * For example: if rotation is 'x', then U becomes F, F becomes D, etc.
  */

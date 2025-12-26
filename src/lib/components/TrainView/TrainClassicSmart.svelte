@@ -204,9 +204,9 @@
 				if (match && consumedCount > 0) {
 					console.log('[Wide Move] ✓ Match found! Applying wide move');
 
-					// Apply wide move to TwistyPlayer for visualization
-					// (the wide move already includes the rotation visually)
-					twistyPlayerRef.addMove(wideMove, wideMove);
+					// Apply wide move to TwistyPlayer
+					// (F2L checking now uses movesAdded, so no conversion needed)
+					twistyPlayerRef.addMove(wideMove);
 
 					// Track the implicit rotation internally for transforming subsequent moves
 					const rotationsToUpdate = [cumulativeRotation, implicitRotation].filter((r) => r !== '');

@@ -318,8 +318,8 @@
 				}
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
-					// Filter out rotations from rawMovesAdded for F2L checking
-					const movesForF2LCheck = rawMovesAdded
+					// Use the same moves that were applied to TwistyPlayer (movesAdded)
+					const movesForF2LCheck = movesAdded
 						.trim()
 						.split(' ')
 						.filter((m) => !isRotationMove(m))
