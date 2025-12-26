@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { Pencil } from '@lucide/svelte';
+	import { isRotationMove } from '$lib/utils/moveValidator';
 
 	interface Props {
 		alg: string;
@@ -30,7 +31,10 @@
 	let currentMoves = $derived.by(() => {
 		if (!alg) return [];
 		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		return moves.slice(currentMoveIndex, currentMoveIndex + LOOKAHEAD_COUNT);
+		// If current move is a rotation, show it + the next move (not blurred)
+		const currentMove = moves[currentMoveIndex];
+		const lookahead = currentMove && isRotationMove(currentMove) ? 2 : LOOKAHEAD_COUNT;
+		return moves.slice(currentMoveIndex, currentMoveIndex + lookahead);
 	});
 
 	let futureMoves = $derived.by(() => {

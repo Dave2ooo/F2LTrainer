@@ -124,54 +124,6 @@
 		}
 	});
 
-	// Auto-apply rotation moves to TwistyPlayer when they're next
-	$effect(() => {
-		// Track these dependencies explicitly
-		const playerRef = twistyPlayerRef;
-		const moves = algMovesParsed;
-		const index = currentMoveIndex;
-
-		console.log('[Auto-Rotation Check]', {
-			hasPlayer: !!playerRef,
-			movesLength: moves.length,
-			currentIndex: index,
-			currentMove: moves[index],
-			isRotation: moves[index] ? isRotationMove(moves[index]) : false
-		});
-
-		// Check if current move is a rotation and auto-apply it
-		if (playerRef && moves.length > 0 && index < moves.length && isRotationMove(moves[index])) {
-			// Use setTimeout to allow TwistyPlayer to update to new case first
-			setTimeout(() => {
-				untrack(() => {
-					const rotation = moves[index];
-					console.log('[Auto-Rotation] Applying rotation:', rotation);
-
-					// Apply rotation to TwistyPlayer
-					try {
-						playerRef.addMove(rotation);
-						console.log('[Auto-Rotation] Successfully applied:', rotation);
-					} catch (e) {
-						console.error('[Auto-Rotation] Failed to apply:', rotation, e);
-					}
-
-					// Collect rotation for cumulative tracking
-					const newRotations = cumulativeRotation ? [cumulativeRotation, rotation] : [rotation];
-					cumulativeRotation = combineRotations(newRotations);
-
-					// Advance index past this rotation
-					currentMoveIndex++;
-
-					// Provide brief visual feedback
-					validationFeedback = 'correct';
-					setTimeout(() => {
-						validationFeedback = 'neutral';
-					}, 300);
-				});
-			}, 150); // Small delay to allow TwistyPlayer to update
-		}
-	});
-
 	function validateMoveProgress() {
 		console.log('[Validation] Starting validation', {
 			currentMoveIndex,
@@ -185,6 +137,36 @@
 			console.log('[Validation] Algorithm complete, skipping validation');
 			validationFeedback = 'neutral';
 			return;
+		}
+
+		// Check if there are pending rotations and apply them before validating
+		if (twistyPlayerRef && isRotationMove(algMovesParsed[currentMoveIndex])) {
+			// Collect all consecutive rotations
+			const rotationsToApply: string[] = [];
+			let rotationIndex = currentMoveIndex;
+			while (
+				rotationIndex < algMovesParsed.length &&
+				isRotationMove(algMovesParsed[rotationIndex])
+			) {
+				rotationsToApply.push(algMovesParsed[rotationIndex]);
+				rotationIndex++;
+			}
+
+			// Apply all rotations to TwistyPlayer
+			console.log('[Rotation] Applying pending rotations:', rotationsToApply);
+			for (const rotation of rotationsToApply) {
+				twistyPlayerRef.addMove(rotation, rotation);
+			}
+
+			// Update cumulative rotation
+			const allRotations = cumulativeRotation
+				? [cumulativeRotation, ...rotationsToApply]
+				: rotationsToApply;
+			cumulativeRotation = combineRotations(allRotations);
+			console.log('[Rotation] Updated cumulative rotation:', cumulativeRotation);
+
+			// Advance index past all rotations
+			currentMoveIndex = rotationIndex;
 		}
 
 		// Get expected moves (lookahead window)
