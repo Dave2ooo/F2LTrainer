@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { Pencil } from '@lucide/svelte';
-	import { isRotationMove } from '$lib/utils/moveValidator';
 
 	interface Props {
 		alg: string;
@@ -22,50 +21,25 @@
 	const LOOKAHEAD_COUNT = 1;
 
 	// Categorize algorithm moves into completed, current, and future
-	// Rotations are automatically shown as completed since they can't be detected
 	let completedMoves = $derived.by(() => {
 		if (!alg) return [];
 		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		// Include all moves up to currentMoveIndex
-		const upToIndex = moves.slice(0, currentMoveIndex);
-		// Also include any rotations at currentMoveIndex or beyond (they auto-complete)
-		const fromIndex = moves.slice(currentMoveIndex);
-		const autoCompletedRotations = [];
-		for (const move of fromIndex) {
-			if (isRotationMove(move)) {
-				autoCompletedRotations.push(move);
-			} else {
-				break; // Stop at first non-rotation
-			}
-		}
-		return [...upToIndex, ...autoCompletedRotations];
+		return moves.slice(0, currentMoveIndex);
 	});
 
 	let currentMoves = $derived.by(() => {
 		if (!alg) return [];
 		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		// Skip rotations from currentMoveIndex onwards, show next non-rotation move(s)
-		let skipCount = currentMoveIndex;
-		// Skip any leading rotations
-		while (skipCount < moves.length && isRotationMove(moves[skipCount])) {
-			skipCount++;
-		}
-		return moves.slice(skipCount, skipCount + LOOKAHEAD_COUNT);
+		return moves.slice(currentMoveIndex, currentMoveIndex + LOOKAHEAD_COUNT);
 	});
 
 	let futureMoves = $derived.by(() => {
 		if (!alg) return [];
 		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		// Skip rotations from currentMoveIndex onwards, skip LOOKAHEAD_COUNT non-rotations
-		let skipCount = currentMoveIndex;
-		// Skip any leading rotations
-		while (skipCount < moves.length && isRotationMove(moves[skipCount])) {
-			skipCount++;
-		}
-		return moves.slice(skipCount + LOOKAHEAD_COUNT);
+		return moves.slice(currentMoveIndex + LOOKAHEAD_COUNT);
 	});
 
-	// Calculate total progress (all moves including rotations)
+	// Calculate total progress
 	let totalMoves = $derived.by(() => {
 		if (!alg) return 0;
 		return alg.split(' ').filter((move) => move.trim() !== '').length;
