@@ -7,7 +7,7 @@
 		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
-	import { tick } from 'svelte';
+	import { tick, untrack } from 'svelte';
 	import { casesState, getCaseAlg, getCaseScramble } from '$lib/casesState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
@@ -24,6 +24,7 @@
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
+	import { isRotationMove, matchesMoveSequence, normalizeMoves } from '$lib/utils/moveValidator';
 
 	let editAlgRef = $state<EditAlg>();
 	let timerRef = $state<Timer>();
@@ -36,6 +37,12 @@
 
 	// Separate display algorithm for HintButtonSmart (calculated with AUF)
 	let displayAlg = $state('');
+
+	// Algorithm progress tracking
+	let algMovesParsed = $state<string[]>([]); // Full algorithm as array
+	let currentMoveIndex = $state(0); // Index of next expected move
+	let moveBuffer = $state<string[]>([]); // Recent moves from smart cube for validation
+	let validationFeedback = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
 
 	let lastProcessedMoveCounter = -1;
 
@@ -53,6 +60,12 @@
 						const m = move.trim();
 						if (m) {
 							twistyPlayerRef.addMove(m);
+
+							// Add to move buffer for validation
+							moveBuffer = [...moveBuffer, m];
+
+							// Validate against algorithm
+							validateMoveProgress();
 						}
 					} catch (e) {
 						console.warn('Failed to apply move:', move, e);
@@ -61,6 +74,99 @@
 			}
 		}
 	});
+
+	// Parse algorithm and reset progress tracking when algorithm changes
+	$effect(() => {
+		if (displayAlg) {
+			// Use untrack to prevent infinite loops when modifying reactive state
+			untrack(() => {
+				// Remove parentheses from algorithm before parsing
+				const cleanAlg = displayAlg.replace(/[()]/g, '');
+				algMovesParsed = cleanAlg.split(' ').filter((m) => m.trim() !== '');
+				currentMoveIndex = 0;
+				moveBuffer = [];
+				validationFeedback = 'neutral';
+
+				// Auto-skip leading rotations
+				while (
+					currentMoveIndex < algMovesParsed.length &&
+					isRotationMove(algMovesParsed[currentMoveIndex])
+				) {
+					currentMoveIndex++;
+				}
+			});
+		} else {
+			untrack(() => {
+				algMovesParsed = [];
+				currentMoveIndex = 0;
+				moveBuffer = [];
+				validationFeedback = 'neutral';
+			});
+		}
+	});
+
+	function validateMoveProgress() {
+		console.log('[Validation] Starting validation', {
+			currentMoveIndex,
+			algLength: algMovesParsed.length,
+			moveBuffer,
+			algMovesParsed
+		});
+
+		// Skip if algorithm is complete
+		if (currentMoveIndex >= algMovesParsed.length) {
+			console.log('[Validation] Algorithm complete, skipping validation');
+			validationFeedback = 'neutral';
+			return;
+		}
+
+		// Auto-skip rotation moves
+		while (
+			currentMoveIndex < algMovesParsed.length &&
+			isRotationMove(algMovesParsed[currentMoveIndex])
+		) {
+			console.log('[Validation] Auto-skipping rotation:', algMovesParsed[currentMoveIndex]);
+			currentMoveIndex++;
+		}
+
+		// Check again after skipping rotations
+		if (currentMoveIndex >= algMovesParsed.length) {
+			console.log('[Validation] Algorithm complete after rotation skip');
+			validationFeedback = 'neutral';
+			return;
+		}
+
+		// Get expected moves (lookahead window)
+		const expectedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + 5);
+		console.log('[Validation] Expected moves:', expectedMoves);
+
+		// Normalize the move buffer
+		const normalized = normalizeMoves(moveBuffer);
+		console.log('[Validation] Normalized buffer:', normalized);
+
+		// Check for match
+		const { match, consumedCount } = matchesMoveSequence(normalized, expectedMoves);
+		console.log('[Validation] Match result:', { match, consumedCount });
+
+		if (match && consumedCount > 0) {
+			// Correct moves detected
+			console.log('[Validation] ✓ Correct moves! Advancing by', consumedCount);
+			validationFeedback = 'correct';
+			currentMoveIndex += consumedCount;
+			moveBuffer = []; // Clear buffer after successful match
+
+			// Reset feedback after brief delay
+			setTimeout(() => {
+				validationFeedback = 'neutral';
+			}, 500);
+		} else if (normalized.length > 6) {
+			// Too many moves without matching - likely off track
+			console.log('[Validation] ✗ Incorrect - buffer too long without match');
+			validationFeedback = 'incorrect';
+		} else {
+			console.log('[Validation] Waiting for more moves...');
+		}
+	}
 
 	// local reactive mirror of the global state.current
 	let currentTrainCase = $derived(trainState.current);
@@ -154,6 +260,10 @@
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
+		// Reset progress tracking
+		moveBuffer = [];
+		currentMoveIndex = 0;
+		validationFeedback = 'neutral';
 	}
 
 	async function onPrevious() {
@@ -162,15 +272,10 @@
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
-	}
-
-	function showHintAlg() {
-		hintManager.revealHint(
-			globalState.trainHintAlgorithm,
-			alg,
-			twistyAlgViewerLoaded,
-			algViewerContainer
-		);
+		// Reset progress tracking
+		moveBuffer = [];
+		currentMoveIndex = 0;
+		validationFeedback = 'neutral';
 	}
 
 	function handleTimerStop(timeInCentiseconds: number) {
@@ -258,7 +363,7 @@
 				<TwistyPlayer
 					bind:this={twistyPlayerRef}
 					bind:scramble
-					bind:alg
+					bind:movesAdded={alg}
 					groupId={currentTrainCase.groupId}
 					caseId={currentTrainCase.caseId}
 					algorithmSelection={currentAlgorithmSelection}
@@ -293,6 +398,9 @@
 
 		<HintButtonSmart
 			alg={displayAlg}
+			movesAdded={alg}
+			{currentMoveIndex}
+			{validationFeedback}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
 			}}

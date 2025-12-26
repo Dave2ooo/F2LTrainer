@@ -45,6 +45,7 @@
 		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
+		movesAdded?: string;
 	}
 
 	let {
@@ -72,13 +73,13 @@
 		onF2LSolved,
 		onCubeSolved,
 		backView = 'none',
-		backViewEnabled = false
+		backViewEnabled = false,
+		movesAdded = $bindable('')
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
 	let isPlayerInitialized = $state(false);
-	let movesAdded = $state('');
 	let kpuzzle: any = null;
 
 	// Compute width/height based on size and control panel configuration

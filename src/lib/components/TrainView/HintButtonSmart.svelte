@@ -4,14 +4,51 @@
 	interface Props {
 		alg: string;
 		onEditAlg: () => void;
+		movesAdded?: string;
+		currentMoveIndex?: number; // NEW: Current position in algorithm
+		validationFeedback?: 'correct' | 'incorrect' | 'neutral'; // NEW: Visual feedback
 	}
 
-	let { alg, onEditAlg }: Props = $props();
+	let {
+		alg,
+		onEditAlg,
+		movesAdded = '',
+		currentMoveIndex = 0,
+		validationFeedback = 'neutral'
+	}: Props = $props();
 
-	// Parse the algorithm into individual moves for consistent display
-	let algMoves = $derived.by(() => {
+	// Number of "current" moves to highlight (lookahead window)
+	const LOOKAHEAD_COUNT = 1;
+
+	// Categorize algorithm moves into completed, current, and future
+	let completedMoves = $derived.by(() => {
 		if (!alg) return [];
-		return alg.split(' ').filter((move) => move.trim() !== '');
+		const moves = alg.split(' ').filter((move) => move.trim() !== '');
+		return moves.slice(0, currentMoveIndex);
+	});
+
+	let currentMoves = $derived.by(() => {
+		if (!alg) return [];
+		const moves = alg.split(' ').filter((move) => move.trim() !== '');
+		return moves.slice(currentMoveIndex, currentMoveIndex + LOOKAHEAD_COUNT);
+	});
+
+	let futureMoves = $derived.by(() => {
+		if (!alg) return [];
+		const moves = alg.split(' ').filter((move) => move.trim() !== '');
+		return moves.slice(currentMoveIndex + LOOKAHEAD_COUNT);
+	});
+
+	// Calculate total progress
+	let totalMoves = $derived.by(() => {
+		if (!alg) return 0;
+		return alg.split(' ').filter((move) => move.trim() !== '').length;
+	});
+
+	// For displaying "applied moves" - kept for reference
+	let movesAddedList = $derived.by(() => {
+		if (!movesAdded) return [];
+		return movesAdded.split(' ').filter((move) => move.trim() !== '');
 	});
 
 	// Tailwind classes separated into named groups for readability
@@ -35,21 +72,62 @@
 	const chipClass =
 		'rounded bg-gray-100 dark:bg-gray-600 px-2 py-1 font-mono font-semibold text-theme-text';
 
+	const movesAddedChipClass =
+		'rounded bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 font-mono text-base md:text-xl text-blue-800 dark:text-blue-200';
+
+	// Completed moves - dimmed, greenish tint
+	const completedChipClass =
+		'rounded bg-green-100 dark:bg-green-900 px-2 py-1 font-mono font-semibold text-green-700 dark:text-green-300 opacity-70';
+
+	// Current target moves - bright, pulsing highlight
+	const currentChipClass =
+		'rounded bg-blue-500 dark:bg-blue-600 px-2 py-1 font-mono font-semibold text-white animate-pulse shadow-lg';
+
+	// Future moves - blurred or hidden
+	const futureChipClass =
+		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
+
+	// Container feedback styling based on validation
+	const getContainerFeedbackClass = (feedback: 'correct' | 'incorrect' | 'neutral') => {
+		if (feedback === 'correct') {
+			return 'border-green-500 bg-green-50 dark:bg-green-950/20';
+		} else if (feedback === 'incorrect') {
+			return 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-shake';
+		}
+		return '';
+	};
+
 	const editButtonClass =
 		'hover:bg-opacity-90 absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 text-primary-500 transition-all duration-200 md:translate-x-10';
 
-	let showEditButton = $derived(algMoves.length > 0);
+	let showEditButton = $derived(totalMoves > 0);
 </script>
 
 <!-- Container holds the hint button UI -->
 <div class="my-2 flex w-full flex-col items-center md:my-4">
 	<div class="relative">
-		<div class={className}>
-			{#if algMoves.length > 0}
+		<div class={`${className} ${getContainerFeedbackClass(validationFeedback)}`}>
+			{#if totalMoves > 0}
 				<div class={algContainerClass}>
-					{#each algMoves as move}
-						<span class={chipClass}>{move}</span>
+					<!-- Completed moves -->
+					{#each completedMoves as move}
+						<span class={completedChipClass}>{move}</span>
 					{/each}
+
+					<!-- Current target moves -->
+					{#each currentMoves as move}
+						<span class={currentChipClass}>{move}</span>
+					{/each}
+
+					<!-- Future moves (hidden or blurred) -->
+					{#each futureMoves as move}
+						<span class={futureChipClass}>•••</span>
+					{/each}
+				</div>
+
+				<!-- Progress indicator -->
+				<div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+					Progress: {currentMoveIndex}/{totalMoves} moves
 				</div>
 			{:else}
 				<span class="text-xl text-theme-text md:text-2xl">No algorithm available</span>
@@ -71,4 +149,34 @@
 			</button>
 		{/if}
 	</div>
+
+	<div class="mt-2 flex flex-col items-center gap-1">
+		<span class="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400"
+			>Applied Moves</span
+		>
+		<div class="flex flex-wrap items-center justify-center gap-1">
+			{#each movesAddedList as move}
+				<span class={movesAddedChipClass}>{move}</span>
+			{/each}
+		</div>
+	</div>
 </div>
+
+<style>
+	@keyframes shake {
+		0%,
+		100% {
+			transform: translateX(0);
+		}
+		25% {
+			transform: translateX(-4px);
+		}
+		75% {
+			transform: translateX(4px);
+		}
+	}
+
+	:global(.animate-shake) {
+		animation: shake 0.3s ease-in-out;
+	}
+</style>
