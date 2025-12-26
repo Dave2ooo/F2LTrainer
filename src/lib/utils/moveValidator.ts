@@ -12,6 +12,86 @@ export function isRotationMove(move: string): boolean {
 }
 
 /**
+ * Apply a rotation to a move
+ * For example: if rotation is 'x', then U becomes F, F becomes D, etc.
+ */
+export function applyRotationToMove(move: string, rotation: string): string {
+	if (!rotation || rotation === '') return move;
+
+	const baseFace = getBaseFace(move);
+	const modifier = move.replace(baseFace, ''); // Get ' or 2 or empty
+
+	// Rotation mappings: what each face becomes after a rotation
+	const rotationMaps: Record<string, Record<string, string>> = {
+		x: { U: 'F', F: 'D', D: 'B', B: 'U', R: 'R', L: 'L' },
+		"x'": { U: 'B', B: 'D', D: 'F', F: 'U', R: 'R', L: 'L' },
+		x2: { U: 'D', D: 'U', F: 'B', B: 'F', R: 'R', L: 'L' },
+		y: { U: 'U', D: 'D', F: 'R', R: 'B', B: 'L', L: 'F' },
+		"y'": { U: 'U', D: 'D', F: 'L', L: 'B', B: 'R', R: 'F' },
+		y2: { U: 'U', D: 'D', F: 'B', B: 'F', R: 'L', L: 'R' },
+		z: { U: 'L', L: 'D', D: 'R', R: 'U', F: 'F', B: 'B' },
+		"z'": { U: 'R', R: 'D', D: 'L', L: 'U', F: 'F', B: 'B' },
+		z2: { U: 'D', D: 'U', L: 'R', R: 'L', F: 'F', B: 'B' }
+	};
+
+	const map = rotationMaps[rotation];
+	if (!map) return move;
+
+	const newFace = map[baseFace];
+	if (!newFace) return move;
+
+	return newFace + modifier;
+}
+
+/**
+ * Combine multiple rotations into a single effective rotation
+ * For example: x then y becomes a combined rotation
+ */
+export function combineRotations(rotations: string[]): string {
+	if (rotations.length === 0) return '';
+	if (rotations.length === 1) return rotations[0];
+
+	// For simplicity, we'll apply rotations sequen tially
+	// A more efficient approach would be to use rotation matrices,
+	// but for F2L this should be sufficient
+	let result = rotations[0];
+
+	for (let i = 1; i < rotations.length; i++) {
+		const nextRotation = rotations[i];
+
+		// Combine rotations by mapping through each
+		// This is a simplified approach - could be optimized
+		const testFaces = ['U', 'D', 'F', 'B', 'R', 'L'];
+		const combined: Record<string, string> = {};
+
+		for (const face of testFaces) {
+			const afterFirst = applyRotationToMove(face, result);
+			const afterSecond = applyRotationToMove(afterFirst, nextRotation);
+			combined[face] = afterSecond;
+		}
+
+		// Find which single rotation produces this mapping
+		// (This is a simplification - may not always find a single rotation)
+		const allRotations = ['x', "x'", 'x2', 'y', "y'", 'y2', 'z', "z'", 'z2', ''];
+		for (const rot of allRotations) {
+			let matches = true;
+			for (const face of testFaces) {
+				if (applyRotationToMove(face, rot) !== combined[face]) {
+					matches = false;
+					break;
+				}
+			}
+			if (matches) {
+				result = rot;
+				break;
+			}
+		}
+	}
+
+	return result;
+}
+
+/**
  * Get the base face of a move (e.g., "U" from "U'", "U2", or "U")
  */
 function getBaseFace(move: string): string {
@@ -272,4 +352,26 @@ export function matchesMoveSequence(
  */
 export function isOnlyRotations(moves: string[]): boolean {
 	return moves.every((move) => isRotationMove(move));
+}
+
+/**
+ * Get the inverse of a rotation
+ * For example: inverse of x is x', inverse of x' is x, inverse of x2 is x2
+ */
+export function inverseRotation(rotation: string): string {
+	if (!rotation || rotation === '') return '';
+
+	const inverseMap: Record<string, string> = {
+		x: "x'",
+		"x'": 'x',
+		x2: 'x2',
+		y: "y'",
+		"y'": 'y',
+		y2: 'y2',
+		z: "z'",
+		"z'": 'z',
+		z2: 'z2'
+	};
+
+	return inverseMap[rotation] || rotation;
 }

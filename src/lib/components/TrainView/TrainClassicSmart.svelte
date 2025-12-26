@@ -24,7 +24,14 @@
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
-	import { isRotationMove, matchesMoveSequence, normalizeMoves } from '$lib/utils/moveValidator';
+	import {
+		isRotationMove,
+		matchesMoveSequence,
+		normalizeMoves,
+		applyRotationToMove,
+		combineRotations,
+		inverseRotation
+	} from '$lib/utils/moveValidator';
 
 	let editAlgRef = $state<EditAlg>();
 	let timerRef = $state<Timer>();
@@ -38,11 +45,22 @@
 	// Separate display algorithm for HintButtonSmart (calculated with AUF)
 	let displayAlg = $state('');
 
+	// Transformed moves for display (accounting for rotations)
+	let transformedMovesForDisplay = $derived.by(() => {
+		if (!alg || !cumulativeRotation) return alg;
+		// Apply INVERSE rotation to transform from absolute (smart cube) to rotated (algorithm) frame
+		const inverseRot = inverseRotation(cumulativeRotation);
+		const moves = alg.split(' ').filter((m) => m.trim() !== '');
+		const transformed = moves.map((move) => applyRotationToMove(move, inverseRot));
+		return transformed.join(' ');
+	});
+
 	// Algorithm progress tracking
 	let algMovesParsed = $state<string[]>([]); // Full algorithm as array
 	let currentMoveIndex = $state(0); // Index of next expected move
 	let moveBuffer = $state<string[]>([]); // Recent moves from smart cube for validation
 	let validationFeedback = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
+	let cumulativeRotation = $state(''); // Track cumulative rotations we've skipped
 
 	let lastProcessedMoveCounter = -1;
 
@@ -87,13 +105,17 @@
 				moveBuffer = [];
 				validationFeedback = 'neutral';
 
-				// Auto-skip leading rotations
+				// Auto-skip leading rotations and collect them
+				const skippedRotations: string[] = [];
 				while (
 					currentMoveIndex < algMovesParsed.length &&
 					isRotationMove(algMovesParsed[currentMoveIndex])
 				) {
+					skippedRotations.push(algMovesParsed[currentMoveIndex]);
 					currentMoveIndex++;
 				}
+				// Combine all skipped rotations into cumulative rotation
+				cumulativeRotation = combineRotations(skippedRotations);
 			});
 		} else {
 			untrack(() => {
@@ -101,6 +123,7 @@
 				currentMoveIndex = 0;
 				moveBuffer = [];
 				validationFeedback = 'neutral';
+				cumulativeRotation = '';
 			});
 		}
 	});
@@ -120,13 +143,23 @@
 			return;
 		}
 
-		// Auto-skip rotation moves
+		// Auto-skip rotation moves and collect them
+		const newRotations: string[] = [];
 		while (
 			currentMoveIndex < algMovesParsed.length &&
 			isRotationMove(algMovesParsed[currentMoveIndex])
 		) {
 			console.log('[Validation] Auto-skipping rotation:', algMovesParsed[currentMoveIndex]);
+			newRotations.push(algMovesParsed[currentMoveIndex]);
 			currentMoveIndex++;
+		}
+		// Update cumulative rotation if we skipped any
+		if (newRotations.length > 0) {
+			const allRotations = cumulativeRotation
+				? [cumulativeRotation, ...newRotations]
+				: newRotations;
+			cumulativeRotation = combineRotations(allRotations);
+			console.log('[Validation] Updated cumulative rotation to:', cumulativeRotation);
 		}
 
 		// Check again after skipping rotations
@@ -140,8 +173,22 @@
 		const expectedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + 5);
 		console.log('[Validation] Expected moves:', expectedMoves);
 
-		// Normalize the move buffer
-		const normalized = normalizeMoves(moveBuffer);
+		// Apply INVERSE rotation to move buffer (transform from absolute to rotated frame)
+		const inverseRot = inverseRotation(cumulativeRotation);
+		const transformedBuffer = moveBuffer.map((move) => applyRotationToMove(move, inverseRot));
+		console.log(
+			'[Validation] Transformed buffer (with inverse rotation):',
+			transformedBuffer,
+			'from:',
+			moveBuffer,
+			'using inverse of:',
+			cumulativeRotation,
+			'which is:',
+			inverseRot
+		);
+
+		// Normalize the TRANSFORMED move buffer
+		const normalized = normalizeMoves(transformedBuffer);
 		console.log('[Validation] Normalized buffer:', normalized);
 
 		// Check for match
@@ -264,6 +311,7 @@
 		moveBuffer = [];
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
+		cumulativeRotation = '';
 	}
 
 	async function onPrevious() {
@@ -276,6 +324,7 @@
 		moveBuffer = [];
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
+		cumulativeRotation = '';
 	}
 
 	function handleTimerStop(timeInCentiseconds: number) {
@@ -398,7 +447,7 @@
 
 		<HintButtonSmart
 			alg={displayAlg}
-			movesAdded={alg}
+			movesAdded={transformedMovesForDisplay}
 			{currentMoveIndex}
 			{validationFeedback}
 			onEditAlg={() => {
