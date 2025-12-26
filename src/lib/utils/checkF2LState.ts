@@ -111,6 +111,8 @@ export async function checkF2LState(
 		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
 		const normalizedPattern = pattern.kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
+		console.log(normalizedPattern);
+
 		// Check if F2L is solved
 		const f2lSolved = isF2LSolved(
 			normalizedPattern.patternData.CORNERS,

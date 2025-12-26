@@ -81,8 +81,8 @@
 							const inverseRot = inverseRotation(cumulativeRotation);
 							const transformedMove = applyRotationToMove(m, inverseRot);
 
-							// Send transformed move to TwistyPlayer (shows algorithm moves)
-							twistyPlayerRef.addMove(transformedMove);
+							// Send transformed move for display, raw move for F2L checking
+							twistyPlayerRef.addMove(transformedMove, m);
 
 							// Add raw move to buffer for validation
 							moveBuffer = [...moveBuffer, m];

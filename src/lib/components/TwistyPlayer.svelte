@@ -16,6 +16,7 @@
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
+	import { isRotationMove } from '$lib/utils/moveValidator';
 
 	interface Props {
 		groupId?: GroupId;
@@ -45,7 +46,8 @@
 		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
-		movesAdded?: string;
+		movesAdded?: string; // Transformed moves for display
+		rawMovesAdded?: string; // Raw physical moves for F2L checking
 	}
 
 	let {
@@ -74,7 +76,8 @@
 		onCubeSolved,
 		backView = 'none',
 		backViewEnabled = false,
-		movesAdded = $bindable('')
+		movesAdded = $bindable(''),
+		rawMovesAdded = $bindable('') // Raw moves from smart cube
 	}: Props = $props();
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
@@ -149,6 +152,7 @@
 		if (el && isPlayerInitialized) {
 			// Reset moves added via smart cube when case changes
 			movesAdded = '';
+			rawMovesAdded = '';
 
 			// Use setTimeout to ensure the TwistyPlayer has processed the prop changes
 			setTimeout(() => {
@@ -296,12 +300,16 @@
 	});
 
 	// Public method to add a move to the player dynamically (e.g. from Bluetooth)
-	export async function addMove(move: string) {
+	export async function addMove(move: string, rawMove?: string) {
 		if (el) {
 			const player = el as any;
 			if (player.experimentalAddMove) {
 				player.experimentalAddMove(move);
 				movesAdded += (movesAdded ? ' ' : '') + move;
+
+				// Track raw move separately (defaults to same as transformed move if not provided)
+				const actualRawMove = rawMove || move;
+				rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
 
 				// Re-apply stickering if needed
 				// Sometimes adding a move might reset internal state depending on twisty-player version/behavior
@@ -310,10 +318,17 @@
 				}
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
+					// Filter out rotations from rawMovesAdded for F2L checking
+					const movesForF2LCheck = rawMovesAdded
+						.trim()
+						.split(' ')
+						.filter((m) => !isRotationMove(m))
+						.join(' ');
+
 					await checkF2LState(
 						{ kpuzzle },
 						scramble,
-						movesAdded.trim(),
+						movesForF2LCheck,
 						staticData.pieceToHide,
 						side,
 						onF2LSolved,
