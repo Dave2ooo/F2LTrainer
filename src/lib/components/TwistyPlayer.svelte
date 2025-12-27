@@ -16,7 +16,8 @@
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
-	import { isRotationMove } from '$lib/utils/moveValidator';
+	import { isRotationMove, applyRotationToMove, combineRotations } from '$lib/utils/moveValidator';
+
 
 	interface Props {
 		groupId?: GroupId;
@@ -319,11 +320,19 @@
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
 					// Use the same moves that were applied to TwistyPlayer (movesAdded)
-					const movesForF2LCheck = movesAdded
-						.trim()
-						.split(' ')
-						.filter((m) => !isRotationMove(m))
-						.join(' ');
+					const movesList = movesAdded.trim().split(/\s+/).filter((m) => m);
+					const movesForF2LCheckList: string[] = [];
+					let currentRotation = '';
+
+					for (const move of movesList) {
+						if (isRotationMove(move)) {
+							const rots = currentRotation ? [currentRotation, move] : [move];
+							currentRotation = combineRotations(rots);
+						} else {
+							movesForF2LCheckList.push(applyRotationToMove(move, currentRotation));
+						}
+					}
+					const movesForF2LCheck = movesForF2LCheckList.join(' ');
 
 					await checkF2LState(
 						{ kpuzzle },

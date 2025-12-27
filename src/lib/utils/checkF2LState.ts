@@ -106,6 +106,9 @@ export async function checkF2LState(
 	onF2LSolved?: () => void,
 	onCubeSolved?: () => void
 ): Promise<F2LState> {
+	console.log('[F2L Check]');
+	console.log('scramble', scramble);
+	console.log('alg', alg);
 	try {
 		// Generate normalized pattern from scramble + alg (ignores setupRotation)
 		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
