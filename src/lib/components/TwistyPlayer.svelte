@@ -15,8 +15,17 @@
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
-	import { checkF2LState } from '$lib/utils/checkF2LState';
-	import { isRotationMove, applyRotationToMove, combineRotations } from '$lib/utils/moveValidator';
+	import {
+		checkF2LState
+	} from '$lib/utils/checkF2LState';
+	import {
+		isRotationMove,
+		applyRotationToMove,
+		combineRotations,
+		isWideMove,
+		wideToSingleLayerMove,
+		getWideImplicitRotation
+	} from '$lib/utils/moveValidator';
 
 
 	interface Props {
@@ -328,6 +337,18 @@
 						if (isRotationMove(move)) {
 							const rots = currentRotation ? [currentRotation, move] : [move];
 							currentRotation = combineRotations(rots);
+						} else if (isWideMove(move)) {
+							const singleLayer = wideToSingleLayerMove(move);
+							const implicitRot = getWideImplicitRotation(move);
+
+							if (singleLayer) {
+								movesForF2LCheckList.push(applyRotationToMove(singleLayer, currentRotation));
+							}
+
+							if (implicitRot) {
+								const rots = currentRotation ? [currentRotation, implicitRot] : [implicitRot];
+								currentRotation = combineRotations(rots);
+							}
 						} else {
 							movesForF2LCheckList.push(applyRotationToMove(move, currentRotation));
 						}
