@@ -33,7 +33,9 @@
 		inverseRotation,
 		isWideMove,
 		wideToSingleLayerMove,
-		getWideImplicitRotation
+		getWideImplicitRotation,
+		isSliceMove,
+		getSliceImplicitRotation
 	} from '$lib/utils/moveValidator';
 
 	let editAlgRef = $state<EditAlg>();
@@ -258,6 +260,30 @@
 			// Correct moves detected
 			console.log('[Validation] ✓ Correct moves! Advancing by', consumedCount);
 			validationFeedback = 'correct';
+			// Check for implicit rotations in the matched moves (e.g. from slice moves)
+			const matchedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + consumedCount);
+			for (const matchedMove of matchedMoves) {
+				if (isSliceMove(matchedMove)) {
+					const implicitRot = getSliceImplicitRotation(matchedMove);
+					if (implicitRot) {
+						console.log(
+							'[Slice Move] Detected slice move:',
+							matchedMove,
+							'with rotation:',
+							implicitRot
+						);
+
+						// Apply rotation to TwistyPlayer to keep visual sync
+						twistyPlayerRef.addMove(implicitRot, implicitRot);
+
+						// Update cumulative rotation
+						const rotationsToUpdate = [cumulativeRotation, implicitRot].filter((r) => r !== '');
+						cumulativeRotation = combineRotations(rotationsToUpdate);
+						console.log('[Slice Move] Updated cumulative rotation:', cumulativeRotation);
+					}
+				}
+			}
+
 			currentMoveIndex += consumedCount;
 			moveBuffer = []; // Clear buffer after successful match
 

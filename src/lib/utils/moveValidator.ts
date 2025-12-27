@@ -279,9 +279,41 @@ export function expandSliceMove(move: string): string[][] {
 /**
  * Check if a move is a slice move (M, E, S)
  */
-function isSliceMove(move: string): boolean {
+export function isSliceMove(move: string): boolean {
 	const baseFace = getBaseFace(move);
 	return ['M', 'E', 'S'].includes(baseFace);
+}
+
+/**
+ * Get the rotation caused by a slice move
+ * M -> x' (follows L direction)
+ * E -> y' (follows D direction)
+ * S -> z (follows F direction)
+ */
+export function getSliceImplicitRotation(move: string): string {
+	const baseFace = getBaseFace(move);
+	const modifier = move.replace(baseFace, ''); // Get ' or 2 or empty
+
+	// Base rotation for each slice move
+	const rotationMapping: Record<string, string> = {
+		M: "x'",
+		E: "y'",
+		S: 'z'
+	};
+
+	const baseRotation = rotationMapping[baseFace];
+	if (!baseRotation) return '';
+
+	// Handle modifiers
+	if (modifier === '2') {
+		// For double slice moves, rotation is always the base rotation + 2
+		return getBaseFace(baseRotation) + '2';
+	} else if (modifier === "'") {
+		// For prime slice moves, invert the base rotation
+		return inverseRotation(baseRotation);
+	}
+
+	return baseRotation;
 }
 
 /**
