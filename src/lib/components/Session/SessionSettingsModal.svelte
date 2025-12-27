@@ -112,8 +112,15 @@
 </script>
 
 {#if session && settings}
-	<Modal bind:open title="Session Settings" size="lg" outsideclose={true}>
-		<div class="flex flex-col gap-5">
+	<Modal
+		bind:open
+		title="Session Settings"
+		size="lg"
+		outsideclose={true}
+		placement="top-center"
+		class="mt-8"
+	>
+		<div class="flex flex-col gap-2">
 			<!-- General Settings Section -->
 			<div
 				class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
@@ -125,7 +132,12 @@
 				<Input id="session-name" bind:value={session.name} placeholder="Enter session name" />
 			</div>
 
-			<Tabs style="underline">
+			<Tabs
+				tabStyle="underline"
+				classes={{
+					content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
+				}}
+			>
 				<TabItem open title="Case Selection">
 					<div class="mt-4 flex flex-col gap-5">
 						<!-- Case Mode Section -->
@@ -175,7 +187,7 @@
 								</div>
 							</div>
 						{:else}
-							<div class="mt-4">
+							<div class="mt-0">
 								{#if settings}
 									{#key sessionId ?? 'new'}
 										<SessionIndividualCaseSelector

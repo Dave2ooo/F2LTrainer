@@ -30,7 +30,7 @@
 	bind:selected={selectedGroup}
 	tabStyle="underline"
 	classes={{
-		content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-2'
+		content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
 	}}
 >
 	{#each GROUP_IDS as groupId}
