@@ -15,9 +15,7 @@
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
-	import {
-		checkF2LState
-	} from '$lib/utils/checkF2LState';
+	import { checkF2LState } from '$lib/utils/checkF2LState';
 	import {
 		isRotationMove,
 		applyRotationToMove,
@@ -26,7 +24,6 @@
 		wideToSingleLayerMove,
 		getWideImplicitRotation
 	} from '$lib/utils/moveValidator';
-
 
 	interface Props {
 		groupId?: GroupId;
@@ -329,7 +326,10 @@
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
 					// Use the same moves that were applied to TwistyPlayer (movesAdded)
-					const movesList = movesAdded.trim().split(/\s+/).filter((m) => m);
+					const movesList = movesAdded
+						.trim()
+						.split(/\s+/)
+						.filter((m) => m);
 					const movesForF2LCheckList: string[] = [];
 					let currentRotation = '';
 
