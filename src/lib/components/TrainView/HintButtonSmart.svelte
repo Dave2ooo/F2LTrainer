@@ -125,7 +125,7 @@
 
 					<!-- Future moves (hidden or blurred) -->
 					{#each futureMoves as move}
-						<span class={futureChipClass}>•••</span>
+						<span class={futureChipClass}>{move}</span>
 					{/each}
 				</div>
 
