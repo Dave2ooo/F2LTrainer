@@ -458,30 +458,53 @@ export function matchesMoveSequence(
 	for (let consumeCount = expected.length; consumeCount >= 1; consumeCount--) {
 		const expectedPrefix = expected.slice(0, consumeCount);
 
-		// Expand expected moves that are slice moves
-		let expandedExpected: string[] = [];
-		for (const move of expectedPrefix) {
-			if (isSliceMove(move)) {
-				// Try all possible orderings for slice moves
-				const expansions = expandSliceMove(move);
-				// For now, try the first expansion
-				// TODO: Could try all combinations if needed
-				expandedExpected.push(...expansions[0]);
-			} else {
-				expandedExpected.push(move);
+		// Generate all possible expansions for slice moves
+		// Each slice move has multiple orderings, so we need to try all combinations
+		const allExpansions = generateAllSliceExpansions(expectedPrefix);
+
+		// Try each expansion combination
+		for (const expandedExpected of allExpansions) {
+			// Normalize expected
+			const normalizedExpected = normalizeMoves(expandedExpected);
+
+			// Check if normalized sequences match
+			if (areSequencesEquivalent(normalizedPerformed, normalizedExpected)) {
+				return { match: true, consumedCount: consumeCount };
 			}
-		}
-
-		// Normalize expected
-		const normalizedExpected = normalizeMoves(expandedExpected);
-
-		// Check if normalized sequences match
-		if (areSequencesEquivalent(normalizedPerformed, normalizedExpected)) {
-			return { match: true, consumedCount: consumeCount };
 		}
 	}
 
 	return { match: false, consumedCount: 0 };
+}
+
+/**
+ * Generate all possible expansions for a move sequence containing slice moves
+ * This handles the order-independence of slice moves (e.g., S = F' B or B F')
+ */
+function generateAllSliceExpansions(moves: string[]): string[][] {
+	// Start with a single empty expansion
+	let expansions: string[][] = [[]];
+
+	for (const move of moves) {
+		if (isSliceMove(move)) {
+			// Get all possible orderings for this slice move
+			const sliceExpansions = expandSliceMove(move);
+
+			// Create new expansions by combining each existing expansion with each slice ordering
+			const newExpansions: string[][] = [];
+			for (const existing of expansions) {
+				for (const sliceOrdering of sliceExpansions) {
+					newExpansions.push([...existing, ...sliceOrdering]);
+				}
+			}
+			expansions = newExpansions;
+		} else {
+			// Regular move - add to all existing expansions
+			expansions = expansions.map((exp) => [...exp, move]);
+		}
+	}
+
+	return expansions;
 }
 
 /**
