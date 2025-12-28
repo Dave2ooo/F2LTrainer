@@ -106,15 +106,10 @@ export async function checkF2LState(
 	onF2LSolved?: () => void,
 	onCubeSolved?: () => void
 ): Promise<F2LState> {
-	console.log('[F2L Check]');
-	console.log('scramble', scramble);
-	console.log('alg', alg);
 	try {
 		// Generate normalized pattern from scramble + alg (ignores setupRotation)
 		const currentAppliedAlg = new Alg(scramble + ' ' + alg);
 		const normalizedPattern = pattern.kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
-
-		console.log(normalizedPattern);
 
 		// Check if F2L is solved
 		const f2lSolved = isF2LSolved(
@@ -127,26 +122,26 @@ export async function checkF2LState(
 		// Check if cube is fully solved
 		const cubeSolved = isCubeSolved(normalizedPattern);
 
-		// Log states (for debugging)
+		// Log solved states
 		if (f2lSolved) {
 			console.log(
-				'%cF2L IS SOLVED!',
-				'color: #fff; background: #00ff00; font-size:1.5rem; font-weight: bold; padding: 8px 0; text-align: center;'
+				'%c\u2713 F2L SOLVED!',
+				'color: #fff; background: #27ae60; font-size:1.2rem; font-weight: bold; padding: 4px 12px; border-radius: 4px;'
 			);
 			onF2LSolved?.();
 		}
 
 		if (cubeSolved) {
 			console.log(
-				'%cCUBE IS FULLY SOLVED!',
-				'color: #fff; background: #1e90ff; font-size:1.5rem; font-weight: bold; padding: 8px 0; text-align: center;'
+				'%c\u2713 CUBE SOLVED!',
+				'color: #fff; background: #3498db; font-size:1.2rem; font-weight: bold; padding: 4px 12px; border-radius: 4px;'
 			);
 			onCubeSolved?.();
 		}
 
 		return { f2lSolved, cubeSolved };
 	} catch (e) {
-		console.warn('Could not check F2L state:', e);
+		console.error('%c[F2L Check Error]', 'color: #e74c3c; font-weight: bold', e);
 		return { f2lSolved: false, cubeSolved: false };
 	}
 }

@@ -319,13 +319,12 @@
 				rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
 
 				// Re-apply stickering if needed
-				// Sometimes adding a move might reset internal state depending on twisty-player version/behavior
 				if (stickeringString) {
 					player.experimentalStickeringMaskOrbits = stickeringString;
 				}
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
-					// Use the same moves that were applied to TwistyPlayer (movesAdded)
+					// Convert movesAdded to absolute frame for F2L checking
 					const movesList = movesAdded
 						.trim()
 						.split(/\s+/)
@@ -333,27 +332,36 @@
 					const movesForF2LCheckList: string[] = [];
 					let currentRotation = '';
 
-					for (const move of movesList) {
-						if (isRotationMove(move)) {
-							const rots = currentRotation ? [currentRotation, move] : [move];
+					for (const m of movesList) {
+						if (isRotationMove(m)) {
+							const rots = currentRotation ? [currentRotation, m] : [m];
 							currentRotation = combineRotations(rots);
-						} else if (isWideMove(move)) {
-							const singleLayer = wideToSingleLayerMove(move);
-							const implicitRot = getWideImplicitRotation(move);
-
+						} else if (isWideMove(m)) {
+							const singleLayer = wideToSingleLayerMove(m);
+							const implicitRot = getWideImplicitRotation(m);
 							if (singleLayer) {
 								movesForF2LCheckList.push(applyRotationToMove(singleLayer, currentRotation));
 							}
-
 							if (implicitRot) {
 								const rots = currentRotation ? [currentRotation, implicitRot] : [implicitRot];
 								currentRotation = combineRotations(rots);
 							}
 						} else {
-							movesForF2LCheckList.push(applyRotationToMove(move, currentRotation));
+							movesForF2LCheckList.push(applyRotationToMove(m, currentRotation));
 						}
 					}
 					const movesForF2LCheck = movesForF2LCheckList.join(' ');
+
+					console.log(
+						'%c[F2L Check]',
+						'color: #16a085; font-weight: bold',
+						'\n  movesAdded:',
+						movesAdded,
+						'\n  → converted:',
+						movesForF2LCheck,
+						'\n  scramble:',
+						scramble.substring(0, 30) + '...'
+					);
 
 					await checkF2LState(
 						{ kpuzzle },

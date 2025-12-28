@@ -118,9 +118,12 @@
 			untrack(() => {
 				// Remove parentheses from algorithm before parsing
 				const cleanAlg = displayAlg.replace(/[()]/g, '');
-				console.log('[Parsing] displayAlg:', displayAlg, 'cleanAlg:', cleanAlg);
 				algMovesParsed = cleanAlg.split(' ').filter((m) => m.trim() !== '');
-				console.log('[Parsing] algMovesParsed:', algMovesParsed);
+				console.log(
+					'%c[Algorithm Loaded]',
+					'color: #9b59b6; font-weight: bold',
+					algMovesParsed.join(' ')
+				);
 				currentMoveIndex = 0;
 				moveBuffer = [];
 				validationFeedback = 'neutral';
@@ -138,19 +141,22 @@
 	});
 
 	function validateMoveProgress() {
-		console.log('[Validation] Starting validation', {
-			currentMoveIndex,
-			algLength: algMovesParsed.length,
-			moveBuffer,
-			algMovesParsed
-		});
-
 		// Skip if algorithm is complete
 		if (currentMoveIndex >= algMovesParsed.length) {
-			console.log('[Validation] Algorithm complete, skipping validation');
 			validationFeedback = 'neutral';
 			return;
 		}
+
+		console.group('%c[Validation]', 'color: #3498db; font-weight: bold');
+		console.log('State:', {
+			currentMoveIndex,
+			buffer: [...moveBuffer],
+			rotation: cumulativeRotation
+		});
+		console.log(
+			'Expected:',
+			algMovesParsed.slice(currentMoveIndex, currentMoveIndex + 3).join(' ')
+		);
 
 		// Check if there are pending rotations and apply them before validating
 		if (twistyPlayerRef && isRotationMove(algMovesParsed[currentMoveIndex])) {
@@ -166,7 +172,7 @@
 			}
 
 			// Apply all rotations to TwistyPlayer
-			console.log('[Rotation] Applying pending rotations:', rotationsToApply);
+			console.log('%c→ Auto-applying rotations:', 'color: #e67e22', rotationsToApply.join(' '));
 			for (const rotation of rotationsToApply) {
 				twistyPlayerRef.addMove(rotation, rotation);
 			}
@@ -176,7 +182,7 @@
 				? [cumulativeRotation, ...rotationsToApply]
 				: rotationsToApply;
 			cumulativeRotation = combineRotations(allRotations);
-			console.log('[Rotation] Updated cumulative rotation:', cumulativeRotation);
+			console.log('Cumulative rotation now:', cumulativeRotation);
 
 			// Advance index past all rotations
 			currentMoveIndex = rotationIndex;
@@ -188,9 +194,13 @@
 			const singleLayerMove = wideToSingleLayerMove(wideMove);
 			const implicitRotation = getWideImplicitRotation(wideMove);
 
-			console.log('[Wide Move] Detected wide move:', wideMove);
-			console.log('[Wide Move] Looking for single-layer equivalent:', singleLayerMove);
-			console.log('[Wide Move] Implicit rotation:', implicitRotation);
+			console.log(
+				'%c→ Wide move expected:',
+				'color: #9b59b6',
+				wideMove,
+				'→ looking for',
+				singleLayerMove
+			);
 
 			if (singleLayerMove) {
 				// Transform buffer and check for single-layer move match
@@ -198,106 +208,84 @@
 				const transformedBuffer = moveBuffer.map((move) => applyRotationToMove(move, inverseRot));
 				const normalized = normalizeMoves(transformedBuffer);
 
-				console.log('[Wide Move] Checking buffer:', normalized, 'against:', [singleLayerMove]);
-
 				// Try to match against the single-layer equivalent
 				const { match, consumedCount } = matchesMoveSequence(normalized, [singleLayerMove]);
 
 				if (match && consumedCount > 0) {
-					console.log('[Wide Move] ✓ Match found! Applying wide move');
+					console.log('%c✓ Wide move matched!', 'color: #27ae60; font-weight: bold');
+					console.groupEnd();
 
 					// Apply wide move to TwistyPlayer
-					// (F2L checking now uses movesAdded, so no conversion needed)
 					twistyPlayerRef.addMove(wideMove);
 
 					// Track the implicit rotation internally for transforming subsequent moves
 					const rotationsToUpdate = [cumulativeRotation, implicitRotation].filter((r) => r !== '');
 					cumulativeRotation = combineRotations(rotationsToUpdate);
-					console.log('[Wide Move] Updated cumulative rotation:', cumulativeRotation);
 
 					// Advance past the wide move
 					currentMoveIndex++;
 					moveBuffer = [];
 					validationFeedback = 'correct';
 
-					// Reset feedback after brief delay
 					setTimeout(() => {
 						validationFeedback = 'neutral';
 					}, 500);
-
-					return; // Exit early
+					return;
 				}
 			}
 		}
 
 		// Get expected moves (lookahead window)
 		const expectedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + 5);
-		console.log('[Validation] Expected moves:', expectedMoves);
 
 		// Apply INVERSE rotation to move buffer (transform from absolute to rotated frame)
 		const inverseRot = inverseRotation(cumulativeRotation);
 		const transformedBuffer = moveBuffer.map((move) => applyRotationToMove(move, inverseRot));
-		console.log(
-			'[Validation] Transformed buffer (with inverse rotation):',
-			transformedBuffer,
-			'from:',
-			moveBuffer,
-			'using inverse of:',
-			cumulativeRotation,
-			'which is:',
-			inverseRot
-		);
-
-		// Normalize the TRANSFORMED move buffer
 		const normalized = normalizeMoves(transformedBuffer);
-		console.log('[Validation] Normalized buffer:', normalized);
+
+		console.log(
+			'Buffer:',
+			moveBuffer.join(' '),
+			'→ transformed:',
+			transformedBuffer.join(' '),
+			'→ normalized:',
+			normalized.join(' ')
+		);
 
 		// Check for match
 		const { match, consumedCount } = matchesMoveSequence(normalized, expectedMoves);
-		console.log('[Validation] Match result:', { match, consumedCount });
 
 		if (match && consumedCount > 0) {
-			// Correct moves detected
-			console.log('[Validation] ✓ Correct moves! Advancing by', consumedCount);
+			console.log('%c✓ Match! Advancing by', 'color: #27ae60; font-weight: bold', consumedCount);
 			validationFeedback = 'correct';
+
 			// Check for implicit rotations in the matched moves (e.g. from slice moves)
 			const matchedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + consumedCount);
 			for (const matchedMove of matchedMoves) {
 				if (isSliceMove(matchedMove)) {
 					const implicitRot = getSliceImplicitRotation(matchedMove);
 					if (implicitRot) {
-						console.log(
-							'[Slice Move] Detected slice move:',
-							matchedMove,
-							'with rotation:',
-							implicitRot
-						);
-
-						// Apply rotation to TwistyPlayer to keep visual sync
+						console.log('Slice move', matchedMove, '→ applying rotation', implicitRot);
 						twistyPlayerRef.addMove(implicitRot, implicitRot);
-
-						// Update cumulative rotation
 						const rotationsToUpdate = [cumulativeRotation, implicitRot].filter((r) => r !== '');
 						cumulativeRotation = combineRotations(rotationsToUpdate);
-						console.log('[Slice Move] Updated cumulative rotation:', cumulativeRotation);
 					}
 				}
 			}
 
 			currentMoveIndex += consumedCount;
-			moveBuffer = []; // Clear buffer after successful match
-
-			// Reset feedback after brief delay
+			moveBuffer = [];
 			setTimeout(() => {
 				validationFeedback = 'neutral';
 			}, 500);
 		} else if (normalized.length > 6) {
-			// Too many moves without matching - likely off track
-			console.log('[Validation] ✗ Incorrect - buffer too long without match');
+			console.log('%c✗ Buffer overflow - likely wrong moves', 'color: #e74c3c; font-weight: bold');
 			validationFeedback = 'incorrect';
 		} else {
-			console.log('[Validation] Waiting for more moves...');
+			console.log('Waiting for more moves...');
 		}
+
+		console.groupEnd();
 	}
 
 	// local reactive mirror of the global state.current
