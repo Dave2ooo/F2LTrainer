@@ -2,7 +2,7 @@
 	import { Button, Spinner, Input, Label } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
-	import { Bluetooth, BluetoothConnected, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
+	import { Bluetooth, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
 	import { GiikerCube } from '$lib/bluetooth/index';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
@@ -14,7 +14,7 @@
 	let error = $state<string | null>(null);
 	let twistyPlayerComponent = $state<any>(null);
 	let macInput = $state('');
-	let customCubeName = $state('');
+
 	let editingCubeId = $state<string | null>(null);
 	let editingCubeName = $state('');
 	let removeCubeModal: RemoveCubeModal;
@@ -91,16 +91,13 @@
 				const existingById = savedCubesState.getCube(bluetoothState.deviceId);
 				const existing = existingByMac || existingById;
 
-				if (existing) {
-					// Silently update the existing cube entry
-					savedCubesState.addCube(
-						bluetoothState.deviceId,
-						bluetoothState.deviceName,
-						existing.customName,
-						bluetoothState.deviceMac || undefined
-					);
-				}
-				// If no existing cube found, the UI will show "Save this cube" prompt
+				// Auto-save or update the cube entry
+				savedCubesState.addCube(
+					bluetoothState.deviceId,
+					bluetoothState.deviceName,
+					existing?.customName, // Keep existing name or use device name as default
+					bluetoothState.deviceMac || undefined
+				);
 			}
 		} catch (e: any) {
 			console.error(e);
@@ -125,26 +122,13 @@
 					? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
 					: null;
 
-				if (existingByMac) {
-					// Connected cube matches an existing entry (possibly different from clicked one)
-					savedCubesState.addCube(
-						bluetoothState.deviceId,
-						bluetoothState.deviceName,
-						existingByMac.customName,
-						bluetoothState.deviceMac || undefined
-					);
-				} else if (bluetoothState.deviceMac) {
-					// Different physical cube - add as new entry (will show "Save this cube" prompt)
-					// Don't auto-save, let the user name it
-				} else {
-					// No MAC available, update the clicked saved cube
-					savedCubesState.addCube(
-						bluetoothState.deviceId,
-						bluetoothState.deviceName,
-						saved.customName,
-						bluetoothState.deviceMac || undefined
-					);
-				}
+				// Auto-save or update the cube entry
+				savedCubesState.addCube(
+					bluetoothState.deviceId,
+					bluetoothState.deviceName,
+					existingByMac?.customName, // Keep existing name or use device name as default
+					bluetoothState.deviceMac || undefined
+				);
 			} else {
 				savedCubesState.updateLastConnected(deviceId);
 			}
@@ -171,18 +155,7 @@
 		}
 	}
 
-	function onSaveCube() {
-		if (bluetoothState.deviceId && bluetoothState.deviceName) {
-			const name = customCubeName.trim() || bluetoothState.deviceName;
-			savedCubesState.addCube(
-				bluetoothState.deviceId,
-				bluetoothState.deviceName,
-				name,
-				bluetoothState.deviceMac || undefined
-			);
-			customCubeName = '';
-		}
-	}
+
 
 	async function onRemoveCube(deviceId: string) {
 		const cube = savedCubesState.getCube(deviceId);
@@ -230,217 +203,184 @@
 		return date.toLocaleDateString();
 	}
 
-	$effect(() => {
-		// Auto-close custom name input when disconnecting
-		if (!bluetoothState.isConnected) {
-			customCubeName = '';
-		}
-	});
+
 </script>
 
 <Modal bind:open title="Bluetooth Cube" size="md">
 	<div class="flex flex-col gap-4 py-4">
+		<!-- Top section: TwistyPlayer when connected, Bluetooth icon when not -->
 		{#if bluetoothState.isConnected}
-			<div class="flex flex-col items-center gap-2 text-green-500">
-				<BluetoothConnected class="size-16" />
-				<p class="text-lg font-semibold">Connected</p>
-				{#if bluetoothState.deviceId}
-					{@const savedCube = savedCubesState.getCube(bluetoothState.deviceId)}
-					{#if savedCube}
-						<p class="text-base font-medium text-gray-900 dark:text-white">
-							{savedCube.customName}
-						</p>
-					{:else if bluetoothState.deviceName}
-						<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
-					{/if}
-				{:else if bluetoothState.deviceName}
-					<p class="text-sm text-gray-500 dark:text-gray-400">{bluetoothState.deviceName}</p>
-				{/if}
-				{#if bluetoothState.deviceMac}
-					<p class="font-mono text-xs text-gray-400 dark:text-gray-500">
-						MAC: {bluetoothState.deviceMac}
-					</p>
-				{/if}
-				{#if bluetoothState.batteryLevel !== null}
-					<p class="text-sm text-gray-500 dark:text-gray-400">
-						Battery: {bluetoothState.batteryLevel}%
-					</p>
-				{/if}
+			<div class="flex flex-col items-center gap-2">
+				<div class="mx-auto h-48 w-48">
+					<TwistyPlayer
+						side="right"
+						crossColor="yellow"
+						frontColor="green"
+						stickering="fully"
+						customAlgorithm={{ left: '', right: '' }}
+						algorithmSelection={{ left: null, right: null }}
+						controlPanel="none"
+						experimentalDragInput="auto"
+						showVisibilityToggle={false}
+						class="h-full w-full"
+						bind:this={twistyPlayerComponent}
+						tempoScale={5}
+					/>
+				</div>
+				<Button color="light" size="sm" onclick={onSync}>Sync (Reset)</Button>
 			</div>
-
-			<!-- Cube visualization -->
-			<div class="mx-auto h-64 w-64">
-				<TwistyPlayer
-					side="right"
-					crossColor="yellow"
-					frontColor="green"
-					stickering="fully"
-					customAlgorithm={{ left: '', right: '' }}
-					algorithmSelection={{ left: null, right: null }}
-					controlPanel="none"
-					experimentalDragInput="auto"
-					showVisibilityToggle={false}
-					class="h-full w-full"
-					bind:this={twistyPlayerComponent}
-					tempoScale={5}
-				/>
+		{:else}
+			<div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
+				<Bluetooth class="size-16" />
+				<p class="text-lg font-semibold">Not Connected</p>
 			</div>
+		{/if}
 
-			<!-- Save cube option -->
-			{#if bluetoothState.deviceId && !savedCubesState.getCube(bluetoothState.deviceId)}
+		<!-- MAC address input (if requested) -->
+		{#if bluetoothState.macAddressRequest.isOpen}
+			<div class="flex w-full flex-col gap-4">
+				<p
+					class:text-red-500={bluetoothState.macAddressRequest.isWrongKey}
+					class="text-center text-sm"
+				>
+					{bluetoothState.macAddressRequest.isWrongKey
+						? 'The MAC provided might be wrong! Please enter the Bluetooth MAC address of your cube:'
+						: 'Please enter the Bluetooth MAC address of your cube:'}
+				</p>
 				<div class="flex flex-col gap-2">
-					<Label>Save this cube</Label>
-					<div class="flex gap-2">
-						<Input
-							type="text"
-							bind:value={customCubeName}
-							placeholder={bluetoothState.deviceName || 'My Cube'}
-							class="flex-1"
-						/>
-						<Button color="blue" onclick={onSaveCube}>
-							<Plus class="mr-2 size-4" />
-							Save
-						</Button>
+					<Label>MAC Address</Label>
+					<Input
+						type="text"
+						bind:value={macInput}
+						placeholder={bluetoothState.macAddressRequest.defaultMac || 'xx:xx:xx:xx:xx:xx'}
+					/>
+				</div>
+				<div class="flex gap-2">
+					<Button
+						color="alternative"
+						class="flex-1"
+						onclick={() => bluetoothState.cancelMacAddressRequest()}
+					>
+						Cancel
+					</Button>
+					<Button
+						color="blue"
+						class="flex-1"
+						onclick={() =>
+							bluetoothState.submitMacAddress(
+								macInput || bluetoothState.macAddressRequest.defaultMac || ''
+							)}
+					>
+						Submit
+					</Button>
+				</div>
+			</div>
+		{:else}
+			<!-- Saved cubes list (always visible) -->
+			{#if savedCubesState.cubes.length > 0}
+				<div class="flex flex-col gap-2">
+					<h3 class="text-sm font-semibold text-gray-900 dark:text-white">
+						Saved Cubes ({savedCubesState.cubes.length})
+					</h3>
+					<div class="flex flex-col gap-2">
+						{#each savedCubesState.cubes as cube (cube.id)}
+							{@const isConnectedCube =
+								bluetoothState.isConnected && bluetoothState.deviceId === cube.id}
+							<div
+								class="flex items-center gap-2 rounded-lg border p-3"
+								class:border-green-500={isConnectedCube}
+								class:bg-green-50={isConnectedCube}
+								class:dark:bg-green-950={isConnectedCube}
+								class:border-gray-200={!isConnectedCube}
+								class:dark:border-gray-700={!isConnectedCube}
+							>
+								{#if editingCubeId === cube.id}
+									<Input type="text" bind:value={editingCubeName} class="flex-1" />
+									<Button size="xs" color="green" onclick={saveEditCube}>
+										<Check class="size-4" />
+									</Button>
+									<Button size="xs" color="alternative" onclick={cancelEditCube}>
+										<X class="size-4" />
+									</Button>
+								{:else}
+									<div class="flex min-w-0 flex-1 flex-col">
+										<p class="truncate font-semibold text-gray-900 dark:text-white">
+											{cube.customName}
+										</p>
+										<div
+											class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
+										>
+											<span class="whitespace-nowrap">{cube.deviceName}</span>
+											<span>•</span>
+											<span class="whitespace-nowrap">{formatDate(cube.lastConnected)}</span>
+											{#if cube.macAddress}
+												<span>•</span>
+												<span class="font-mono text-xs whitespace-nowrap opacity-75"
+													>{cube.macAddress}</span
+												>
+											{/if}
+											{#if isConnectedCube && bluetoothState.batteryLevel !== null}
+												<span>•</span>
+												<span class="whitespace-nowrap text-green-600 dark:text-green-400"
+													>🔋 {bluetoothState.batteryLevel}%</span
+												>
+											{/if}
+										</div>
+									</div>
+									<div class="flex shrink-0 items-center gap-2">
+										{#if isConnectedCube}
+											<Button size="sm" color="red" onclick={onDisconnect}>
+												Disconnect
+											</Button>
+										{:else}
+											<Button
+												size="sm"
+												color="blue"
+												onclick={() => onConnectSaved(cube.id)}
+												disabled={isConnecting || bluetoothState.isConnected}
+											>
+												Connect
+											</Button>
+										{/if}
+										<Button size="xs" color="light" onclick={() => startEditingCube(cube.id)}>
+											<Edit2 class="size-4" />
+										</Button>
+										<Button
+									size="xs"
+									color="red"
+									onclick={() => onRemoveCube(cube.id)}
+									disabled={isConnectedCube}
+								>
+									<Trash2 class="size-4" />
+								</Button>
+									</div>
+								{/if}
+							</div>
+						{/each}
 					</div>
 				</div>
 			{/if}
 
-			<!-- Action buttons -->
-			<div class="flex w-full gap-2">
-				<Button color="light" class="flex-1" onclick={onSync}>Sync (Reset)</Button>
-				<Button color="red" class="flex-1" onclick={onDisconnect}>Disconnect</Button>
-			</div>
-		{:else}
-			<div class="flex flex-col gap-4">
-				<!-- Not connected indicator -->
-				<div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
-					<Bluetooth class="size-16" />
-					<p class="text-lg font-semibold">Not Connected</p>
-				</div>
+			<!-- Error messages -->
+			{#if error || bluetoothState.errorMessage}
+				<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
+			{/if}
 
-				<!-- MAC address input (if requested) -->
-				{#if bluetoothState.macAddressRequest.isOpen}
-					<div class="flex w-full flex-col gap-4">
-						<p
-							class:text-red-500={bluetoothState.macAddressRequest.isWrongKey}
-							class="text-center text-sm"
-						>
-							{bluetoothState.macAddressRequest.isWrongKey
-								? 'The MAC provided might be wrong! Please enter the Bluetooth MAC address of your cube:'
-								: 'Please enter the Bluetooth MAC address of your cube:'}
-						</p>
-						<div class="flex flex-col gap-2">
-							<Label>MAC Address</Label>
-							<Input
-								type="text"
-								bind:value={macInput}
-								placeholder={bluetoothState.macAddressRequest.defaultMac || 'xx:xx:xx:xx:xx:xx'}
-							/>
-						</div>
-						<div class="flex gap-2">
-							<Button
-								color="alternative"
-								class="flex-1"
-								onclick={() => bluetoothState.cancelMacAddressRequest()}
-							>
-								Cancel
-							</Button>
-							<Button
-								color="blue"
-								class="flex-1"
-								onclick={() =>
-									bluetoothState.submitMacAddress(
-										macInput || bluetoothState.macAddressRequest.defaultMac || ''
-									)}
-							>
-								Submit
-							</Button>
-						</div>
-					</div>
+			<!-- Connect new cube button -->
+			<Button
+				color="alternative"
+				size="sm"
+				class="w-full"
+				onclick={onConnect}
+				disabled={isConnecting || bluetoothState.isConnected}
+			>
+				{#if isConnecting}
+					<Spinner class="mr-2" size="4" />Connecting...
 				{:else}
-					<!-- Saved cubes list -->
-					{#if savedCubesState.cubes.length > 0}
-						<div class="flex flex-col gap-2">
-							<h3 class="text-sm font-semibold text-gray-900 dark:text-white">
-								Saved Cubes ({savedCubesState.cubes.length})
-							</h3>
-							<div class="flex flex-col gap-2">
-								{#each savedCubesState.cubes as cube (cube.id)}
-									<div
-										class="flex items-center gap-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700"
-									>
-										{#if editingCubeId === cube.id}
-											<Input type="text" bind:value={editingCubeName} class="flex-1" />
-											<Button size="xs" color="green" onclick={saveEditCube}>
-												<Check class="size-4" />
-											</Button>
-											<Button size="xs" color="alternative" onclick={cancelEditCube}>
-												<X class="size-4" />
-											</Button>
-										{:else}
-											<div class="flex min-w-0 flex-1 flex-col">
-												<p class="truncate font-semibold text-gray-900 dark:text-white">
-													{cube.customName}
-												</p>
-												<div
-													class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
-												>
-													<span class="whitespace-nowrap">{cube.deviceName}</span>
-													<span>•</span>
-													<span class="whitespace-nowrap">{formatDate(cube.lastConnected)}</span>
-													{#if cube.macAddress}
-														<span>•</span>
-														<span class="font-mono text-xs whitespace-nowrap opacity-75"
-															>{cube.macAddress}</span
-														>
-													{/if}
-												</div>
-											</div>
-											<div class="flex shrink-0 items-center gap-2">
-												<Button
-													size="sm"
-													color="blue"
-													onclick={() => onConnectSaved(cube.id)}
-													disabled={isConnecting}
-												>
-													Connect
-												</Button>
-												<Button size="xs" color="light" onclick={() => startEditingCube(cube.id)}>
-													<Edit2 class="size-4" />
-												</Button>
-												<Button size="xs" color="red" onclick={() => onRemoveCube(cube.id)}>
-													<Trash2 class="size-4" />
-												</Button>
-											</div>
-										{/if}
-									</div>
-								{/each}
-							</div>
-						</div>
-					{/if}
-
-					<!-- Error messages -->
-					{#if error || bluetoothState.errorMessage}
-						<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
-					{/if}
-
-					<!-- Connect new cube button -->
-					<Button
-						color="alternative"
-						size="sm"
-						class="w-full"
-						onclick={onConnect}
-						disabled={isConnecting}
-					>
-						{#if isConnecting}
-							<Spinner class="mr-2" size="4" />Connecting...
-						{:else}
-							<Plus class="mr-2 size-4" />
-							Connect New Cube
-						{/if}
-					</Button>
+					<Plus class="mr-2 size-4" />
+					Connect New Cube
 				{/if}
-			</div>
+			</Button>
 		{/if}
 	</div>
 </Modal>
