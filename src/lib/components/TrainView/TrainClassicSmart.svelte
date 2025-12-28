@@ -259,7 +259,7 @@
 			console.log('%c✓ Match! Advancing by', 'color: #27ae60; font-weight: bold', consumedCount);
 			validationFeedback = 'correct';
 
-				// Check for implicit rotations in the matched moves (e.g. from slice moves)
+			// Check for implicit rotations in the matched moves (e.g. from slice moves)
 			// When users do slice moves (S, M, E) on a smart cube, they typically grip the cube
 			// in a way that causes a physical reorientation. We need to track this so subsequent
 			// moves are correctly interpreted from the user's perspective.
