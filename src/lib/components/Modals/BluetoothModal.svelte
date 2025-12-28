@@ -336,7 +336,7 @@
 											{#if isConnectedCube && bluetoothState.batteryLevel !== null}
 												<span>•</span>
 												<span class="whitespace-nowrap text-green-600 dark:text-green-400"
-													>🔋 {bluetoothState.batteryLevel}%</span
+													>{bluetoothState.batteryLevel}%</span
 												>
 											{/if}
 										</div>
