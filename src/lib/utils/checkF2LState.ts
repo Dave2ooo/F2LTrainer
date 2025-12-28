@@ -40,6 +40,21 @@ function isSlotSolved(
 	);
 }
 
+// Cross edge positions (bottom layer edges): DF(4), DR(5), DB(6), DL(7)
+const CROSS_EDGES = [4, 5, 6, 7] as const;
+
+/**
+ * Checks if the cross (all 4 bottom layer edges) is solved
+ */
+function isCrossSolved(edges: { pieces: number[]; orientation: number[] }): boolean {
+	for (const edgePos of CROSS_EDGES) {
+		if (edges.pieces[edgePos] !== edgePos || edges.orientation[edgePos] !== 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
 /**
  * Checks if the F2L is solved according to the case requirements
  */
@@ -49,6 +64,11 @@ function isF2LSolved(
 	piecesToHide: StickerHidden | undefined,
 	side: Side
 ): boolean {
+	// First, check if the cross (bottom layer edges) is solved
+	if (!isCrossSolved(edges)) {
+		return false;
+	}
+
 	// Determine which slot to exclude from checking
 	let slotToExclude: NonNullable<StickerHidden> | undefined = piecesToHide;
 	if (piecesToHide && side === 'left') {
