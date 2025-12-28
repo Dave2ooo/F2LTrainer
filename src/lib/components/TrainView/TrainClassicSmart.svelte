@@ -85,18 +85,29 @@
 							// Add raw move to buffer for validation
 							moveBuffer = [...moveBuffer, m];
 
+							// Log every raw move from smart cube
+							console.log(
+								'%c[Smart Cube Move]',
+								'color: #e91e63; font-weight: bold',
+								m
+							);
+
 							// Check if next expected move is a wide move
 							const nextExpectedMove = algMovesParsed[currentMoveIndex];
 							const isNextWideMove = nextExpectedMove && isWideMove(nextExpectedMove);
 
-							// If next expected move is NOT a wide move, add to TwistyPlayer now
-							// (Wide moves will be added during validation to avoid double-application)
-							if (!isNextWideMove) {
-								// Transform move for TwistyPlayer (algorithm frame)
-								const inverseRot = inverseRotation(cumulativeRotation);
-								const transformedMove = applyRotationToMove(m, inverseRot);
+							// Transform move for TwistyPlayer (algorithm frame)
+							const inverseRot = inverseRotation(cumulativeRotation);
+							const transformedMove = applyRotationToMove(m, inverseRot);
 
-								// Send transformed move for display, raw move for F2L checking
+							// If next expected move is a wide move, we skip adding the display move
+							// (wide move will be added during validation to avoid double-application)
+							// BUT we still need to add the raw move for F2L checking!
+							if (isNextWideMove) {
+								// Add only the raw move for F2L checking, skip display
+								twistyPlayerRef.addMove('', m);
+							} else {
+								// Normal move: add both display and raw
 								twistyPlayerRef.addMove(transformedMove, m);
 							}
 
@@ -174,7 +185,8 @@
 			// Apply all rotations to TwistyPlayer
 			console.log('%c→ Auto-applying rotations:', 'color: #e67e22', rotationsToApply.join(' '));
 			for (const rotation of rotationsToApply) {
-				twistyPlayerRef.addMove(rotation, rotation);
+				// Pass empty string for rawMove to skip adding to rawMovesAdded (display only)
+				twistyPlayerRef.addMove(rotation, '');
 			}
 
 			// Update cumulative rotation
@@ -215,8 +227,8 @@
 					console.log('%c✓ Wide move matched!', 'color: #27ae60; font-weight: bold');
 					console.groupEnd();
 
-					// Apply wide move to TwistyPlayer
-					twistyPlayerRef.addMove(wideMove);
+					// Apply wide move to TwistyPlayer (display only, skip rawMovesAdded)
+					twistyPlayerRef.addMove(wideMove, '');
 
 					// Track the implicit rotation internally for transforming subsequent moves
 					const rotationsToUpdate = [cumulativeRotation, implicitRotation].filter((r) => r !== '');
@@ -269,8 +281,8 @@
 					const implicitRot = getSliceImplicitRotation(matchedMove);
 					if (implicitRot) {
 						console.log('Slice move', matchedMove, '→ applying rotation', implicitRot);
-						// Add to TwistyPlayer for visual display
-						twistyPlayerRef.addMove(implicitRot, implicitRot);
+						// Add to TwistyPlayer for visual display (skip rawMovesAdded)
+						twistyPlayerRef.addMove(implicitRot, '');
 						// Add to cumulativeRotation to account for user's physical grip change
 						// IMPORTANT: Prepend the slice rotation (not append) because the user's physical
 						// grip change happens in the absolute frame. When transforming absolute → algorithm,

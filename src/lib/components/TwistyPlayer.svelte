@@ -16,14 +16,6 @@
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
-	import {
-		isRotationMove,
-		applyRotationToMove,
-		combineRotations,
-		isWideMove,
-		wideToSingleLayerMove,
-		getWideImplicitRotation
-	} from '$lib/utils/moveValidator';
 
 	interface Props {
 		groupId?: GroupId;
@@ -307,16 +299,26 @@
 	});
 
 	// Public method to add a move to the player dynamically (e.g. from Bluetooth)
+	// If move is empty string, only rawMove is tracked (for F2L checking without display)
+	// If rawMove is empty string, only display is updated (for synthetic moves like rotations)
 	export async function addMove(move: string, rawMove?: string) {
 		if (el) {
 			const player = el as any;
 			if (player.experimentalAddMove) {
-				player.experimentalAddMove(move);
-				movesAdded += (movesAdded ? ' ' : '') + move;
+				// Only add to TwistyPlayer display if move is not empty
+				if (move !== '') {
+					player.experimentalAddMove(move);
+					movesAdded += (movesAdded ? ' ' : '') + move;
+				}
 
-				// Track raw move separately (defaults to same as transformed move if not provided)
-				const actualRawMove = rawMove || move;
-				rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
+				// Track raw move separately for F2L checking
+				// If rawMove is undefined, default to move; if rawMove is empty string, skip adding
+				if (rawMove !== '') {
+					const actualRawMove = rawMove ?? move;
+					if (actualRawMove !== '') {
+						rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
+					}
+				}
 
 				// Re-apply stickering if needed
 				if (stickeringString) {
@@ -324,41 +326,14 @@
 				}
 
 				if (logNormalizedPattern && kpuzzle && staticData) {
-					// Convert movesAdded to absolute frame for F2L checking
-					const movesList = movesAdded
-						.trim()
-						.split(/\s+/)
-						.filter((m) => m);
-					const movesForF2LCheckList: string[] = [];
-					let currentRotation = '';
-
-					for (const m of movesList) {
-						if (isRotationMove(m)) {
-							const rots = currentRotation ? [currentRotation, m] : [m];
-							currentRotation = combineRotations(rots);
-						} else if (isWideMove(m)) {
-							const singleLayer = wideToSingleLayerMove(m);
-							const implicitRot = getWideImplicitRotation(m);
-							if (singleLayer) {
-								movesForF2LCheckList.push(applyRotationToMove(singleLayer, currentRotation));
-							}
-							if (implicitRot) {
-								const rots = currentRotation ? [currentRotation, implicitRot] : [implicitRot];
-								currentRotation = combineRotations(rots);
-							}
-						} else {
-							movesForF2LCheckList.push(applyRotationToMove(m, currentRotation));
-						}
-					}
-					const movesForF2LCheck = movesForF2LCheckList.join(' ');
-
+					// Use raw moves directly for F2L checking - they're already in absolute frame
 					console.log(
 						'%c[F2L Check]',
 						'color: #16a085; font-weight: bold',
-						'\n  movesAdded:',
+						'\n  movesAdded (display):',
 						movesAdded,
-						'\n  → converted:',
-						movesForF2LCheck,
+						'\n  rawMovesAdded (for F2L):',
+						rawMovesAdded,
 						'\n  scramble:',
 						scramble.substring(0, 30) + '...'
 					);
@@ -366,7 +341,7 @@
 					await checkF2LState(
 						{ kpuzzle },
 						scramble,
-						movesForF2LCheck,
+						rawMovesAdded,
 						staticData.pieceToHide,
 						side,
 						onF2LSolved,
