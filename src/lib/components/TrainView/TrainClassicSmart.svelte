@@ -259,16 +259,25 @@
 			console.log('%c✓ Match! Advancing by', 'color: #27ae60; font-weight: bold', consumedCount);
 			validationFeedback = 'correct';
 
-			// Check for implicit rotations in the matched moves (e.g. from slice moves)
+				// Check for implicit rotations in the matched moves (e.g. from slice moves)
+			// When users do slice moves (S, M, E) on a smart cube, they typically grip the cube
+			// in a way that causes a physical reorientation. We need to track this so subsequent
+			// moves are correctly interpreted from the user's perspective.
 			const matchedMoves = algMovesParsed.slice(currentMoveIndex, currentMoveIndex + consumedCount);
 			for (const matchedMove of matchedMoves) {
 				if (isSliceMove(matchedMove)) {
 					const implicitRot = getSliceImplicitRotation(matchedMove);
 					if (implicitRot) {
 						console.log('Slice move', matchedMove, '→ applying rotation', implicitRot);
+						// Add to TwistyPlayer for visual display
 						twistyPlayerRef.addMove(implicitRot, implicitRot);
-						const rotationsToUpdate = [cumulativeRotation, implicitRot].filter((r) => r !== '');
+						// Add to cumulativeRotation to account for user's physical grip change
+						// IMPORTANT: Prepend the slice rotation (not append) because the user's physical
+						// grip change happens in the absolute frame. When transforming absolute → algorithm,
+						// we need to undo the slice rotation first, then undo the algorithm rotation.
+						const rotationsToUpdate = [implicitRot, cumulativeRotation].filter((r) => r !== '');
 						cumulativeRotation = combineRotations(rotationsToUpdate);
+						console.log('Cumulative rotation now:', cumulativeRotation);
 					}
 				}
 			}

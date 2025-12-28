@@ -165,8 +165,8 @@ When the next expected move is a wide move (r, l, u, d, f, b):
 ### Step 4: Handle Slice Moves (M, E, S)
 
 1. Within matched moves, detect slice moves
-2. Apply implicit rotation to `cumulativeRotation`
-3. Apply rotation to TwistyPlayer to keep visual in sync
+2. Apply rotation to TwistyPlayer to keep visual in sync
+3. **PREPEND** implicit rotation to `cumulativeRotation` (not append) - when users physically perform slice moves, their grip orientation changes. The slice rotation is prepended because it represents a change in the absolute frame, which should be undone first when transforming moves.
 
 ---
 

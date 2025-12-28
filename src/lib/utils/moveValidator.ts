@@ -117,10 +117,10 @@ export function expandWideForF2L(move: string): string {
 }
 
 /**
- * Apply a rotation to a move
+ * Apply a single rotation to a move
  * For example: if rotation is 'x', then U becomes F, F becomes D, etc.
  */
-export function applyRotationToMove(move: string, rotation: string): string {
+function applySingleRotationToMove(move: string, rotation: string): string {
 	if (!rotation || rotation === '') return move;
 
 	const baseFace = getBaseFace(move);
@@ -149,51 +149,146 @@ export function applyRotationToMove(move: string, rotation: string): string {
 }
 
 /**
- * Combine multiple rotations into a single effective rotation
- * For example: x then y becomes a combined rotation
+ * Apply a rotation (possibly compound, e.g., "y' z") to a move
+ * For example: if rotation is 'x', then U becomes F, F becomes D, etc.
+ */
+export function applyRotationToMove(move: string, rotation: string): string {
+	if (!rotation || rotation === '') return move;
+
+	// Handle compound rotations (space-separated)
+	const rotations = rotation.split(' ').filter((r) => r.trim() !== '');
+	let result = move;
+	for (const rot of rotations) {
+		result = applySingleRotationToMove(result, rot);
+	}
+	return result;
+}
+
+/**
+ * Combine multiple rotations into a single effective rotation string
+ * Returns a compound rotation (e.g., "y' z") if they can't be simplified to a single rotation
  */
 export function combineRotations(rotations: string[]): string {
 	if (rotations.length === 0) return '';
-	if (rotations.length === 1) return rotations[0];
 
-	// For simplicity, we'll apply rotations sequen tially
-	// A more efficient approach would be to use rotation matrices,
-	// but for F2L this should be sufficient
-	let result = rotations[0];
+	// Flatten any compound rotations in the input
+	const flatRotations: string[] = [];
+	for (const rot of rotations) {
+		if (rot.includes(' ')) {
+			flatRotations.push(...rot.split(' ').filter((r) => r.trim() !== ''));
+		} else if (rot.trim() !== '') {
+			flatRotations.push(rot);
+		}
+	}
 
-	for (let i = 1; i < rotations.length; i++) {
-		const nextRotation = rotations[i];
+	if (flatRotations.length === 0) return '';
+	if (flatRotations.length === 1) return flatRotations[0];
 
-		// Combine rotations by mapping through each
-		// This is a simplified approach - could be optimized
-		const testFaces = ['U', 'D', 'F', 'B', 'R', 'L'];
-		const combined: Record<string, string> = {};
+	// Try to simplify adjacent rotations on the same axis
+	const simplified = simplifyRotationSequence(flatRotations);
 
-		for (const face of testFaces) {
-			const afterFirst = applyRotationToMove(face, result);
-			const afterSecond = applyRotationToMove(afterFirst, nextRotation);
-			combined[face] = afterSecond;
+	if (simplified.length === 0) return '';
+
+	// Try to find a single rotation that matches the combined effect
+	const singleRot = findSingleRotationEquivalent(simplified.join(' '));
+	if (singleRot !== null) return singleRot;
+
+	// Return as compound rotation
+	return simplified.join(' ');
+}
+
+/**
+ * Simplify a sequence of rotations by combining adjacent rotations on the same axis
+ */
+function simplifyRotationSequence(rotations: string[]): string[] {
+	if (rotations.length <= 1) return rotations;
+
+	const axisMap: Record<string, string> = {
+		x: 'x',
+		"x'": 'x',
+		x2: 'x',
+		y: 'y',
+		"y'": 'y',
+		y2: 'y',
+		z: 'z',
+		"z'": 'z',
+		z2: 'z'
+	};
+
+	const turnCount: Record<string, number> = {
+		x: 1,
+		"x'": 3,
+		x2: 2,
+		y: 1,
+		"y'": 3,
+		y2: 2,
+		z: 1,
+		"z'": 3,
+		z2: 2
+	};
+
+	const result: string[] = [];
+
+	for (const rot of rotations) {
+		if (result.length === 0) {
+			result.push(rot);
+			continue;
 		}
 
-		// Find which single rotation produces this mapping
-		// (This is a simplification - may not always find a single rotation)
-		const allRotations = ['x', "x'", 'x2', 'y', "y'", 'y2', 'z', "z'", 'z2', ''];
-		for (const rot of allRotations) {
-			let matches = true;
-			for (const face of testFaces) {
-				if (applyRotationToMove(face, rot) !== combined[face]) {
-					matches = false;
-					break;
-				}
+		const lastRot = result[result.length - 1];
+		const lastAxis = axisMap[lastRot];
+		const currentAxis = axisMap[rot];
+
+		if (lastAxis && currentAxis && lastAxis === currentAxis) {
+			// Same axis - combine them
+			const totalTurns = ((turnCount[lastRot] || 0) + (turnCount[rot] || 0)) % 4;
+			result.pop();
+
+			if (totalTurns === 1) {
+				result.push(currentAxis);
+			} else if (totalTurns === 2) {
+				result.push(currentAxis + '2');
+			} else if (totalTurns === 3) {
+				result.push(currentAxis + "'");
 			}
-			if (matches) {
-				result = rot;
-				break;
-			}
+			// totalTurns === 0 means they cancel out, don't add anything
+		} else {
+			result.push(rot);
 		}
 	}
 
 	return result;
+}
+
+/**
+ * Try to find a single rotation equivalent to a compound rotation
+ * Returns null if no single rotation matches
+ */
+function findSingleRotationEquivalent(compoundRotation: string): string | null {
+	const testFaces = ['U', 'D', 'F', 'B', 'R', 'L'];
+	const allRotations = ['x', "x'", 'x2', 'y', "y'", 'y2', 'z', "z'", 'z2', ''];
+
+	// Compute what each face becomes after the compound rotation
+	const combined: Record<string, string> = {};
+	for (const face of testFaces) {
+		combined[face] = applyRotationToMove(face, compoundRotation);
+	}
+
+	// Find a single rotation that produces the same mapping
+	for (const rot of allRotations) {
+		let matches = true;
+		for (const face of testFaces) {
+			if (applySingleRotationToMove(face, rot) !== combined[face]) {
+				matches = false;
+				break;
+			}
+		}
+		if (matches) {
+			return rot;
+		}
+	}
+
+	return null;
 }
 
 /**
@@ -515,10 +610,10 @@ export function isOnlyRotations(moves: string[]): boolean {
 }
 
 /**
- * Get the inverse of a rotation
+ * Get the inverse of a single rotation
  * For example: inverse of x is x', inverse of x' is x, inverse of x2 is x2
  */
-export function inverseRotation(rotation: string): string {
+function inverseSingleRotation(rotation: string): string {
 	if (!rotation || rotation === '') return '';
 
 	const inverseMap: Record<string, string> = {
@@ -534,4 +629,21 @@ export function inverseRotation(rotation: string): string {
 	};
 
 	return inverseMap[rotation] || rotation;
+}
+
+/**
+ * Get the inverse of a rotation (handles compound rotations like "y' z")
+ * For compound rotations, reverses the order and inverts each
+ * For example: inverse of "y' z" is "z' y"
+ */
+export function inverseRotation(rotation: string): string {
+	if (!rotation || rotation === '') return '';
+
+	// Handle compound rotations
+	const rotations = rotation.split(' ').filter((r) => r.trim() !== '');
+	if (rotations.length === 0) return '';
+
+	// Reverse and invert each rotation
+	const inverted = rotations.reverse().map((r) => inverseSingleRotation(r));
+	return inverted.join(' ');
 }
