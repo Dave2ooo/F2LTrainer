@@ -76,6 +76,9 @@
 	});
 
 	async function onConnect() {
+		// Guard against double-clicking
+		if (isConnecting) return;
+
 		isConnecting = true;
 		error = null;
 		bluetoothState.setErrorMessage(null);
@@ -108,6 +111,9 @@
 	}
 
 	async function onConnectSaved(deviceId: string) {
+		// Guard against double-clicking
+		if (isConnecting) return;
+
 		const saved = savedCubesState.getCube(deviceId);
 		if (!saved) return;
 
@@ -141,7 +147,12 @@
 	}
 
 	async function onDisconnect() {
-		await GiikerCube.stop();
+		try {
+			await GiikerCube.stop();
+		} catch (e: any) {
+			console.warn('Disconnect error:', e);
+			// Don't show error to user - disconnect errors are usually harmless
+		}
 	}
 
 	function onSync() {
@@ -155,11 +166,9 @@
 		}
 	}
 
-
-
 	async function onRemoveCube(deviceId: string) {
 		const cube = savedCubesState.getCube(deviceId);
-		if (!cube) return;
+		if (!cube || !removeCubeModal) return;
 
 		const confirmed = await removeCubeModal.confirm(cube.customName);
 		if (confirmed) {
@@ -176,11 +185,18 @@
 	}
 
 	function saveEditCube() {
-		if (editingCubeId && editingCubeName.trim()) {
-			savedCubesState.renameCube(editingCubeId, editingCubeName.trim());
-			editingCubeId = null;
-			editingCubeName = '';
+		if (!editingCubeId) return;
+
+		const trimmedName = editingCubeName.trim();
+		if (!trimmedName) {
+			// Don't allow empty names - revert to original
+			cancelEditCube();
+			return;
 		}
+
+		savedCubesState.renameCube(editingCubeId, trimmedName);
+		editingCubeId = null;
+		editingCubeName = '';
 	}
 
 	function cancelEditCube() {
@@ -202,8 +218,6 @@
 		if (diffDays < 7) return `${diffDays}d ago`;
 		return date.toLocaleDateString();
 	}
-
-
 </script>
 
 <Modal bind:open title="Bluetooth Cube" size="md">
@@ -329,9 +343,7 @@
 									</div>
 									<div class="flex shrink-0 items-center gap-2">
 										{#if isConnectedCube}
-											<Button size="sm" color="red" onclick={onDisconnect}>
-												Disconnect
-											</Button>
+											<Button size="sm" color="red" onclick={onDisconnect}>Disconnect</Button>
 										{:else}
 											<Button
 												size="sm"
@@ -346,13 +358,13 @@
 											<Edit2 class="size-4" />
 										</Button>
 										<Button
-									size="xs"
-									color="red"
-									onclick={() => onRemoveCube(cube.id)}
-									disabled={isConnectedCube}
-								>
-									<Trash2 class="size-4" />
-								</Button>
+											size="xs"
+											color="red"
+											onclick={() => onRemoveCube(cube.id)}
+											disabled={isConnectedCube}
+										>
+											<Trash2 class="size-4" />
+										</Button>
 									</div>
 								{/if}
 							</div>
