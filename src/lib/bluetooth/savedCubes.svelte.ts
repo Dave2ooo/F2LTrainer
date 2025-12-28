@@ -45,27 +45,55 @@ export const savedCubesState = {
 
 	addCube(deviceId: string, deviceName: string, customName?: string, macAddress?: string) {
 		const now = Date.now();
-		const newCube: SavedCube = {
-			id: deviceId,
-			customName: customName || deviceName,
-			deviceName: deviceName,
-			macAddress: macAddress,
-			dateAdded: now,
-			lastConnected: now
-		};
 
-		// Check if cube already exists
-		const existingIndex = cubes.findIndex((c) => c.id === deviceId);
-		if (existingIndex >= 0) {
-			// Update existing cube
-			cubes[existingIndex] = {
-				...cubes[existingIndex],
-				customName: customName || cubes[existingIndex].customName,
-				macAddress: macAddress || cubes[existingIndex].macAddress,
+		// First, check if a cube with the same MAC address already exists
+		// This handles the case where deviceId changes between connections
+		let existingMacIndex = macAddress ? cubes.findIndex((c) => c.macAddress === macAddress) : -1;
+
+		// Also check for deviceId match (might be a stale entry)
+		let existingIdIndex = cubes.findIndex((c) => c.id === deviceId);
+
+		if (existingMacIndex >= 0) {
+			// Found a cube with matching MAC - update it
+			const existingCube = cubes[existingMacIndex];
+
+			// If there's a DIFFERENT entry with the same deviceId, remove it (stale entry)
+			if (existingIdIndex >= 0 && existingIdIndex !== existingMacIndex) {
+				cubes = cubes.filter((_, i) => i !== existingIdIndex);
+				// Recalculate the MAC index after removal
+				existingMacIndex = cubes.findIndex((c) => c.macAddress === macAddress);
+			}
+
+			if (existingMacIndex >= 0) {
+				// Update existing cube with new deviceId (it may have changed)
+				cubes[existingMacIndex] = {
+					...cubes[existingMacIndex],
+					id: deviceId, // Update deviceId in case it changed
+					customName: customName || cubes[existingMacIndex].customName,
+					macAddress: macAddress || cubes[existingMacIndex].macAddress,
+					lastConnected: now
+				};
+				cubes = [...cubes]; // Trigger reactivity
+			}
+		} else if (existingIdIndex >= 0) {
+			// No MAC match but found by deviceId - update that entry
+			cubes[existingIdIndex] = {
+				...cubes[existingIdIndex],
+				customName: customName || cubes[existingIdIndex].customName,
+				macAddress: macAddress || cubes[existingIdIndex].macAddress,
 				lastConnected: now
 			};
+			cubes = [...cubes]; // Trigger reactivity
 		} else {
 			// Add new cube
+			const newCube: SavedCube = {
+				id: deviceId,
+				customName: customName || deviceName,
+				deviceName: deviceName,
+				macAddress: macAddress,
+				dateAdded: now,
+				lastConnected: now
+			};
 			cubes = [...cubes, newCube];
 		}
 
@@ -97,5 +125,9 @@ export const savedCubesState = {
 
 	getCube(deviceId: string): SavedCube | undefined {
 		return cubes.find((c) => c.id === deviceId);
+	},
+
+	getCubeByMac(macAddress: string): SavedCube | undefined {
+		return cubes.find((c) => c.macAddress === macAddress);
 	}
 };

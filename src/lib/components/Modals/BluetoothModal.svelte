@@ -81,10 +81,18 @@
 		bluetoothState.setErrorMessage(null);
 		try {
 			await GiikerCube.init();
-			// After successful connection, offer to save the cube
+			// After successful connection, check if cube already exists by MAC address
 			if (bluetoothState.deviceId && bluetoothState.deviceName) {
-				const existing = savedCubesState.getCube(bluetoothState.deviceId);
+				// First check by MAC address (more reliable than deviceId)
+				const existingByMac = bluetoothState.deviceMac
+					? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
+					: null;
+				// Fall back to deviceId check
+				const existingById = savedCubesState.getCube(bluetoothState.deviceId);
+				const existing = existingByMac || existingById;
+
 				if (existing) {
+					// Silently update the existing cube entry
 					savedCubesState.addCube(
 						bluetoothState.deviceId,
 						bluetoothState.deviceName,
@@ -92,6 +100,7 @@
 						bluetoothState.deviceMac || undefined
 					);
 				}
+				// If no existing cube found, the UI will show "Save this cube" prompt
 			}
 		} catch (e: any) {
 			console.error(e);
@@ -111,12 +120,31 @@
 		try {
 			await GiikerCube.init(true);
 			if (bluetoothState.deviceId && bluetoothState.deviceName) {
-				savedCubesState.addCube(
-					bluetoothState.deviceId,
-					bluetoothState.deviceName,
-					saved.customName,
-					bluetoothState.deviceMac || undefined
-				);
+				// Check if the connected cube matches any existing cube by MAC
+				const existingByMac = bluetoothState.deviceMac
+					? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
+					: null;
+
+				if (existingByMac) {
+					// Connected cube matches an existing entry (possibly different from clicked one)
+					savedCubesState.addCube(
+						bluetoothState.deviceId,
+						bluetoothState.deviceName,
+						existingByMac.customName,
+						bluetoothState.deviceMac || undefined
+					);
+				} else if (bluetoothState.deviceMac) {
+					// Different physical cube - add as new entry (will show "Save this cube" prompt)
+					// Don't auto-save, let the user name it
+				} else {
+					// No MAC available, update the clicked saved cube
+					savedCubesState.addCube(
+						bluetoothState.deviceId,
+						bluetoothState.deviceName,
+						saved.customName,
+						bluetoothState.deviceMac || undefined
+					);
+				}
 			} else {
 				savedCubesState.updateLastConnected(deviceId);
 			}
