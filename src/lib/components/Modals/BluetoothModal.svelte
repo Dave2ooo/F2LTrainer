@@ -77,6 +77,7 @@
 		isConnecting = true;
 		error = null;
 		bluetoothState.setErrorMessage(null);
+		console.log('[F2LTrainer] Connecting to new cube...');
 		try {
 			await GiikerCube.init(false, undefined);
 			// After successful connection, check if cube already exists by MAC address
@@ -97,9 +98,14 @@
 					bluetoothState.deviceMac || undefined
 				);
 			}
+			console.log('[F2LTrainer] Successfully connected to new cube:', bluetoothState.deviceName);
 		} catch (e: any) {
-			console.error(e);
-			error = e.toString();
+			if (e.message !== 'MAC address required') {
+				console.error('[F2LTrainer] Connection failed:', e);
+				error = e.toString();
+			} else {
+				console.log('[F2LTrainer] Connection cancelled by user (MAC required)');
+			}
 		} finally {
 			isConnecting = false;
 		}
@@ -112,6 +118,7 @@
 		const saved = savedCubesState.getCube(deviceId);
 		if (!saved) return;
 
+		console.log('[F2LTrainer] Connecting to saved cube:', saved.customName, 'MAC:', saved.macAddress);
 		isConnecting = true;
 		error = null;
 		bluetoothState.setErrorMessage(null);
@@ -133,8 +140,9 @@
 			} else {
 				savedCubesState.updateLastConnected(deviceId);
 			}
+			console.log('[F2LTrainer] Successfully connected to saved cube:', saved.customName);
 		} catch (e: any) {
-			console.error(e);
+			console.error('[F2LTrainer] Connection to saved cube failed:', e);
 			error = e.toString();
 		} finally {
 			isConnecting = false;
@@ -142,10 +150,12 @@
 	}
 
 	async function onDisconnect() {
+		console.log('[F2LTrainer] User requested disconnect');
 		try {
 			await GiikerCube.stop();
+			console.log('[F2LTrainer] Disconnected successfully');
 		} catch (e: any) {
-			console.warn('Disconnect error:', e);
+			console.warn('[F2LTrainer] Disconnect error:', e);
 			// Don't show error to user - disconnect errors are usually harmless
 		}
 	}

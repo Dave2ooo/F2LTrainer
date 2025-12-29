@@ -501,6 +501,12 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 				return v1init();
 			}
 			// logohint.push(LGHINT_BTNOTSUP);
+		})
+		.catch((err) => {
+			if (device.gatt?.connected) {
+				device.gatt.disconnect();
+			}
+			throw err;
 		});
 }
 
@@ -521,6 +527,7 @@ let prevMoveCnt = -1;
 let prevMoveLocTime: number | null = null;
 let movesFromLastCheck = 1000;
 let batteryLevel = 0;
+let badPacketCount = 0;
 
 function initCubeState() {
 	let locTime = $.now();
@@ -678,6 +685,16 @@ function parseV2Data(value: DataView | any) {
 	}
 	let bin = binStr.join('');
 	let mode = parseInt(bin.slice(0, 4), 2);
+	// Basic validation for V2 can be difficult as mode is just 4 bits. 
+	// But if we get a mode > 9 consistently (except 15?), it might be wrong key.
+	// For now, implicit failures in checksums (keyCheck) are relying on existing logic.
+	// But we can reset badPacketCount if we see a valid mode.
+	if ([1, 2, 4, 5, 9].includes(mode)) {
+		badPacketCount = 0;
+	} else {
+		// Possibly bad packet, but V2 is noisy. Let's be conservative.
+	}
+
 	if (mode == 1) {
 		// gyro
 	} else if (mode == 2) {
@@ -906,8 +923,14 @@ function parseV3Data(value: DataView | any) {
 	let len = parseInt(bin.slice(16, 24), 2);
 	if (magic != 0x55 || len <= 0) {
 		giikerutil.log('[gancube]', 'v3 invalid magic or len', decoded);
+		badPacketCount++;
+		if (badPacketCount > 5) {
+			giikerutil.log('[gancube]', 'Too many bad packets, disconnecting');
+			if (_gatt && _gatt.connected) _gatt.disconnect();
+		}
 		return;
 	}
+	badPacketCount = 0;
 	if (mode == 1) {
 		// cube move
 		prevMoveLocTime = locTime;
@@ -1044,6 +1067,17 @@ function parseV4Data(value: DataView | any) {
 	let bin = binStr.join('');
 	let mode = parseInt(bin.slice(0, 8), 2);
 	let len = parseInt(bin.slice(8, 16), 2);
+	// V4 validation: mode should be known
+	if (![0x01, 0xed, 0xd1, 0xf5, 0xf6, 0xfa, 0xfc, 0xfd, 0xfe, 0xff, 0xef, 0xec].includes(mode)) {
+		badPacketCount++;
+		if (badPacketCount > 10) { // Higher threshold for V4
+			giikerutil.log('[gancube]', 'Too many bad V4 packets, disconnecting');
+			if (_gatt && _gatt.connected) _gatt.disconnect();
+		}
+	} else {
+		badPacketCount = 0;
+	}
+
 	if (mode == 0x01) {
 		// cube move
 		prevMoveLocTime = locTime;
@@ -1183,19 +1217,31 @@ function parseV4Data(value: DataView | any) {
 function clear(): Promise<void> {
 	let result: Promise<void> = Promise.resolve();
 	if (_chrct_f6) {
-		result = _chrct_f6.stopNotifications().then(() => {}) as Promise<void>;
+		result = _chrct_f6
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 	}
 	if (_chrct_v2read) {
 		_chrct_v2read.removeEventListener('characteristicvaluechanged', onStateChangedV2);
-		result = _chrct_v2read.stopNotifications().then(() => {}) as Promise<void>;
+		result = _chrct_v2read
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 	}
 	if (_chrct_v3read) {
 		_chrct_v3read.removeEventListener('characteristicvaluechanged', onStateChangedV3);
-		result = _chrct_v3read.stopNotifications().then(() => {}) as Promise<void>;
+		result = _chrct_v3read
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 	}
 	if (_chrct_v4read) {
 		_chrct_v4read.removeEventListener('characteristicvaluechanged', onStateChangedV4);
-		result = _chrct_v4read.stopNotifications().then(() => {}) as Promise<void>;
+		result = _chrct_v4read
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 	}
 	_gatt = null;
 	_service_data = null;
@@ -1216,6 +1262,7 @@ function clear(): Promise<void> {
 	deviceName = null;
 	deviceMac = null;
 	decoder = null;
+	badPacketCount = 0;
 	return result;
 }
 

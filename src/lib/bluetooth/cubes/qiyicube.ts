@@ -131,6 +131,9 @@ function init(device: BluetoothDevice, expectedMac?: string): Promise<void> {
 				giikerutil.log(
 					'[qiyicube] init, unable to automatically determine cube MAC, error code = ' + err
 				);
+				if (expectedMac) {
+					deviceMac = expectedMac;
+				}
 			}
 		)
 		.then(function () {
@@ -289,7 +292,10 @@ function clear(): Promise<void> {
 	let result: Promise<void> = Promise.resolve();
 	if (_chrct_cube) {
 		_chrct_cube.removeEventListener('characteristicvaluechanged', onCubeEvent);
-		result = _chrct_cube.stopNotifications().then(() => {}) as Promise<void>;
+		result = _chrct_cube
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 		_chrct_cube = null;
 	}
 	_service = null;

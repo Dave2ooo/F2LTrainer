@@ -247,6 +247,9 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 				giikerutil.log(
 					'[Moyu32Cube] init, unable to automatically determine cube MAC, error code = ' + err
 				);
+				if (expectedMac) {
+					deviceMac = expectedMac;
+				}
 			}
 		)
 		.then(function () {

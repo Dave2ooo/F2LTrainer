@@ -161,7 +161,10 @@ function clear(): Promise<void> {
 	let result: Promise<void> = Promise.resolve();
 	if (_read) {
 		_read.removeEventListener('characteristicvaluechanged', onStateChanged);
-		result = _read.stopNotifications().then(() => {}) as Promise<void>;
+		result = _read
+			.stopNotifications()
+			.then(() => {})
+			.catch(() => {}) as Promise<void>;
 		_read = null;
 	}
 	_write = null;
