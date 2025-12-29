@@ -50,26 +50,26 @@ bluetoothState.moveCounter (absolute moves: U, R, F, etc.)
 │ TwistyPlayer.svelte                                         │
 │ ┌─────────────────────┐   ┌──────────────────────────────┐  │
 │ │ movesAdded          │   │ rawMovesAdded                │  │
-│ │ (transformed moves) │   │ (absolute moves)             │  │
+│ │ (transformed moves) │   │ (absolute moves from cube)   │  │
+│ │ (for display)       │   │ (for F2L checking)           │  │
 │ └─────────────────────┘   └──────────────────────────────┘  │
-│         │                                                   │
-│         ▼                                                   │
+│                                    │                        │
+│                                    ▼                        │
 │ ┌─────────────────────────────────────────────────────────┐ │
 │ │ F2L Check Logic:                                        │ │
-│ │ - Iterates through movesAdded                           │ │
-│ │ - Tracks rotations, expands wide moves to single-layer  │ │
-│ │ - Applies rotations to get absolute frame               │ │
-│ │ - Passes to checkF2LState()                             │ │
+│ │ - Uses rawMovesAdded directly (already absolute frame)  │ │
+│ │ - Passes scramble + rawMovesAdded to checkF2LState()    │ │
 │ └─────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────┘
         │
         ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ checkF2LState.ts                                            │
-│ - Creates Alg from: scramble + converted_moves              │
+│ - Creates Alg from: scramble + rawMovesAdded                │
 │ - Uses kpuzzle.algToTransformation() to get cube state      │
+│ - Checks cross edges (positions 4-7) are solved             │
 │ - Checks corner/edge positions for F2L slots                │
-│ - Calls onF2LSolved() if solved                             │
+│ - Calls onF2LSolved() if F2L solved, onCubeSolved() if full │
 └─────────────────────────────────────────────────────────────┘
         │
         ▼
@@ -94,11 +94,11 @@ bluetoothState.moveCounter (absolute moves: U, R, F, etc.)
 
 ### In TwistyPlayer.svelte
 
-| Variable        | Type     | Description                                                     |
-| --------------- | -------- | --------------------------------------------------------------- |
-| `movesAdded`    | `string` | Moves applied to the visual player (algorithm frame). Bindable. |
-| `rawMovesAdded` | `string` | Absolute moves from smart cube. Used for some calculations.     |
-| `scramble`      | `string` | The scramble algorithm. Bindable.                               |
+| Variable        | Type     | Description                                                                         |
+| --------------- | -------- | ----------------------------------------------------------------------------------- |
+| `movesAdded`    | `string` | Moves applied to the visual player (algorithm frame, for display). Bindable.        |
+| `rawMovesAdded` | `string` | Absolute moves from smart cube (for F2L checking, passed directly to checkF2LState).|
+| `scramble`      | `string` | The scramble algorithm. Bindable.                                                   |
 
 ---
 
@@ -174,50 +174,81 @@ When the next expected move is a wide move (r, l, u, d, f, b):
 
 ### Current Implementation
 
+The F2L detection has been simplified. Raw moves from the smart cube are tracked separately in `rawMovesAdded` and passed directly to `checkF2LState`:
+
 ```typescript
-// 1. Parse movesAdded into list
-const movesList = movesAdded.split(' ');
-
-// 2. Track rotations and expand wide moves
-for (const move of movesList) {
-    if (isRotationMove(move)) {
-        // Update currentRotation
-        currentRotation = combineRotations([currentRotation, move]);
-    } else if (isWideMove(move)) {
-        // Wide move detected
-        const singleLayer = wideToSingleLayerMove(move);  // r → L
-        const implicitRot = getWideImplicitRotation(move); // r → x
-
-        // Apply rotation to get to absolute frame
-        movesForF2LCheckList.push(applyRotationToMove(singleLayer, currentRotation));
-
-        // Update rotation
-        currentRotation = combineRotations([currentRotation, implicitRot]);
-    } else {
-        // Regular move - apply current rotation
-        movesForF2LCheckList.push(applyRotationToMove(move, currentRotation));
+// addMove now takes optional rawMove parameter:
+export async function addMove(move: string, rawMove?: string) {
+    // Only add to TwistyPlayer display if move is not empty
+    if (move !== '') {
+        player.experimentalAddMove(move);
+        movesAdded += (movesAdded ? ' ' : '') + move;
     }
-}
 
-// 3. Pass to checkF2LState
-checkF2LState({ kpuzzle }, scramble, movesForF2LCheck, ...);
+    // Track raw move separately for F2L checking
+    // If rawMove is undefined, default to move; if rawMove is empty string, skip adding
+    if (rawMove !== '') {
+        const actualRawMove = rawMove ?? move;
+        if (actualRawMove !== '') {
+            rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
+        }
+    }
+
+    // Pass raw moves directly to checkF2LState - they're already in absolute frame
+    await checkF2LState(
+        { kpuzzle },
+        scramble,
+        rawMovesAdded,  // Use raw moves, not transformed movesAdded
+        piecesToHide,
+        side,
+        onF2LSolved,
+        onCubeSolved
+    );
+}
 ```
 
 ### What checkF2LState Does
 
 ```typescript
-// Create algorithm from scramble + moves
-const currentAppliedAlg = new Alg(scramble + ' ' + movesForF2LCheck);
+// Create algorithm from scramble + raw moves (already in absolute frame)
+const currentAppliedAlg = new Alg(scramble + ' ' + rawMovesAdded);
 
 // Apply to kpuzzle to get resulting cube state
 const normalizedPattern = kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
-// Check if F2L slots are solved (checking corner/edge positions)
-const f2lSolved = isF2LSolved(corners, edges, piecesToHide, side);
+// 1. Check if cross (bottom layer edges) is solved
+const crossSolved = isCrossSolved(edges);  // Checks edge positions 4, 5, 6, 7
 
-// If solved, call the callback
+// 2. Check if F2L slots are solved (only if cross is solved)
+const f2lSolved = crossSolved && isF2LSolved(corners, edges, piecesToHide, side);
+
+// 3. Check if entire cube is solved
+const cubeSolved = isCubeSolved(normalizedPattern);
+
+// Call appropriate callbacks
 if (f2lSolved) {
-	onF2LSolved?.(); // This triggers onNext() in TrainClassicSmart
+    onF2LSolved?.(); // This triggers onNext() in TrainClassicSmart
+}
+if (cubeSolved) {
+    onCubeSolved?.();
+}
+```
+
+### Cross Check (NEW)
+
+The F2L check now first verifies the cross is solved before checking F2L slots. This prevents false positives where F2L slots might be in position but cross edges are not:
+
+```typescript
+// Cross edge positions (bottom layer edges): DF(4), DR(5), DB(6), DL(7)
+const CROSS_EDGES = [4, 5, 6, 7];
+
+function isCrossSolved(edges: { pieces: number[]; orientation: number[] }): boolean {
+    for (const edgePos of CROSS_EDGES) {
+        if (edges.pieces[edgePos] !== edgePos || edges.orientation[edgePos] !== 0) {
+            return false;
+        }
+    }
+    return true;
 }
 ```
 
@@ -265,11 +296,12 @@ Displays the algorithm with progress indication:
 
 ### F2L Detection with Rotations/Wide Moves
 
-- **Challenge**: Moves added to TwistyPlayer are in algorithm frame, but F2L checking needs absolute frame moves
-- **The conversion logic** must accurately:
-  1. Track rotations (explicit and implicit from wide moves)
-  2. Convert movesAdded back to absolute frame
-  3. Pass valid move notation to cubing.js Alg parser
+- **Challenge**: Moves added to TwistyPlayer for display are in algorithm frame, but F2L checking needs absolute frame moves
+- **Solution**: Track raw moves separately in `rawMovesAdded`
+  - When `addMove(transformedMove, rawMove)` is called, both are tracked independently
+  - For wide moves: add wide move to display, but only the single-layer raw move to `rawMovesAdded`
+  - For rotations: add rotation to display, pass empty string for rawMove to skip adding to `rawMovesAdded`
+  - F2L checking uses `rawMovesAdded` directly without any transformation
 
 ---
 

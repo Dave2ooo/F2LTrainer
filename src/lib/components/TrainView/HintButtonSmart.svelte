@@ -21,33 +21,29 @@
 	// Number of "current" moves to highlight (lookahead window)
 	const LOOKAHEAD_COUNT = 1;
 
+	// Parse algorithm moves once and reuse
+	let algMoves = $derived.by(() => {
+		if (!alg) return [];
+		return alg.split(' ').filter((move) => move.trim() !== '');
+	});
+
+	// Calculate dynamic lookahead (show 2 moves if current is rotation)
+	let dynamicLookahead = $derived.by(() => {
+		const currentMove = algMoves[currentMoveIndex];
+		return currentMove && isRotationMove(currentMove) ? 2 : LOOKAHEAD_COUNT;
+	});
+
 	// Categorize algorithm moves into completed, current, and future
-	let completedMoves = $derived.by(() => {
-		if (!alg) return [];
-		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		return moves.slice(0, currentMoveIndex);
-	});
+	let completedMoves = $derived(algMoves.slice(0, currentMoveIndex));
 
-	let currentMoves = $derived.by(() => {
-		if (!alg) return [];
-		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		// If current move is a rotation, show it + the next move (not blurred)
-		const currentMove = moves[currentMoveIndex];
-		const lookahead = currentMove && isRotationMove(currentMove) ? 2 : LOOKAHEAD_COUNT;
-		return moves.slice(currentMoveIndex, currentMoveIndex + lookahead);
-	});
+	let currentMoves = $derived(
+		algMoves.slice(currentMoveIndex, currentMoveIndex + dynamicLookahead)
+	);
 
-	let futureMoves = $derived.by(() => {
-		if (!alg) return [];
-		const moves = alg.split(' ').filter((move) => move.trim() !== '');
-		return moves.slice(currentMoveIndex + LOOKAHEAD_COUNT);
-	});
+	let futureMoves = $derived(algMoves.slice(currentMoveIndex + dynamicLookahead));
 
 	// Calculate total progress
-	let totalMoves = $derived.by(() => {
-		if (!alg) return 0;
-		return alg.split(' ').filter((move) => move.trim() !== '').length;
-	});
+	let totalMoves = $derived(algMoves.length);
 
 	// For displaying "applied moves" - kept for reference
 	let movesAddedList = $derived.by(() => {
@@ -72,9 +68,6 @@
 
 	const algContainerClass =
 		'mr-10 inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
-
-	const chipClass =
-		'rounded bg-gray-100 dark:bg-gray-600 px-2 py-1 font-mono font-semibold text-theme-text';
 
 	const movesAddedChipClass =
 		'rounded bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 font-mono text-base md:text-xl text-blue-800 dark:text-blue-200';

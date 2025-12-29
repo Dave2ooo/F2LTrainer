@@ -40,13 +40,11 @@
 		showVisibilityToggle?: boolean;
 		tempoScale?: number;
 		showAlg?: boolean;
-		logNormalizedPattern?: boolean;
 		onF2LSolved?: () => void;
 		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
 		movesAdded?: string; // Transformed moves for display
-		rawMovesAdded?: string; // Raw physical moves for F2L checking
 	}
 
 	let {
@@ -70,14 +68,18 @@
 		showVisibilityToggle = false,
 		tempoScale = 1,
 		showAlg = true,
-		logNormalizedPattern = true,
 		onF2LSolved,
 		onCubeSolved,
 		backView = 'none',
 		backViewEnabled = false,
-		movesAdded = $bindable(''),
-		rawMovesAdded = $bindable('') // Raw moves from smart cube
+		movesAdded = $bindable('')
 	}: Props = $props();
+
+	// Raw moves tracked internally for F2L checking (not exposed to parent)
+	let rawMovesAdded = $state('');
+
+	// Derive whether F2L check is enabled from presence of callbacks
+	const enableF2LCheck = $derived(!!(onF2LSolved || onCubeSolved));
 
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
@@ -325,19 +327,8 @@
 					player.experimentalStickeringMaskOrbits = stickeringString;
 				}
 
-				if (logNormalizedPattern && kpuzzle && staticData) {
+				if (enableF2LCheck && kpuzzle && staticData) {
 					// Use raw moves directly for F2L checking - they're already in absolute frame
-					console.log(
-						'%c[F2L Check]',
-						'color: #16a085; font-weight: bold',
-						'\n  movesAdded (display):',
-						movesAdded,
-						'\n  rawMovesAdded (for F2L):',
-						rawMovesAdded,
-						'\n  scramble:',
-						scramble.substring(0, 30) + '...'
-					);
-
 					await checkF2LState(
 						{ kpuzzle },
 						scramble,

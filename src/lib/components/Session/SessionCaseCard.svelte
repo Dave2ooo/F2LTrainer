@@ -60,7 +60,6 @@
 			{frontColor}
 			controlPanel="none"
 			class="size-full"
-			logNormalizedPattern={false}
 		/>
 	</div>
 </button>
