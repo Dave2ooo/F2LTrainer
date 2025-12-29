@@ -17,7 +17,7 @@
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { ArrowLeft, ArrowRight, Pointer, Check } from '@lucide/svelte';
+	import { ArrowLeft, ArrowRight, Pointer, Check, RotateCcw } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
@@ -39,6 +39,7 @@
 		getSliceFirstMoves,
 		inverseMove
 	} from '$lib/utils/moveValidator';
+	import { fade } from 'svelte/transition';
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 
 	let editAlgRef = $state<EditAlg>();
@@ -61,6 +62,8 @@
 	let cumulativeRotation = $state(''); // Track cumulative rotations we've skipped
 	let undoMoves = $state<string[]>([]); // Track undo moves needed to correct mistakes
 	let isTransitioning = $state(false); // Track if we are in the success/transition state
+	let showRotationWarning = $state(false); // Show "Rotate to Home" warning
+	let caseHasRotation = $state(false); // Track if current case involved any rotation moves
 
 	let lastProcessedMoveCounter = -1;
 
@@ -80,6 +83,11 @@
 			lastProcessedMoveCounter = currentCounter;
 
 			if (twistyPlayerRef) {
+				// Clear rotation warning on any new move
+				if (showRotationWarning) {
+					showRotationWarning = false;
+				}
+
 				missedMoves.forEach(({ move }) => {
 					try {
 						const m = move.trim();
@@ -213,6 +221,7 @@
 				? [cumulativeRotation, ...rotationsToApply]
 				: rotationsToApply;
 			cumulativeRotation = combineRotations(allRotations);
+			caseHasRotation = true;
 			console.log('Cumulative rotation now:', cumulativeRotation);
 
 			// Advance index past all rotations
@@ -253,6 +262,9 @@
 					// IMPORTANT: Prepend the rotation (not append) because wide moves cause a physical
 					// reorientation of the cube in the user's hands. This is the same as slice moves.
 					// The rotation happens in the absolute frame, so it needs to be undone first.
+					// Also flag that a rotation occurred for post-case warning
+					caseHasRotation = true;
+
 					const rotationsToUpdate = [implicitRotation, cumulativeRotation].filter((r) => r !== '');
 					cumulativeRotation = combineRotations(rotationsToUpdate);
 
@@ -309,6 +321,9 @@
 						// IMPORTANT: Prepend the slice rotation (not append) because the user's physical
 						// grip change happens in the absolute frame. When transforming absolute → algorithm,
 						// we need to undo the slice rotation first, then undo the algorithm rotation.
+						// Also flag that a rotation occurred for post-case warning
+						caseHasRotation = true;
+
 						const rotationsToUpdate = [implicitRot, cumulativeRotation].filter((r) => r !== '');
 						cumulativeRotation = combineRotations(rotationsToUpdate);
 						console.log('Cumulative rotation now:', cumulativeRotation);
@@ -543,11 +558,24 @@
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
+		// Show rotation warning if the previous case involved rotations
+		if (caseHasRotation) {
+			showRotationWarning = true;
+			// Auto-dismiss after 1.5 seconds (slightly longer to be readable, fade handles smoothness)
+			setTimeout(() => {
+				showRotationWarning = false;
+			}, 1500);
+		} else {
+			showRotationWarning = false;
+		}
+
 		// Reset progress tracking
 		moveBuffer = [];
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
+		caseHasRotation = false;
 		undoMoves = [];
 		isTransitioning = false;
 	}
@@ -557,12 +585,16 @@
 		// Wait for next tick to ensure DOM is updated
 		await tick();
 		// Sync the move counter so we don't apply old moves to the new case
+		// Sync the move counter so we don't apply old moves to the new case
 		lastProcessedMoveCounter = bluetoothState.moveCounter;
+
 		// Reset progress tracking
 		moveBuffer = [];
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
+		caseHasRotation = false;
+		showRotationWarning = false;
 		undoMoves = [];
 		isTransitioning = false;
 	}
@@ -653,6 +685,20 @@
 					class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
 				>
 					<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
+				</div>
+			{/if}
+
+			{#if showRotationWarning && !isTransitioning}
+				<div
+					transition:fade={{ duration: 300 }}
+					class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
+				>
+					<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
+					<div
+						class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
+					>
+						Rotate to<br />Home Position
+					</div>
 				</div>
 			{/if}
 
