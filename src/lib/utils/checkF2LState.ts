@@ -2,6 +2,31 @@ import { Alg } from 'cubing/alg';
 import type { Side } from '$lib/types/Side';
 import type { StickerHidden } from '$lib/types/stickering';
 
+// Type definitions for KPuzzle pattern structure
+interface PieceData {
+	pieces: number[];
+	orientation: number[];
+}
+
+interface PatternData {
+	CORNERS: PieceData;
+	EDGES: PieceData;
+}
+
+interface NormalizedPattern {
+	patternData: PatternData;
+}
+
+interface KPuzzleInterface {
+	algToTransformation: (alg: Alg) => {
+		toKPattern: () => NormalizedPattern;
+	};
+}
+
+export interface PuzzlePattern {
+	kpuzzle: KPuzzleInterface;
+}
+
 // F2L slot positions in KPattern
 const F2L_SLOTS = {
 	fr: { edge: 8, corner: 4 }, // FR edge, DRF corner
@@ -92,12 +117,12 @@ function isF2LSolved(
 /**
  * Check if the cube is fully solved
  */
-function isCubeSolved(normalizedPattern: any): boolean {
+function isCubeSolved(normalizedPattern: NormalizedPattern): boolean {
 	return (
-		normalizedPattern.patternData.CORNERS.pieces.every((v: number, i: number) => v === i) &&
-		normalizedPattern.patternData.CORNERS.orientation.every((v: number) => v === 0) &&
-		normalizedPattern.patternData.EDGES.pieces.every((v: number, i: number) => v === i) &&
-		normalizedPattern.patternData.EDGES.orientation.every((v: number) => v === 0)
+		normalizedPattern.patternData.CORNERS.pieces.every((v, i) => v === i) &&
+		normalizedPattern.patternData.CORNERS.orientation.every((v) => v === 0) &&
+		normalizedPattern.patternData.EDGES.pieces.every((v, i) => v === i) &&
+		normalizedPattern.patternData.EDGES.orientation.every((v) => v === 0)
 	);
 }
 
@@ -118,7 +143,7 @@ export interface F2LState {
  * @returns The current F2L state
  */
 export async function checkF2LState(
-	pattern: any,
+	pattern: PuzzlePattern,
 	scramble: string,
 	alg: string,
 	piecesToHide?: StickerHidden,

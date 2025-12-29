@@ -50,15 +50,7 @@
 	// Separate display algorithm for HintButtonSmart (calculated with AUF)
 	let displayAlg = $state('');
 
-	// Transformed moves for display (accounting for rotations)
-	let transformedMovesForDisplay = $derived.by(() => {
-		if (!alg || !cumulativeRotation) return alg;
-		// Apply INVERSE rotation to transform from absolute (smart cube) to rotated (algorithm) frame
-		const inverseRot = inverseRotation(cumulativeRotation);
-		const moves = alg.split(' ').filter((m) => m.trim() !== '');
-		const transformed = moves.map((move) => applyRotationToMove(move, inverseRot));
-		return transformed.join(' ');
-	});
+
 
 	// Algorithm progress tracking
 	let algMovesParsed = $state<string[]>([]); // Full algorithm as array
@@ -553,7 +545,7 @@
 
 		<HintButtonSmart
 			alg={displayAlg}
-			movesAdded={transformedMovesForDisplay}
+			movesAdded={alg}
 			{currentMoveIndex}
 			{validationFeedback}
 			onEditAlg={() => {
