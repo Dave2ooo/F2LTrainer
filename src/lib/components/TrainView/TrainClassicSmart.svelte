@@ -20,8 +20,7 @@
 	import { ArrowLeft, ArrowRight, Pointer, Check, RotateCcw } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
-	import Timer from './Timer.svelte';
-	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
+	import SmartTimer from './SmartTimer.svelte';
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import {
@@ -43,7 +42,8 @@
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 
 	let editAlgRef = $state<EditAlg>();
-	let timerRef = $state<Timer>();
+	let smartTimerRef = $state<SmartTimer>();
+	let timerStarted = $state(false); // Track if timer has been started for current case
 
 	let twistyPlayerRef = $state<any>();
 
@@ -333,6 +333,13 @@
 
 			currentMoveIndex += consumedCount;
 			moveBuffer = [];
+
+			// Start timer on first validated move
+			if (!timerStarted && currentMoveIndex > 0) {
+				smartTimerRef?.startTimer();
+				timerStarted = true;
+			}
+
 			setTimeout(() => {
 				validationFeedback = 'neutral';
 			}, 500);
@@ -578,6 +585,9 @@
 		caseHasRotation = false;
 		undoMoves = [];
 		isTransitioning = false;
+		// Reset timer for new case
+		smartTimerRef?.resetTimer();
+		timerStarted = false;
 	}
 
 	async function onPrevious() {
@@ -597,64 +607,47 @@
 		showRotationWarning = false;
 		undoMoves = [];
 		isTransitioning = false;
+		// Reset timer for new case
+		smartTimerRef?.resetTimer();
+		timerStarted = false;
 	}
 
-	function handleTimerStop(timeInCentiseconds: number) {
+	/**
+	 * Record the solve time and save to statistics
+	 * Called when F2L is solved (timer stopped automatically)
+	 */
+	function recordSolveTime(timeInCentiseconds: number) {
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 
-			// Time is already in centiseconds (1/100s), no conversion needed
-			// This eliminates all floating-point precision issues
+			// Get next solve ID
+			const solveId = statisticsState.getNextSolveId();
+			// Save time and solve ID to the TrainCase
+			currentTrainCase.time = timeInCentiseconds;
+			currentTrainCase.solveId = solveId;
+			// Update the last displayed time
+			trainState.lastDisplayedTime = timeInCentiseconds;
 
-			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
-			if (currentTrainCase.solveId !== undefined) {
-				// Update existing solve
-				statisticsState.updateSolve(currentTrainCase.solveId, timeInCentiseconds);
+			// Add new solve
+			statisticsState.addSolve({
+				id: solveId,
+				groupId,
+				caseId,
+				time: timeInCentiseconds,
+				timestamp: Date.now(),
+				auf: currentTrainCase.auf,
+				side: currentTrainCase.side,
+				scrambleSelection: currentTrainCase.scramble,
+				sessionId: sessionState.activeSessionId || undefined
+			});
 
-				// Update the time in the TrainCase
-				currentTrainCase.time = timeInCentiseconds;
-				// Update the last displayed time
-				trainState.lastDisplayedTime = timeInCentiseconds;
-			} else {
-				// This is a new solve - get the next solve ID
-				const solveId = statisticsState.getNextSolveId();
-				// Save time and solve ID to the TrainCase
-				currentTrainCase.time = timeInCentiseconds;
-				currentTrainCase.solveId = solveId;
-				// Update the last displayed time
-				trainState.lastDisplayedTime = timeInCentiseconds;
-
-				// Add new solve
-				statisticsState.addSolve({
-					id: solveId,
-					groupId,
-					caseId,
-					time: timeInCentiseconds,
-					timestamp: Date.now(),
-					auf: currentTrainCase.auf,
-					side: currentTrainCase.side,
-					scrambleSelection: currentTrainCase.scramble,
-					sessionId: sessionState.activeSessionId || undefined
-				});
-
-				// Mark as solved
-				markAsSolved(true);
-			}
+			// Mark as solved
+			markAsSolved(true);
 		}
-		onNext();
 	}
-
-	// Create keyboard event handlers
-	const { handleKeydown, handleKeyup } = createKeyboardHandlers(
-		() => timerRef,
-		onNext,
-		handleTimerStop
-	);
 
 	let settingsRef = $state<Settings>();
 </script>
-
-<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
 <ResponsiveLayout>
 	{#snippet leftContent()}
@@ -737,6 +730,13 @@
 						const shouldTrigger = alg && alg.trim() !== '' && currentMoveIndex > 0;
 						if (shouldTrigger) {
 							isTransitioning = true;
+
+							// Stop timer and record time
+							const elapsedTime = smartTimerRef?.stopTimer();
+							if (elapsedTime !== undefined) {
+								recordSolveTime(elapsedTime);
+							}
+
 							setTimeout(() => {
 								onNext();
 							}, 500); // 500ms delay for visual feedback
@@ -766,9 +766,9 @@
 				editAlgRef?.openModal();
 			}}
 		/>
-		{#if globalState.trainShowTimer}
-			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
-		{/if}
+		<div class:hidden={!globalState.trainShowTimer}>
+			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} />
+		</div>
 
 		<div class="flex flex-row justify-center gap-2">
 			<TrainStateSelect />
