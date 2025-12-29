@@ -39,6 +39,7 @@
 		getSliceFirstMoves,
 		inverseMove
 	} from '$lib/utils/moveValidator';
+	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 
 	let editAlgRef = $state<EditAlg>();
 	let timerRef = $state<Timer>();
@@ -490,7 +491,7 @@
 				// Add AUF to the algorithm
 				if (algWithoutAUF && scrambleWithoutAUF && auf !== undefined) {
 					const [, algWithAUF] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
-					displayAlg = algWithAUF;
+					displayAlg = simplifyAlg(algWithAUF);
 				} else {
 					displayAlg = '';
 				}

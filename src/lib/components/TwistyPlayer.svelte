@@ -11,6 +11,7 @@
 	import type { StickerColor } from '$lib/types/stickering';
 	import type { Auf } from '$lib/types/trainCase';
 	import { concatinateAuf } from '$lib/utils/addAuf';
+	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 	import { onMount, onDestroy } from 'svelte';
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
@@ -125,7 +126,7 @@
 			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
 			scramble = newScramble;
 			if (showAlg) {
-				alg = newAlg;
+				alg = simplifyAlg(newAlg);
 			} else {
 				alg = '';
 			}
