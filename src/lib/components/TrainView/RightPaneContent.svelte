@@ -78,8 +78,8 @@
 			});
 		}
 
-		// Add all solves in reverse chronological order
-		const solves = [...statisticsState.statistics].reverse();
+		// Add all solves in reverse chronological order, limited to last 20
+		const solves = [...statisticsState.statistics].reverse().slice(0, 20);
 		for (const solve of solves) {
 			items.push({
 				key: `solve-${solve.id}`,
