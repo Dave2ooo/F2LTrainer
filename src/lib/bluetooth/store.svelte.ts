@@ -1,6 +1,7 @@
 import { GiikerCube } from './core/bluetooth';
 
 let isConnected = $state(false);
+let isConnecting = $state(false);
 let deviceName = $state<string | null>(null);
 let deviceId = $state<string | null>(null);
 let deviceMac = $state<string | null>(null);
@@ -126,5 +127,12 @@ export const bluetoothState = {
 	},
 	getMovesSince(lastCounter: number) {
 		return history.filter((h) => h.counter > lastCounter);
+	},
+	// Connection process state
+	get isConnecting() {
+		return isConnecting;
+	},
+	setIsConnecting(connecting: boolean) {
+		isConnecting = connecting;
 	}
 };

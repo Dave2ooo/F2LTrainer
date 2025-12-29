@@ -36,12 +36,6 @@
 		>
 	</NavBrand>
 	<div class="ml-auto flex items-center gap-2">
-		<Button
-			class="bg-transparent p-0 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-			onclick={() => settingsRef.openModal()}
-			><SettingsIcon class="size-8 text-primary-600 md:size-9" /></Button
-		>
-		<Tooltip placement="bottom">Settings</Tooltip>
 		<BluetoothButton />
 		<div class="h-6 w-px bg-gray-300 dark:bg-gray-700"></div>
 		<NavHamburger
@@ -49,6 +43,18 @@
 		/>
 	</div>
 	<NavUl>
+		<li class="mx-1 my-2 sm:my-0">
+			<Button
+				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+				onclick={() => settingsRef.openModal()}
+			>
+				<SettingsIcon class="size-8 text-primary-600 md:size-9" />
+				<span class="ml-4 text-lg font-medium text-gray-900 sm:hidden dark:text-white"
+					>Settings</span
+				>
+			</Button>
+			<Tooltip placement="bottom">Settings</Tooltip>
+		</li>
 		<li class="mx-1 my-2 sm:my-0">
 			<Button
 				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"

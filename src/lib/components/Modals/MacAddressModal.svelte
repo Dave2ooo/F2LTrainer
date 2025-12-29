@@ -6,7 +6,7 @@
 
 	let macInput = $state('');
 	let copiedChromeFlags = $state(false);
-	const macPattern = "^([0-9A-Fa-f]{2}[:\\-]){5}([0-9A-Fa-f]{2})$";
+	const macPattern = '^([0-9A-Fa-f]{2}[:\\-]){5}([0-9A-Fa-f]{2})$';
 
 	$effect(() => {
 		if (bluetoothState.macAddressRequest.isOpen) {
@@ -45,7 +45,13 @@
 	outsideclose={false}
 	class="z-[60]"
 >
-	<form class="flex flex-col gap-4" onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+	<form
+		class="flex flex-col gap-4"
+		onsubmit={(e) => {
+			e.preventDefault();
+			handleSubmit();
+		}}
+	>
 		<div
 			class="rounded-lg bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
 		>
@@ -76,10 +82,10 @@
 		</p>
 		<div class="flex flex-col gap-2">
 			<Label>MAC Address</Label>
-			<Input 
-				type="text" 
-				bind:value={macInput} 
-				placeholder={'xx:xx:xx:xx:xx:xx'} 
+			<Input
+				type="text"
+				bind:value={macInput}
+				placeholder={'xx:xx:xx:xx:xx:xx'}
 				required
 				pattern={macPattern}
 			/>

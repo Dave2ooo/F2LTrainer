@@ -685,7 +685,7 @@ function parseV2Data(value: DataView | any) {
 	}
 	let bin = binStr.join('');
 	let mode = parseInt(bin.slice(0, 4), 2);
-	// Basic validation for V2 can be difficult as mode is just 4 bits. 
+	// Basic validation for V2 can be difficult as mode is just 4 bits.
 	// But if we get a mode > 9 consistently (except 15?), it might be wrong key.
 	// For now, implicit failures in checksums (keyCheck) are relying on existing logic.
 	// But we can reset badPacketCount if we see a valid mode.
@@ -1070,7 +1070,8 @@ function parseV4Data(value: DataView | any) {
 	// V4 validation: mode should be known
 	if (![0x01, 0xed, 0xd1, 0xf5, 0xf6, 0xfa, 0xfc, 0xfd, 0xfe, 0xff, 0xef, 0xec].includes(mode)) {
 		badPacketCount++;
-		if (badPacketCount > 10) { // Higher threshold for V4
+		if (badPacketCount > 10) {
+			// Higher threshold for V4
 			giikerutil.log('[gancube]', 'Too many bad V4 packets, disconnecting');
 			if (_gatt && _gatt.connected) _gatt.disconnect();
 		}

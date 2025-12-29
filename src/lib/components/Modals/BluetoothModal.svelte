@@ -3,17 +3,15 @@
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
 	import { Bluetooth, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
-	import { GiikerCube } from '$lib/bluetooth/index';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 
 	import MacAddressModal from './MacAddressModal.svelte';
+	import { connectNewCube, connectSavedCube, disconnectCube } from '$lib/bluetooth/actions';
 
 	let { open = $bindable(false) } = $props();
 
-	let isConnecting = $state(false);
-	let error = $state<string | null>(null);
 	let twistyPlayerComponent = $state<any>(null);
 
 	let editingCubeId = $state<string | null>(null);
@@ -71,93 +69,15 @@
 	});
 
 	async function onConnect() {
-		// Guard against double-clicking
-		if (isConnecting) return;
-
-		isConnecting = true;
-		error = null;
-		bluetoothState.setErrorMessage(null);
-		console.log('[F2LTrainer] Connecting to new cube...');
-		try {
-			await GiikerCube.init(false, undefined);
-			// After successful connection, check if cube already exists by MAC address
-			if (bluetoothState.deviceId && bluetoothState.deviceName) {
-				// First check by MAC address (more reliable than deviceId)
-				const existingByMac = bluetoothState.deviceMac
-					? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
-					: null;
-				// Fall back to deviceId check
-				const existingById = savedCubesState.getCube(bluetoothState.deviceId);
-				const existing = existingByMac || existingById;
-
-				// Auto-save or update the cube entry
-				savedCubesState.addCube(
-					bluetoothState.deviceId,
-					bluetoothState.deviceName,
-					existing?.customName, // Keep existing name or use device name as default
-					bluetoothState.deviceMac || undefined
-				);
-			}
-			console.log('[F2LTrainer] Successfully connected to new cube:', bluetoothState.deviceName);
-		} catch (e: any) {
-			if (e.message !== 'MAC address required') {
-				console.error('[F2LTrainer] Connection failed:', e);
-				error = e.toString();
-			} else {
-				console.log('[F2LTrainer] Connection cancelled by user (MAC required)');
-			}
-		} finally {
-			isConnecting = false;
-		}
+		await connectNewCube();
 	}
 
 	async function onConnectSaved(deviceId: string) {
-		// Guard against double-clicking
-		if (isConnecting) return;
-
-		const saved = savedCubesState.getCube(deviceId);
-		if (!saved) return;
-
-		console.log('[F2LTrainer] Connecting to saved cube:', saved.customName, 'MAC:', saved.macAddress);
-		isConnecting = true;
-		error = null;
-		bluetoothState.setErrorMessage(null);
-		try {
-			await GiikerCube.init(true, saved.macAddress);
-			if (bluetoothState.deviceId && bluetoothState.deviceName) {
-				// Check if the connected cube matches any existing cube by MAC
-				const existingByMac = bluetoothState.deviceMac
-					? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
-					: null;
-
-				// Auto-save or update the cube entry
-				savedCubesState.addCube(
-					bluetoothState.deviceId,
-					bluetoothState.deviceName,
-					existingByMac?.customName, // Keep existing name or use device name as default
-					bluetoothState.deviceMac || undefined
-				);
-			} else {
-				savedCubesState.updateLastConnected(deviceId);
-			}
-			console.log('[F2LTrainer] Successfully connected to saved cube:', saved.customName);
-		} catch (e: any) {
-			console.error('[F2LTrainer] Connection to saved cube failed:', e);
-			error = e.toString();
-		} finally {
-			isConnecting = false;
-		}
+		await connectSavedCube(deviceId);
 	}
 
 	async function onDisconnect() {
-		console.log('[F2LTrainer] User requested disconnect');
-		try {
-			await GiikerCube.stop();
-			console.log('[F2LTrainer] Disconnected successfully');
-		} catch (e: any) {
-			console.warn('[F2LTrainer] Disconnect error:', e);
-			// Don't show error to user - disconnect errors are usually harmless
-		}
+		await disconnectCube();
 	}
 
 	function onSync() {
@@ -314,7 +234,7 @@
 											size="sm"
 											color="blue"
 											onclick={() => onConnectSaved(cube.id)}
-											disabled={isConnecting || bluetoothState.isConnected}
+											disabled={bluetoothState.isConnecting || bluetoothState.isConnected}
 										>
 											Connect
 										</Button>
@@ -339,8 +259,8 @@
 		{/if}
 
 		<!-- Error messages -->
-		{#if error || bluetoothState.errorMessage}
-			<p class="text-center text-sm text-red-500">{error || bluetoothState.errorMessage}</p>
+		{#if bluetoothState.errorMessage}
+			<p class="text-center text-sm text-red-500">{bluetoothState.errorMessage}</p>
 		{/if}
 
 		<!-- Connect new cube button -->
@@ -349,9 +269,9 @@
 			size="sm"
 			class="w-full"
 			onclick={onConnect}
-			disabled={isConnecting || bluetoothState.isConnected}
+			disabled={bluetoothState.isConnecting || bluetoothState.isConnected}
 		>
-			{#if isConnecting}
+			{#if bluetoothState.isConnecting}
 				<Spinner class="mr-2" size="4" />Connecting...
 			{:else}
 				<Plus class="mr-2 size-4" />
