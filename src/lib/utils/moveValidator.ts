@@ -352,6 +352,27 @@ export function isSliceMove(move: string): boolean {
 }
 
 /**
+ * Get valid first moves for a slice move
+ * For example, S can be done as F' B or B F', so valid first moves are [F', B]
+ * Returns empty array if not a slice move
+ */
+export function getSliceFirstMoves(move: string): string[] {
+	const expansions = expandSliceMove(move);
+	if (expansions.length === 1 && expansions[0].length === 1 && expansions[0][0] === move) {
+		// Not a slice move
+		return [];
+	}
+	// Get first move from each ordering
+	const firstMoves = new Set<string>();
+	for (const ordering of expansions) {
+		if (ordering.length > 0) {
+			firstMoves.add(ordering[0]);
+		}
+	}
+	return Array.from(firstMoves);
+}
+
+/**
  * Get the inverse of a move
  * U -> U', U' -> U, U2 -> U2
  */

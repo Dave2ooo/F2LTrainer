@@ -36,6 +36,7 @@
 		getWideImplicitRotation,
 		isSliceMove,
 		getSliceImplicitRotation,
+		getSliceFirstMoves,
 		inverseMove
 	} from '$lib/utils/moveValidator';
 
@@ -314,8 +315,9 @@
 				validationFeedback = 'neutral';
 			}, 500);
 		} else if (normalized.length >= 1) {
-			// Before triggering undo, check if we might be waiting for a double move
+			// Before triggering undo, check if we might be waiting for a double move or slice move
 			// Smart cubes send U2 as "U U" or "U' U'" - we need to wait for the second move
+			// Slice moves like S require two face moves (F' B or B F')
 			const expectedMove = expectedMoves[0];
 			const isExpectedDoubleMove = expectedMove && expectedMove.includes('2');
 			const expectedBaseFace = expectedMove ? expectedMove.replace(/['2]/g, '') : '';
@@ -330,8 +332,20 @@
 				normalized.length === 1 &&
 				normalized[0].replace(/['2]/g, '') === expectedBaseFace;
 
+			// Check if buffer could be building toward a slice move
+			// This happens when:
+			// 1. Expected move is a slice move (S, M, E)
+			// 2. Buffer has exactly one move that matches the first part of the slice
+			let couldBeSliceMove = false;
+			if (isSliceMove(expectedMove) && moveBuffer.length === 1 && normalized.length === 1) {
+				const validFirstMoves = getSliceFirstMoves(expectedMove);
+				couldBeSliceMove = validFirstMoves.includes(normalized[0]);
+			}
+
 			if (couldBeDoubleMove) {
 				console.log('Waiting for potential double move (U2 = U U or U\' U\')...');
+			} else if (couldBeSliceMove) {
+				console.log('Waiting for potential slice move (e.g. S = F\' B or B F\')...');
 			} else {
 				// If we have 1+ normalized moves and no match found, it's a wrong move
 				// Show undo guidance immediately
