@@ -35,7 +35,8 @@
 		wideToSingleLayerMove,
 		getWideImplicitRotation,
 		isSliceMove,
-		getSliceImplicitRotation
+		getSliceImplicitRotation,
+		inverseMove
 	} from '$lib/utils/moveValidator';
 
 	let editAlgRef = $state<EditAlg>();
@@ -58,6 +59,7 @@
 	let moveBuffer = $state<string[]>([]); // Recent moves from smart cube for validation
 	let validationFeedback = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
 	let cumulativeRotation = $state(''); // Track cumulative rotations we've skipped
+	let undoMoves = $state<string[]>([]); // Track undo moves needed to correct mistakes
 
 	let lastProcessedMoveCounter = -1;
 
@@ -140,6 +142,7 @@
 				moveBuffer = [];
 				validationFeedback = 'neutral';
 				cumulativeRotation = ''; // Reset cumulative rotation
+				undoMoves = []; // Reset undo moves
 			});
 		} else {
 			untrack(() => {
@@ -148,11 +151,18 @@
 				moveBuffer = [];
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
+				undoMoves = [];
 			});
 		}
 	});
 
 	function validateMoveProgress() {
+		// Check if user is in undo mode (has pending undo moves)
+		if (undoMoves.length > 0) {
+			validateUndoProgress();
+			return;
+		}
+
 		// Skip if algorithm is complete
 		if (currentMoveIndex >= algMovesParsed.length) {
 			validationFeedback = 'neutral';
@@ -303,11 +313,122 @@
 			setTimeout(() => {
 				validationFeedback = 'neutral';
 			}, 500);
-		} else if (normalized.length > 6) {
-			console.log('%c✗ Buffer overflow - likely wrong moves', 'color: #e74c3c; font-weight: bold');
-			validationFeedback = 'incorrect';
+		} else if (normalized.length >= 1) {
+			// Before triggering undo, check if we might be waiting for a double move
+			// Smart cubes send U2 as "U U" or "U' U'" - we need to wait for the second move
+			const expectedMove = expectedMoves[0];
+			const isExpectedDoubleMove = expectedMove && expectedMove.includes('2');
+			const expectedBaseFace = expectedMove ? expectedMove.replace(/['2]/g, '') : '';
+			
+			// Check if buffer could be building toward a double move
+			// This happens when:
+			// 1. Expected move is a double move (like U2)
+			// 2. Buffer has exactly one move on the same face (like U or U')
+			const couldBeDoubleMove =
+				isExpectedDoubleMove &&
+				moveBuffer.length === 1 &&
+				normalized.length === 1 &&
+				normalized[0].replace(/['2]/g, '') === expectedBaseFace;
+
+			if (couldBeDoubleMove) {
+				console.log('Waiting for potential double move (U2 = U U or U\' U\')...');
+			} else {
+				// If we have 1+ normalized moves and no match found, it's a wrong move
+				// Show undo guidance immediately
+				console.log('%c✗ Wrong move detected - no match found', 'color: #e74c3c; font-weight: bold');
+				validationFeedback = 'incorrect';
+				// Add undo moves for all wrong moves in buffer
+				addUndoMovesFromBuffer();
+			}
 		} else {
 			console.log('Waiting for more moves...');
+		}
+
+		console.groupEnd();
+	}
+
+	/**
+	 * Add undo moves for all moves in the buffer
+	 * Called when wrong moves are detected
+	 */
+	function addUndoMovesFromBuffer() {
+		const inverseRot = inverseRotation(cumulativeRotation);
+
+		// Generate undo moves for each move in the buffer (in reverse order)
+		const newUndoMoves: string[] = [];
+		for (let i = moveBuffer.length - 1; i >= 0; i--) {
+			const rawMove = moveBuffer[i];
+			const inverseRaw = inverseMove(rawMove);
+			const undoInAlgFrame = applyRotationToMove(inverseRaw, inverseRot);
+			newUndoMoves.push(undoInAlgFrame);
+		}
+
+		console.log(
+			'%c[Undo Guidance]',
+			'color: #f39c12; font-weight: bold',
+			'Adding undo moves:',
+			newUndoMoves.join(' ')
+		);
+
+		undoMoves = [...undoMoves, ...newUndoMoves];
+		moveBuffer = []; // Clear the buffer after generating undo moves
+	}
+
+	/**
+	 * Validate incoming moves against expected undo moves
+	 * Called when user is in undo mode
+	 */
+	function validateUndoProgress() {
+		if (moveBuffer.length === 0) return;
+
+		console.group('%c[Undo Validation]', 'color: #f39c12; font-weight: bold');
+		console.log('Undo moves remaining:', undoMoves.join(' '));
+		console.log('Buffer:', moveBuffer.join(' '));
+
+		const inverseRot = inverseRotation(cumulativeRotation);
+
+		// Check each move in buffer against expected undo moves
+		for (const rawMove of moveBuffer) {
+			if (undoMoves.length === 0) break;
+
+			// Transform incoming move to algorithm frame
+			const incomingInAlgFrame = applyRotationToMove(rawMove, inverseRot);
+			const expectedUndo = undoMoves[0];
+
+			console.log(
+				'Checking:',
+				rawMove,
+				'→',
+				incomingInAlgFrame,
+				'vs expected:',
+				expectedUndo
+			);
+
+			if (incomingInAlgFrame === expectedUndo) {
+				console.log('%c✓ Undo move matched!', 'color: #27ae60; font-weight: bold');
+				undoMoves = undoMoves.slice(1); // Remove first undo move
+				validationFeedback = 'correct';
+				setTimeout(() => {
+					validationFeedback = 'neutral';
+				}, 300);
+			} else {
+				// Wrong undo move - add another undo move for this mistake
+				console.log('%c✗ Wrong undo move!', 'color: #e74c3c; font-weight: bold');
+				const inverseRaw = inverseMove(rawMove);
+				const undoInAlgFrame = applyRotationToMove(inverseRaw, inverseRot);
+				undoMoves = [undoInAlgFrame, ...undoMoves];
+				validationFeedback = 'incorrect';
+			}
+		}
+
+		moveBuffer = []; // Clear buffer after processing
+
+		if (undoMoves.length === 0) {
+			console.log('%c✓ All undo moves completed!', 'color: #27ae60; font-weight: bold');
+			validationFeedback = 'correct';
+			setTimeout(() => {
+				validationFeedback = 'neutral';
+			}, 500);
 		}
 
 		console.groupEnd();
@@ -410,6 +531,7 @@
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
+		undoMoves = [];
 	}
 
 	async function onPrevious() {
@@ -423,6 +545,7 @@
 		currentMoveIndex = 0;
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
+		undoMoves = [];
 	}
 
 	function handleTimerStop(timeInCentiseconds: number) {
@@ -548,6 +671,7 @@
 			movesAdded={alg}
 			{currentMoveIndex}
 			{validationFeedback}
+			{undoMoves}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
 			}}

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Pencil } from '@lucide/svelte';
+	import { Pencil, Undo2 } from '@lucide/svelte';
 	import { isRotationMove } from '$lib/utils/moveValidator';
 
 	interface Props {
@@ -8,6 +8,7 @@
 		movesAdded?: string;
 		currentMoveIndex?: number; // NEW: Current position in algorithm
 		validationFeedback?: 'correct' | 'incorrect' | 'neutral'; // NEW: Visual feedback
+		undoMoves?: string[]; // Undo moves to correct mistakes
 	}
 
 	let {
@@ -15,7 +16,8 @@
 		onEditAlg,
 		movesAdded = '',
 		currentMoveIndex = 0,
-		validationFeedback = 'neutral'
+		validationFeedback = 'neutral',
+		undoMoves = []
 	}: Props = $props();
 
 	// Number of "current" moves to highlight (lookahead window)
@@ -84,6 +86,10 @@
 	const futureChipClass =
 		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
 
+	// Undo moves - warning style with amber colors
+	const undoChipClass =
+		'rounded bg-amber-500 dark:bg-amber-600 px-2 py-1 font-mono font-semibold text-white shadow-md';
+
 	// Container feedback styling based on validation
 	const getContainerFeedbackClass = (feedback: 'correct' | 'incorrect' | 'neutral') => {
 		if (feedback === 'correct') {
@@ -98,6 +104,9 @@
 		'hover:bg-opacity-90 absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 text-primary-500 transition-all duration-200 md:translate-x-10';
 
 	let showEditButton = $derived(totalMoves > 0);
+
+	// Check if we have undo moves to display
+	let hasUndoMoves = $derived(undoMoves.length > 0);
 </script>
 
 <!-- Container holds the hint button UI -->
@@ -146,6 +155,22 @@
 			</button>
 		{/if}
 	</div>
+
+	{#if hasUndoMoves}
+		<div
+			class="mt-3 flex flex-col items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 dark:border-amber-600 dark:bg-amber-950/30"
+		>
+			<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+				<Undo2 class="size-5" strokeWidth={2.5} />
+				<span class="text-sm font-semibold uppercase tracking-wide">Undo Required</span>
+			</div>
+			<div class="flex flex-wrap items-center justify-center gap-1">
+				{#each undoMoves as move}
+					<span class={undoChipClass}>{move}</span>
+				{/each}
+			</div>
+		</div>
+	{/if}
 
 	<div class="mt-2 flex flex-col items-center gap-1">
 		<span class="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400"

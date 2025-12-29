@@ -352,6 +352,16 @@ export function isSliceMove(move: string): boolean {
 }
 
 /**
+ * Get the inverse of a move
+ * U -> U', U' -> U, U2 -> U2
+ */
+export function inverseMove(move: string): string {
+	if (move.includes('2')) return move; // U2 is its own inverse
+	if (move.includes("'")) return move.replace("'", ''); // U' -> U
+	return move + "'"; // U -> U'
+}
+
+/**
  * Get the rotation caused by a slice move
  * M -> x' (follows L direction)
  * E -> y' (follows D direction)
