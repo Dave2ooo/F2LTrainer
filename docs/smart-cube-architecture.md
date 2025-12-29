@@ -152,8 +152,9 @@ When the next expected move is a wide move (r, l, u, d, f, b):
 
 1. Map wide move to expected single-layer move (e.g., `r` expects `L` from smart cube)
 2. Check if `moveBuffer` contains the expected single-layer move
-3. If match: apply wide move to TwistyPlayer, update `cumulativeRotation` with implicit rotation
+3. If match: apply wide move to TwistyPlayer, **PREPEND** implicit rotation to `cumulativeRotation`
 4. **Smart cube detects the opposite face** (L for r, R for l, etc.)
+5. Wide moves cause physical reorientation, so rotation is prepended (same as slice moves)
 
 ### Step 3: Handle Regular Moves
 

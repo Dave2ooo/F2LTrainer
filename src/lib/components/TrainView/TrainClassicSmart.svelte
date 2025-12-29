@@ -231,7 +231,10 @@
 					twistyPlayerRef.addMove(wideMove, '');
 
 					// Track the implicit rotation internally for transforming subsequent moves
-					const rotationsToUpdate = [cumulativeRotation, implicitRotation].filter((r) => r !== '');
+					// IMPORTANT: Prepend the rotation (not append) because wide moves cause a physical
+					// reorientation of the cube in the user's hands. This is the same as slice moves.
+					// The rotation happens in the absolute frame, so it needs to be undone first.
+					const rotationsToUpdate = [implicitRotation, cumulativeRotation].filter((r) => r !== '');
 					cumulativeRotation = combineRotations(rotationsToUpdate);
 
 					// Advance past the wide move
