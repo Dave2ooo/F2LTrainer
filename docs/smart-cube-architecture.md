@@ -6,7 +6,7 @@ This document explains how the smart cube training flow works, focusing on algor
 
 The smart cube training involves three main components:
 
-1. **TrainClassicSmart.svelte** - Receives moves from smart cube, validates against algorithm
+1. **TrainClassicSmart.svelte** - Receives moves from smart cube, validates against algorithm, handles undo guidance
 2. **TwistyPlayer.svelte** - Displays the cube state, handles F2L detection
 3. **checkF2LState.ts** - Determines if F2L is solved
 
@@ -90,6 +90,7 @@ bluetoothState.moveCounter (absolute moves: U, R, F, etc.)
 | `currentMoveIndex`   | `number`                                | Index pointing to the next expected move in `algMovesParsed`.                            |
 | `moveBuffer`         | `string[]`                              | Buffer of recent **absolute** moves from smart cube awaiting validation.                 |
 | `cumulativeRotation` | `string`                                | Tracks combined rotations encountered so far (e.g., `"y"`, `"y2"`, `"x y"`).             |
+| `undoMoves`          | `string[]`                              | Stack of inverse moves needed to correct mistakes (in algorithm frame).                  |
 | `validationFeedback` | `'correct' \| 'incorrect' \| 'neutral'` | Visual feedback state for UI.                                                            |
 
 ### In TwistyPlayer.svelte
@@ -160,14 +161,30 @@ When the next expected move is a wide move (r, l, u, d, f, b):
 
 1. Transform `moveBuffer` to algorithm frame using inverse of `cumulativeRotation`
 2. Normalize moves (coalesce U+U→U2, handle cancellations)
-3. Match against expected moves using `matchesMoveSequence()`
-4. If match: advance `currentMoveIndex`, clear buffer
+3. **Wait for Double Moves**: If expected is `U2` and buffer has `U`, wait for second move (smart cube sends `U2` as `U U`)
+4. Match against expected moves using `matchesMoveSequence()`
+5. If match: advance `currentMoveIndex`, clear buffer
 
 ### Step 4: Handle Slice Moves (M, E, S)
 
 1. Within matched moves, detect slice moves
-2. Apply rotation to TwistyPlayer to keep visual in sync
-3. **PREPEND** implicit rotation to `cumulativeRotation` (not append) - when users physically perform slice moves, their grip orientation changes. The slice rotation is prepended because it represents a change in the absolute frame, which should be undone first when transforming moves.
+2. **Wait for Slice Moves**: If expected is `S` and buffer has `B` (part of `S = B F'`), wait for second move
+3. Apply rotation to TwistyPlayer to keep visual in sync
+4. **PREPEND** implicit rotation to `cumulativeRotation` (not append) - when users physically perform slice moves, their grip orientation changes. The slice rotation is prepended because it represents a change in the absolute frame, which should be undone first when transforming moves.
+
+### Step 5: Wrong Move Detection & Undo Guidance
+
+If a move doesn't match expected algorithm:
+
+1. **Immediate Detection**: If buffer contains 1+ normalized moves that don't match expected (and we aren't waiting for double/slice move) → **Wrong Move**
+2. **Generate Undo**:
+   - Calculate inverse of raw move (e.g., `U` → `U'`)
+   - Transform to algorithm frame using `cumulativeRotation`
+   - Add to `undoMoves` stack
+3. **Undo Mode**:
+   - Training pauses, validation checks against `undoMoves`
+   - User must perform the inverse moves to clear the stack
+   - Once `undoMoves` is empty, normal training resumes
 
 ---
 
@@ -272,12 +289,18 @@ Displays the algorithm with progress indication:
 | `alg`                | `string`                                | The full algorithm to display (displayAlg from parent) |
 | `currentMoveIndex`   | `number`                                | Current position in algorithm                          |
 | `movesAdded`         | `string`                                | Applied moves (for "Applied Moves" section)            |
+| `undoMoves`          | `string[]`                              | List of undo moves to display (triggers warning mode)  |
 | `validationFeedback` | `'correct' \| 'incorrect' \| 'neutral'` | Border/background feedback                             |
+| `editDisabled`       | `boolean`                               | Disables edit button (e.g. if moves are pending/undoing)|
 
 ### Special Behavior
 
 - If current move is a rotation, shows 2 moves (rotation + next move) without blur
 - Progress indicator shows `currentMoveIndex / totalMoves`
+- **Undo Mode**: When `undoMoves` is non-empty:
+  - Displays prominent amber/yellow warning section
+  - Shows "Undo Required" with list of moves to perform
+  - Disables algorithm editing until resolved
 
 ---
 
@@ -326,4 +349,6 @@ Console logs by prefix:
 - `[Rotation]` - Rotation handling
 - `[Wide Move]` - Wide move detection
 - `[Slice Move]` - Slice move handling
+- `[Undo Guidance]` - Wrong move detected, adding undo moves
+- `[Undo Validation]` - Validating correction moves
 - `[F2L Check]` - F2L checking (in checkF2LState.ts)
