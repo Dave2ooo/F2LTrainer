@@ -94,11 +94,11 @@ bluetoothState.moveCounter (absolute moves: U, R, F, etc.)
 
 ### In TwistyPlayer.svelte
 
-| Variable        | Type     | Description                                                                         |
-| --------------- | -------- | ----------------------------------------------------------------------------------- |
-| `movesAdded`    | `string` | Moves applied to the visual player (algorithm frame, for display). Bindable.        |
-| `rawMovesAdded` | `string` | Absolute moves from smart cube (for F2L checking, passed directly to checkF2LState).|
-| `scramble`      | `string` | The scramble algorithm. Bindable.                                                   |
+| Variable        | Type     | Description                                                                          |
+| --------------- | -------- | ------------------------------------------------------------------------------------ |
+| `movesAdded`    | `string` | Moves applied to the visual player (algorithm frame, for display). Bindable.         |
+| `rawMovesAdded` | `string` | Absolute moves from smart cube (for F2L checking, passed directly to checkF2LState). |
+| `scramble`      | `string` | The scramble algorithm. Bindable.                                                    |
 
 ---
 
@@ -180,31 +180,31 @@ The F2L detection has been simplified. Raw moves from the smart cube are tracked
 ```typescript
 // addMove now takes optional rawMove parameter:
 export async function addMove(move: string, rawMove?: string) {
-    // Only add to TwistyPlayer display if move is not empty
-    if (move !== '') {
-        player.experimentalAddMove(move);
-        movesAdded += (movesAdded ? ' ' : '') + move;
-    }
+	// Only add to TwistyPlayer display if move is not empty
+	if (move !== '') {
+		player.experimentalAddMove(move);
+		movesAdded += (movesAdded ? ' ' : '') + move;
+	}
 
-    // Track raw move separately for F2L checking
-    // If rawMove is undefined, default to move; if rawMove is empty string, skip adding
-    if (rawMove !== '') {
-        const actualRawMove = rawMove ?? move;
-        if (actualRawMove !== '') {
-            rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
-        }
-    }
+	// Track raw move separately for F2L checking
+	// If rawMove is undefined, default to move; if rawMove is empty string, skip adding
+	if (rawMove !== '') {
+		const actualRawMove = rawMove ?? move;
+		if (actualRawMove !== '') {
+			rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
+		}
+	}
 
-    // Pass raw moves directly to checkF2LState - they're already in absolute frame
-    await checkF2LState(
-        { kpuzzle },
-        scramble,
-        rawMovesAdded,  // Use raw moves, not transformed movesAdded
-        piecesToHide,
-        side,
-        onF2LSolved,
-        onCubeSolved
-    );
+	// Pass raw moves directly to checkF2LState - they're already in absolute frame
+	await checkF2LState(
+		{ kpuzzle },
+		scramble,
+		rawMovesAdded, // Use raw moves, not transformed movesAdded
+		piecesToHide,
+		side,
+		onF2LSolved,
+		onCubeSolved
+	);
 }
 ```
 
@@ -218,7 +218,7 @@ const currentAppliedAlg = new Alg(scramble + ' ' + rawMovesAdded);
 const normalizedPattern = kpuzzle.algToTransformation(currentAppliedAlg).toKPattern();
 
 // 1. Check if cross (bottom layer edges) is solved
-const crossSolved = isCrossSolved(edges);  // Checks edge positions 4, 5, 6, 7
+const crossSolved = isCrossSolved(edges); // Checks edge positions 4, 5, 6, 7
 
 // 2. Check if F2L slots are solved (only if cross is solved)
 const f2lSolved = crossSolved && isF2LSolved(corners, edges, piecesToHide, side);
@@ -228,10 +228,10 @@ const cubeSolved = isCubeSolved(normalizedPattern);
 
 // Call appropriate callbacks
 if (f2lSolved) {
-    onF2LSolved?.(); // This triggers onNext() in TrainClassicSmart
+	onF2LSolved?.(); // This triggers onNext() in TrainClassicSmart
 }
 if (cubeSolved) {
-    onCubeSolved?.();
+	onCubeSolved?.();
 }
 ```
 
@@ -244,12 +244,12 @@ The F2L check now first verifies the cross is solved before checking F2L slots. 
 const CROSS_EDGES = [4, 5, 6, 7];
 
 function isCrossSolved(edges: { pieces: number[]; orientation: number[] }): boolean {
-    for (const edgePos of CROSS_EDGES) {
-        if (edges.pieces[edgePos] !== edgePos || edges.orientation[edgePos] !== 0) {
-            return false;
-        }
-    }
-    return true;
+	for (const edgePos of CROSS_EDGES) {
+		if (edges.pieces[edgePos] !== edgePos || edges.orientation[edgePos] !== 0) {
+			return false;
+		}
+	}
+	return true;
 }
 ```
 

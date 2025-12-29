@@ -9,6 +9,7 @@
 		currentMoveIndex?: number; // NEW: Current position in algorithm
 		validationFeedback?: 'correct' | 'incorrect' | 'neutral'; // NEW: Visual feedback
 		undoMoves?: string[]; // Undo moves to correct mistakes
+		editDisabled?: boolean; // Disable edit button when moves have been made
 	}
 
 	let {
@@ -17,7 +18,8 @@
 		movesAdded = '',
 		currentMoveIndex = 0,
 		validationFeedback = 'neutral',
-		undoMoves = []
+		undoMoves = [],
+		editDisabled = false
 	}: Props = $props();
 
 	// Number of "current" moves to highlight (lookahead window)
@@ -101,9 +103,16 @@
 	};
 
 	const editButtonClass =
-		'hover:bg-opacity-90 absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 text-primary-500 transition-all duration-200 md:translate-x-10';
+		'absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 transition-all duration-200 md:translate-x-10';
 
 	let showEditButton = $derived(totalMoves > 0);
+
+	// Edit button color classes based on disabled state
+	let editButtonColorClass = $derived(
+		editDisabled
+			? 'text-gray-300 dark:text-gray-600 cursor-not-allowed'
+			: 'text-primary-500 hover:bg-opacity-90 cursor-pointer'
+	);
 
 	// Check if we have undo moves to display
 	let hasUndoMoves = $derived(undoMoves.length > 0);
@@ -145,11 +154,14 @@
 				type="button"
 				onclick={(e) => {
 					e.stopPropagation();
-					onEditAlg();
+					if (!editDisabled) {
+						onEditAlg();
+					}
 				}}
-				class={editButtonClass}
-				title="Edit Algorithm"
-				aria-label="Edit algorithm"
+				class={`${editButtonClass} ${editButtonColorClass}`}
+				title={editDisabled ? 'Undo moves first to edit algorithm' : 'Edit Algorithm'}
+				aria-label={editDisabled ? 'Edit disabled - undo moves first' : 'Edit algorithm'}
+				aria-disabled={editDisabled}
 			>
 				<Pencil class="size-6" strokeWidth={3} />
 			</button>
@@ -162,7 +174,7 @@
 		>
 			<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
 				<Undo2 class="size-5" strokeWidth={2.5} />
-				<span class="text-sm font-semibold uppercase tracking-wide">Undo Required</span>
+				<span class="text-sm font-semibold tracking-wide uppercase">Undo Required</span>
 			</div>
 			<div class="flex flex-wrap items-center justify-center gap-1">
 				{#each undoMoves as move}

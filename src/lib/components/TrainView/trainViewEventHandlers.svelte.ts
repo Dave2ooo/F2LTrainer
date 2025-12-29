@@ -20,10 +20,14 @@ export function createKeyboardHandlers(
 		const isTyping =
 			activeElement?.tagName === 'INPUT' ||
 			activeElement?.tagName === 'TEXTAREA' ||
-			activeElement?.hasAttribute('contenteditable') ||
+			activeElement?.hasAttribute('contenteditable');
+
+		// Check for open modals - Flowbite uses [role="dialog"] for modal backdrop
+		const isModalOpen =
+			document.querySelector('[role="dialog"]') !== null ||
 			document.querySelector('.modal[style*="display: block"]') !== null;
 
-		if (isTyping) {
+		if (isTyping || isModalOpen) {
 			return;
 		}
 

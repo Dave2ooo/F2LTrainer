@@ -52,8 +52,6 @@
 	// Separate display algorithm for HintButtonSmart (calculated with AUF)
 	let displayAlg = $state('');
 
-
-
 	// Algorithm progress tracking
 	let algMovesParsed = $state<string[]>([]); // Full algorithm as array
 	let currentMoveIndex = $state(0); // Index of next expected move
@@ -81,11 +79,7 @@
 							moveBuffer = [...moveBuffer, m];
 
 							// Log every raw move from smart cube
-							console.log(
-								'%c[Smart Cube Move]',
-								'color: #e91e63; font-weight: bold',
-								m
-							);
+							console.log('%c[Smart Cube Move]', 'color: #e91e63; font-weight: bold', m);
 
 							// Check if the next non-rotation expected move is a wide move
 							// We need to look past rotations because they are auto-applied during validation
@@ -144,6 +138,8 @@
 				validationFeedback = 'neutral';
 				cumulativeRotation = ''; // Reset cumulative rotation
 				undoMoves = []; // Reset undo moves
+				// Sync move counter to prevent old Bluetooth moves from being applied to new algorithm
+				lastProcessedMoveCounter = bluetoothState.moveCounter;
 			});
 		} else {
 			untrack(() => {
@@ -153,6 +149,8 @@
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
 				undoMoves = [];
+				// Sync move counter to prevent old Bluetooth moves from being applied
+				lastProcessedMoveCounter = bluetoothState.moveCounter;
 			});
 		}
 	});
@@ -321,7 +319,7 @@
 			const expectedMove = expectedMoves[0];
 			const isExpectedDoubleMove = expectedMove && expectedMove.includes('2');
 			const expectedBaseFace = expectedMove ? expectedMove.replace(/['2]/g, '') : '';
-			
+
 			// Check if buffer could be building toward a double move
 			// This happens when:
 			// 1. Expected move is a double move (like U2)
@@ -343,13 +341,16 @@
 			}
 
 			if (couldBeDoubleMove) {
-				console.log('Waiting for potential double move (U2 = U U or U\' U\')...');
+				console.log("Waiting for potential double move (U2 = U U or U' U')...");
 			} else if (couldBeSliceMove) {
-				console.log('Waiting for potential slice move (e.g. S = F\' B or B F\')...');
+				console.log("Waiting for potential slice move (e.g. S = F' B or B F')...");
 			} else {
 				// If we have 1+ normalized moves and no match found, it's a wrong move
 				// Show undo guidance immediately
-				console.log('%c✗ Wrong move detected - no match found', 'color: #e74c3c; font-weight: bold');
+				console.log(
+					'%c✗ Wrong move detected - no match found',
+					'color: #e74c3c; font-weight: bold'
+				);
 				validationFeedback = 'incorrect';
 				// Add undo moves for all wrong moves in buffer
 				addUndoMovesFromBuffer();
@@ -409,14 +410,7 @@
 			const incomingInAlgFrame = applyRotationToMove(rawMove, inverseRot);
 			const expectedUndo = undoMoves[0];
 
-			console.log(
-				'Checking:',
-				rawMove,
-				'→',
-				incomingInAlgFrame,
-				'vs expected:',
-				expectedUndo
-			);
+			console.log('Checking:', rawMove, '→', incomingInAlgFrame, 'vs expected:', expectedUndo);
 
 			if (incomingInAlgFrame === expectedUndo) {
 				console.log('%c✓ Undo move matched!', 'color: #27ae60; font-weight: bold');
@@ -666,7 +660,17 @@
 					showVisibilityToggle={false}
 					tempoScale={5}
 					showAlg={false}
-					onF2LSolved={onNext}
+					onF2LSolved={() => {
+						// Only trigger onNext if moves have actually been applied AND validated
+						// This prevents false triggers during algorithm changes
+						// Both conditions must be true:
+						// 1. alg has content (moves have been added to TwistyPlayer)
+						// 2. currentMoveIndex > 0 (at least one move has been validated against algorithm)
+						const shouldTrigger = alg && alg.trim() !== '' && currentMoveIndex > 0;
+						if (shouldTrigger) {
+							onNext();
+						}
+					}}
 				/>
 				{#if !globalState.hasUsedTwistyPlayer}
 					<Pointer
@@ -686,6 +690,7 @@
 			{currentMoveIndex}
 			{validationFeedback}
 			{undoMoves}
+			editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
 			}}

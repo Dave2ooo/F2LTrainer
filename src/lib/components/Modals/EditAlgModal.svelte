@@ -85,21 +85,22 @@
 		workingState.customAlgorithm[side] = customAlgorithm;
 	};
 
-	const title = GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId;
+	// Use $derived to react to prop changes
+	const title = $derived(GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId);
+	const staticData = $derived(casesStatic[groupId][caseId]);
+	const caseState = $derived(casesState[groupId][caseId]);
 
-	const staticData = casesStatic[groupId][caseId];
-	const caseState = casesState[groupId][caseId];
-
+	// Initialize with safe defaults - openModal() will reset with current caseState values
 	let workingState = $state({
 		algorithmSelection: {
-			right: caseState.algorithmSelection.right,
-			left: caseState.algorithmSelection.left
+			right: 0 as number | null,
+			left: 0 as number | null
 		},
 		customAlgorithm: {
-			right: caseState.customAlgorithm.right,
-			left: caseState.customAlgorithm.left
+			right: '',
+			left: ''
 		},
-		identicalAlgorithm: caseState.identicalAlgorithm
+		identicalAlgorithm: false
 	});
 
 	// $inspect(workingState);
