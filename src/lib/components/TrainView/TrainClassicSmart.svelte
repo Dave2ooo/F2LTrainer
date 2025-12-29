@@ -17,7 +17,7 @@
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { ArrowLeft, ArrowRight, Pointer } from '@lucide/svelte';
+	import { ArrowLeft, ArrowRight, Pointer, Check } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
@@ -59,12 +59,20 @@
 	let validationFeedback = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
 	let cumulativeRotation = $state(''); // Track cumulative rotations we've skipped
 	let undoMoves = $state<string[]>([]); // Track undo moves needed to correct mistakes
+	let isTransitioning = $state(false); // Track if we are in the success/transition state
 
 	let lastProcessedMoveCounter = -1;
 
 	$effect(() => {
 		// Depend on moveCounter to trigger updates
 		const currentCounter = bluetoothState.moveCounter;
+
+		// If we are transitioning (showing success state), ignore inputs
+		// but update the counter so they are "consumed" and not processed later
+		if (isTransitioning) {
+			lastProcessedMoveCounter = currentCounter;
+			return;
+		}
 
 		if (currentCounter > lastProcessedMoveCounter) {
 			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
@@ -540,6 +548,7 @@
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
 		undoMoves = [];
+		isTransitioning = false;
 	}
 
 	async function onPrevious() {
@@ -554,6 +563,7 @@
 		validationFeedback = 'neutral';
 		cumulativeRotation = '';
 		undoMoves = [];
+		isTransitioning = false;
 	}
 
 	function handleTimerStop(timeInCentiseconds: number) {
@@ -637,6 +647,14 @@
 				globalState.hasUsedTwistyPlayer = true;
 			}}
 		>
+			{#if isTransitioning}
+				<div
+					class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
+				>
+					<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
+				</div>
+			{/if}
+
 			{#if currentTrainCase}
 				<TwistyPlayer
 					bind:this={twistyPlayerRef}
@@ -661,6 +679,9 @@
 					tempoScale={5}
 					showAlg={false}
 					onF2LSolved={() => {
+						// Prevent double triggering
+						if (isTransitioning) return;
+
 						// Only trigger onNext if moves have actually been applied AND validated
 						// This prevents false triggers during algorithm changes
 						// Both conditions must be true:
@@ -668,7 +689,10 @@
 						// 2. currentMoveIndex > 0 (at least one move has been validated against algorithm)
 						const shouldTrigger = alg && alg.trim() !== '' && currentMoveIndex > 0;
 						if (shouldTrigger) {
-							onNext();
+							isTransitioning = true;
+							setTimeout(() => {
+								onNext();
+							}, 500); // 500ms delay for visual feedback
 						}
 					}}
 				/>

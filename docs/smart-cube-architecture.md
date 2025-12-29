@@ -284,14 +284,14 @@ Displays the algorithm with progress indication:
 
 ### Props
 
-| Prop                 | Type                                    | Description                                            |
-| -------------------- | --------------------------------------- | ------------------------------------------------------ |
-| `alg`                | `string`                                | The full algorithm to display (displayAlg from parent) |
-| `currentMoveIndex`   | `number`                                | Current position in algorithm                          |
-| `movesAdded`         | `string`                                | Applied moves (for "Applied Moves" section)            |
-| `undoMoves`          | `string[]`                              | List of undo moves to display (triggers warning mode)  |
-| `validationFeedback` | `'correct' \| 'incorrect' \| 'neutral'` | Border/background feedback                             |
-| `editDisabled`       | `boolean`                               | Disables edit button (e.g. if moves are pending/undoing)|
+| Prop                 | Type                                    | Description                                              |
+| -------------------- | --------------------------------------- | -------------------------------------------------------- |
+| `alg`                | `string`                                | The full algorithm to display (displayAlg from parent)   |
+| `currentMoveIndex`   | `number`                                | Current position in algorithm                            |
+| `movesAdded`         | `string`                                | Applied moves (for "Applied Moves" section)              |
+| `undoMoves`          | `string[]`                              | List of undo moves to display (triggers warning mode)    |
+| `validationFeedback` | `'correct' \| 'incorrect' \| 'neutral'` | Border/background feedback                               |
+| `editDisabled`       | `boolean`                               | Disables edit button (e.g. if moves are pending/undoing) |
 
 ### Special Behavior
 
