@@ -106,7 +106,7 @@ function getManufacturerDataBytes(mfData: any): DataView | undefined {
 	return undefined;
 }
 
-function init(device: BluetoothDevice): Promise<void> {
+function init(device: BluetoothDevice, expectedMac?: string): Promise<void> {
 	clear();
 	_deviceName = device.name ? device.name.trim() : 'QiYi';
 	giikerutil.log('[qiyicube] start init device');

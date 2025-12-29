@@ -222,7 +222,7 @@ async function initMac(forcePrompt: boolean, isWrongKey?: boolean) {
 	initDecoder(deviceMac);
 }
 
-function init(device: BluetoothDevice) {
+function init(device: BluetoothDevice, expectedMac?: string) {
 	clear();
 	deviceName = device.name ? device.name.trim() : 'MoYu32';
 	giikerutil.log('[Moyu32Cube] start init device');
@@ -453,6 +453,7 @@ const cubeModel: CubeModel = {
 	opservs: [SERVICE_UUID],
 	cics: MOYU32_CIC_LIST,
 	getBatteryLevel: getBatteryLevel,
+	getMacAddress: () => Promise.resolve(deviceMac),
 	clear: clear
 };
 

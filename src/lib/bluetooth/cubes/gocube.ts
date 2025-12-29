@@ -22,7 +22,7 @@ const CHRCT_UUID_READ = '6e400003' + UUID_SUFFIX;
 const WRITE_BATTERY = 50;
 const WRITE_STATE = 51;
 
-function init(device: BluetoothDevice): Promise<void> {
+function init(device: BluetoothDevice, expectedMac?: string): Promise<void> {
 	clear();
 	_deviceName = device.name && device.name.startsWith('GoCube') ? 'GoCube' : 'Rubiks Connected';
 	return device

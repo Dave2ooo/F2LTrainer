@@ -79,7 +79,7 @@ export function createBluetoothManager(): BluetoothCube {
 
 	const onDisconnect = onHardwareEvent.bind(null, 'disconnect');
 
-	function init(reconnect?: boolean): Promise<void> {
+	function init(reconnect?: boolean, expectedMac?: string): Promise<void> {
 		return giikerutil
 			.chkAvail()
 			.then(function () {
@@ -125,7 +125,7 @@ export function createBluetoothManager(): BluetoothCube {
 				if (!cube) {
 					return Promise.reject('Cannot detect device type');
 				}
-				return cube.init(device);
+				return cube.init(device, expectedMac);
 			})
 			.then(async () => {
 				bluetoothState.setConnected(true);

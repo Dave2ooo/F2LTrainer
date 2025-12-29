@@ -13,7 +13,7 @@ export interface CubeModel {
 	/** Company Identifier Codes */
 	cics?: number[];
 	/** Initialize cube connection */
-	init: (device: BluetoothDevice) => Promise<void>;
+	init: (device: BluetoothDevice, expectedMac?: string) => Promise<void>;
 	/** Get battery level */
 	getBatteryLevel: () => Promise<[number, string]>;
 	/** Clear/disconnect */
@@ -29,7 +29,7 @@ export interface BluetoothCube {
 	/** Check if cube is connected */
 	isConnected(): boolean;
 	/** Initialize connection (with optional reconnect) */
-	init(reconnect?: boolean): Promise<void>;
+	init(reconnect?: boolean, expectedMac?: string): Promise<void>;
 	/** Stop/disconnect */
 	stop(): Promise<void>;
 	/** Get the connected cube instance */

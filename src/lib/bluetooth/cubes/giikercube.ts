@@ -22,7 +22,7 @@ const CHRCT_UUID_WRITE = '0000aaac' + UUID_SUFFIX;
 
 let deviceName: string | null = null;
 
-function init(device: BluetoothDevice): Promise<void> {
+function init(device: BluetoothDevice, expectedMac?: string): Promise<void> {
 	clear();
 	deviceName = device.name && device.name.startsWith('Gi') ? 'Giiker' : 'Mi Smart';
 	return device

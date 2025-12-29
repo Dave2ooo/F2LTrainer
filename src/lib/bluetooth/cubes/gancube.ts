@@ -236,6 +236,8 @@ async function v2initKey(forcePrompt: boolean, isWrongKey: boolean, ver: number)
 		decoder = null;
 		throw new Error('MAC address required');
 	}
+	// Update deviceMac with the one we just got (in case it was manually entered)
+	deviceMac = mac;
 	v2initDecoder(mac, ver);
 }
 
@@ -441,7 +443,7 @@ function v4init() {
 		});
 }
 
-function init(device: BluetoothDevice) {
+function init(device: BluetoothDevice, expectedMac?: string) {
 	clear();
 	deviceName = device.name || null;
 	giikerutil.log('[gancube] init gan cube start');
@@ -464,8 +466,13 @@ function init(device: BluetoothDevice) {
 			},
 			function (err: any) {
 				giikerutil.log(
-					'[gancube] init, unable to automatically determine cube MAC, error code = ' + err
+					'[gancube] init, unable to automaticly determine cube MAC, error code = ' + err
 				);
+				// Fallback to expectedMac if available
+				if (expectedMac) {
+					giikerutil.log('[gancube] init, using expected MAC = ' + expectedMac);
+					deviceMac = expectedMac;
+				}
 			}
 		)
 		.then(function () {
@@ -495,6 +502,10 @@ function init(device: BluetoothDevice) {
 			}
 			// logohint.push(LGHINT_BTNOTSUP);
 		});
+}
+
+function getMacAddress(): Promise<string | null> {
+	return Promise.resolve(deviceMac);
 }
 
 let prevMoves: string[] = [];
@@ -1222,7 +1233,7 @@ const cubeModel: CubeModel = {
 	cics: GAN_CIC_LIST,
 	getBatteryLevel: getBatteryLevel,
 	clear: clear,
-	getMacAddress: () => Promise.resolve(deviceMac)
+	getMacAddress: getMacAddress
 };
 
 GiikerCube.regCubeModel(cubeModel);

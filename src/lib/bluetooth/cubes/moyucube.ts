@@ -23,7 +23,7 @@ const CHRCT_UUID_READ = '00001002' + UUID_SUFFIX;
 const CHRCT_UUID_TURN = '00001003' + UUID_SUFFIX;
 const CHRCT_UUID_GYRO = '00001004' + UUID_SUFFIX;
 
-function init(device: BluetoothDevice): Promise<void> {
+function init(device: BluetoothDevice, expectedMac?: string): Promise<void> {
 	clear();
 	_deviceName = device.name || 'MoYu';
 	return device

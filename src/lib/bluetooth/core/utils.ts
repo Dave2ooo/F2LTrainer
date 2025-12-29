@@ -92,46 +92,25 @@ export const giikerutil: GiikerUtil = {
 		defaultMac: string | null
 	): Promise<string | undefined> => {
 		try {
-			const savedMac = localStorage.getItem('bluetooth_device_mac');
-			let mac = savedMac;
+			let mac = deviceMac;
 
-			if (deviceMac) {
-				// Use provided MAC if available
-				if (mac && mac.toUpperCase() === deviceMac.toUpperCase()) {
-					giikerutil.log('[bluetooth] device mac matched');
-				} else {
-					mac = deviceMac;
-				}
-			} else {
-				// Prompt for MAC if needed
-				if (!mac || forcePrompt) {
-					// Use custom UI request instead of prompt
-					return new Promise((resolve) => {
-						bluetoothState.requestMacAddress(isWrongKey, deviceMac, defaultMac, (newMac) => {
-							if (newMac) {
-								if (newMac !== savedMac) {
-									localStorage.setItem('bluetooth_device_mac', newMac);
-									giikerutil.log('[bluetooth] device mac updated');
-								}
-								resolve(newMac);
-							} else {
-								resolve(undefined);
-							}
-						});
-					});
-				}
-				if (!mac || !/^([0-9a-f]{2}[:-]){5}[0-9a-f]{2}$/i.exec(mac)) {
-					console.error('[bluetooth] invalid MAC address');
-					return Promise.resolve(undefined);
-				}
+			// If we have a MAC passed in (from saved cubes), use it
+			if (mac) {
+				giikerutil.log('[bluetooth] using expected mac', mac);
+				return Promise.resolve(mac);
 			}
 
-			if (mac && mac !== savedMac) {
-				localStorage.setItem('bluetooth_device_mac', mac);
-				giikerutil.log('[bluetooth] device mac updated');
-			}
-
-			return Promise.resolve(mac || undefined);
+			// Otherwise, prompt for MAC if needed
+			// Use custom UI request instead of prompt
+			return new Promise((resolve) => {
+				bluetoothState.requestMacAddress(isWrongKey, deviceMac, defaultMac, (newMac) => {
+					if (newMac) {
+						resolve(newMac);
+					} else {
+						resolve(undefined);
+					}
+				});
+			});
 		} catch (e) {
 			console.error('[bluetooth] Error handling MAC address:', e);
 			return Promise.resolve(undefined);
