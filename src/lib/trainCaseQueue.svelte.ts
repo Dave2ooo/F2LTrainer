@@ -41,15 +41,22 @@ export const trainState: {
 	index: number;
 	current: TrainCase | undefined;
 	lastDisplayedTime: number | undefined;
+	recapBatchSize: number; // Track initial batch size for recap mode progress
 } = $state({
 	index: 0,
 	current: createInitialTrainCase(),
-	lastDisplayedTime: undefined
+	lastDisplayedTime: undefined,
+	recapBatchSize: 0
 });
 
 export function regenerateTrainCaseQueue(): number {
 	trainCaseQueue = gernerateTrainCases();
 	trainState.index = 0;
+	
+	// Track batch size for recap mode progress display
+	const isRecapMode = sessionState.activeSession?.settings.frequencyMode === 'recap';
+	trainState.recapBatchSize = isRecapMode ? trainCaseQueue.length : 0;
+	
 	if (trainCaseQueue.length > 0) {
 		trainState.current = trainCaseQueue[0];
 	} else {

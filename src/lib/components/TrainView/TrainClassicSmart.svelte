@@ -23,6 +23,7 @@
 	import SmartTimer from './SmartTimer.svelte';
 
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import {
 		isRotationMove,
@@ -780,6 +781,7 @@
 		<div class:hidden={!globalState.trainShowTimer}>
 			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
 		</div>
+		<RecapProgress />
 
 		<div class="flex flex-row items-center justify-center gap-2">
 			<TrainStateSelect />

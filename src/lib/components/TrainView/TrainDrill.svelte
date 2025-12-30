@@ -31,6 +31,7 @@
 	import DrillTimer from './DrillTimer.svelte';
 
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
 	import { connectNewCube, connectSavedCube } from '$lib/bluetooth/actions';
@@ -460,6 +461,7 @@
 
 			<!-- Drill Timer -->
 			<DrillTimer bind:this={drillTimerRef} />
+			<RecapProgress />
 		{:else}
 			<!-- Drill is stopped - show Start button or Connect button -->
 			<div class="flex flex-col items-center justify-center gap-6 py-12">

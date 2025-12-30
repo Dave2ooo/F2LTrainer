@@ -23,6 +23,7 @@
 	import Timer from './Timer.svelte';
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	import RecapProgress from './RecapProgress.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
 	const TWISTY_PLAYER_INIT_DELAY = 100;
@@ -322,6 +323,7 @@
 		{#if globalState.trainShowTimer}
 			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
 		{/if}
+		<RecapProgress />
 
 		<div class="flex flex-row items-center justify-center gap-2">
 			<TrainStateSelect />
