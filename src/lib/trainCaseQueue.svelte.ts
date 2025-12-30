@@ -52,11 +52,11 @@ export const trainState: {
 export function regenerateTrainCaseQueue(): number {
 	trainCaseQueue = gernerateTrainCases();
 	trainState.index = 0;
-	
+
 	// Track batch size for recap mode progress display
 	const isRecapMode = sessionState.activeSession?.settings.frequencyMode === 'recap';
 	trainState.recapBatchSize = isRecapMode ? trainCaseQueue.length : 0;
-	
+
 	if (trainCaseQueue.length > 0) {
 		trainState.current = trainCaseQueue[0];
 	} else {

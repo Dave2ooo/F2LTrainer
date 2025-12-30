@@ -33,9 +33,11 @@
 {#if isRecapMode && total > 0}
 	<div class="mx-auto mt-2 mb-4 w-full max-w-xs">
 		{#if showSuccess}
-			<div class="relative flex items-center justify-center gap-2 py-1 text-green-600 dark:text-green-400">
+			<div
+				class="relative flex items-center justify-center gap-2 py-1 text-green-600 dark:text-green-400"
+			>
 				<!-- Confetti burst from center -->
-				<div class="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
+				<div class="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2">
 					<Confetti
 						x={[-0.8, 0.8]}
 						y={[0.25, 1.5]}
