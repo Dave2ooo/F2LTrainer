@@ -109,7 +109,16 @@
 {#if getNumberOfSelectedCases() > 0}
 	{#if activeSettings}
 		{#if activeSettings.trainMode === 'drill'}
-			<TrainDrill />
+			{#if activeSettings.smartCubeEnabled}
+				<TrainDrill />
+			{:else}
+				<div class="flex flex-col items-center justify-center gap-4 p-8">
+					<P class="text-center text-lg">Drill mode requires a smart cube connection.</P>
+					<P class="text-center text-gray-500 dark:text-gray-400">
+						Enable "Smart Cube" in session settings to use drill mode.
+					</P>
+				</div>
+			{/if}
 		{:else if activeSettings.smartCubeEnabled}
 			<TrainClassicSmart />
 		{:else}

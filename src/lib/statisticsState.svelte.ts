@@ -64,7 +64,10 @@ function compressSolve(solve: Solve): CompressedSolve {
 		a: AUF_MAP[solve.auf],
 		s: SIDE_MAP[solve.side],
 		ss: solve.scrambleSelection,
-		sid: solve.sessionId
+		sid: solve.sessionId,
+		// Drill mode timing (only include if present)
+		rt: solve.recognitionTime,
+		et: solve.executionTime
 	};
 }
 
@@ -79,7 +82,10 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		auf: compressed.a !== undefined ? REVERSE_AUF_MAP[compressed.a] : '',
 		side: compressed.s !== undefined ? REVERSE_SIDE_MAP[compressed.s] : 'right',
 		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0,
-		sessionId: compressed.sid
+		sessionId: compressed.sid,
+		// Drill mode timing (optional)
+		recognitionTime: compressed.rt,
+		executionTime: compressed.et
 	};
 }
 

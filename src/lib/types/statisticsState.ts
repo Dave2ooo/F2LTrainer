@@ -12,6 +12,9 @@ export type Solve = {
 	side: Side;
 	scrambleSelection: number;
 	sessionId?: number;
+	// Drill mode timing (optional - only set for drill mode solves)
+	recognitionTime?: number | null; // Time from case display to first non-U move (centiseconds)
+	executionTime?: number | null; // Time from first non-U move to F2L solved (centiseconds)
 };
 
 export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
@@ -28,6 +31,9 @@ export type CompressedSolve = {
 	s: CompressedSide;
 	ss: number;
 	sid?: number;
+	// Drill mode timing (optional)
+	rt?: number | null; // recognitionTime compressed
+	et?: number | null; // executionTime compressed
 };
 
 export type StatisticsState = Solve[];

@@ -20,6 +20,15 @@ export function isWideMove(move: string): boolean {
 }
 
 /**
+ * Check if a move is a U-layer move (U, U', U2)
+ * Used in drill mode to exclude U moves from recognition time
+ */
+export function isUMove(move: string): boolean {
+	const baseFace = move.replace(/['2]/g, '');
+	return baseFace === 'U';
+}
+
+/**
  * Map a wide move to the detectable single-layer move
  * Wide moves are detected as the opposite face's single-layer move
  * Examples:
