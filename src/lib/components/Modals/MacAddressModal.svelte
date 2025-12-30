@@ -71,7 +71,8 @@
 
 			<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
 			<p class="mb-2 text-xs">
-				To enable automatic discovery (no manual MAC address needed), enable the following flag and connect again:
+				To enable automatic discovery (no manual MAC address needed), enable the following flag and
+				connect again:
 			</p>
 			<div class="flex items-center gap-2">
 				<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-xs dark:bg-blue-900/50">
