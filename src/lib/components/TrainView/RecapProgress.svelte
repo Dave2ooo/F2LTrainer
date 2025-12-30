@@ -3,6 +3,7 @@
 	import { trainState, regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { Check } from '@lucide/svelte';
+	import { Confetti } from 'svelte-confetti';
 
 	// Only show in recap mode
 	let isRecapMode = $derived(sessionState.activeSession?.settings.frequencyMode === 'recap');
@@ -32,7 +33,18 @@
 {#if isRecapMode && total > 0}
 	<div class="mx-auto mt-2 mb-4 w-full max-w-xs">
 		{#if showSuccess}
-			<div class="flex items-center justify-center gap-2 py-1 text-green-600 dark:text-green-400">
+			<div class="relative flex items-center justify-center gap-2 py-1 text-green-600 dark:text-green-400">
+				<!-- Confetti burst from center -->
+				<div class="pointer-events-none absolute left-1/2 top-0 -translate-x-1/2">
+					<Confetti
+						x={[-0.8, 0.8]}
+						y={[0.25, 1.5]}
+						delay={[0, 50]}
+						duration={2000}
+						amount={100}
+						fallDistance="100px"
+					/>
+				</div>
 				<Check size={18} />
 				<span class="text-sm font-medium">Recap Complete!</span>
 			</div>
