@@ -16,14 +16,33 @@ The smart cube training involves three main components:
 Smart Cube (Bluetooth)
         │
         ▼
-bluetoothState.moveCounter (absolute moves: U, R, F, etc.)
+┌─────────────────────────────────────────────────────────────┐
+│ bluetoothState (store.svelte.ts)                            │
+│                                                             │
+│ handleCubeCallback() receives moves from cube               │
+│         │                                                   │
+│         ▼                                                   │
+│ ┌─────────────────────────────────────────────────────────┐ │
+│ │ Move Subscription System                                │ │
+│ │ - Components subscribe with: ID, callback, priority     │ │
+│ │ - Only HIGHEST priority subscriber receives each move   │ │
+│ │                                                         │ │
+│ │ Subscribers:                                            │ │
+│ │   • BluetoothModal (priority: 100) - when open          │ │
+│ │   • TrainClassicSmart (priority: 50) - always active    │ │
+│ └─────────────────────────────────────────────────────────┘ │
+│         │                                                   │
+│         ▼                                                   │
+│    callback(move) → dispatched to highest priority only     │
+└─────────────────────────────────────────────────────────────┘
         │
-        ▼
+        ▼ (when BluetoothModal closed, TrainClassicSmart receives)
 ┌─────────────────────────────────────────────────────────────┐
 │ TrainClassicSmart.svelte                                    │
 │ ┌─────────────────────┐                                     │
-│ │ $effect on          │                                     │
-│ │ moveCounter         │─────────────────────────────────┐   │
+│ │ handleSmartCubeMove │                                     │
+│ │ (subscription       │─────────────────────────────────┐   │
+│ │  callback)          │                                 │   │
 │ └─────────────────────┘                                 │   │
 │         │                                               │   │
 │         ▼                                               ▼   │

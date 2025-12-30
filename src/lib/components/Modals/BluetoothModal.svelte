@@ -18,8 +18,38 @@
 	let editingCubeName = $state('');
 	let removeCubeModal: RemoveCubeModal;
 
-	$effect(() => {
+	const SUBSCRIBER_ID = 'bluetooth-modal';
+	const SUBSCRIBER_PRIORITY = 100; // High priority - takes precedence over training view
+
+	// Handle incoming moves from subscription
+	function handleMove(move: string) {
 		if (twistyPlayerComponent) {
+			const el = twistyPlayerComponent.getElement();
+			if (el && el.experimentalAddMove) {
+				try {
+					const m = move.trim();
+					if (m) {
+						el.experimentalAddMove(m);
+					}
+				} catch (e) {
+					console.warn('Failed to apply move:', move, e);
+				}
+			}
+		}
+	}
+
+	// Subscribe when modal opens, unsubscribe when it closes
+	$effect(() => {
+		if (open && bluetoothState.isConnected) {
+			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleMove, SUBSCRIBER_PRIORITY);
+		} else {
+			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+		}
+	});
+
+	// Clear TwistyPlayer when modal opens
+	$effect(() => {
+		if (twistyPlayerComponent && open) {
 			const el = twistyPlayerComponent.getElement();
 			if (el) {
 				// Clear any case-specific setup
@@ -27,44 +57,6 @@
 				el.alg = '';
 				el.jumpToStart();
 			}
-		}
-	});
-
-	let lastProcessedMoveCounter = -1;
-
-	$effect(() => {
-		// Depend on moveCounter to trigger updates
-		const currentCounter = bluetoothState.moveCounter;
-
-		if (currentCounter > lastProcessedMoveCounter) {
-			// If we just connected or reset, we might be behind, so just snap to current
-			// But for modal preview, we usually start at 0 or solved anyway.
-
-			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
-			lastProcessedMoveCounter = currentCounter;
-
-			if (twistyPlayerComponent) {
-				const el = twistyPlayerComponent.getElement();
-				if (el && el.experimentalAddMove) {
-					missedMoves.forEach(({ move }) => {
-						try {
-							const m = move.trim();
-							if (m) {
-								el.experimentalAddMove(m);
-							}
-						} catch (e) {
-							console.warn('Failed to apply move:', move, e);
-						}
-					});
-				}
-			}
-		}
-	});
-
-	// Reset counter when modal opens/closes or connection changes
-	$effect(() => {
-		if (!open || !bluetoothState.isConnected) {
-			lastProcessedMoveCounter = bluetoothState.moveCounter;
 		}
 	});
 

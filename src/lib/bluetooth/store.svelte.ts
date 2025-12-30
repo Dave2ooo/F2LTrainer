@@ -1,5 +1,11 @@
 import { GiikerCube } from './core/bluetooth';
 
+// Move subscription types
+type MoveSubscriber = {
+	callback: (move: string) => void;
+	priority: number; // Higher priority = takes precedence
+};
+
 let isConnected = $state(false);
 let isConnecting = $state(false);
 let deviceName = $state<string | null>(null);
@@ -19,6 +25,9 @@ let macAddressRequest = $state({
 });
 
 let history = $state([] as { move: string; counter: number }[]);
+
+// Move subscribers map (id -> { callback, priority })
+const moveSubscribers = new Map<string, MoveSubscriber>();
 
 export const bluetoothState = {
 	get isConnected() {
@@ -123,6 +132,23 @@ export const bluetoothState = {
 			if (history.length > 50) {
 				history.shift();
 			}
+
+			// Dispatch move to highest-priority subscriber only
+			if (moveSubscribers.size > 0) {
+				let highestPriority = -Infinity;
+				let activeSubscriber: MoveSubscriber | null = null;
+
+				for (const subscriber of moveSubscribers.values()) {
+					if (subscriber.priority > highestPriority) {
+						highestPriority = subscriber.priority;
+						activeSubscriber = subscriber;
+					}
+				}
+
+				if (activeSubscriber) {
+					activeSubscriber.callback(lastMove);
+				}
+			}
 		}
 	},
 	getMovesSince(lastCounter: number) {
@@ -134,5 +160,12 @@ export const bluetoothState = {
 	},
 	setIsConnecting(connecting: boolean) {
 		isConnecting = connecting;
+	},
+	// Move subscription methods
+	subscribeToMoves(id: string, callback: (move: string) => void, priority: number) {
+		moveSubscribers.set(id, { callback, priority });
+	},
+	unsubscribeFromMoves(id: string) {
+		moveSubscribers.delete(id);
 	}
 };

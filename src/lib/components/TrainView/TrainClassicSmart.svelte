@@ -7,7 +7,7 @@
 		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
-	import { tick, untrack } from 'svelte';
+	import { tick, untrack, onDestroy } from 'svelte';
 	import { casesState, getCaseAlg, getCaseScramble } from '$lib/casesState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
@@ -65,76 +65,84 @@
 	let showRotationWarning = $state(false); // Show "Rotate to Home" warning
 	let caseHasRotation = $state(false); // Track if current case involved any rotation moves
 
-	let lastProcessedMoveCounter = -1;
+	const SUBSCRIBER_ID = 'train-classic-smart';
+	const SUBSCRIBER_PRIORITY = 50; // Normal priority - lower than BluetoothModal
 
-	$effect(() => {
-		// Depend on moveCounter to trigger updates
-		const currentCounter = bluetoothState.moveCounter;
+	// Handle incoming move from subscription
+	function handleSmartCubeMove(move: string) {
+		// Trim the move and skip if empty
+		const m = move.trim();
+		if (!m) return;
 
 		// If we are transitioning (showing success state), ignore inputs
-		// but update the counter so they are "consumed" and not processed later
 		if (isTransitioning) {
-			lastProcessedMoveCounter = currentCounter;
 			return;
 		}
 
-		if (currentCounter > lastProcessedMoveCounter) {
-			const missedMoves = bluetoothState.getMovesSince(lastProcessedMoveCounter);
-			lastProcessedMoveCounter = currentCounter;
+		if (!twistyPlayerRef) return;
 
-			if (twistyPlayerRef) {
-				// Clear rotation warning on any new move
-				if (showRotationWarning) {
-					showRotationWarning = false;
-				}
-
-				missedMoves.forEach(({ move }) => {
-					try {
-						const m = move.trim();
-						if (m) {
-							// Add raw move to buffer for validation
-							moveBuffer = [...moveBuffer, m];
-
-							// Log every raw move from smart cube
-							console.log('%c[Smart Cube Move]', 'color: #e91e63; font-weight: bold', m);
-
-							// Check if the next non-rotation expected move is a wide move
-							// We need to look past rotations because they are auto-applied during validation
-							// and the raw move from the smart cube might be consumed by a wide move after rotations
-							let lookAheadIndex = currentMoveIndex;
-							while (
-								lookAheadIndex < algMovesParsed.length &&
-								isRotationMove(algMovesParsed[lookAheadIndex])
-							) {
-								lookAheadIndex++;
-							}
-							const nextNonRotationMove = algMovesParsed[lookAheadIndex];
-							const isNextWideMove = nextNonRotationMove && isWideMove(nextNonRotationMove);
-
-							// Transform move for TwistyPlayer (algorithm frame)
-							const inverseRot = inverseRotation(cumulativeRotation);
-							const transformedMove = applyRotationToMove(m, inverseRot);
-
-							// If next expected move is a wide move, we skip adding the display move
-							// (wide move will be added during validation to avoid double-application)
-							// BUT we still need to add the raw move for F2L checking!
-							if (isNextWideMove) {
-								// Add only the raw move for F2L checking, skip display
-								twistyPlayerRef.addMove('', m);
-							} else {
-								// Normal move: add both display and raw
-								twistyPlayerRef.addMove(transformedMove, m);
-							}
-
-							// Validate against algorithm
-							validateMoveProgress();
-						}
-					} catch (e) {
-						console.warn('Failed to apply move:', move, e);
-					}
-				});
-			}
+		// Clear rotation warning on any new move
+		if (showRotationWarning) {
+			showRotationWarning = false;
 		}
+
+		try {
+			// Add raw move to buffer for validation
+			moveBuffer = [...moveBuffer, m];
+
+			// Log every raw move from smart cube
+			console.log('%c[Smart Cube Move]', 'color: #e91e63; font-weight: bold', m);
+
+			// Check if the next non-rotation expected move is a wide move
+			// We need to look past rotations because they are auto-applied during validation
+			// and the raw move from the smart cube might be consumed by a wide move after rotations
+			let lookAheadIndex = currentMoveIndex;
+			while (
+				lookAheadIndex < algMovesParsed.length &&
+				isRotationMove(algMovesParsed[lookAheadIndex])
+			) {
+				lookAheadIndex++;
+			}
+			const nextNonRotationMove = algMovesParsed[lookAheadIndex];
+			const isNextWideMove = nextNonRotationMove && isWideMove(nextNonRotationMove);
+
+			// Transform move for TwistyPlayer (algorithm frame)
+			const inverseRot = inverseRotation(cumulativeRotation);
+			const transformedMove = applyRotationToMove(m, inverseRot);
+
+			// If next expected move is a wide move, we skip adding the display move
+			// (wide move will be added during validation to avoid double-application)
+			// BUT we still need to add the raw move for F2L checking!
+			if (isNextWideMove) {
+				// Add only the raw move for F2L checking, skip display
+				twistyPlayerRef.addMove('', m);
+			} else {
+				// Normal move: add both display and raw
+				twistyPlayerRef.addMove(transformedMove, m);
+			}
+
+			// Validate against algorithm
+			validateMoveProgress();
+		} catch (e) {
+			console.warn('Failed to apply move:', m, e);
+		}
+	}
+
+	// Subscribe to move events when component is active
+	$effect(() => {
+		// Only subscribe when we have a current train case
+		const hasTrainCase = !!trainState.current;
+
+		if (hasTrainCase) {
+			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleSmartCubeMove, SUBSCRIBER_PRIORITY);
+		} else {
+			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+		}
+	});
+
+	// Cleanup on destroy
+	onDestroy(() => {
+		bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
 	});
 
 	// Parse algorithm and reset progress tracking when algorithm changes
@@ -155,8 +163,6 @@
 				validationFeedback = 'neutral';
 				cumulativeRotation = ''; // Reset cumulative rotation
 				undoMoves = []; // Reset undo moves
-				// Sync move counter to prevent old Bluetooth moves from being applied to new algorithm
-				lastProcessedMoveCounter = bluetoothState.moveCounter;
 			});
 		} else {
 			untrack(() => {
@@ -166,8 +172,6 @@
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
 				undoMoves = [];
-				// Sync move counter to prevent old Bluetooth moves from being applied
-				lastProcessedMoveCounter = bluetoothState.moveCounter;
 			});
 		}
 	});
@@ -563,8 +567,6 @@
 		advanceToNextTrainCase();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		// Sync the move counter so we don't apply old moves to the new case
-		lastProcessedMoveCounter = bluetoothState.moveCounter;
 
 		// Show rotation warning if the previous case involved rotations
 		if (caseHasRotation) {
@@ -594,9 +596,6 @@
 		advanceToPreviousTrainCase();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
-		// Sync the move counter so we don't apply old moves to the new case
-		// Sync the move counter so we don't apply old moves to the new case
-		lastProcessedMoveCounter = bluetoothState.moveCounter;
 
 		// Reset progress tracking
 		moveBuffer = [];
