@@ -21,6 +21,7 @@
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import SmartTimer from './SmartTimer.svelte';
+
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import {
@@ -122,7 +123,15 @@
 			}
 
 			// Validate against algorithm
+			// Validate against algorithm
 			validateMoveProgress();
+
+			// Start timer on any move (if not already started)
+			if (!timerStarted) {
+				smartTimerRef?.resetTimer();
+				smartTimerRef?.startTimer();
+				timerStarted = true;
+			}
 		} catch (e) {
 			console.warn('Failed to apply move:', m, e);
 		}
@@ -337,12 +346,6 @@
 
 			currentMoveIndex += consumedCount;
 			moveBuffer = [];
-
-			// Start timer on first validated move
-			if (!timerStarted && currentMoveIndex > 0) {
-				smartTimerRef?.startTimer();
-				timerStarted = true;
-			}
 
 			setTimeout(() => {
 				validationFeedback = 'neutral';
@@ -587,8 +590,9 @@
 		caseHasRotation = false;
 		undoMoves = [];
 		isTransitioning = false;
+
 		// Reset timer for new case
-		smartTimerRef?.resetTimer();
+		// smartTimerRef?.resetTimer();
 		timerStarted = false;
 	}
 
@@ -606,8 +610,9 @@
 		showRotationWarning = false;
 		undoMoves = [];
 		isTransitioning = false;
+
 		// Reset timer for new case
-		smartTimerRef?.resetTimer();
+		// smartTimerRef?.resetTimer();
 		timerStarted = false;
 	}
 
@@ -619,26 +624,37 @@
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 
-			// Get next solve ID
-			const solveId = statisticsState.getNextSolveId();
-			// Save time and solve ID to the TrainCase
-			currentTrainCase.time = timeInCentiseconds;
-			currentTrainCase.solveId = solveId;
-			// Update the last displayed time
-			trainState.lastDisplayedTime = timeInCentiseconds;
+			// Check if this case already has a solve ID (i.e., user is correcting a previous time)
+			if (currentTrainCase.solveId !== undefined) {
+				// Update existing solve
+				statisticsState.updateSolve(currentTrainCase.solveId, timeInCentiseconds);
 
-			// Add new solve
-			statisticsState.addSolve({
-				id: solveId,
-				groupId,
-				caseId,
-				time: timeInCentiseconds,
-				timestamp: Date.now(),
-				auf: currentTrainCase.auf,
-				side: currentTrainCase.side,
-				scrambleSelection: currentTrainCase.scramble,
-				sessionId: sessionState.activeSessionId || undefined
-			});
+				// Update the time in the TrainCase
+				currentTrainCase.time = timeInCentiseconds;
+				// Update the last displayed time
+				trainState.lastDisplayedTime = timeInCentiseconds;
+			} else {
+				// This is a new solve - get the next solve ID
+				const solveId = statisticsState.getNextSolveId();
+				// Save time and solve ID to the TrainCase
+				currentTrainCase.time = timeInCentiseconds;
+				currentTrainCase.solveId = solveId;
+				// Update the last displayed time
+				trainState.lastDisplayedTime = timeInCentiseconds;
+
+				// Add new solve
+				statisticsState.addSolve({
+					id: solveId,
+					groupId,
+					caseId,
+					time: timeInCentiseconds,
+					timestamp: Date.now(),
+					auf: currentTrainCase.auf,
+					side: currentTrainCase.side,
+					scrambleSelection: currentTrainCase.scramble,
+					sessionId: sessionState.activeSessionId || undefined
+				});
+			}
 
 			// Mark as solved
 			markAsSolved(true);
@@ -725,8 +741,7 @@
 						// This prevents false triggers during algorithm changes
 						// Both conditions must be true:
 						// 1. alg has content (moves have been added to TwistyPlayer)
-						// 2. currentMoveIndex > 0 (at least one move has been validated against algorithm)
-						const shouldTrigger = alg && alg.trim() !== '' && currentMoveIndex > 0;
+						const shouldTrigger = alg && alg.trim() !== '';
 						if (shouldTrigger) {
 							isTransitioning = true;
 
@@ -766,7 +781,7 @@
 			}}
 		/>
 		<div class:hidden={!globalState.trainShowTimer}>
-			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} />
+			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
 		</div>
 
 		<div class="flex flex-row justify-center gap-2">
