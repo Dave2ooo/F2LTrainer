@@ -39,6 +39,7 @@
 			title={TrainStateLabels[currentTrainCaseTrainState]}
 			type="button"
 		>
+			{TrainStateLabels[currentTrainCaseTrainState]}
 			<ChevronDownOutline class="ms-2 inline h-5 w-5" />
 		</Button>
 

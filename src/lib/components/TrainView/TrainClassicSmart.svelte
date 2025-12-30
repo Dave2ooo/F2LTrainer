@@ -667,19 +667,16 @@
 <ResponsiveLayout>
 	{#snippet leftContent()}
 		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-			<Button
+			<!-- <Button
 				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				type="button"
 				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
 			>
-			<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
-				{scramble}
-			</div>
 			<Button
 				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				type="button"
 				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
-			>
+			> -->
 		</div>
 
 		<div
@@ -784,11 +781,10 @@
 			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
 		</div>
 
-		<div class="flex flex-row justify-center gap-2">
+		<div class="flex flex-row items-center justify-center gap-2">
 			<TrainStateSelect />
-
-			<Button onclick={() => settingsRef?.openModal()}
-				>{getNumberOfSelectedCases()} cases selected</Button
+			<span class="text-sm text-gray-500 dark:text-gray-400"
+				>{getNumberOfSelectedCases()} cases selected</span
 			>
 		</div>
 

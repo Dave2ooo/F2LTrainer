@@ -323,11 +323,10 @@
 			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
 		{/if}
 
-		<div class="flex flex-row justify-center gap-2">
+		<div class="flex flex-row items-center justify-center gap-2">
 			<TrainStateSelect />
-
-			<Button onclick={() => settingsRef?.openModal()}
-				>{getNumberOfSelectedCases()} cases selected</Button
+			<span class="text-sm text-gray-500 dark:text-gray-400"
+				>{getNumberOfSelectedCases()} cases selected</span
 			>
 		</div>
 

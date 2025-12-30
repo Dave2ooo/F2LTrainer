@@ -34,7 +34,7 @@
 </script>
 
 <!-- Session Toolbar -->
-<div class="relative z-40 mb-4 flex w-full items-center justify-center px-4 py-2">
+<div class="relative z-40 mb-0 flex w-full items-center justify-center px-4 py-2">
 	<div class="flex items-center gap-2">
 		<div class="relative">
 			<Button
