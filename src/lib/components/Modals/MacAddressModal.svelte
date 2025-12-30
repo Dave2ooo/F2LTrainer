@@ -55,9 +55,23 @@
 		<div
 			class="rounded-lg bg-blue-50 p-3 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
 		>
-			<p class="mb-2">
-				To enable automatic discovery (no manual MAC address needed), enable the following flag in
-				Chrome/Edge:
+			<div class="mb-4 space-y-2">
+				<p class="font-semibold text-blue-900 dark:text-blue-200">iOS (iPhone/iPad) Users:</p>
+				<p class="text-xs">
+					Safari on iOS does not support Web Bluetooth. Please download <a
+						href="https://apps.apple.com/app/bluefy-web-bluetooth-browser/id1492822055"
+						target="_blank"
+						class="underline hover:text-blue-700 dark:hover:text-blue-100"
+						>Bluefy - Web Bluetooth Browser</a
+					> from the App Store and open the F2L Trainer inside it.
+				</p>
+			</div>
+
+			<hr class="mb-4 border-blue-200 dark:border-blue-800" />
+
+			<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
+			<p class="mb-2 text-xs">
+				To enable automatic discovery (no manual MAC address needed), enable the following flag and connect again:
 			</p>
 			<div class="flex items-center gap-2">
 				<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-xs dark:bg-blue-900/50">
