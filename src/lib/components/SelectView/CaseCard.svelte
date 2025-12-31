@@ -48,7 +48,7 @@
 		resolveStickerColors(globalState.crossColor, globalState.frontColor)
 	);
 
-	const caseSolves = $derived(getSolvesForCase(statisticsState.statistics, groupId, caseId));
+	const caseSolves = $derived(getSolvesForCase(statisticsState.allSolves, groupId, caseId));
 	const bestTime = $derived(calculateBestTime(caseSolves));
 	const ao5 = $derived(calculateAo5(caseSolves));
 

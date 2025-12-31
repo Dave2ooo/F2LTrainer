@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Badge } from 'flowbite-svelte';
+	import { Badge, Button, Dropdown, Checkbox, DropdownItem } from 'flowbite-svelte';
+	import { Funnel } from '@lucide/svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -17,6 +18,7 @@
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { casesState } from '$lib/casesState.svelte';
 	import Close from './Buttons/Close.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
 
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 
@@ -39,11 +41,33 @@
 		}
 	}
 
-	const caseSolves = $derived(getSolvesForCase(statisticsState.statistics, groupId, caseId));
+	let selectedSessionIds = $state<number[]>([]);
+
+	function toggleSessionFilter(id: number) {
+		if (selectedSessionIds.includes(id)) {
+			selectedSessionIds = selectedSessionIds.filter((sid) => sid !== id);
+		} else {
+			selectedSessionIds = [...selectedSessionIds, id];
+		}
+	}
+
+	const caseSolves = $derived(
+		getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
+			(s) =>
+				selectedSessionIds.length === 0 ||
+				(s.sessionId !== undefined && selectedSessionIds.includes(s.sessionId))
+		)
+	);
 	const bestTime = $derived(calculateBestTime(caseSolves));
 	const ao5 = $derived(calculateAo5(caseSolves));
 	const ao12 = $derived(calculateAo12(caseSolves));
 	const solvesCount = $derived(caseSolves.length);
+
+	const sessionsWithSolves = $derived.by(() => {
+		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
+		const sessionIds = new Set(solves.map((s) => s.sessionId));
+		return sessionState.sessions.filter((s) => sessionIds.has(s.id));
+	});
 
 	// Find the index of the best time
 	const bestTimeIndex = $derived(
@@ -270,7 +294,56 @@
 <svelte:window bind:innerWidth />
 
 <Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
-	<div class="flex w-full flex-col items-center gap-0 md:gap-4">
+	<div class="flex w-full flex-col items-center gap-4">
+		<!-- Session Filters -->
+		{#if sessionsWithSolves.length > 1}
+			<div class="absolute top-2.5 right-12 z-20 md:right-14">
+				<Button
+					color="alternative"
+					class="rounded-lg border-none !bg-transparent !p-1.5 text-gray-500 shadow-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:ring-0 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+				>
+					<Funnel
+						class="size-5 transition-colors {selectedSessionIds.length > 0
+							? 'fill-primary-600 text-primary-600'
+							: 'fill-none'}"
+					/>
+				</Button>
+				<Dropdown class="w-60 overflow-hidden rounded-xl shadow-xl" placement="bottom-end">
+					<div
+						class="bg-gray-50 px-4 py-2.5 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:bg-gray-700 dark:text-gray-400"
+					>
+						Filter Sessions
+					</div>
+					<div class="flex max-h-[300px] flex-col overflow-y-auto p-2">
+						<label
+							class="flex cursor-pointer items-center rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-600"
+						>
+							<Checkbox
+								checked={selectedSessionIds.length === 0}
+								onchange={() => (selectedSessionIds = [])}
+								class="me-2 cursor-pointer focus:ring-primary-500 dark:focus:ring-primary-600"
+							/>
+							<span class="text-sm font-medium text-gray-900 dark:text-gray-100">All Sessions</span>
+						</label>
+						{#each sessionsWithSolves as session}
+							<label
+								class="flex cursor-pointer items-center rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-600"
+							>
+								<Checkbox
+									checked={selectedSessionIds.includes(session.id)}
+									onchange={() => toggleSessionFilter(session.id)}
+									class="me-2 cursor-pointer focus:ring-primary-500 dark:focus:ring-primary-600"
+								/>
+								<span class="truncate text-sm font-medium text-gray-900 dark:text-gray-100"
+									>{session.name}</span
+								>
+							</label>
+						{/each}
+					</div>
+				</Dropdown>
+			</div>
+		{/if}
+
 		<div class="flex w-full flex-row items-center justify-center gap-8">
 			<TwistyPlayer
 				{groupId}
