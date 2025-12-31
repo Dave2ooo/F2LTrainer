@@ -5,7 +5,7 @@
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
-	import { CircleQuestionMark } from '@lucide/svelte';
+	import { CircleQuestionMark, Plus } from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
@@ -107,7 +107,7 @@
 		bind:open
 		title="Session Settings"
 		size="lg"
-		outsideclose={true}
+		outsideclose={false}
 		placement="top-center"
 		class="mt-8"
 	>
@@ -129,7 +129,7 @@
 					content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
 				}}
 			>
-				<TabItem open title="Case Selection">
+				<TabItem open title="Selection">
 					<div class="mt-4 flex flex-col gap-4">
 						<!-- Group Selection Card -->
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -398,17 +398,13 @@
 							</div>
 						</div>
 
-						<!-- Configuration Section Header -->
-						<div class="flex flex-col gap-4">
-							<Label class="text-sm font-bold tracking-wide text-gray-400 uppercase"
-								>Configuration</Label
-							>
-
-							<!-- Slots and Options Grid -->
-							<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-								<!-- Slots Section -->
+						<!-- Configuration & Assistance Grid -->
+						<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+							<!-- Configuration (Cube Slots) -->
+							<div class="flex flex-col gap-4">
+								<Label class="text-sm font-semibold">Configuration</Label>
 								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+									class="h-full rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
 								>
 									<Label class="mb-3 text-sm font-semibold">Cube Slots</Label>
 									<div class="space-y-2">
@@ -417,13 +413,22 @@
 										>
 									</div>
 								</div>
+							</div>
 
-								<!-- Additional Options Section -->
+							<!-- Assistance & Tools -->
+							<div class="flex flex-col gap-4">
+								<Label class="text-sm font-semibold">Assistance & Tools</Label>
 								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+									class="h-full space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
 								>
-									<Label class="mb-3 text-sm font-semibold">Additional Options</Label>
-									<div class="space-y-2">
+									<div>
+										<Label class="mb-1.5 text-xs font-semibold text-gray-500 uppercase"
+											>Algorithm Hint</Label
+										>
+										<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
+									</div>
+
+									<div class="space-y-2 border-t border-gray-200 pt-3 dark:border-gray-700">
 										<div class="flex items-center gap-2">
 											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
 											<TooltipButton
@@ -440,30 +445,10 @@
 					</div>
 				</TabItem>
 
-				<TabItem title="Visuals">
+				<TabItem title="Appearance">
 					<div class="mt-4 flex flex-col gap-6">
-						<!-- Hint Settings -->
+						<!-- Cube Appearance Section -->
 						<div class="flex flex-col gap-4">
-							<Label class="text-sm font-semibold">Hint Settings</Label>
-							<div
-								class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-							>
-								<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-									<div>
-										<Label class="mb-1.5 text-xs">Algorithm Hint</Label>
-										<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
-									</div>
-									<div>
-										<Label class="mb-1.5 text-xs">Stickering Style</Label>
-										<Select items={hintStickerOptions} bind:value={settings.trainHintStickering} />
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Color Settings -->
-						<div class="flex flex-col gap-4">
-							<Label class="text-sm font-semibold">Color Settings</Label>
 							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 								<!-- Cross Color -->
 								<div
@@ -511,15 +496,25 @@
 										</p>
 									{/if}
 								</div>
+
+								<!-- Sticker Style -->
+								<div
+									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+								>
+									<Label class="mb-3 text-xs font-semibold text-gray-500 uppercase"
+										>Stickering Style</Label
+									>
+									<Select items={hintStickerOptions} bind:value={settings.trainHintStickering} />
+								</div>
 							</div>
 						</div>
 
-						<!-- View Settings -->
+						<!-- Interface Section -->
 						<div class="flex flex-col gap-4">
-							<Label class="text-sm font-semibold">View Options</Label>
 							<div
 								class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
 							>
+								<Label class="mb-3 text-sm font-semibold">View Options</Label>
 								<div class="space-y-2">
 									<Checkbox
 										checked={settings.backView === 'floating'}
@@ -548,6 +543,8 @@
 				{/if}
 
 				<Update
+					submitText={isNew ? 'Create' : 'Update'}
+					Icon={isNew ? Plus : undefined}
 					onCancel={() => {
 						// Simply close, no cleanup needed as we haven't created anything yet
 						open = false;
