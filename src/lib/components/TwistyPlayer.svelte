@@ -251,6 +251,17 @@
 		}
 	}
 
+	export function reset() {
+		if (el) {
+			const player = el as any;
+			player.alg = alg || '';
+			jumpToStart();
+			resetView();
+		}
+		movesAdded = '';
+		rawMovesAdded = '';
+	}
+
 	function toggleVisibility() {
 		hidePlayer = !hidePlayer;
 	}

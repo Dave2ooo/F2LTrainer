@@ -326,6 +326,7 @@
 	 */
 	async function onRedo() {
 		resetCaseState();
+		twistyPlayerRef?.reset();
 		drillPhase = 'solving';
 		await tick();
 		drillTimerRef?.reset();
