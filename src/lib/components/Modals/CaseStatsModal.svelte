@@ -293,7 +293,15 @@
 
 <svelte:window bind:innerWidth />
 
-<Modal bind:open {title} size="md" outsideclose={true} autoclose={false}>
+<Modal
+	bind:open
+	{title}
+	size="md"
+	outsideclose={true}
+	autoclose={false}
+	placement="top-center"
+	class="mt-8"
+>
 	<div class="flex w-full flex-col items-center gap-4">
 		<!-- Session Filters -->
 		{#if sessionsWithSolves.length > 1}
