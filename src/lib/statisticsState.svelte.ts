@@ -166,6 +166,23 @@ class StatisticsStateManager {
 			this.allSolves.splice(index, 1);
 		}
 	}
+
+	clearSession(sessionId: number) {
+		// Filter out all solves belonging to the given session
+		// We do this by keeping only solves that do NOT match the sessionId
+		const inputLength = this.allSolves.length;
+
+		// Create a new array with only the solves we want to keep
+		// modifying array in place with filter is cleaner in Svelte 5 state proxy
+		const keptSolves = this.allSolves.filter((s) => s.sessionId !== sessionId);
+
+		// If we removed anything, update the state
+		if (keptSolves.length !== inputLength) {
+			// Clear and repopulate to trigger reactivity correctly
+			this.allSolves.length = 0;
+			this.allSolves.push(...keptSolves);
+		}
+	}
 }
 
 export const statisticsState = new StatisticsStateManager(initialState);

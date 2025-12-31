@@ -14,9 +14,11 @@
 	import type { Solve } from '$lib/types/statisticsState';
 	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
 	import type { CaseId } from '$lib/types/group';
-	import { X } from '@lucide/svelte';
+	import { X, Trash2 } from '@lucide/svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { getCaseName } from '$lib/casesState.svelte';
+	import ConfirmationModal from '../Modals/ConfirmationModal.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
 
 	// Store reference to the single shared modal
 	let activeModal: CaseStatsModal | undefined = $state();
@@ -135,10 +137,34 @@
 	function createDeleteHandler(solveId: number) {
 		return (e: MouseEvent) => handleDeleteSolve(e, solveId);
 	}
+
+	let showClearConfirmation = $state(false);
+
+	function handleClearAllSolves() {
+		if (sessionState.activeSessionId !== null) {
+			statisticsState.clearSession(sessionState.activeSessionId);
+			// Reset to the first unsolved case (or just refresh the view naturally)
+			jumpToFirstUnsolved();
+		}
+		showClearConfirmation = false;
+	}
 </script>
 
 <div class="flex h-full flex-col p-4">
-	<h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">All Solves</h3>
+	<div class="mb-4 flex items-center justify-between">
+		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Solves</h3>
+		{#if listItems().some((i) => i.type === 'solved')}
+			<Button
+				color="red"
+				outline
+				size="xs"
+				class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
+				onclick={() => (showClearConfirmation = true)}
+			>
+				<Trash2 class="size-4" />
+			</Button>
+		{/if}
+	</div>
 
 	<div class="flex-1 overflow-y-auto">
 		{#if listItems().length === 0}
@@ -228,6 +254,15 @@
 
 <!-- Single shared modal for displaying statistics -->
 <CaseStatsModal bind:this={activeModal} groupId={activeGroupId} caseId={activeCaseId} />
+
+<ConfirmationModal
+	bind:open={showClearConfirmation}
+	title="Clear All Solves"
+	message="Are you sure you want to delete all solves from this session? This action cannot be undone."
+	confirmText="Clear All"
+	confirmColor="red"
+	onConfirm={handleClearAllSolves}
+/>
 
 <style>
 	/* Default: hide the delete button for non-touch devices */
