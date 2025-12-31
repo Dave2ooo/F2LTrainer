@@ -31,7 +31,8 @@
 >
 	<NavBrand>
 		<img src={resolve(`/logo.svg`, {})} class="me-3 h-9 md:h-12" alt="F2L Trainer Logo" />
-		<span class="self-center text-xl font-semibold whitespace-nowrap md:text-3xl dark:text-white"
+		<span
+			class="hidden self-center text-xl font-semibold whitespace-nowrap sm:block md:text-3xl dark:text-white"
 			>F2L Trainer</span
 		>
 	</NavBrand>
