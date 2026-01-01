@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	smartFrequencyTime: false,
 	trainMode: 'classic',
 	trainAddAuf: true,
-	trainShowTimer: true,
+	trainShowTimer: false,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
 	backView: 'none',

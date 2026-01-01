@@ -1,6 +1,6 @@
 import { ROTATION_ALG } from '$lib/types/rotation';
 import type { StickerColor } from '$lib/types/stickering';
-import { globalState } from './globalState.svelte';
+import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 
 function getRotationAlg(
 	crossColor: StickerColor | StickerColor[],
@@ -25,15 +25,15 @@ function getRotationAlg(
 }
 
 function getCurrentRotationAlg() {
-	if (!globalState.crossColor || !globalState.frontColor) return "z2 y'";
+	const settings = sessionState.activeSession?.settings;
+	const crossColor = settings?.crossColor ?? DEFAULT_SETTINGS.crossColor;
+	const frontColor = settings?.frontColor ?? DEFAULT_SETTINGS.frontColor;
+
+	if (!crossColor || !frontColor) return "z2 y'";
 
 	// Handle arrays
-	const cross = Array.isArray(globalState.crossColor)
-		? globalState.crossColor[0]
-		: globalState.crossColor;
-	const front = Array.isArray(globalState.frontColor)
-		? globalState.frontColor[0]
-		: globalState.frontColor;
+	const cross = (Array.isArray(crossColor) ? crossColor[0] : crossColor) as StickerColor;
+	const front = (Array.isArray(frontColor) ? frontColor[0] : frontColor) as StickerColor;
 
 	// if (cross === 'random' || front === 'random') return "z2 y'";
 

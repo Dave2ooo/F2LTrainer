@@ -9,13 +9,12 @@ import {
 import { casesStatic } from './casesStatic';
 import { casesState, getCaseScramblePool } from './casesState.svelte';
 import type { Side } from '$lib/types/Side';
-import { globalState } from './globalState.svelte';
 import { AUF, type Auf } from './types/trainCase';
 import shuffleArray from './utils/shuffleArray';
 
 import { statisticsState } from './statisticsState.svelte';
 import type { Solve } from './types/statisticsState';
-import { sessionState } from '$lib/sessionState.svelte';
+import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 
 export function gernerateTrainCases(): TrainCase[] {
 	// console.log('gernerateTrainCases() called');
@@ -23,17 +22,20 @@ export function gernerateTrainCases(): TrainCase[] {
 
 	const sessionSettings = sessionState.activeSession?.settings;
 
-	// Fallback to globalState proxies if sessionSettings not available (though globalState proxies to session anyway)
-	// But for new properties like caseMode, we need to access settings directly.
+	// Fallback to defaults if sessionSettings not available
+	const trainGroupSelection =
+		sessionSettings?.trainGroupSelection ?? DEFAULT_SETTINGS.trainGroupSelection;
+	const trainStateSelection =
+		sessionSettings?.trainStateSelection ?? DEFAULT_SETTINGS.trainStateSelection;
+	const trainSideSelection =
+		sessionSettings?.trainSideSelection ?? DEFAULT_SETTINGS.trainSideSelection;
+	const trainSmartFrequencySolved =
+		sessionSettings?.smartFrequencySolved ?? DEFAULT_SETTINGS.smartFrequencySolved;
+	const trainSmartFrequencyTime =
+		sessionSettings?.smartFrequencyTime ?? DEFAULT_SETTINGS.smartFrequencyTime;
 
-	const trainGroupSelection = globalState.trainGroupSelection;
-	const trainStateSelection = globalState.trainStateSelection;
-	const trainSideSelection = globalState.trainSideSelection;
-	const trainSmartFrequencySolved = globalState.trainSmartFrequencySolved;
-	const trainSmartFrequencyTime = globalState.trainSmartFrequencyTime;
-
-	const crossColor = globalState.crossColor;
-	const frontColor = globalState.frontColor;
+	const crossColor = (sessionSettings?.crossColor ?? DEFAULT_SETTINGS.crossColor) as any;
+	const frontColor = (sessionSettings?.frontColor ?? DEFAULT_SETTINGS.frontColor) as any;
 
 	const caseMode = sessionSettings?.caseMode || 'group';
 	const selectedCases = sessionSettings?.selectedCases || {};
@@ -270,7 +272,10 @@ export default class TrainCase {
 	}
 
 	private setAuf() {
-		if (globalState.trainAddAuf === false) return; // Do nothing if user selected no AUF
+		if (
+			(sessionState.activeSession?.settings.trainAddAuf ?? DEFAULT_SETTINGS.trainAddAuf) === false
+		)
+			return; // Do nothing if user selected no AUF
 
 		const staticData = casesStatic[this.#groupId][this.#caseId];
 		if (staticData.ignoreAUF) return; // Do nothing if case doesn't need AUF

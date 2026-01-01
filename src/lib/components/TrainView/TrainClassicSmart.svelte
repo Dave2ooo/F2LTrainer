@@ -10,7 +10,7 @@
 	import { tick, untrack, onDestroy } from 'svelte';
 	import { casesState, getCaseAlg, getCaseScramble } from '$lib/casesState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
-	import { sessionState } from '$lib/sessionState.svelte';
+	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import { casesStatic } from '$lib/casesStatic';
@@ -724,7 +724,8 @@
 					crossColor={currentTrainCase.crossColor}
 					frontColor={currentTrainCase.frontColor}
 					scrambleSelection={currentTrainCase.scramble}
-					stickering={globalState.trainHintStickering}
+					stickering={sessionState.activeSession?.settings.trainHintStickering ??
+						DEFAULT_SETTINGS.trainHintStickering}
 					backView={sessionState.activeSession?.settings.backView || 'none'}
 					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 					experimentalDragInput="auto"
@@ -781,7 +782,11 @@
 				editAlgRef?.openModal();
 			}}
 		/>
-		<div class:hidden={!globalState.trainShowTimer}>
+		<div
+			class:hidden={!(
+				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+			)}
+		>
 			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
 		</div>
 		<RecapProgress />

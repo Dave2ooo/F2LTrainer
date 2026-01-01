@@ -53,56 +53,6 @@ const ephemeralState = $state<EphemeralState>({
 // and keeps UI state local.
 export const globalState: GlobalState = {
 	// Proxy Properties (Read/Write from Active Session)
-	get crossColor() {
-		return (sessionState.activeSession?.settings.crossColor ?? DEFAULT_SETTINGS.crossColor) as any;
-	},
-	set crossColor(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.crossColor = v;
-	},
-
-	get frontColor() {
-		return (sessionState.activeSession?.settings.frontColor ?? DEFAULT_SETTINGS.frontColor) as any;
-	},
-	set frontColor(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.frontColor = v;
-	},
-
-	get trainStateSelection() {
-		return (
-			sessionState.activeSession?.settings.trainStateSelection ??
-			DEFAULT_SETTINGS.trainStateSelection
-		);
-	},
-	set trainStateSelection(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainStateSelection = v;
-	},
-
-	get trainGroupSelection() {
-		return (
-			sessionState.activeSession?.settings.trainGroupSelection ??
-			DEFAULT_SETTINGS.trainGroupSelection
-		);
-	},
-	set trainGroupSelection(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainGroupSelection = v;
-	},
-
-	get trainSideSelection() {
-		return (
-			sessionState.activeSession?.settings.trainSideSelection ?? DEFAULT_SETTINGS.trainSideSelection
-		);
-	},
-	set trainSideSelection(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainSideSelection = v;
-	},
-
-	get trainAddAuf() {
-		return sessionState.activeSession?.settings.trainAddAuf ?? DEFAULT_SETTINGS.trainAddAuf;
-	},
-	set trainAddAuf(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainAddAuf = v;
-	},
-
 	get trainHintAlgorithm() {
 		return (
 			sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm
@@ -110,42 +60,6 @@ export const globalState: GlobalState = {
 	},
 	set trainHintAlgorithm(v) {
 		if (sessionState.activeSession) sessionState.activeSession.settings.trainHintAlgorithm = v;
-	},
-
-	get trainHintStickering() {
-		return (
-			sessionState.activeSession?.settings.trainHintStickering ??
-			DEFAULT_SETTINGS.trainHintStickering
-		);
-	},
-	set trainHintStickering(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainHintStickering = v;
-	},
-
-	get trainSmartFrequencySolved() {
-		return (
-			sessionState.activeSession?.settings.smartFrequencySolved ??
-			DEFAULT_SETTINGS.smartFrequencySolved
-		);
-	},
-	set trainSmartFrequencySolved(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.smartFrequencySolved = v;
-	},
-
-	get trainSmartFrequencyTime() {
-		return (
-			sessionState.activeSession?.settings.smartFrequencyTime ?? DEFAULT_SETTINGS.smartFrequencyTime
-		);
-	},
-	set trainSmartFrequencyTime(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.smartFrequencyTime = v;
-	},
-
-	get trainShowTimer() {
-		return sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer;
-	},
-	set trainShowTimer(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainShowTimer = v;
 	},
 
 	// Ephemeral/Global UI Properties (Read/Write from local state)

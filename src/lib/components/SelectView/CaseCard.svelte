@@ -8,6 +8,7 @@
 		getCaseTextClass,
 		TrainStateColors
 	} from '$lib/casesState.svelte';
+	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import type { CaseId, GroupId } from '$lib/types/group';
 	import { TRAIN_STATES } from '$lib/types/caseState';
@@ -44,8 +45,19 @@
 	const staticData = casesStatic[groupId][caseId];
 	const caseState = casesState[groupId][caseId];
 
+	const safeCrossColor = $derived(
+		Array.isArray(sessionState.activeSession?.settings.crossColor)
+			? sessionState.activeSession.settings.crossColor
+			: DEFAULT_SETTINGS.crossColor || ['white']
+	);
+	const safeFrontColor = $derived(
+		Array.isArray(sessionState.activeSession?.settings.frontColor)
+			? sessionState.activeSession.settings.frontColor
+			: DEFAULT_SETTINGS.frontColor || ['red']
+	);
+
 	const [crossColor, frontColor] = $derived(
-		resolveStickerColors(globalState.crossColor, globalState.frontColor)
+		resolveStickerColors(safeCrossColor as any, safeFrontColor as any)
 	);
 
 	const caseSolves = $derived(getSolvesForCase(statisticsState.allSolves, groupId, caseId));

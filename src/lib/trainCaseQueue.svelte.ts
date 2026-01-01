@@ -18,8 +18,8 @@ export function getNumberOfSelectedCasesFromSelections(
 	return count;
 }
 import { casesState } from './casesState.svelte';
-import { sessionState } from '$lib/sessionState.svelte';
-import { globalState } from './globalState.svelte';
+import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
+
 import TrainCase, { gernerateTrainCases } from './trainCases';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 
@@ -120,8 +120,8 @@ export function advanceToPreviousTrainCase() {
 			// Use current global colors as we don't store colors in history
 			const newCase = TrainCase.fromSolve(
 				previousSolve,
-				(sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any,
-				(sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any
+				(sessionState.activeSession?.settings.crossColor || DEFAULT_SETTINGS.crossColor) as any,
+				(sessionState.activeSession?.settings.frontColor || DEFAULT_SETTINGS.frontColor) as any
 			);
 
 			// Prepend to queue
@@ -208,8 +208,8 @@ export function jumpToSolve(solveId: string) {
 		const newCases = solvesToAdd.map((s) =>
 			TrainCase.fromSolve(
 				s,
-				(sessionState.activeSession?.settings.crossColor || globalState.crossColor) as any,
-				(sessionState.activeSession?.settings.frontColor || globalState.frontColor) as any
+				(sessionState.activeSession?.settings.crossColor || DEFAULT_SETTINGS.crossColor) as any,
+				(sessionState.activeSession?.settings.frontColor || DEFAULT_SETTINGS.frontColor) as any
 			)
 		);
 
@@ -260,8 +260,10 @@ export function getNumberOfSelectedCases(): number {
 
 	const sessionSettings = sessionState.activeSession?.settings;
 
-	const trainGroupSelection = globalState.trainGroupSelection;
-	const trainStateSelection = globalState.trainStateSelection;
+	const trainGroupSelection =
+		sessionSettings?.trainGroupSelection ?? DEFAULT_SETTINGS.trainGroupSelection;
+	const trainStateSelection =
+		sessionSettings?.trainStateSelection ?? DEFAULT_SETTINGS.trainStateSelection;
 
 	const caseMode = sessionSettings?.caseMode || 'group';
 	const selectedCases = sessionSettings?.selectedCases || {};
