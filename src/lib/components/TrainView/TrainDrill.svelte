@@ -486,7 +486,7 @@
 			<div class="flex flex-col items-center justify-center gap-6 py-12">
 				<div class="text-center">
 					<h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Drill Mode</h2>
-					<P class="text-gray-600 dark:text-gray-400">
+					<P class="text-center text-gray-600 dark:text-gray-400">
 						Test your recognition and execution speed without hints.
 					</P>
 				</div>
@@ -500,7 +500,7 @@
 				{:else}
 					<!-- Not connected - show Connect button group -->
 					<div class="flex flex-col items-center gap-3">
-						<P class="text-sm text-gray-500 dark:text-gray-400">
+						<P class="text-center text-sm text-gray-500 dark:text-gray-400">
 							Connect a smart cube to start drilling
 						</P>
 						<ButtonGroup>
