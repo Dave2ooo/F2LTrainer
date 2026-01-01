@@ -784,7 +784,23 @@
 		<RecapProgress />
 
 		<div class="flex flex-row items-center justify-center gap-2">
-			<TrainStateSelect />
+			<TrainStateSelect
+				onremove={async () => {
+					advanceToNextTrainCase();
+					await tick();
+					// Reset progress tracking (similar to onNext but no solve recording)
+					moveBuffer = [];
+					currentMoveIndex = 0;
+					validationFeedback = 'neutral';
+					cumulativeRotation = '';
+					caseHasRotation = false;
+					showRotationWarning = false;
+					undoMoves = [];
+					isTransitioning = false;
+					timerStarted = false;
+					smartTimerRef?.resetTimer();
+				}}
+			/>
 			<span class="text-sm text-gray-500 dark:text-gray-400"
 				>{getNumberOfSelectedCases()} cases selected</span
 			>

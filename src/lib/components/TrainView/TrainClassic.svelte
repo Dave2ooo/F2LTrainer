@@ -326,7 +326,18 @@
 		<RecapProgress />
 
 		<div class="flex flex-row items-center justify-center gap-2">
-			<TrainStateSelect />
+			<TrainStateSelect
+				onremove={async () => {
+					advanceToNextTrainCase();
+					hintManager.reset();
+					await tick();
+					hintManager.initialize(
+						globalState.trainHintAlgorithm,
+						twistyAlgViewerLoaded,
+						algViewerContainer
+					);
+				}}
+			/>
 			<span class="text-sm text-gray-500 dark:text-gray-400"
 				>{getNumberOfSelectedCases()} cases selected</span
 			>
