@@ -107,9 +107,16 @@
 			placement="right"
 			bind:open={drawerOpen}
 			outsideclose={true}
-			class="bg-gray-50 dark:bg-gray-800"
+			class="drawer-custom-close bg-gray-50 dark:bg-gray-800"
 		>
-			<RightPaneContent />
+			<RightPaneContent inDrawer={true} onClose={() => (drawerOpen = false)} />
 		</Drawer>
 	{/if}
 </div>
+
+<style>
+	/* Hide the default close button injected by Flowbite Drawer */
+	:global(.drawer-custom-close > button) {
+		display: none !important;
+	}
+</style>

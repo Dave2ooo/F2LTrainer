@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { P, Button } from 'flowbite-svelte';
+	import { P, Button, CloseButton } from 'flowbite-svelte';
 	import { flip } from 'svelte/animate';
 	import { slide } from 'svelte/transition';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -138,6 +138,7 @@
 		return (e: MouseEvent) => handleDeleteSolve(e, solveId);
 	}
 
+	let { inDrawer = false, onClose }: { inDrawer?: boolean; onClose?: () => void } = $props();
 	let showClearConfirmation = $state(false);
 
 	function handleClearAllSolves() {
@@ -152,17 +153,22 @@
 
 <div class="flex h-full flex-col p-4">
 	<div class="mb-4 flex items-center justify-between">
-		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Solves</h3>
-		{#if listItems().some((i) => i.type === 'solved')}
-			<Button
-				color="red"
-				outline
-				size="xs"
-				class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
-				onclick={() => (showClearConfirmation = true)}
-			>
-				<Trash2 class="size-4" />
-			</Button>
+		<div class="flex items-center gap-3">
+			<h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Solves</h3>
+			{#if listItems().some((i) => i.type === 'solved')}
+				<Button
+					color="red"
+					outline
+					size="xs"
+					class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
+					onclick={() => (showClearConfirmation = true)}
+				>
+					<Trash2 class="size-4" />
+				</Button>
+			{/if}
+		</div>
+		{#if inDrawer}
+			<CloseButton onclick={onClose} class="-mr-2!" />
 		{/if}
 	</div>
 
