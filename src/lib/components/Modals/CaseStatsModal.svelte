@@ -17,7 +17,6 @@
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { casesState } from '$lib/casesState.svelte';
-	import Close from './Buttons/Close.svelte';
 
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 
@@ -453,7 +452,5 @@
 				</div>
 			</div>
 		{/if}
-
-		<Close {onClose} />
 	</div>
 </Modal>

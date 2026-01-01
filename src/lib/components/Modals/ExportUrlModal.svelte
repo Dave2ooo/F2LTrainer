@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Button, Input, Label } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
-	import Close from './Buttons/Close.svelte';
+
 	import { Copy } from '@lucide/svelte';
 
 	let open = $state(false);
@@ -51,7 +51,5 @@
 				<p class="mt-1 text-sm text-green-600">Copied to clipboard</p>
 			{/if}
 		</div>
-
-		<Close onClose={closeModal} />
 	</div>
 </Modal>

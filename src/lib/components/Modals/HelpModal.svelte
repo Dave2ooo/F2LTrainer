@@ -1,6 +1,5 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
-	import Close from './Buttons/Close.svelte';
 
 	let open = $state(false);
 
@@ -17,6 +16,4 @@
 	<div class="space-y-4">
 		<!-- Help content will be added here -->
 	</div>
-
-	<Close onClose={closeModal} />
 </Modal>
