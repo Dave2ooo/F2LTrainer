@@ -110,8 +110,7 @@
 		if (
 			drillPhase === 'stopped' ||
 			drillPhase === 'countdown' ||
-			drillPhase === 'transitioning' ||
-			drillPhase === 'gave_up'
+			drillPhase === 'transitioning'
 		) {
 			return;
 		}
@@ -256,15 +255,30 @@
 		await goToNextCase();
 	}
 
-	async function goToNextCase() {
+	async function goToNextCase(withCountdown: boolean = false) {
+		if (withCountdown) {
+			drillPhase = 'countdown';
+			countdownNumber = 3;
+		}
+
 		advanceToNextTrainCase();
-		await tick();
 
 		// Reset state for new case
 		resetCaseState();
 
+		await tick();
+
+		if (withCountdown) {
+			for (let i = 3; i >= 1; i--) {
+				countdownNumber = i;
+				await new Promise((resolve) => setTimeout(resolve, 500));
+			}
+		}
+
+
 		// Start solving the new case
 		drillPhase = 'solving';
+		await tick();
 		drillTimerRef?.reset();
 		drillTimerRef?.startRecognition();
 	}
@@ -327,6 +341,15 @@
 	async function onRedo() {
 		resetCaseState();
 		twistyPlayerRef?.reset();
+
+		drillPhase = 'countdown';
+		countdownNumber = 3;
+		
+		for (let i = 3; i >= 1; i--) {
+			countdownNumber = i;
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+
 		drillPhase = 'solving';
 		await tick();
 		drillTimerRef?.reset();
@@ -337,7 +360,7 @@
 	 * Resume with next case after giving up
 	 */
 	async function onResume() {
-		await goToNextCase();
+		await goToNextCase(true);
 	}
 
 	/**
@@ -345,7 +368,7 @@
 	 */
 	async function onSkip() {
 		drillTimerRef?.reset();
-		await goToNextCase();
+		await goToNextCase(true);
 	}
 
 	/**
