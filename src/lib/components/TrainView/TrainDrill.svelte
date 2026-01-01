@@ -107,11 +107,7 @@
 		if (!m) return;
 
 		// Ignore moves when not actively solving
-		if (
-			drillPhase === 'stopped' ||
-			drillPhase === 'countdown' ||
-			drillPhase === 'transitioning'
-		) {
+		if (drillPhase === 'stopped' || drillPhase === 'countdown' || drillPhase === 'transitioning') {
 			return;
 		}
 
@@ -275,7 +271,6 @@
 			}
 		}
 
-
 		// Start solving the new case
 		drillPhase = 'solving';
 		await tick();
@@ -344,7 +339,7 @@
 
 		drillPhase = 'countdown';
 		countdownNumber = 3;
-		
+
 		for (let i = 3; i >= 1; i--) {
 			countdownNumber = i;
 			await new Promise((resolve) => setTimeout(resolve, 500));
