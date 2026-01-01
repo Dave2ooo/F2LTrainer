@@ -1,5 +1,5 @@
 import type Timer from './Timer.svelte';
-import { globalState } from '$lib/globalState.svelte';
+import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 
 /**
  * Creates keyboard event handlers for the train view
@@ -36,7 +36,9 @@ export function createKeyboardHandlers(
 			if (!spacebarPressed) {
 				// Spacebar just pressed
 				spacebarPressed = true;
-				if (globalState.trainShowTimer) {
+				const showTimer =
+					sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer;
+				if (showTimer) {
 					const isRunning = timerRef()?.getIsRunning();
 					if (isRunning) {
 						// If timer is running, stop it and advance to next case
@@ -65,7 +67,9 @@ export function createKeyboardHandlers(
 			if (spacebarPressed) {
 				// Spacebar just released
 				spacebarPressed = false;
-				if (globalState.trainShowTimer) {
+				const showTimer =
+					sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer;
+				if (showTimer) {
 					const isReady = timerRef()?.getIsReady();
 					if (isReady) {
 						// If in ready state, reset and start timer

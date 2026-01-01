@@ -1,27 +1,58 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { gernerateTrainCases } from './trainCases';
-import { globalState } from './globalState.svelte';
-import { statisticsState } from './statisticsState.svelte';
-import { GROUP_DEFINITIONS } from './types/group';
-import { casesState } from './casesState.svelte';
+import type { SessionSettings } from './types/session';
+
+// Create a mutable settings object for tests
+const createMockSettings = (): SessionSettings => ({
+	caseMode: 'group',
+	categorySelection: {} as any,
+	trainGroupSelection: { basic: true, basicBack: false, advanced: false, expert: false },
+	trainStateSelection: { unlearned: false, learning: true, finished: false },
+	trainSideSelection: { right: true, left: false },
+	selectedCases: {},
+	frequencyMode: 'smart',
+	smartFrequencySolved: false,
+	smartFrequencyTime: false,
+	trainMode: 'classic',
+	trainAddAuf: false,
+	trainShowTimer: false,
+	trainHintAlgorithm: 'step',
+	trainHintStickering: 'f2l',
+	backView: 'none',
+	backViewEnabled: false,
+	crossColor: ['white'],
+	frontColor: ['red'],
+	smartCubeEnabled: false
+});
+
+let mockSettings = createMockSettings();
+
+// Mock statistics array that can be mutated
+const mockStatistics: any[] = [];
 
 // Mock dependencies
-vi.mock('./globalState.svelte', () => ({
-	globalState: {
-		trainGroupSelection: { basic: true },
-		trainStateSelection: { learning: true },
-		trainSideSelection: { right: true, left: false },
-		trainSmartFrequencySolved: false,
-		trainSmartFrequencyTime: false,
-		crossColor: ['white'],
-		frontColor: ['red'],
-		trainAddAuf: false
-	}
-}));
+vi.mock('./sessionState.svelte', () => {
+	return {
+		get sessionState() {
+			return {
+				activeSession: {
+					get settings() {
+						return mockSettings;
+					}
+				}
+			};
+		},
+		get DEFAULT_SETTINGS() {
+			return createMockSettings();
+		}
+	};
+});
 
 vi.mock('./statisticsState.svelte', () => ({
-	statisticsState: {
-		statistics: []
+	get statisticsState() {
+		return {
+			statistics: mockStatistics
+		};
 	}
 }));
 
@@ -54,11 +85,10 @@ vi.mock('./types/group', () => ({
 
 describe('gernerateTrainCases', () => {
 	beforeEach(() => {
-		vi.resetAllMocks();
-		// Reset global state defaults
-		globalState.trainSmartFrequencySolved = false;
-		globalState.trainSmartFrequencyTime = false;
-		statisticsState.statistics.length = 0;
+		// Reset mock settings to defaults
+		mockSettings = createMockSettings();
+		// Clear statistics
+		mockStatistics.length = 0;
 	});
 
 	it('should generate cases with equal frequency when smart frequency is disabled', () => {
@@ -78,21 +108,19 @@ describe('gernerateTrainCases', () => {
 		expect(counts[3]).toBe(1);
 	});
 
-	it('should prioritize less solved cases when trainSmartFrequencySolved is enabled', () => {
-		globalState.trainSmartFrequencySolved = true;
+	it('should prioritize less solved cases when smartFrequencySolved is enabled', () => {
+		mockSettings.smartFrequencySolved = true;
 
 		// Case 1: 14 solves (Deficit vs max 20 = 6 -> weight 1 + 6/3 = 3)
 		// Case 2: 17 solves (Deficit vs max 20 = 3 -> weight 1 + 3/3 = 2)
 		// Case 3: 20 solves (Deficit vs max 20 = 0 -> weight 1)
 
 		// Mock statistics
-		const mockStats = [
+		mockStatistics.push(
 			...Array(14).fill({ groupId: 'basic', caseId: 1, side: 'right', time: 100 }),
 			...Array(17).fill({ groupId: 'basic', caseId: 2, side: 'right', time: 100 }),
 			...Array(20).fill({ groupId: 'basic', caseId: 3, side: 'right', time: 100 })
-		];
-		// @ts-ignore
-		statisticsState.statistics.push(...mockStats);
+		);
 
 		const result = gernerateTrainCases();
 
@@ -109,8 +137,8 @@ describe('gernerateTrainCases', () => {
 		expect(counts[3]).toBe(1); // Weight 1
 	});
 
-	it('should prioritize slower cases when trainSmartFrequencyTime is enabled', () => {
-		globalState.trainSmartFrequencyTime = true;
+	it('should prioritize slower cases when smartFrequencyTime is enabled', () => {
+		mockSettings.smartFrequencyTime = true;
 
 		// Setup:
 		// Case 1: 600 (Ao5)
@@ -125,14 +153,11 @@ describe('gernerateTrainCases', () => {
 		// Case 2 (400): Diff 400 - 400 = 0. Weight 1.
 		// Case 3 (200): Diff 200 - 400 = -200. Weight 1.
 
-		const mockStats = [
+		mockStatistics.push(
 			{ groupId: 'basic', caseId: 1, side: 'right', time: 600 },
 			{ groupId: 'basic', caseId: 2, side: 'right', time: 400 },
 			{ groupId: 'basic', caseId: 3, side: 'right', time: 200 }
-		];
-
-		// @ts-ignore
-		statisticsState.statistics.push(...mockStats);
+		);
 
 		const result = gernerateTrainCases();
 
