@@ -23,6 +23,7 @@ interface EphemeralState {
 	hasUsedTwistyPlayer: boolean;
 	hasClickedCaseCard: boolean;
 	trainHideTwistyPlayer: boolean;
+	rightPaneOpen: boolean;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -34,7 +35,8 @@ const defaultEphemeralState: EphemeralState = {
 	trainHideTwistyPlayer: false,
 	hasUsedTimer: false,
 	hasUsedTwistyPlayer: false,
-	hasClickedCaseCard: false
+	hasClickedCaseCard: false,
+	rightPaneOpen: true
 };
 
 const persistedEphemeralState =
@@ -208,5 +210,12 @@ export const globalState: GlobalState = {
 	},
 	set hasClickedCaseCard(v) {
 		ephemeralState.hasClickedCaseCard = v;
+	},
+
+	get rightPaneOpen() {
+		return ephemeralState.rightPaneOpen;
+	},
+	set rightPaneOpen(v) {
+		ephemeralState.rightPaneOpen = v;
 	}
 };

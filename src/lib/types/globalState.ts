@@ -29,4 +29,5 @@ export interface GlobalState {
 	hasUsedTimer: boolean;
 	hasUsedTwistyPlayer: boolean;
 	hasClickedCaseCard: boolean;
+	rightPaneOpen: boolean;
 }

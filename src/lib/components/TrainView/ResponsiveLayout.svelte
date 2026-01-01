@@ -5,6 +5,7 @@
 	import type { Snippet } from 'svelte';
 	import RightPaneContent from './RightPaneContent.svelte';
 	import { fly } from 'svelte/transition';
+	import { globalState } from '$lib/globalState.svelte';
 
 	interface Props {
 		leftContent: Snippet;
@@ -13,7 +14,8 @@
 
 	let { leftContent, sessionControl }: Props = $props();
 
-	let isRightPaneOpen = $state(true);
+	// Initialize from persisted state
+	let isRightPaneOpen = $state(globalState.rightPaneOpen);
 	let isMdOrLarger = $state(false); // Default to false (mobile-first) to prevent "drawer closing" animation on mobile
 	let drawerOpen = $state(false);
 
@@ -21,6 +23,8 @@
 		if (isMdOrLarger) {
 			// Desktop: toggle split pane
 			isRightPaneOpen = !isRightPaneOpen;
+			// Persist the user's choice
+			globalState.rightPaneOpen = isRightPaneOpen;
 		} else {
 			// Mobile: toggle drawer (open=true means visible)
 			drawerOpen = !drawerOpen;
