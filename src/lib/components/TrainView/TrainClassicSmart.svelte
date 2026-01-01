@@ -663,9 +663,12 @@
 	}
 
 	let settingsRef = $state<Settings>();
+
+	let { sessionControl }: { sessionControl?: Snippet } = $props();
+	import type { Snippet } from 'svelte';
 </script>
 
-<ResponsiveLayout>
+<ResponsiveLayout {sessionControl}>
 	{#snippet leftContent()}
 		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
 			<!-- <Button

@@ -255,6 +255,8 @@
 				{/each}
 			</ul>
 		{/if}
+		<!-- Spacer to ensure content isn't hidden behind the floating button -->
+		<div class="h-20 w-full shrink-0"></div>
 	</div>
 </div>
 

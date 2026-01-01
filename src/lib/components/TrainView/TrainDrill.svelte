@@ -374,9 +374,12 @@
 		resetCaseState();
 		drillPhase = 'stopped';
 	}
+
+	let { sessionControl }: { sessionControl?: Snippet } = $props();
+	import type { Snippet } from 'svelte';
 </script>
 
-<ResponsiveLayout>
+<ResponsiveLayout {sessionControl}>
 	{#snippet leftContent()}
 		{#if drillPhase === 'countdown'}
 			<!-- Countdown display -->

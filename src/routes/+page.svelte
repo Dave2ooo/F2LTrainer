@@ -34,7 +34,9 @@
 	});
 </script>
 
-<div style="background-color: var(--color-theme-bg); min-height: 100vh;">
+<div
+	style="background-color: var(--color-theme-bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
+>
 	<AppNavbar {settingsRef} {feedbackRef} {helpRef} onExportURL={handleExportURL} />
 
 	<Settings bind:this={settingsRef} />
@@ -43,11 +45,17 @@
 	<ImportConfirmModal bind:this={importConfirmModalRef} />
 	<ExportUrlModal bind:this={exportUrlModalRef} />
 
-	{#if globalState.view === 'select'}
-		<SelectView />
-	{:else}
-		<TrainView />
-	{/if}
+	<div
+		class="relative flex-1 {globalState.view === 'select' ? 'overflow-y-auto' : 'overflow-hidden'}"
+	>
+		{#if globalState.view === 'select'}
+			<SelectView />
+			<!-- Spacer to ensure content isn't hidden behind the floating button -->
+			<div class="h-20 w-full shrink-0"></div>
+		{:else}
+			<TrainView />
+		{/if}
+	</div>
 
 	<ChangeViewButton />
 </div>
