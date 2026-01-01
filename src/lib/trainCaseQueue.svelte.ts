@@ -139,7 +139,7 @@ export function advanceToPreviousTrainCase() {
 	}
 }
 
-export function jumpToSolve(solveId: number) {
+export function jumpToSolve(solveId: string) {
 	// 1. Check if the solve is already in the queue
 	const queueIndex = trainCaseQueue.findIndex((c) => c.solveId === solveId);
 	if (queueIndex !== -1) {

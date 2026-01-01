@@ -15,7 +15,7 @@
 		open = $bindable(),
 		sessionId,
 		isNew = false
-	}: { open: boolean; sessionId?: number; isNew?: boolean } = $props();
+	}: { open: boolean; sessionId?: string; isNew?: boolean } = $props();
 
 	// Working copy for editing (reactive)
 	// We initialize with default, but it will be overwritten by the effect below

@@ -43,7 +43,7 @@ export interface SessionSettings {
 }
 
 export interface Session {
-	id: number;
+	id: string;
 	name: string;
 	settings: SessionSettings;
 	createdAt: number;

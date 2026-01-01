@@ -547,7 +547,7 @@
 
 			// If no solve has been recorded for this case instance yet, record an untimed solve
 			if (currentTrainCase.solveId === undefined) {
-				const solveId = statisticsState.getNextSolveId();
+				const solveId = crypto.randomUUID();
 
 				// Add new untimed solve
 				statisticsState.addSolve({
@@ -636,7 +636,7 @@
 				trainState.lastDisplayedTime = timeInCentiseconds;
 			} else {
 				// This is a new solve - get the next solve ID
-				const solveId = statisticsState.getNextSolveId();
+				const solveId = crypto.randomUUID();
 				// Save time and solve ID to the TrainCase
 				currentTrainCase.time = timeInCentiseconds;
 				currentTrainCase.solveId = solveId;

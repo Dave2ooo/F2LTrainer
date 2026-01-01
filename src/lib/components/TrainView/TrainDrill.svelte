@@ -207,7 +207,7 @@
 			const { groupId, caseId } = currentTrainCase;
 			const totalTime = recognitionTime + executionTime;
 
-			const solveId = statisticsState.getNextSolveId();
+			const solveId = crypto.randomUUID();
 			currentTrainCase.time = totalTime;
 			currentTrainCase.solveId = solveId;
 			trainState.lastDisplayedTime = totalTime;

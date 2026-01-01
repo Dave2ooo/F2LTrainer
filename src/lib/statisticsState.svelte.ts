@@ -63,7 +63,6 @@ function compressSolve(solve: Solve): CompressedSolve {
 		ts: Math.floor(solve.timestamp / 1000),
 		a: AUF_MAP[solve.auf],
 		s: SIDE_MAP[solve.side],
-		ss: solve.scrambleSelection,
 		sid: solve.sessionId,
 		// Drill mode timing (only include if present)
 		rt: solve.recognitionTime,
@@ -81,7 +80,7 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		// Default values for legacy data if fields are missing
 		auf: compressed.a !== undefined ? REVERSE_AUF_MAP[compressed.a] : '',
 		side: compressed.s !== undefined ? REVERSE_SIDE_MAP[compressed.s] : 'right',
-		scrambleSelection: compressed.ss !== undefined ? compressed.ss : 0,
+		scrambleSelection: 0,
 		sessionId: compressed.sid,
 		// Drill mode timing (optional)
 		recognitionTime: compressed.rt,
@@ -116,18 +115,12 @@ if (persistedData && Array.isArray(persistedData)) {
 }
 
 // Internal state holding ALL solves
+// Internal state holding ALL solves
 class StatisticsStateManager {
 	allSolves: StatisticsState = $state([]);
-	nextSolveId = $state(0);
 
 	constructor(initialData: StatisticsState) {
 		this.allSolves = initialData;
-
-		let maxId = -1;
-		for (const solve of initialData) {
-			if (solve.id > maxId) maxId = solve.id;
-		}
-		this.nextSolveId = maxId + 1;
 
 		$effect.root(() => {
 			$effect(() => {
@@ -141,10 +134,6 @@ class StatisticsStateManager {
 		return this.allSolves.filter((s) => s.sessionId === sessionState.activeSessionId);
 	}
 
-	getNextSolveId(): number {
-		return this.nextSolveId++;
-	}
-
 	addSolve(solve: Solve) {
 		// Auto-assign active session ID if missing
 		if (!solve.sessionId && sessionState.activeSessionId !== null) {
@@ -153,21 +142,21 @@ class StatisticsStateManager {
 		this.allSolves.push(solve);
 	}
 
-	updateSolve(id: number, time: number) {
+	updateSolve(id: string, time: number) {
 		const solve = this.allSolves.find((s) => s.id === id);
 		if (solve) {
 			solve.time = time;
 		}
 	}
 
-	removeSolve(id: number) {
+	removeSolve(id: string) {
 		const index = this.allSolves.findIndex((s) => s.id === id);
 		if (index !== -1) {
 			this.allSolves.splice(index, 1);
 		}
 	}
 
-	clearSession(sessionId: number) {
+	clearSession(sessionId: string) {
 		// Filter out all solves belonging to the given session
 		// We do this by keeping only solves that do NOT match the sessionId
 		const inputLength = this.allSolves.length;

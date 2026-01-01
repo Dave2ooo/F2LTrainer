@@ -32,7 +32,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 
 class SessionState {
 	sessions: Session[] = $state([]);
-	activeSessionId: number | null = $state(null);
+	activeSessionId: string | null = $state(null);
 
 	constructor() {
 		if (browser) {
@@ -40,19 +40,12 @@ class SessionState {
 		}
 	}
 
-	// Get the next available session ID
-	private getNextId(): number {
-		if (this.sessions.length === 0) return 0;
-		const maxId = Math.max(...this.sessions.map((s) => s.id));
-		return maxId + 1;
-	}
-
 	load() {
 		const storedSessions = loadFromLocalStorage<Session[]>(STORAGE_KEY);
 
 		// Check if we have any sessions in localStorage
 		if (storedSessions && Array.isArray(storedSessions) && storedSessions.length > 0) {
-			// Load existing sessions and merge with default settings to include any new settings
+			// Load existing sessions and merge with default settings
 			this.sessions = storedSessions.map((s: Session) => ({
 				...s,
 				// Merge stored settings with defaults to ensure new settings have default values
@@ -60,33 +53,24 @@ class SessionState {
 			}));
 		} else {
 			// This is the first time the user visits OR localStorage is empty
-			// Create the default session only once
 			this.sessions = [];
 			this.createSession('Default Session', true);
-			// After creating default session, return early as activeSessionId is already set
 			return;
 		}
 
 		// Handle active session selection
-		const storedActiveIdStr = localStorage.getItem(ACTIVE_SESSION_KEY);
-		const storedActiveId = storedActiveIdStr ? parseInt(storedActiveIdStr, 10) : null;
-		// Validate that the stored active ID actually exists in our loaded sessions
-		if (
-			storedActiveId !== null &&
-			!isNaN(storedActiveId) &&
-			this.sessions.find((s) => s.id === storedActiveId)
-		) {
+		const storedActiveId = localStorage.getItem(ACTIVE_SESSION_KEY);
+
+		if (storedActiveId !== null && this.sessions.find((s) => s.id === storedActiveId)) {
 			this.activeSessionId = storedActiveId;
 		} else {
-			// Fallback to the first non-archived session, or just the first one
+			// Fallback to the first non-archived session
 			const firstActive = this.sessions.find((s) => !s.archived);
 			if (firstActive) {
 				this.activeSessionId = firstActive.id;
 			} else if (this.sessions.length > 0) {
 				this.activeSessionId = this.sessions[0].id;
 			} else {
-				// This should not happen, but if all sessions are somehow missing,
-				// create a default session as fallback
 				console.warn('No valid sessions found, creating default session');
 				this.createSession('Default Session', true);
 			}
@@ -97,7 +81,7 @@ class SessionState {
 		if (!browser) return;
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(this.sessions));
 		if (this.activeSessionId !== null) {
-			localStorage.setItem(ACTIVE_SESSION_KEY, this.activeSessionId.toString());
+			localStorage.setItem(ACTIVE_SESSION_KEY, this.activeSessionId);
 		}
 	}
 
@@ -108,7 +92,7 @@ class SessionState {
 		save = true
 	) {
 		const newSession: Session = {
-			id: this.getNextId(),
+			id: crypto.randomUUID(),
 			name,
 			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
@@ -126,7 +110,7 @@ class SessionState {
 	}
 
 	// Completely remove a session from the list (used for cancelling creation)
-	hardDeleteSession(id: number) {
+	hardDeleteSession(id: string) {
 		const index = this.sessions.findIndex((s) => s.id === id);
 		if (index !== -1) {
 			// If we are deleting the active session, switch to another one first
@@ -140,7 +124,7 @@ class SessionState {
 		}
 	}
 
-	updateSession(id: number, updates: Partial<Session>) {
+	updateSession(id: string, updates: Partial<Session>) {
 		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			Object.assign(session, updates);
@@ -148,7 +132,7 @@ class SessionState {
 		}
 	}
 
-	deleteSession(id: number) {
+	deleteSession(id: string) {
 		const session = this.sessions.find((s) => s.id === id);
 		if (!session) return;
 
@@ -172,7 +156,7 @@ class SessionState {
 		this.save();
 	}
 
-	restoreSession(id: number) {
+	restoreSession(id: string) {
 		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			session.archived = false;
@@ -180,7 +164,7 @@ class SessionState {
 		}
 	}
 
-	setActiveSession(id: number) {
+	setActiveSession(id: string) {
 		this.activeSessionId = id;
 		this.save();
 	}

@@ -202,7 +202,7 @@ export default class TrainCase {
 	#auf: Auf;
 	#solved: boolean = false;
 	#time: number | null | undefined = undefined;
-	#solveId: number | undefined = undefined;
+	#solveId: string | undefined = undefined;
 
 	constructor(
 		groupId: GroupId,
@@ -213,7 +213,7 @@ export default class TrainCase {
 		options?: {
 			scrambleSelection?: number;
 			auf?: Auf;
-			solveId?: number;
+			solveId?: string;
 			time?: number | null;
 		}
 	) {
@@ -347,7 +347,7 @@ export default class TrainCase {
 	get solveId() {
 		return this.#solveId;
 	}
-	set solveId(value: number | undefined) {
+	set solveId(value: string | undefined) {
 		this.#solveId = value;
 	}
 }
