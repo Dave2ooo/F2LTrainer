@@ -13,12 +13,11 @@
 		calculateRollingAo5,
 		calculateRollingAo12
 	} from '$lib/utils/statistics';
-	import { globalState } from '$lib/globalState.svelte';
+	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
 	import { type CaseId, type GroupId, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { casesState } from '$lib/casesState.svelte';
 	import Close from './Buttons/Close.svelte';
-	import { sessionState } from '$lib/sessionState.svelte';
 
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 
@@ -76,8 +75,19 @@
 			: null
 	);
 
+	const safeCrossColor = $derived(
+		Array.isArray(sessionState.activeSession?.settings.crossColor)
+			? sessionState.activeSession.settings.crossColor
+			: DEFAULT_SETTINGS.crossColor || ['white']
+	);
+	const safeFrontColor = $derived(
+		Array.isArray(sessionState.activeSession?.settings.frontColor)
+			? sessionState.activeSession.settings.frontColor
+			: DEFAULT_SETTINGS.frontColor || ['red']
+	);
+
 	const [crossColor, frontColor] = $derived(
-		resolveStickerColors(globalState.crossColor, globalState.frontColor)
+		resolveStickerColors(safeCrossColor as any, safeFrontColor as any)
 	);
 
 	const caseState = $derived(casesState[groupId][caseId]);
