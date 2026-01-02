@@ -10,11 +10,17 @@
 		jumpToFirstUnsolved
 	} from '$lib/trainCaseQueue.svelte';
 	import { GROUP_DEFINITIONS, type GroupId } from '$lib/types/group';
-	import { formatTime } from '$lib/utils/statistics';
+	import {
+		formatTime,
+		calculateBestTime,
+		calculateAo5,
+		calculateAo12
+	} from '$lib/utils/statistics';
+	import SessionStatsModal from '../Modals/SessionStatsModal.svelte';
 	import type { Solve } from '$lib/types/statisticsState';
 	import CaseStatsModal from '../Modals/CaseStatsModal.svelte';
 	import type { CaseId } from '$lib/types/group';
-	import { X, Trash2 } from '@lucide/svelte';
+	import { X, Trash2, ChevronRight } from '@lucide/svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { getCaseName } from '$lib/casesState.svelte';
 	import ConfirmationModal from '../Modals/ConfirmationModal.svelte';
@@ -25,6 +31,16 @@
 	// State for the currently active case in the modal
 	let activeGroupId = $state<GroupId>('basic');
 	let activeCaseId = $state<CaseId>(1);
+
+	// Session stats modal reference
+	let sessionStatsModal: SessionStatsModal | undefined = $state();
+
+	// Session statistics derived values
+	const sessionSolves = $derived(statisticsState.statistics);
+	const sessionSolvesCount = $derived(sessionSolves.length);
+	const sessionBestTime = $derived(calculateBestTime(sessionSolves));
+	const sessionAo5 = $derived(calculateAo5(sessionSolves));
+	const sessionAo12 = $derived(calculateAo12(sessionSolves));
 
 	// Custom flip animation that handles NaN values
 	function safeFlip(
@@ -110,7 +126,7 @@
 		}
 	}
 
-	function handleDeleteSolve(e: MouseEvent, solveId: number) {
+	function handleDeleteSolve(e: MouseEvent, solveId: string) {
 		e.stopPropagation();
 
 		// Check if this is the currently selected solve
@@ -134,7 +150,7 @@
 		statisticsState.removeSolve(solveId);
 	}
 
-	function createDeleteHandler(solveId: number) {
+	function createDeleteHandler(solveId: string) {
 		return (e: MouseEvent) => handleDeleteSolve(e, solveId);
 	}
 
@@ -152,23 +168,65 @@
 </script>
 
 <div class="flex h-full flex-col p-4">
-	<div class="mb-4 flex items-center justify-between">
-		<div class="flex items-center gap-3">
-			<h3 class="text-lg font-semibold text-gray-900 dark:text-white">All Solves</h3>
-			{#if listItems().some((i) => i.type === 'solved')}
-				<Button
-					color="red"
-					outline
-					size="xs"
-					class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
-					onclick={() => (showClearConfirmation = true)}
-				>
-					<Trash2 class="size-4" />
-				</Button>
-			{/if}
+	<!-- Close button for drawer mode (top right) -->
+	{#if inDrawer}
+		<div class="mb-2 flex justify-end">
+			<CloseButton onclick={onClose} class="-mt-2! -mr-2!" />
 		</div>
-		{#if inDrawer}
-			<CloseButton onclick={onClose} class="-mr-2!" />
+	{/if}
+
+	<!-- Session Stats Card -->
+	<!-- svelte-ignore a11y_click_events_have_key_events -->
+	<!-- svelte-ignore a11y_no_static_element_interactions -->
+	<div
+		class="mb-4 cursor-pointer rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-primary-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 dark:hover:bg-gray-700"
+		onclick={() => sessionStatsModal?.openModal()}
+	>
+		<div class="flex items-center justify-between">
+			<h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Session Stats</h4>
+			<ChevronRight class="size-4 text-gray-400 dark:text-gray-500" />
+		</div>
+		<div class="mt-2 grid grid-cols-4 gap-2 text-center">
+			<div class="flex flex-col">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Solves</span>
+				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+					>{sessionSolvesCount}</span
+				>
+			</div>
+			<div class="flex flex-col">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Best</span>
+				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+					>{formatTime(sessionBestTime)}</span
+				>
+			</div>
+			<div class="flex flex-col">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Ao5</span>
+				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+					>{formatTime(sessionAo5)}</span
+				>
+			</div>
+			<div class="flex flex-col">
+				<span class="text-xs text-gray-500 dark:text-gray-400">Ao12</span>
+				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+					>{formatTime(sessionAo12)}</span
+				>
+			</div>
+		</div>
+	</div>
+
+	<!-- Solves Header -->
+	<div class="mb-2 flex items-center gap-3">
+		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Solves</h3>
+		{#if listItems().some((i) => i.type === 'solved')}
+			<Button
+				color="red"
+				outline
+				size="xs"
+				class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
+				onclick={() => (showClearConfirmation = true)}
+			>
+				<Trash2 class="size-4" />
+			</Button>
 		{/if}
 	</div>
 
@@ -271,6 +329,9 @@
 	confirmColor="red"
 	onConfirm={handleClearAllSolves}
 />
+
+<!-- Session Statistics Modal -->
+<SessionStatsModal bind:this={sessionStatsModal} />
 
 <style>
 	/* Default: hide the delete button for non-touch devices */
