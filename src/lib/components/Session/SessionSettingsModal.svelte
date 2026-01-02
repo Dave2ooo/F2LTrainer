@@ -120,7 +120,12 @@
 					for="session-name"
 					class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">Session Name</Label
 				>
-				<Input id="session-name" bind:value={session.name} placeholder="Enter session name" />
+				<Input
+					id="session-name"
+					bind:value={session.name}
+					placeholder="Enter session name"
+					maxlength={60}
+				/>
 			</div>
 
 			<Tabs

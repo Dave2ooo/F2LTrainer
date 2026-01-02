@@ -137,6 +137,7 @@
 						placeholder="Your Name"
 						required
 						disabled={isSubmitting}
+						maxlength={40}
 					/>
 				</ButtonGroup>
 			</div>
@@ -154,6 +155,7 @@
 						placeholder="your.email@example.com"
 						required
 						disabled={isSubmitting}
+						maxlength={50}
 					/>
 				</ButtonGroup>
 			</div>
@@ -168,6 +170,7 @@
 					required
 					disabled={isSubmitting}
 					class="w-full"
+					maxlength={10000}
 				/>
 			</div>
 		</div>

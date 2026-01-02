@@ -103,6 +103,7 @@
 				placeholder={'xx:xx:xx:xx:xx:xx'}
 				required
 				pattern={macPattern}
+				maxlength={17}
 			/>
 		</div>
 

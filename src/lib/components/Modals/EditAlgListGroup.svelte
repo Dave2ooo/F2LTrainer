@@ -83,6 +83,7 @@
 				(algorithmSelection === null ? selectedInputClass : '')}
 			placeholder="Enter custom algorithm"
 			bind:value={customAlg}
+			maxlength={60}
 		></Input>
 	</ListgroupItem>
 </Listgroup>

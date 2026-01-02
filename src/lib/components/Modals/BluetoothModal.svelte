@@ -186,7 +186,7 @@
 							class:dark:border-gray-700={!isConnectedCube}
 						>
 							{#if editingCubeId === cube.id}
-								<Input type="text" bind:value={editingCubeName} class="flex-1" />
+								<Input type="text" bind:value={editingCubeName} class="flex-1" maxlength={40} />
 								<Button size="xs" color="green" onclick={saveEditCube}>
 									<Check class="size-4" />
 								</Button>
