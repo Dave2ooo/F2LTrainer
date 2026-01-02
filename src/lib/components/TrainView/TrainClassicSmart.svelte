@@ -684,7 +684,7 @@
 		</div>
 
 		<div
-			class="relative mx-auto size-60 md:size-80"
+			class="relative mx-auto size-50 md:size-60"
 			onpointerdowncapture={() => {
 				globalState.hasUsedTwistyPlayer = true;
 			}}
@@ -730,7 +730,7 @@
 					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 					experimentalDragInput="auto"
 					class="size-full"
-					controlPanel="bottom-row"
+					controlPanel="none"
 					onclick={onNext}
 					showVisibilityToggle={false}
 					tempoScale={5}
