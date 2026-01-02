@@ -14,7 +14,7 @@ export interface SavedCube {
 	lastModified: number; // For sync conflict resolution
 }
 
-const STORAGE_KEY = 'saved_bluetooth_cubes';
+const STORAGE_KEY = 'savedBluetoothCubes';
 
 // Load saved cubes from localStorage
 function loadSavedCubes(): SavedCube[] {

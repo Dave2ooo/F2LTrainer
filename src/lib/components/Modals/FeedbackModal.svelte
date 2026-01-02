@@ -7,7 +7,7 @@
 	import Send from './Buttons/Send.svelte';
 	import ToastNotification from '../Toast.svelte';
 
-	const FEEDBACK_STORAGE_KEY = 'feedback-form-data';
+	const FEEDBACK_STORAGE_KEY = 'feedbackFormData';
 
 	let open = $state(false);
 	let isSubmitting = $state(false);
