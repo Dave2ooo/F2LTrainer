@@ -97,7 +97,8 @@ class SessionState {
 			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
 			lastPlayedAt: Date.now(),
-			solveCount: 0
+			solveCount: 0,
+			lastModified: Date.now()
 		};
 		this.sessions.push(newSession);
 		if (isDefault) {
@@ -127,7 +128,7 @@ class SessionState {
 	updateSession(id: string, updates: Partial<Session>) {
 		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
-			Object.assign(session, updates);
+			Object.assign(session, updates, { lastModified: Date.now() });
 			this.save();
 		}
 	}

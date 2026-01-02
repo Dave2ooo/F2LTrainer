@@ -14,4 +14,5 @@ export interface CaseState {
 	algorithmSelection: AlgorithmSelection;
 	customAlgorithm: CustomAlgorithm;
 	identicalAlgorithm: boolean;
+	lastModified: number;
 }
