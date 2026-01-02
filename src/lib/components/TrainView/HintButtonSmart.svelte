@@ -141,9 +141,9 @@
 				</div>
 
 				<!-- Progress indicator -->
-				<div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+				<!-- <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 					Progress: {currentMoveIndex}/{totalMoves} moves
-				</div>
+				</div> -->
 			{:else}
 				<span class="text-xl text-theme-text md:text-2xl">No algorithm available</span>
 			{/if}
@@ -184,7 +184,7 @@
 		</div>
 	{/if}
 
-	<div class="mt-2 flex flex-col items-center gap-1">
+	<!-- <div class="mt-2 flex flex-col items-center gap-1">
 		<span class="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400"
 			>Applied Moves</span
 		>
@@ -193,7 +193,7 @@
 				<span class={movesAddedChipClass}>{move}</span>
 			{/each}
 		</div>
-	</div>
+	</div> -->
 </div>
 
 <style>

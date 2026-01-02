@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, ButtonGroup, P, Spinner } from 'flowbite-svelte';
+	import { Button, ButtonGroup, P, Spinner, Hr } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
@@ -393,7 +393,7 @@
 			<!-- Drill is running - show TwistyPlayer and controls -->
 
 			<div
-				class="relative mx-auto size-60 md:size-80"
+				class="relative mx-auto mt-4 size-50 md:size-60"
 				onpointerdowncapture={() => {
 					globalState.hasUsedTwistyPlayer = true;
 				}}
@@ -425,7 +425,7 @@
 						backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 						experimentalDragInput="auto"
 						class="size-full"
-						controlPanel="bottom-row"
+						controlPanel="none"
 						showVisibilityToggle={false}
 						tempoScale={5}
 						showAlg={false}
@@ -442,6 +442,12 @@
 					</div>
 				{/if}
 			</div>
+
+			<!-- Drill Timer -->
+			<div class="mt-2">
+				<DrillTimer bind:this={drillTimerRef} />
+			</div>
+			<RecapProgress />
 
 			<!-- Action buttons / Gave up UI -->
 			{#if drillPhase === 'gave_up'}
@@ -467,27 +473,28 @@
 			{:else}
 				<!-- Normal action buttons -->
 				<div class="mt-4 flex justify-center gap-2">
-					<Button color="red" outline onclick={onGiveUp} disabled={drillPhase === 'transitioning'}>
+					<Button
+						color="purple"
+						outline
+						onclick={onGiveUp}
+						disabled={drillPhase === 'transitioning'}
+					>
 						<Flag class="mr-2 size-4" />
 						Give up
 					</Button>
-					<Button color="alternative" onclick={onSkip} disabled={drillPhase === 'transitioning'}>
+					<Button color="light" onclick={onSkip} disabled={drillPhase === 'transitioning'}>
 						<SkipForward class="mr-2 size-4" />
 						Skip
 					</Button>
-					<Button color="dark" outline onclick={onStop} disabled={drillPhase === 'transitioning'}>
+					<Button color="red" outline onclick={onStop} disabled={drillPhase === 'transitioning'}>
 						<Square class="mr-2 size-4" />
 						Stop
 					</Button>
 				</div>
 			{/if}
-
-			<!-- Drill Timer -->
-			<DrillTimer bind:this={drillTimerRef} />
-			<RecapProgress />
 		{:else}
 			<!-- Drill is stopped - show Start button or Connect button -->
-			<div class="flex flex-col items-center justify-center gap-6 py-12">
+			<div class="flex flex-col items-center justify-center gap-6 py-6">
 				<div class="text-center">
 					<h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Drill Mode</h2>
 					<P class="text-center text-gray-600 dark:text-gray-400">
@@ -534,11 +541,15 @@
 			</div>
 		{/if}
 
+		<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+
 		<div class="flex flex-row justify-center gap-2">
 			<TrainStateSelect />
 		</div>
 
-		<Details />
+		<div class="mt-4">
+			<Details />
+		</div>
 
 		<Settings bind:this={settingsRef} />
 		<BluetoothModal bind:open={bluetoothModalOpen} />
