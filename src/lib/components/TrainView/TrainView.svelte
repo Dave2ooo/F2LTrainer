@@ -24,6 +24,9 @@
 		// Regenerate queue when session changes to apply new settings (colors, selected cases)
 		// We track activeSessionId specifically.
 		const id = sessionState.activeSessionId;
+		// Also track frequencyMode to regenerate queue when switching to/from recap mode
+		// This ensures recapBatchSize is properly set when enabling recap mode
+		const frequencyMode = sessionState.activeSession?.settings.frequencyMode;
 
 		if (id !== null) {
 			untrack(() => {
