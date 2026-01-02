@@ -42,6 +42,16 @@
 	const sessionAo5 = $derived(calculateAo5(sessionSolves));
 	const sessionAo12 = $derived(calculateAo12(sessionSolves));
 
+	// Pagination for solves list
+	let visibleCount = $state(20);
+	const totalSolves = $derived(statisticsState.statistics.length);
+	const hasMoreSolves = $derived(totalSolves > visibleCount);
+	const remainingSolves = $derived(Math.max(0, totalSolves - visibleCount));
+
+	function showMoreSolves() {
+		visibleCount += 20;
+	}
+
 	// Custom flip animation that handles NaN values
 	function safeFlip(
 		node: Element,
@@ -96,8 +106,8 @@
 			});
 		}
 
-		// Add all solves in reverse chronological order, limited to last 20
-		const solves = [...statisticsState.statistics].reverse().slice(0, 20);
+		// Add all solves in reverse chronological order, limited to visibleCount
+		const solves = [...statisticsState.statistics].reverse().slice(0, visibleCount);
 		for (const solve of solves) {
 			items.push({
 				key: `solve-${solve.id}`,
@@ -312,6 +322,18 @@
 					</li>
 				{/each}
 			</ul>
+			{#if hasMoreSolves}
+				<div class="mt-3 flex justify-center">
+					<Button
+						color="alternative"
+						size="sm"
+						onclick={showMoreSolves}
+						class="text-gray-600 dark:text-gray-400"
+					>
+						Show More ({remainingSolves} remaining)
+					</Button>
+				</div>
+			{/if}
 		{/if}
 		<!-- Spacer to ensure content isn't hidden behind the floating button -->
 		<div class="h-20 w-full shrink-0"></div>
