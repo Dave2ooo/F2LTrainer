@@ -2,7 +2,7 @@
 	import { Button, Input, Label, Modal } from 'flowbite-svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import Update from './Buttons/Update.svelte';
-	import { Copy } from '@lucide/svelte';
+	import { Copy, Bluetooth } from '@lucide/svelte';
 
 	let macInput = $state('');
 	let copiedChromeFlags = $state(false);
@@ -107,6 +107,6 @@
 			/>
 		</div>
 
-		<Update onCancel={handleCancel} />
+		<Update onCancel={handleCancel} submitText="Connect" Icon={Bluetooth} />
 	</form>
 </Modal>
