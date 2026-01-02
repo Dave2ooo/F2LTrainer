@@ -9,7 +9,6 @@ export interface GlobalState {
 	categoriesOpenedObj: Record<GroupId, boolean[]>;
 	view: View;
 	selectedGroup: GroupId;
-	trainHintAlgorithm: HintAlgorithm;
 	playOnAlgChange: boolean;
 	showDetails: boolean;
 	trainHideTwistyPlayer: boolean;

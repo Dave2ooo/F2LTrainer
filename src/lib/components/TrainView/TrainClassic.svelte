@@ -104,7 +104,8 @@
 		await tick();
 
 		hintManager.initialize(
-			globalState.trainHintAlgorithm,
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
 			algViewerContainer
 		);
@@ -117,7 +118,8 @@
 		await tick();
 
 		hintManager.initialize(
-			globalState.trainHintAlgorithm,
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
 			twistyAlgViewerLoaded,
 			algViewerContainer
 		);
@@ -125,7 +127,8 @@
 
 	function showHintAlg() {
 		hintManager.revealHint(
-			globalState.trainHintAlgorithm,
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
 			alg,
 			twistyAlgViewerLoaded,
 			algViewerContainer
@@ -236,7 +239,8 @@
 			setTimeout(() => {
 				hintManager.reset();
 				hintManager.initialize(
-					globalState.trainHintAlgorithm,
+					sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm,
 					twistyAlgViewerLoaded,
 					algViewerContainer
 				);
@@ -318,7 +322,8 @@
 			showAlgViewer={hintManager.showAlgViewer}
 			visible={hintManager.showHintButton}
 			hintCounter={hintManager.counter}
-			hintMode={globalState.trainHintAlgorithm}
+			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm}
 			onclick={showHintAlg}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
@@ -336,7 +341,8 @@
 					hintManager.reset();
 					await tick();
 					hintManager.initialize(
-						globalState.trainHintAlgorithm,
+						sessionState.activeSession?.settings.trainHintAlgorithm ??
+							DEFAULT_SETTINGS.trainHintAlgorithm,
 						twistyAlgViewerLoaded,
 						algViewerContainer
 					);

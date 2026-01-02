@@ -53,14 +53,6 @@ const ephemeralState = $state<EphemeralState>({
 // and keeps UI state local.
 export const globalState: GlobalState = {
 	// Proxy Properties (Read/Write from Active Session)
-	get trainHintAlgorithm() {
-		return (
-			sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm
-		);
-	},
-	set trainHintAlgorithm(v) {
-		if (sessionState.activeSession) sessionState.activeSession.settings.trainHintAlgorithm = v;
-	},
 
 	// Ephemeral/Global UI Properties (Read/Write from local state)
 	get view() {
