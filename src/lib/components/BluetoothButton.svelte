@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Tooltip } from 'flowbite-svelte';
+	import { Button, Tooltip, Spinner } from 'flowbite-svelte';
 	import { Bluetooth, BluetoothConnected, EllipsisVertical } from '@lucide/svelte';
 	import BluetoothModal from './Modals/BluetoothModal.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
@@ -45,13 +45,18 @@
 	<Button
 		class="rounded-r-none border border-gray-200 bg-white px-2 py-1.5 text-gray-900 hover:bg-gray-100 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-500"
 		onclick={handleSmartConnect}
+		disabled={bluetoothState.isConnecting}
 	>
-		{#if bluetoothState.isConnected}
+		{#if bluetoothState.isConnecting}
+			<Spinner class="mr-2" size="6" />
+		{:else if bluetoothState.isConnected}
 			<BluetoothConnected class="mr-2 size-6 text-green-500" />
 		{:else}
 			<Bluetooth class="mr-2 size-6" />
 		{/if}
-		<span class="text-base font-medium">{buttonLabel}</span>
+		<span class="text-base font-medium"
+			>{bluetoothState.isConnecting ? 'Connecting...' : buttonLabel}</span
+		>
 	</Button>
 	<Button
 		class="rounded-l-none border border-l-0 border-gray-200 bg-white px-1.5 py-1.5 text-gray-900 hover:bg-gray-100 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-500"

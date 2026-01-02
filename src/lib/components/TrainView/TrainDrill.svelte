@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, ButtonGroup, P } from 'flowbite-svelte';
+	import { Button, ButtonGroup, P, Spinner } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
@@ -508,13 +508,18 @@
 							Connect a smart cube to start drilling
 						</P>
 						<ButtonGroup>
-							<Button color="light" onclick={handleSmartConnect}>
-								{#if bluetoothState.isConnected}
-									<BluetoothConnected class="mr-2 size-5 text-green-500" />
+							<Button
+								color="light"
+								onclick={handleSmartConnect}
+								disabled={bluetoothState.isConnecting}
+							>
+								{#if bluetoothState.isConnecting}
+									<Spinner class="mr-2" size="5" />
+									<span class="text-base font-medium">Connecting...</span>
 								{:else}
 									<Bluetooth class="mr-2 size-5" />
+									<span class="text-base font-medium">{connectButtonLabel}</span>
 								{/if}
-								<span class="text-base font-medium">{connectButtonLabel}</span>
 							</Button>
 							<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
 								<EllipsisVertical class="size-5" />
