@@ -12,6 +12,13 @@ export function calculateBestTime(solves: Solve[]): number | null {
 	return Math.round(best);
 }
 
+export function calculateMean(solves: Solve[]): number | null {
+	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
+	if (times.length === 0) return null;
+	const sum = times.reduce((a, b) => a + b, 0);
+	return Math.round(sum / times.length);
+}
+
 export function calculateAo5(solves: Solve[]): number | null {
 	const times = solves.map((s) => s.time).filter((t): t is number => t !== null);
 	if (times.length < 5) return null;
