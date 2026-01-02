@@ -48,7 +48,6 @@ export interface Session {
 	settings: SessionSettings;
 	createdAt: number;
 	lastPlayedAt: number;
-	solveCount: number; // Cache for display
 	lastModified: number;
 	archived?: boolean; // Soft deletion flag
 }

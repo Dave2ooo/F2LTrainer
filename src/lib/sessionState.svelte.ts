@@ -97,7 +97,6 @@ class SessionState {
 			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
 			lastPlayedAt: Date.now(),
-			solveCount: 0,
 			lastModified: Date.now()
 		};
 		this.sessions.push(newSession);
