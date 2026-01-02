@@ -4,12 +4,14 @@
  */
 
 export interface SavedCube {
-	id: string; // Bluetooth device ID (persistent)
+	uuid: string; // Globally unique ID for sync (crypto.randomUUID())
+	id: string; // Bluetooth device ID (browser-specific, not synced)
 	customName: string; // User-provided name
 	deviceName: string; // Original Bluetooth device name
 	macAddress?: string; // MAC address if available
 	dateAdded: number; // Timestamp when added
 	lastConnected: number; // Timestamp of last connection
+	lastModified: number; // For sync conflict resolution
 }
 
 const STORAGE_KEY = 'saved_bluetooth_cubes';
@@ -71,7 +73,8 @@ export const savedCubesState = {
 					id: deviceId, // Update deviceId in case it changed
 					customName: customName || cubes[existingMacIndex].customName,
 					macAddress: macAddress || cubes[existingMacIndex].macAddress,
-					lastConnected: now
+					lastConnected: now,
+					lastModified: now
 				};
 				cubes = [...cubes]; // Trigger reactivity
 			}
@@ -81,18 +84,21 @@ export const savedCubesState = {
 				...cubes[existingIdIndex],
 				customName: customName || cubes[existingIdIndex].customName,
 				macAddress: macAddress || cubes[existingIdIndex].macAddress,
-				lastConnected: now
+				lastConnected: now,
+				lastModified: now
 			};
 			cubes = [...cubes]; // Trigger reactivity
 		} else {
 			// Add new cube
 			const newCube: SavedCube = {
+				uuid: crypto.randomUUID(),
 				id: deviceId,
 				customName: customName || deviceName,
 				deviceName: deviceName,
 				macAddress: macAddress,
 				dateAdded: now,
-				lastConnected: now
+				lastConnected: now,
+				lastModified: now
 			};
 			cubes = [...cubes, newCube];
 		}
@@ -109,6 +115,7 @@ export const savedCubesState = {
 		const cube = cubes.find((c) => c.id === deviceId);
 		if (cube) {
 			cube.customName = newName;
+			cube.lastModified = Date.now();
 			cubes = [...cubes]; // Trigger reactivity
 			saveCubesToStorage(cubes);
 		}
