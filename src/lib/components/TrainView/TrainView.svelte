@@ -23,6 +23,9 @@
 	let isNewSession = $state(false);
 	let showSessionManager = $state(false);
 
+	// Track if drill is running to disable session controls
+	let isDrillRunning = $state(false);
+
 	let activeSettings = $derived(
 		sessionState.activeSession?.settings as SessionSettings | undefined
 	);
@@ -52,6 +55,7 @@
 			<div class="relative">
 				<Button
 					color="light"
+					disabled={isDrillRunning}
 					class="flex items-center gap-2 border-gray-300 bg-white !px-3 font-medium text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
 				>
 					<span class="max-w-[150px] truncate sm:max-w-[200px]"
@@ -118,6 +122,7 @@
 			<Button
 				color="light"
 				size="sm"
+				disabled={isDrillRunning}
 				class="border-gray-300 bg-white !p-2.5 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={() => {
 					showSessionSettings = true;
@@ -144,7 +149,7 @@
 	{#if activeSettings}
 		{#if activeSettings.trainMode === 'drill'}
 			{#if activeSettings.smartCubeEnabled}
-				<TrainDrill {sessionControl} />
+				<TrainDrill {sessionControl} bind:isRunning={isDrillRunning} />
 			{:else}
 				<div class="flex flex-col items-center justify-center gap-4 p-8">
 					<P class="text-center text-lg">Drill mode requires a smart cube connection.</P>

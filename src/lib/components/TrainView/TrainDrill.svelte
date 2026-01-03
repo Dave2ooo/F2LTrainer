@@ -15,6 +15,21 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import { globalState } from '$lib/globalState.svelte';
+
+	// Reset drill when session changes
+	import { untrack } from 'svelte';
+
+	// Reset drill when session changes
+	$effect(() => {
+		// Just accessing the ID tracks it
+		const _ = sessionState.activeSessionId;
+		untrack(() => {
+			// Reset to stopped state
+			drillPhase = 'stopped';
+			drillTimerRef?.reset();
+			alg = '';
+		});
+	});
 	import {
 		Flag,
 		SkipForward,
@@ -50,6 +65,12 @@
 	let drillTimerRef = $state<DrillTimer>();
 	let twistyPlayerRef = $state<any>();
 	let settingsRef = $state<Settings>();
+
+	let transitionDuration = $derived(
+		sessionState.activeSession?.settings.drillTimeBetweenCases ??
+			DEFAULT_SETTINGS.drillTimeBetweenCases ??
+			1.0
+	);
 
 	let scramble = $state('');
 	let alg = $state('');
@@ -245,7 +266,10 @@
 
 		// Transition delay - timer shows completed times during this period
 		drillPhase = 'transitioning';
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+		await new Promise((resolve) => setTimeout(resolve, transitionDuration * 1000));
+
+		// If user stopped the drill during transition, don't advance
+		if (drillPhase !== 'transitioning') return;
 
 		// Advance to next case (this resets timer and starts new recognition)
 		await goToNextCase();
@@ -375,7 +399,14 @@
 		drillPhase = 'stopped';
 	}
 
-	let { sessionControl }: { sessionControl?: Snippet } = $props();
+	let { sessionControl, isRunning = $bindable(false) }: { sessionControl?: Snippet; isRunning?: boolean } =
+		$props();
+
+	$effect(() => {
+		// Disable external controls only when drill is actively running, allowing access when gave up
+		isRunning = isDrillRunning && drillPhase !== 'gave_up';
+	});
+
 	import type { Snippet } from 'svelte';
 </script>
 
@@ -407,9 +438,40 @@
 			>
 				{#if drillPhase === 'transitioning'}
 					<div
-						class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
+						class="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-green-500/10 backdrop-blur-[1px]"
 					>
-						<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
+						<div class="relative flex items-center justify-center">
+							<!-- Checkmark in center -->
+							<Check
+								size={48}
+								class="absolute text-green-600 drop-shadow-lg dark:text-green-400"
+							/>
+
+							<!-- Radial Progress -->
+							<svg class="size-32 -rotate-90 transform overflow-visible">
+								<circle
+									cx="64"
+									cy="64"
+									r="56"
+									stroke="currentColor"
+									stroke-width="8"
+									fill="transparent"
+									class="text-green-200 dark:text-green-900"
+								/>
+								<circle
+									cx="64"
+									cy="64"
+									r="56"
+									stroke="currentColor"
+									stroke-width="8"
+									fill="transparent"
+									class="text-green-500 radial-countdown"
+									stroke-dasharray="352"
+									stroke-dashoffset="0"
+									style="--duration: {transitionDuration}s"
+								/>
+							</svg>
+						</div>
 					</div>
 				{/if}
 
@@ -493,7 +555,7 @@
 						<SkipForward class="mr-2 size-4" />
 						Skip
 					</Button>
-					<Button color="red" outline onclick={onStop} disabled={drillPhase === 'transitioning'}>
+					<Button color="red" outline onclick={onStop}>
 						<Square class="mr-2 size-4" />
 						Stop
 					</Button>
@@ -562,3 +624,14 @@
 		<BluetoothModal bind:open={bluetoothModalOpen} />
 	{/snippet}
 </ResponsiveLayout>
+<style>
+	@keyframes countdown {
+		to {
+			stroke-dashoffset: 352;
+		}
+	}
+
+	.radial-countdown {
+		animation: countdown var(--duration) linear forwards;
+	}
+</style>

@@ -27,7 +27,8 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	backViewEnabled: false,
 	crossColor: ['white'],
 	frontColor: ['red'],
-	smartCubeEnabled: false
+	smartCubeEnabled: false,
+	drillTimeBetweenCases: 1.0
 };
 
 class SessionState {

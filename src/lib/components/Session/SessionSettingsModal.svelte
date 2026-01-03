@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select } from 'flowbite-svelte';
+	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select, Range } from 'flowbite-svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
@@ -321,6 +321,28 @@
 									</div>
 								</div>
 							</div>
+							{#if settings.trainMode === 'drill'}
+								<div
+									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
+								>
+									<div class="mb-4 flex items-center justify-between">
+										<Label class="text-xs font-semibold uppercase text-gray-500">Drill Flow</Label>
+										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
+											>{settings.drillTimeBetweenCases}s delay</span
+										>
+									</div>
+									<Range
+										id="drill-delay"
+										min={0}
+										max={5}
+										step={0.25}
+										bind:value={settings.drillTimeBetweenCases}
+									/>
+									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+										Time between solving a case and seeing the next one.
+									</p>
+								</div>
+							{/if}
 						</div>
 
 						<!-- Frequency Section (Moved Up) -->

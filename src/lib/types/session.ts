@@ -40,6 +40,9 @@ export interface SessionSettings {
 
 	// Smart Cube
 	smartCubeEnabled: boolean;
+	
+	// Drill Mode
+	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 }
 
 export interface Session {
