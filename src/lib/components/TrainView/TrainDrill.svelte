@@ -388,6 +388,13 @@
 					{countdownNumber}
 				</div>
 				<P class="mt-4 text-gray-600 dark:text-gray-400">Get ready...</P>
+				<div class="mt-8 flex justify-center">
+					<span
+						class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md"
+					>
+						Hold Green Front, White Up
+					</span>
+				</div>
 			</div>
 		{:else if isDrillRunning}
 			<!-- Drill is running - show TwistyPlayer and controls -->

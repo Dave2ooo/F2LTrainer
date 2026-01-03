@@ -771,6 +771,16 @@
 			{/if}
 		</div>
 
+		{#if undoMoves.length >= 2}
+			<div class="mt-2 flex justify-center">
+				<span
+					class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md"
+				>
+					Hold Green Front, White Up
+				</span>
+			</div>
+		{/if}
+
 		<HintButtonSmart
 			alg={displayAlg}
 			movesAdded={alg}
