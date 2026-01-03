@@ -9,7 +9,6 @@
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
-	import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
 
 	let {
 		open = $bindable(),
@@ -56,8 +55,6 @@
 		{ value: 'f2l', name: 'F2L Stickering' },
 		{ value: 'fully', name: 'Fully stickered' }
 	];
-
-	let showDeleteConfirmation = $state(false);
 
 	// Color options for checkboxes (using imported STICKER_COLORS)
 
@@ -541,12 +538,7 @@
 
 			<div class="flex w-full items-center justify-between">
 				{#if !isNew}
-					<Button color="red" outline onclick={() => (showDeleteConfirmation = true)}
-						>Delete Session</Button
-					>
-				{:else}
 					<div></div>
-					<!-- Spacer -->
 				{/if}
 
 				<Update
@@ -578,29 +570,4 @@
 			</div>
 		</div>
 	</Modal>
-
-	<ConfirmationModal
-		bind:open={showDeleteConfirmation}
-		title="Delete Session"
-		message="Are you sure you want to delete this session? You can recover it later if needed."
-		onConfirm={() => {
-			if (sessionId !== undefined) {
-				// Check if it's safe to delete (not the last one)
-				const activeCount = sessionState.sessions.filter((s) => !s.archived).length;
-				if (activeCount <= 1 && !sessionState.sessions.find((s) => s.id === sessionId)?.archived) {
-					// This check is also in the state, but good to have UI feedback or prevent it here if we want custom message
-					// For now, the state logs a warning. We could show a toast or alert.
-					// But simpler: just call delete. If it fails (in state), nothing happens to data.
-					// Ideally we check before closing.
-					if (activeCount <= 1) {
-						alert('Cannot delete the last active session.');
-						return;
-					}
-				}
-
-				sessionState.deleteSession(sessionId);
-				open = false;
-			}
-		}}
-	/>
 {/if}
