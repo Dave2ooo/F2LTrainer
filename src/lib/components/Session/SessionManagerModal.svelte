@@ -43,6 +43,19 @@
 	);
 	const archivedSessions = $derived(sessionState.sessions.filter((s) => s.archived));
 
+	// Optimization: specific solve counts for each session mapped by ID
+	// This reduces complexity from O(Sessions * Solves) to O(Solves)
+	const solveCounts = $derived(
+		statisticsState.allSolves.reduce(
+			(acc, solve) => {
+				const sid = solve.sessionId;
+				if (sid) acc[sid] = (acc[sid] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		)
+	);
+
 	function handleDuplicate(sessionId: string) {
 		sessionState.duplicateSession(sessionId);
 		open = false;
@@ -66,7 +79,7 @@
 	}
 
 	function handlePermanentDeleteRequest(sessionId: string, sessionName: string) {
-		const solveCount = statisticsState.getSolveCountForSession(sessionId);
+		const solveCount = solveCounts[sessionId] || 0;
 		sessionToDelete = { id: sessionId, name: sessionName, solveCount };
 		showDeleteConfirmation = true;
 	}
@@ -83,10 +96,7 @@
 
 	// Calculate total solves across all archived sessions
 	const totalArchivedSolves = $derived(
-		archivedSessions.reduce(
-			(total, session) => total + statisticsState.getSolveCountForSession(session.id),
-			0
-		)
+		archivedSessions.reduce((total, session) => total + (solveCounts[session.id] || 0), 0)
 	);
 
 	function handleClearAllArchivedRequest() {
@@ -149,9 +159,7 @@
 	}
 
 	// Merge sessions functionality
-	const mergeSourceSolveCount = $derived(
-		mergeSourceId ? statisticsState.getSolveCountForSession(mergeSourceId) : 0
-	);
+	const mergeSourceSolveCount = $derived(mergeSourceId ? solveCounts[mergeSourceId] || 0 : 0);
 
 	const mergeSourceName = $derived(
 		activeSessions.find((s) => s.id === mergeSourceId)?.name || 'Unnamed Session'
@@ -236,9 +244,7 @@
 										{/if}
 									</div>
 									<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-										{statisticsState.getSolveCountForSession(session.id)} solve{statisticsState.getSolveCountForSession(
-											session.id
-										) === 1
+										{solveCounts[session.id] || 0} solve{(solveCounts[session.id] || 0) === 1
 											? ''
 											: 's'} • Last played: {formatDate(session.lastPlayedAt)}
 									</p>
@@ -313,9 +319,7 @@
 									{session.name || 'Unnamed Session'}
 								</span>
 								<p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
-									{statisticsState.getSolveCountForSession(session.id)} solve{statisticsState.getSolveCountForSession(
-										session.id
-									) === 1
+									{solveCounts[session.id] || 0} solve{(solveCounts[session.id] || 0) === 1
 										? ''
 										: 's'} • Archived • Last played: {formatDate(session.lastPlayedAt)}
 								</p>
@@ -395,7 +399,7 @@
 					bind:value={mergeSourceId}
 					items={activeSessions.map((s) => ({
 						value: s.id,
-						name: `${s.name || 'Unnamed Session'} (${statisticsState.getSolveCountForSession(s.id)} solves)`
+						name: `${s.name || 'Unnamed Session'} (${solveCounts[s.id] || 0} solves)`
 					}))}
 				/>
 			</div>
@@ -407,7 +411,7 @@
 					bind:value={mergeTargetId}
 					items={activeSessions.map((s) => ({
 						value: s.id,
-						name: `${s.name || 'Unnamed Session'} (${statisticsState.getSolveCountForSession(s.id)} solves)`
+						name: `${s.name || 'Unnamed Session'} (${solveCounts[s.id] || 0} solves)`
 					}))}
 				/>
 			</div>
