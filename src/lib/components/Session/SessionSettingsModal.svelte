@@ -326,7 +326,7 @@
 									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
 								>
 									<div class="mb-4 flex items-center justify-between">
-										<Label class="text-xs font-semibold uppercase text-gray-500">Drill Flow</Label>
+										<Label class="text-xs font-semibold text-gray-500 uppercase">Drill Flow</Label>
 										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
 											>{settings.drillTimeBetweenCases}s delay</span
 										>

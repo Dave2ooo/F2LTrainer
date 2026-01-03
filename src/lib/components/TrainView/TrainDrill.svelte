@@ -399,8 +399,10 @@
 		drillPhase = 'stopped';
 	}
 
-	let { sessionControl, isRunning = $bindable(false) }: { sessionControl?: Snippet; isRunning?: boolean } =
-		$props();
+	let {
+		sessionControl,
+		isRunning = $bindable(false)
+	}: { sessionControl?: Snippet; isRunning?: boolean } = $props();
 
 	$effect(() => {
 		// Disable external controls only when drill is actively running, allowing access when gave up
@@ -442,10 +444,7 @@
 					>
 						<div class="relative flex items-center justify-center">
 							<!-- Checkmark in center -->
-							<Check
-								size={48}
-								class="absolute text-green-600 drop-shadow-lg dark:text-green-400"
-							/>
+							<Check size={48} class="absolute text-green-600 drop-shadow-lg dark:text-green-400" />
 
 							<!-- Radial Progress -->
 							<svg class="size-32 -rotate-90 transform overflow-visible">
@@ -465,7 +464,7 @@
 									stroke="currentColor"
 									stroke-width="8"
 									fill="transparent"
-									class="text-green-500 radial-countdown"
+									class="radial-countdown text-green-500"
 									stroke-dasharray="352"
 									stroke-dashoffset="0"
 									style="--duration: {transitionDuration}s"
@@ -624,6 +623,7 @@
 		<BluetoothModal bind:open={bluetoothModalOpen} />
 	{/snippet}
 </ResponsiveLayout>
+
 <style>
 	@keyframes countdown {
 		to {
