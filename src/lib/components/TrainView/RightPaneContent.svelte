@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { P, Button, CloseButton } from 'flowbite-svelte';
+	import { P, Button, CloseButton, Hr } from 'flowbite-svelte';
 	import { flip } from 'svelte/animate';
 	import { slide } from 'svelte/transition';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -177,7 +177,7 @@
 	}
 </script>
 
-<div class="flex h-full flex-col p-4">
+<div class="flex h-full flex-col {inDrawer ? '' : 'p-4'}">
 	<!-- Close button for drawer mode (top right) -->
 	{#if inDrawer}
 		<div class="mb-2 flex justify-end">
@@ -189,44 +189,46 @@
 	<!-- svelte-ignore a11y_click_events_have_key_events -->
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
-		class="mb-4 cursor-pointer rounded-lg border border-gray-200 bg-white p-3 transition-colors hover:border-primary-300 hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary-600 dark:hover:bg-gray-700"
+		class="cursor-pointer rounded-lg bg-white transition-colors hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700"
 		onclick={() => sessionStatsModal?.openModal()}
 	>
 		<div class="flex items-center justify-between">
-			<h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Session Stats</h4>
+			<h4 class="text-lg font-semibold text-gray-900 dark:text-white">Session Stats</h4>
 			<ChevronRight class="size-4 text-gray-400 dark:text-gray-500" />
 		</div>
 		<div class="mt-2 grid grid-cols-4 gap-2 text-center">
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-500 dark:text-gray-400">Solves</span>
-				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+				<span class="font-mono text-lg font-semibold text-gray-900 dark:text-white"
 					>{sessionSolvesCount}</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-500 dark:text-gray-400">Best</span>
-				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+				<span class="font-mono text-lg font-semibold text-gray-900 dark:text-white"
 					>{formatTime(sessionBestTime)}</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-500 dark:text-gray-400">Ao5</span>
-				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+				<span class="font-mono text-lg font-semibold text-gray-900 dark:text-white"
 					>{formatTime(sessionAo5)}</span
 				>
 			</div>
 			<div class="flex flex-col">
 				<span class="text-xs text-gray-500 dark:text-gray-400">Ao12</span>
-				<span class="font-mono text-sm font-semibold text-gray-900 dark:text-white"
+				<span class="font-mono text-lg font-semibold text-gray-900 dark:text-white"
 					>{formatTime(sessionAo12)}</span
 				>
 			</div>
 		</div>
 	</div>
 
+	<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+
 	<!-- Solves Header -->
 	<div class="mb-2 flex items-center gap-3">
-		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Solves</h3>
+		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Session History</h3>
 		{#if listItems().some((i) => i.type === 'solved')}
 			<Button
 				color="red"
