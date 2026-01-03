@@ -224,7 +224,7 @@
 		</div>
 	</div>
 
-	<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+	<Hr class="mx-auto my-4 h-1 w-full rounded border-0 bg-gray-300 dark:bg-gray-600" />
 
 	<!-- Solves Header -->
 	<div class="mb-2 flex items-center gap-3">
