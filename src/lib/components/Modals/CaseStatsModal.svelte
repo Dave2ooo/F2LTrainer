@@ -39,9 +39,9 @@
 		}
 	}
 
-	let selectedSessionIds = $state<number[]>([]);
+	let selectedSessionIds = $state<string[]>([]);
 
-	function toggleSessionFilter(id: number) {
+	function toggleSessionFilter(id: string) {
 		if (selectedSessionIds.includes(id)) {
 			selectedSessionIds = selectedSessionIds.filter((sid) => sid !== id);
 		} else {

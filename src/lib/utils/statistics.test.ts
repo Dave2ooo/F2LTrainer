@@ -6,7 +6,7 @@ describe('calculateRollingAo5', () => {
 	it('should return null for first 4 solves', () => {
 		const solves: Solve[] = [
 			{
-				id: 1,
+				id: '1',
 				time: 500,
 				groupId: 'basic',
 				caseId: 1,
@@ -16,7 +16,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 2,
+				id: '2',
 				time: 600,
 				groupId: 'basic',
 				caseId: 1,
@@ -26,7 +26,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 3,
+				id: '3',
 				time: 700,
 				groupId: 'basic',
 				caseId: 1,
@@ -36,7 +36,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 4,
+				id: '4',
 				time: 800,
 				groupId: 'basic',
 				caseId: 1,
@@ -54,7 +54,7 @@ describe('calculateRollingAo5', () => {
 	it('should calculate Ao5 starting from 5th solve', () => {
 		const solves: Solve[] = [
 			{
-				id: 1,
+				id: '1',
 				time: 500,
 				groupId: 'basic',
 				caseId: 1,
@@ -64,7 +64,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 2,
+				id: '2',
 				time: 600,
 				groupId: 'basic',
 				caseId: 1,
@@ -74,7 +74,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 3,
+				id: '3',
 				time: 700,
 				groupId: 'basic',
 				caseId: 1,
@@ -84,7 +84,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 4,
+				id: '4',
 				time: 800,
 				groupId: 'basic',
 				caseId: 1,
@@ -94,7 +94,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 5,
+				id: '5',
 				time: 900,
 				groupId: 'basic',
 				caseId: 1,
@@ -115,7 +115,7 @@ describe('calculateRollingAo5', () => {
 	it('should calculate rolling Ao5 for each solve after the 5th', () => {
 		const solves: Solve[] = [
 			{
-				id: 1,
+				id: '1',
 				time: 500,
 				groupId: 'basic',
 				caseId: 1,
@@ -125,7 +125,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 2,
+				id: '2',
 				time: 600,
 				groupId: 'basic',
 				caseId: 1,
@@ -135,7 +135,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 3,
+				id: '3',
 				time: 700,
 				groupId: 'basic',
 				caseId: 1,
@@ -145,7 +145,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 4,
+				id: '4',
 				time: 800,
 				groupId: 'basic',
 				caseId: 1,
@@ -155,7 +155,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 5,
+				id: '5',
 				time: 900,
 				groupId: 'basic',
 				caseId: 1,
@@ -165,7 +165,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 6,
+				id: '6',
 				time: 550,
 				groupId: 'basic',
 				caseId: 1,
@@ -186,7 +186,7 @@ describe('calculateRollingAo5', () => {
 	it('should skip null times when calculating', () => {
 		const solves: Solve[] = [
 			{
-				id: 1,
+				id: '1',
 				time: 500,
 				groupId: 'basic',
 				caseId: 1,
@@ -196,7 +196,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 2,
+				id: '2',
 				time: null,
 				groupId: 'basic',
 				caseId: 1,
@@ -206,7 +206,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 3,
+				id: '3',
 				time: 600,
 				groupId: 'basic',
 				caseId: 1,
@@ -216,7 +216,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 4,
+				id: '4',
 				time: 700,
 				groupId: 'basic',
 				caseId: 1,
@@ -226,7 +226,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 5,
+				id: '5',
 				time: 800,
 				groupId: 'basic',
 				caseId: 1,
@@ -236,7 +236,7 @@ describe('calculateRollingAo5', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 6,
+				id: '6',
 				time: 900,
 				groupId: 'basic',
 				caseId: 1,
@@ -261,7 +261,7 @@ describe('calculateRollingAo5', () => {
 describe('calculateRollingAo12', () => {
 	it('should return null for first 11 solves', () => {
 		const solves: Solve[] = Array.from({ length: 11 }, (_, i) => ({
-			id: i + 1,
+			id: String(i + 1),
 			time: (i + 1) * 100,
 			groupId: 'basic' as const,
 			caseId: 1,
@@ -277,7 +277,7 @@ describe('calculateRollingAo12', () => {
 
 	it('should calculate Ao12 starting from 12th solve', () => {
 		const solves: Solve[] = Array.from({ length: 12 }, (_, i) => ({
-			id: i + 1,
+			id: String(i + 1),
 			time: (i + 1) * 100,
 			groupId: 'basic' as const,
 			caseId: 1,
@@ -296,7 +296,7 @@ describe('calculateRollingAo12', () => {
 
 	it('should calculate rolling Ao12 for each solve after the 12th', () => {
 		const solves: Solve[] = Array.from({ length: 13 }, (_, i) => ({
-			id: i + 1,
+			id: String(i + 1),
 			time: (i + 1) * 100,
 			groupId: 'basic' as const,
 			caseId: 1,
@@ -316,7 +316,7 @@ describe('calculateRollingAo12', () => {
 	it('should skip null times when calculating', () => {
 		const solves: Solve[] = [
 			...Array.from({ length: 10 }, (_, i) => ({
-				id: i + 1,
+				id: String(i + 1),
 				time: (i + 1) * 100,
 				groupId: 'basic' as const,
 				caseId: 1,
@@ -326,7 +326,7 @@ describe('calculateRollingAo12', () => {
 				scrambleSelection: 0
 			})),
 			{
-				id: 11,
+				id: '11',
 				time: null,
 				groupId: 'basic' as const,
 				caseId: 1,
@@ -336,7 +336,7 @@ describe('calculateRollingAo12', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 12,
+				id: '12',
 				time: 1100,
 				groupId: 'basic' as const,
 				caseId: 1,
@@ -346,7 +346,7 @@ describe('calculateRollingAo12', () => {
 				scrambleSelection: 0
 			},
 			{
-				id: 13,
+				id: '13',
 				time: 1200,
 				groupId: 'basic' as const,
 				caseId: 1,
