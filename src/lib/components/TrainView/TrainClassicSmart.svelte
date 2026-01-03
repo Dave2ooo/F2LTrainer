@@ -788,6 +788,9 @@
 			{validationFeedback}
 			{undoMoves}
 			editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm}
+			hasMadeFirstMove={timerStarted}
 			onEditAlg={() => {
 				editAlgRef?.openModal();
 			}}

@@ -426,12 +426,14 @@
 								<div
 									class="h-full space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
 								>
-									<div>
-										<Label class="mb-1.5 text-xs font-semibold text-gray-500 uppercase"
-											>Algorithm Hint</Label
-										>
-										<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
-									</div>
+									{#if settings.trainMode !== 'drill'}
+										<div>
+											<Label class="mb-1.5 text-xs font-semibold text-gray-500 uppercase"
+												>Algorithm Hint</Label
+											>
+											<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
+										</div>
+									{/if}
 
 									<div class="space-y-2 border-t border-gray-200 pt-3 dark:border-gray-700">
 										<div class="flex items-center gap-2">

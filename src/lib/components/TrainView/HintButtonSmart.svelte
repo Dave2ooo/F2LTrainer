@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { HintAlgorithm } from '$lib/types/globalState';
 	import { Pencil, Undo2 } from '@lucide/svelte';
 	import { isRotationMove } from '$lib/utils/moveValidator';
 
@@ -10,6 +11,8 @@
 		validationFeedback?: 'correct' | 'incorrect' | 'neutral'; // NEW: Visual feedback
 		undoMoves?: string[]; // Undo moves to correct mistakes
 		editDisabled?: boolean; // Disable edit button when moves have been made
+		hintMode?: HintAlgorithm; // Hint display mode: step, allAtOnce, always
+		hasMadeFirstMove?: boolean; // Whether the user has made their first move
 	}
 
 	let {
@@ -19,7 +22,9 @@
 		currentMoveIndex = 0,
 		validationFeedback = 'neutral',
 		undoMoves = [],
-		editDisabled = false
+		editDisabled = false,
+		hintMode = 'step',
+		hasMadeFirstMove = false
 	}: Props = $props();
 
 	// Number of "current" moves to highlight (lookahead window)
@@ -84,9 +89,28 @@
 	const currentChipClass =
 		'rounded bg-blue-500 dark:bg-blue-600 px-2 py-1 font-mono font-semibold text-white animate-pulse shadow-lg';
 
-	// Future moves - blurred or hidden
-	const futureChipClass =
+	// Determine if full algorithm should be visible based on hint mode
+	// - 'always': show from the start
+	// - 'allAtOnce': show after first move is made (all blurred until then)
+	// - 'step': never show all at once (blur future moves)
+	let showFullAlgorithm = $derived(
+		hintMode === 'always' || (hintMode === 'allAtOnce' && hasMadeFirstMove)
+	);
+
+	// For 'allAtOnce' mode before first move, blur EVERYTHING including current moves
+	let isAllBlurred = $derived(hintMode === 'allAtOnce' && !hasMadeFirstMove);
+
+	// Future moves - blurred when step mode or allAtOnce before first move, visible when full algorithm revealed
+	const futureChipBlurred =
 		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
+	const futureChipVisible =
+		'rounded bg-gray-100 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-600 dark:text-gray-400';
+	let futureChipClass = $derived(showFullAlgorithm ? futureChipVisible : futureChipBlurred);
+
+	// Current move chip - blurred version for allAtOnce before first move
+	const currentChipBlurred =
+		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
+	let currentChipClassDynamic = $derived(isAllBlurred ? currentChipBlurred : currentChipClass);
 
 	// Undo moves - warning style with amber colors
 	const undoChipClass =
@@ -131,7 +155,7 @@
 
 					<!-- Current target moves -->
 					{#each currentMoves as move}
-						<span class={currentChipClass}>{move}</span>
+						<span class={currentChipClassDynamic}>{move}</span>
 					{/each}
 
 					<!-- Future moves (hidden or blurred) -->
