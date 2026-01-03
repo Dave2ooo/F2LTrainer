@@ -25,7 +25,7 @@
 	);
 	let aufText = $derived(currentTrainCase?.auf || '');
 
-	let solveCount = $derived(
+	/* let solveCount = $derived(
 		currentTrainCase
 			? statisticsState.statistics.filter(
 					(s) =>
@@ -34,7 +34,7 @@
 						s.side === currentTrainCase!.side
 				).length
 			: 0
-	);
+	); */
 </script>
 
 {#if currentTrainCase && caseState}
@@ -50,7 +50,7 @@
 		{#if globalState.showDetails}
 			<p class="text-sm text-theme-text-secondary">
 				{groupName}, Case {currentTrainCase.caseId}, Scramble {currentTrainCase.scramble}, AUF {aufText},
-				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot, Solve Counter: {solveCount}
+				{trainStateText}, Algorithm {algorithmIndex}, {sideText} Slot
 			</p>
 		{/if}
 	</div>
