@@ -61,6 +61,10 @@
 	const ao12 = $derived(calculateAo12(caseSolves));
 	const solvesCount = $derived(caseSolves.length);
 
+	const timedCount = $derived(caseSolves.filter((s) => s.time !== null).length);
+	const untimedCount = $derived(caseSolves.filter((s) => s.time === null).length);
+	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
+
 	const sessionsWithSolves = $derived.by(() => {
 		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
 		const sessionIds = new Set(solves.map((s) => s.sessionId));
@@ -317,13 +321,20 @@
 			<div class="absolute top-2.5 right-12 z-20 md:right-14">
 				<Button
 					color="alternative"
-					class="rounded-lg border-none !bg-transparent !p-1.5 text-gray-500 shadow-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:ring-0 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+					class="relative rounded-lg border-none !bg-transparent !p-1.5 text-gray-500 shadow-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:ring-0 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
 				>
 					<Funnel
 						class="size-5 transition-colors {selectedSessionIds.length > 0
 							? 'fill-primary-600 text-primary-600'
 							: 'fill-none'}"
 					/>
+					{#if selectedSessionIds.length > 0}
+						<span
+							class="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary-600 px-1 text-[10px] font-bold text-white ring-2 ring-white dark:ring-gray-800"
+						>
+							{selectedSessionIds.length}
+						</span>
+					{/if}
 				</Button>
 				<Dropdown class="w-60 overflow-hidden rounded-xl shadow-xl" placement="bottom-end">
 					<div
@@ -342,6 +353,7 @@
 							/>
 							<span class="text-sm font-medium text-gray-900 dark:text-gray-100">All Sessions</span>
 						</label>
+						<hr class="my-1 border-gray-200 dark:border-gray-600" />
 						{#each sessionsWithSolves as session}
 							<label
 								class="flex cursor-pointer items-center rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-600"
@@ -375,10 +387,21 @@
 			/>
 
 			<div class="flex min-w-[100px] flex-col gap-3 text-center">
-				<div class="flex flex-col">
-					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Solves</span>
-					<span class="text-xl font-bold md:text-2xl">{solvesCount}</span>
-				</div>
+				{#if hasMixedSolves}
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Timed</span>
+						<span class="text-xl font-bold md:text-2xl">{timedCount}</span>
+					</div>
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Untimed</span>
+						<span class="text-xl font-bold md:text-2xl">{untimedCount}</span>
+					</div>
+				{:else}
+					<div class="flex flex-col">
+						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Solves</span>
+						<span class="text-xl font-bold md:text-2xl">{solvesCount}</span>
+					</div>
+				{/if}
 				<div
 					class="-m-2 flex cursor-pointer flex-col rounded-lg p-2 transition-colors hover:bg-gray-100 dark:hover:bg-gray-700"
 					role="button"
@@ -431,22 +454,24 @@
 					>
 						{#each caseSolves.slice().reverse() as solve, index}
 							{@const realIndex = caseSolves.length - 1 - index}
-							<Badge
-								class="cursor-pointer text-sm md:text-base {hoveredIndex === realIndex ||
-								selectedIndex === realIndex
-									? 'ring-2 ring-primary-500'
-									: ''}"
-								border
-								dismissable={selectedIndex === realIndex}
-								onclick={() => (selectedIndex = selectedIndex === realIndex ? null : realIndex)}
-								onmouseenter={() => (hoveredIndex = realIndex)}
-								onmouseleave={() => (hoveredIndex = null)}
-								onclose={(e: any) => {
-									e?.preventDefault?.();
-									removeTime(realIndex);
-									selectedIndex = null;
-								}}>{formatTime(solve.time)}</Badge
-							>
+							{#if solve.time !== null}
+								<Badge
+									class="cursor-pointer text-sm md:text-base {hoveredIndex === realIndex ||
+									selectedIndex === realIndex
+										? 'ring-2 ring-primary-500'
+										: ''}"
+									border
+									dismissable={selectedIndex === realIndex}
+									onclick={() => (selectedIndex = selectedIndex === realIndex ? null : realIndex)}
+									onmouseenter={() => (hoveredIndex = realIndex)}
+									onmouseleave={() => (hoveredIndex = null)}
+									onclose={(e: any) => {
+										e?.preventDefault?.();
+										removeTime(realIndex);
+										selectedIndex = null;
+									}}>{formatTime(solve.time)}</Badge
+								>
+							{/if}
 						{/each}
 					</div>
 				</div>
