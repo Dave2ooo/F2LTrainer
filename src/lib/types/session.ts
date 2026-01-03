@@ -49,5 +49,6 @@ export interface Session {
 	createdAt: number;
 	lastPlayedAt: number;
 	lastModified: number;
-	archived?: boolean; // Soft deletion flag
+	archived: boolean; // Soft deletion flag
+	favorite?: boolean; // Pin to top of dropdown
 }

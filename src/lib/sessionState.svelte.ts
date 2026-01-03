@@ -97,7 +97,8 @@ class SessionState {
 			settings: JSON.parse(JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })),
 			createdAt: Date.now(),
 			lastPlayedAt: Date.now(),
-			lastModified: Date.now()
+			lastModified: Date.now(),
+			archived: false
 		};
 		this.sessions.push(newSession);
 		if (isDefault) {
@@ -160,6 +161,33 @@ class SessionState {
 		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			session.archived = false;
+			this.save();
+		}
+	}
+
+	duplicateSession(id: string) {
+		const session = this.sessions.find((s) => s.id === id);
+		if (!session) return null;
+
+		const newSession: Session = {
+			id: crypto.randomUUID(),
+			name: `${session.name} (Copy)`,
+			settings: JSON.parse(JSON.stringify(session.settings)),
+			createdAt: Date.now(),
+			lastPlayedAt: Date.now(),
+			lastModified: Date.now(),
+			archived: false
+		};
+		this.sessions.push(newSession);
+		this.activeSessionId = newSession.id;
+		this.save();
+		return newSession;
+	}
+
+	toggleFavorite(id: string) {
+		const session = this.sessions.find((s) => s.id === id);
+		if (session) {
+			session.favorite = !session.favorite;
 			this.save();
 		}
 	}

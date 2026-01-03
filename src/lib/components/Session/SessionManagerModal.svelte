@@ -1,0 +1,447 @@
+<script lang="ts">
+	import { Button, Tabs, TabItem, Input, Select, Label } from 'flowbite-svelte';
+	import Modal from '$lib/components/Modal.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
+	import Update from '$lib/components/Modals/Buttons/Update.svelte';
+	import {
+		Copy,
+		RotateCcw,
+		Trash2,
+		Archive,
+		Star,
+		Edit2,
+		Check,
+		X,
+		GitMerge
+	} from '@lucide/svelte';
+	import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
+
+	let { open = $bindable() }: { open: boolean } = $props();
+
+	// For permanent deletion confirmation
+	let showDeleteConfirmation = $state(false);
+	let sessionToDelete = $state<{ id: string; name: string; solveCount: number } | null>(null);
+
+	// For clearing all archived sessions
+	let showClearAllConfirmation = $state(false);
+
+	// For renaming
+	let editingSessionId = $state<string | null>(null);
+	let editingSessionName = $state('');
+
+	// For merging sessions
+	let showMergeModal = $state(false);
+	let mergeSourceId = $state<string>('');
+	let mergeTargetId = $state<string>('');
+
+	// Derived lists - sorted by last played (most recent first) to match dropdown order
+	const activeSessions = $derived(
+		sessionState.sessions
+			.filter((s) => !s.archived)
+			.sort((a, b) => (b.lastPlayedAt || 0) - (a.lastPlayedAt || 0))
+	);
+	const archivedSessions = $derived(sessionState.sessions.filter((s) => s.archived));
+
+	function handleDuplicate(sessionId: string) {
+		sessionState.duplicateSession(sessionId);
+		open = false;
+	}
+
+	function handleArchive(sessionId: string) {
+		// Check if it's the last active session
+		if (activeSessions.length <= 1) {
+			alert('Cannot archive the last active session.');
+			return;
+		}
+		sessionState.deleteSession(sessionId);
+	}
+
+	function handleRestore(sessionId: string) {
+		sessionState.restoreSession(sessionId);
+	}
+
+	function handleToggleFavorite(sessionId: string) {
+		sessionState.toggleFavorite(sessionId);
+	}
+
+	function handlePermanentDeleteRequest(sessionId: string, sessionName: string) {
+		const solveCount = statisticsState.getSolveCountForSession(sessionId);
+		sessionToDelete = { id: sessionId, name: sessionName, solveCount };
+		showDeleteConfirmation = true;
+	}
+
+	function handlePermanentDeleteConfirm() {
+		if (sessionToDelete) {
+			// First, delete all solves for this session
+			statisticsState.clearSession(sessionToDelete.id);
+			// Then, hard delete the session itself
+			sessionState.hardDeleteSession(sessionToDelete.id);
+			sessionToDelete = null;
+		}
+	}
+
+	// Calculate total solves across all archived sessions
+	const totalArchivedSolves = $derived(
+		archivedSessions.reduce(
+			(total, session) => total + statisticsState.getSolveCountForSession(session.id),
+			0
+		)
+	);
+
+	function handleClearAllArchivedRequest() {
+		showClearAllConfirmation = true;
+	}
+
+	function handleClearAllArchivedConfirm() {
+		// Delete all solves and sessions for archived sessions
+		for (const session of archivedSessions) {
+			statisticsState.clearSession(session.id);
+			sessionState.hardDeleteSession(session.id);
+		}
+	}
+
+	function startEditingSession(sessionId: string, currentName: string) {
+		editingSessionId = sessionId;
+		editingSessionName = currentName || 'Unnamed Session';
+	}
+
+	function saveEditSession() {
+		if (!editingSessionId) return;
+
+		const trimmedName = editingSessionName.trim();
+		if (!trimmedName) {
+			// Don't allow empty names - revert to original
+			cancelEditSession();
+			return;
+		}
+
+		sessionState.updateSession(editingSessionId, { name: trimmedName });
+		editingSessionId = null;
+		editingSessionName = '';
+	}
+
+	function cancelEditSession() {
+		editingSessionId = null;
+		editingSessionName = '';
+	}
+
+	function formatDate(timestamp: number | undefined): string {
+		if (!timestamp) return 'Never';
+
+		const now = Date.now();
+		const diffMs = now - timestamp;
+		const diffMinutes = Math.floor(diffMs / 60000);
+		const diffHours = Math.floor(diffMs / 3600000);
+
+		// If within 24 hours, show relative time
+		if (diffHours < 24) {
+			if (diffMinutes < 1) return 'Just now';
+			if (diffMinutes < 60) return `${diffMinutes}m ago`;
+			return `${diffHours}h ago`;
+		}
+
+		// Otherwise show date without year
+		return new Date(timestamp).toLocaleDateString(undefined, {
+			month: 'short',
+			day: 'numeric'
+		});
+	}
+
+	// Merge sessions functionality
+	const mergeSourceSolveCount = $derived(
+		mergeSourceId ? statisticsState.getSolveCountForSession(mergeSourceId) : 0
+	);
+
+	const mergeSourceName = $derived(
+		activeSessions.find((s) => s.id === mergeSourceId)?.name || 'Unnamed Session'
+	);
+
+	const mergeTargetName = $derived(
+		activeSessions.find((s) => s.id === mergeTargetId)?.name || 'Unnamed Session'
+	);
+
+	const canMerge = $derived(mergeSourceId && mergeTargetId && mergeSourceId !== mergeTargetId);
+
+	function openMergeModal() {
+		// Pre-select first two sessions if available
+		mergeSourceId = activeSessions[0]?.id || '';
+		mergeTargetId = activeSessions[1]?.id || '';
+		showMergeModal = true;
+	}
+
+	function handleMerge() {
+		if (!canMerge) return;
+
+		// Move all solves from source to target
+		statisticsState.moveSessionSolves(mergeSourceId, mergeTargetId);
+
+		// Delete the source session (it now has 0 solves)
+		sessionState.hardDeleteSession(mergeSourceId);
+
+		// Close the modal and reset
+		showMergeModal = false;
+		mergeSourceId = '';
+		mergeTargetId = '';
+	}
+</script>
+
+<Modal
+	bind:open
+	title="Session Manager"
+	size="lg"
+	outsideclose={true}
+	placement="top-center"
+	class="mt-8"
+>
+	<Tabs
+		tabStyle="underline"
+		classes={{
+			content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
+		}}
+	>
+		<TabItem open title="Active ({activeSessions.length})">
+			<div class="mt-4 flex flex-col gap-2">
+				{#if activeSessions.length === 0}
+					<p class="py-8 text-center text-gray-500 dark:text-gray-400">No active sessions</p>
+				{:else}
+					{#each activeSessions as session (session.id)}
+						<div
+							class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
+						>
+							{#if editingSessionId === session.id}
+								<!-- Editing mode -->
+								<Input type="text" bind:value={editingSessionName} class="flex-1" maxlength={60} />
+								<div class="flex shrink-0 items-center gap-1">
+									<Button size="xs" color="green" onclick={saveEditSession}>
+										<Check class="size-4" />
+									</Button>
+									<Button size="xs" color="alternative" onclick={cancelEditSession}>
+										<X class="size-4" />
+									</Button>
+								</div>
+							{:else}
+								<!-- Display mode -->
+								<div class="min-w-0 flex-1">
+									<div class="flex items-center gap-2">
+										<span class="truncate font-medium text-gray-900 dark:text-white">
+											{session.name || 'Unnamed Session'}
+										</span>
+										{#if session.id === sessionState.activeSessionId}
+											<span
+												class="shrink-0 rounded-full bg-primary-100 px-2 py-0.5 text-xs font-medium text-primary-800 dark:bg-primary-900 dark:text-primary-300"
+											>
+												Active
+											</span>
+										{/if}
+									</div>
+									<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+										{statisticsState.getSolveCountForSession(session.id)} solve{statisticsState.getSolveCountForSession(
+											session.id
+										) === 1
+											? ''
+											: 's'} • Last played: {formatDate(session.lastPlayedAt)}
+									</p>
+								</div>
+								<div class="flex shrink-0 items-center gap-1">
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2 {session.favorite
+											? 'text-yellow-500 hover:text-yellow-600'
+											: 'text-gray-400 hover:text-yellow-500'}"
+										title={session.favorite ? 'Remove from favorites' : 'Add to favorites'}
+										onclick={() => handleToggleFavorite(session.id)}
+									>
+										<Star class="size-4" fill={session.favorite ? 'currentColor' : 'none'} />
+									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2"
+										title="Rename session"
+										onclick={() => startEditingSession(session.id, session.name)}
+									>
+										<Edit2 class="size-4" />
+									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2"
+										title="Duplicate session"
+										onclick={() => handleDuplicate(session.id)}
+									>
+										<Copy class="size-4" />
+									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
+										title="Archive session"
+										onclick={() => handleArchive(session.id)}
+										disabled={activeSessions.length <= 1}
+									>
+										<Archive class="size-4" />
+									</Button>
+								</div>
+							{/if}
+						</div>
+					{/each}
+					<!-- Merge Sessions button -->
+					{#if activeSessions.length >= 2}
+						<div class="mt-4 flex justify-end border-t border-gray-200 pt-4 dark:border-gray-700">
+							<Button color="alternative" size="sm" onclick={openMergeModal}>
+								<GitMerge class="mr-2 size-4" /> Merge Sessions
+							</Button>
+						</div>
+					{/if}
+				{/if}
+			</div>
+		</TabItem>
+
+		<TabItem title="Archived ({archivedSessions.length})">
+			<div class="mt-4 flex flex-col gap-2">
+				{#if archivedSessions.length === 0}
+					<p class="py-8 text-center text-gray-500 dark:text-gray-400">No archived sessions</p>
+				{:else}
+					{#each archivedSessions as session (session.id)}
+						<div
+							class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900"
+						>
+							<div class="min-w-0 flex-1">
+								<span class="truncate font-medium text-gray-600 dark:text-gray-400">
+									{session.name || 'Unnamed Session'}
+								</span>
+								<p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+									{statisticsState.getSolveCountForSession(session.id)} solve{statisticsState.getSolveCountForSession(
+										session.id
+									) === 1
+										? ''
+										: 's'} • Archived • Last played: {formatDate(session.lastPlayedAt)}
+								</p>
+							</div>
+							<div class="flex shrink-0 items-center gap-1">
+								<Button
+									color="alternative"
+									size="xs"
+									class="!p-2 text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400"
+									title="Restore session"
+									onclick={() => handleRestore(session.id)}
+								>
+									<RotateCcw class="size-4" />
+								</Button>
+								<Button
+									color="alternative"
+									size="xs"
+									class="!p-2 text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-400"
+									title="Delete permanently"
+									onclick={() =>
+										handlePermanentDeleteRequest(session.id, session.name || 'Unnamed Session')}
+								>
+									<Trash2 class="size-4" />
+								</Button>
+							</div>
+						</div>
+					{/each}
+					<!-- Empty Archive button -->
+					<div class="mt-4 flex justify-end border-t border-gray-200 pt-4 dark:border-gray-700">
+						<Button color="red" outline size="sm" onclick={handleClearAllArchivedRequest}>
+							<Trash2 class="mr-2 size-4" /> Empty Archive
+						</Button>
+					</div>
+				{/if}
+			</div>
+		</TabItem>
+	</Tabs>
+</Modal>
+
+<ConfirmationModal
+	bind:open={showDeleteConfirmation}
+	title="Permanently Delete Session?"
+	message="Are you sure you want to permanently delete '{sessionToDelete?.name}'? This will also delete {sessionToDelete?.solveCount ??
+		0} solve{(sessionToDelete?.solveCount ?? 0) === 1 ? '' : 's'} and cannot be undone."
+	confirmText="Delete Forever"
+	confirmColor="red"
+	onConfirm={handlePermanentDeleteConfirm}
+/>
+
+<ConfirmationModal
+	bind:open={showClearAllConfirmation}
+	title="Empty Archive?"
+	message="Are you sure you want to permanently delete ALL {archivedSessions.length} archived session{archivedSessions.length ===
+	1
+		? ''
+		: 's'}? This will also delete {totalArchivedSolves} solve{totalArchivedSolves === 1
+		? ''
+		: 's'}. This action cannot be undone."
+	confirmText="Delete All"
+	confirmColor="red"
+	onConfirm={handleClearAllArchivedConfirm}
+/>
+
+<!-- Merge Sessions Modal -->
+<Modal bind:open={showMergeModal} title="Merge Sessions" size="md" outsideclose={true}>
+	<div class="flex flex-col gap-6">
+		<p class="text-sm text-gray-500 dark:text-gray-400">
+			Move all solves from the source session to the target session. The source session will be
+			deleted after the merge.
+		</p>
+
+		<div class="flex flex-col gap-4">
+			<div>
+				<Label for="merge-source" class="mb-2">Source Session (will be deleted)</Label>
+				<Select
+					id="merge-source"
+					bind:value={mergeSourceId}
+					items={activeSessions.map((s) => ({
+						value: s.id,
+						name: `${s.name || 'Unnamed Session'} (${statisticsState.getSolveCountForSession(s.id)} solves)`
+					}))}
+				/>
+			</div>
+
+			<div>
+				<Label for="merge-target" class="mb-2">Target Session (will receive solves)</Label>
+				<Select
+					id="merge-target"
+					bind:value={mergeTargetId}
+					items={activeSessions.map((s) => ({
+						value: s.id,
+						name: `${s.name || 'Unnamed Session'} (${statisticsState.getSolveCountForSession(s.id)} solves)`
+					}))}
+				/>
+			</div>
+		</div>
+
+		{#if canMerge}
+			<div
+				class="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20"
+			>
+				<h4 class="mb-2 font-medium text-blue-800 dark:text-blue-300">Preview</h4>
+				<ul class="space-y-1 text-sm text-blue-700 dark:text-blue-400">
+					<li>
+						• {mergeSourceSolveCount} solve{mergeSourceSolveCount === 1 ? '' : 's'} will be moved
+					</li>
+					<li>• "{mergeSourceName}" will be deleted</li>
+					<li>• "{mergeTargetName}" will keep its settings</li>
+				</ul>
+			</div>
+		{:else if mergeSourceId === mergeTargetId && mergeSourceId}
+			<div
+				class="rounded-lg border border-yellow-200 bg-yellow-50 p-4 dark:border-yellow-800 dark:bg-yellow-900/20"
+			>
+				<p class="text-sm text-yellow-700 dark:text-yellow-400">
+					Source and target must be different sessions.
+				</p>
+			</div>
+		{/if}
+
+		<Update
+			submitText="Merge"
+			Icon={GitMerge}
+			onSubmit={handleMerge}
+			onCancel={() => (showMergeModal = false)}
+			disabled={!canMerge}
+		/>
+	</div>
+</Modal>

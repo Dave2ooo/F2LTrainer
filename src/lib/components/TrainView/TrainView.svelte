@@ -4,8 +4,16 @@
 	import { Button, P } from 'flowbite-svelte';
 	import { Dropdown, DropdownItem, DropdownDivider, DropdownHeader } from 'flowbite-svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
-	import { Settings as SettingsIcon, Edit2, Plus, ChevronDown } from '@lucide/svelte';
+	import {
+		Settings as SettingsIcon,
+		Edit2,
+		Plus,
+		ChevronDown,
+		FolderCog,
+		Star
+	} from '@lucide/svelte';
 	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
+	import SessionManagerModal from '$lib/components/Session/SessionManagerModal.svelte';
 
 	import TrainClassic from './TrainClassic.svelte';
 	import TrainClassicSmart from './TrainClassicSmart.svelte';
@@ -13,6 +21,7 @@
 
 	let showSessionSettings = $state(false);
 	let isNewSession = $state(false);
+	let showSessionManager = $state(false);
 
 	let activeSettings = $derived(
 		sessionState.activeSession?.settings as SessionSettings | undefined
@@ -57,12 +66,23 @@
 						class="border-b border-gray-200 bg-gray-50 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
 						>Switch Session</DropdownHeader
 					>
-					{#each sessionState.sessions.filter((s) => !s.archived) as session (session.id)}
+					{#each sessionState.sessions
+						.filter((s) => !s.archived)
+						.sort((a, b) => {
+							if (a.favorite && !b.favorite) return -1;
+							if (!a.favorite && b.favorite) return 1;
+							return (b.lastPlayedAt || 0) - (a.lastPlayedAt || 0);
+						}) as session (session.id)}
 						<DropdownItem
-							class="flex !list-none items-center justify-between gap-3 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+							class="flex w-full items-center justify-between gap-3 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
 							onclick={() => sessionState.setActiveSession(session.id)}
 						>
-							<span class="max-w-[200px] flex-1 truncate">{session.name || 'Unnamed Session'}</span>
+							<div class="flex min-w-0 flex-1 items-center gap-2">
+								{#if session.favorite}
+									<Star size={12} class="shrink-0 text-yellow-500" fill="currentColor" />
+								{/if}
+								<span class="max-w-[180px] truncate">{session.name || 'Unnamed Session'}</span>
+							</div>
 							{#if session.id === sessionState.activeSessionId}
 								<!-- Simple indicator for active session -->
 								<span class="h-2 w-2 flex-shrink-0 rounded-full bg-primary-600 dark:bg-primary-500"
@@ -70,11 +90,8 @@
 							{/if}
 						</DropdownItem>
 					{/each}
-					{#if sessionState.sessions.filter((s) => !s.archived).length > 1}
-						<DropdownDivider class="border-gray-200 dark:border-gray-600" />
-					{/if}
 					<DropdownItem
-						class="hover:bg-gray-100 dark:hover:bg-gray-600"
+						class="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-600"
 						onclick={() => {
 							// Don't create session yet, let the modal handle it on save
 							isNewSession = true;
@@ -82,9 +99,17 @@
 						}}
 					>
 						<div
-							class="flex items-center gap-2 font-semibold text-primary-600 dark:text-primary-400"
+							class="flex w-full items-center gap-2 font-semibold text-primary-600 dark:text-primary-400"
 						>
 							<Plus size={16} /> Create New Session
+						</div>
+					</DropdownItem>
+					<DropdownItem
+						class="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-600"
+						onclick={() => (showSessionManager = true)}
+					>
+						<div class="flex w-full items-center gap-2 text-gray-600 dark:text-gray-400">
+							<FolderCog size={16} /> Manage Sessions
 						</div>
 					</DropdownItem>
 				</Dropdown>
@@ -112,6 +137,8 @@
 		isNew={isNewSession}
 	/>
 {/if}
+
+<SessionManagerModal bind:open={showSessionManager} />
 
 {#if getNumberOfSelectedCases() > 0}
 	{#if activeSettings}

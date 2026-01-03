@@ -140,6 +140,11 @@ class StatisticsStateManager {
 			solve.sessionId = sessionState.activeSessionId;
 		}
 		this.allSolves.push(solve);
+
+		// Update the session's lastPlayedAt timestamp
+		if (solve.sessionId) {
+			sessionState.updateSession(solve.sessionId, { lastPlayedAt: Date.now() });
+		}
 	}
 
 	updateSolve(id: string, time: number) {
@@ -171,6 +176,21 @@ class StatisticsStateManager {
 			this.allSolves.length = 0;
 			this.allSolves.push(...keptSolves);
 		}
+	}
+
+	getSolveCountForSession(sessionId: string): number {
+		return this.allSolves.filter((s) => s.sessionId === sessionId).length;
+	}
+
+	moveSessionSolves(sourceSessionId: string, targetSessionId: string): number {
+		let movedCount = 0;
+		for (const solve of this.allSolves) {
+			if (solve.sessionId === sourceSessionId) {
+				solve.sessionId = targetSessionId;
+				movedCount++;
+			}
+		}
+		return movedCount;
 	}
 }
 

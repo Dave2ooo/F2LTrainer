@@ -7,13 +7,20 @@
 		onSubmit?: () => void;
 		submitText?: string;
 		Icon?: any;
+		disabled?: boolean;
 	}
 
-	let { onCancel, onSubmit, submitText = 'Update', Icon = Check }: Props = $props();
+	let {
+		onCancel,
+		onSubmit,
+		submitText = 'Update',
+		Icon = Check,
+		disabled = false
+	}: Props = $props();
 </script>
 
 <div class="mt-4 flex w-full justify-center gap-3">
-	<Button type="submit" class="gap-2 py-2 md:text-lg" onclick={onSubmit}>
+	<Button type="submit" class="gap-2 py-2 md:text-lg" onclick={onSubmit} {disabled}>
 		<Icon />{submitText}
 	</Button>
 	<Button type="button" color="gray" outline onclick={onCancel} class="gap-2 py-2 md:text-lg"
