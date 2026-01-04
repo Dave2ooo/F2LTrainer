@@ -55,7 +55,7 @@
 				<ChevronDown size={14} class="text-gray-500 dark:text-gray-400" />
 			</Button>
 			<Dropdown
-				class="w-60 rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-700"
+				class="w-80 max-w-[95vw] rounded-lg border border-gray-200 bg-white shadow-xl dark:border-gray-600 dark:bg-gray-700"
 			>
 				<DropdownHeader
 					class="border-b border-gray-200 bg-gray-50 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
