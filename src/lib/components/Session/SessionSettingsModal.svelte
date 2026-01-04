@@ -450,7 +450,11 @@
 											<Label class="mb-1.5 text-xs font-semibold text-gray-500 uppercase"
 												>Algorithm Hint</Label
 											>
-											<Select items={hintAlgoOptions} bind:value={settings.trainHintAlgorithm} />
+											<Select
+												items={hintAlgoOptions}
+												bind:value={settings.trainHintAlgorithm}
+												placeholder=""
+											/>
 										</div>
 									{/if}
 
@@ -530,7 +534,11 @@
 									<Label class="mb-3 text-xs font-semibold text-gray-500 uppercase"
 										>Stickering Style</Label
 									>
-									<Select items={hintStickerOptions} bind:value={settings.trainHintStickering} />
+									<Select
+										items={hintStickerOptions}
+										bind:value={settings.trainHintStickering}
+										placeholder=""
+									/>
 								</div>
 							</div>
 						</div>
