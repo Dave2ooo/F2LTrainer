@@ -24,7 +24,16 @@
 	let toastType: 'success' | 'error' = $state('success');
 	let showToast = $state(false);
 
-	export function openModal() {
+	export function openModal(errorContext?: string) {
+		if (errorContext) {
+			const textToAdd = `\nError details: ${errorContext}`;
+			// Avoid duplicating if already present
+			if (!formData.message.includes(errorContext)) {
+				formData.message = formData.message
+					? formData.message + '\n' + textToAdd
+					: textToAdd.trim();
+			}
+		}
 		open = true;
 	}
 

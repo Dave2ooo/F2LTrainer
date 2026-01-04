@@ -3,6 +3,7 @@
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
 	import { Bluetooth, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
+	import FeedbackModal from './FeedbackModal.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
@@ -17,6 +18,7 @@
 	let editingCubeId = $state<string | null>(null);
 	let editingCubeName = $state('');
 	let removeCubeModal: RemoveCubeModal;
+	let feedbackModal: FeedbackModal;
 
 	const SUBSCRIBER_ID = 'bluetooth-modal';
 	const SUBSCRIBER_PRIORITY = 100; // High priority - takes precedence over training view
@@ -252,7 +254,16 @@
 
 		<!-- Error messages -->
 		{#if bluetoothState.errorMessage}
-			<p class="text-center text-sm text-red-500">{bluetoothState.errorMessage}</p>
+			<p class="text-center text-sm text-red-500">
+				{bluetoothState.errorMessage}
+				<button
+					type="button"
+					class="ml-1 font-semibold underline hover:text-red-700"
+					onclick={() => feedbackModal.openModal(bluetoothState.errorMessage)}
+				>
+					Report this issue
+				</button>
+			</p>
 		{/if}
 
 		<!-- Connect new cube button -->
@@ -274,4 +285,5 @@
 </Modal>
 
 <RemoveCubeModal bind:this={removeCubeModal} />
+<FeedbackModal bind:this={feedbackModal} />
 <MacAddressModal />
