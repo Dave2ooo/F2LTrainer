@@ -22,6 +22,7 @@ import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 
 import TrainCase, { gernerateTrainCases } from './trainCases';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
+import type { SessionSettings } from './types/session';
 
 export let trainCaseQueue: TrainCase[] = [];
 
@@ -255,42 +256,21 @@ export function jumpToFirstUnsolved() {
 	}
 }
 
-export function getNumberOfSelectedCases(): number {
-	let count = 0;
+export function getNumberOfSelectedCases(settingsParam?: SessionSettings): number {
+	const settings = settingsParam || sessionState.activeSession?.settings;
+	if (!settings) return 0;
 
-	const sessionSettings = sessionState.activeSession?.settings;
+	const {
+		caseMode = 'group',
+		selectedCases = {},
+		trainGroupSelection = DEFAULT_SETTINGS.trainGroupSelection,
+		trainStateSelection = DEFAULT_SETTINGS.trainStateSelection
+	} = settings;
 
-	const trainGroupSelection =
-		sessionSettings?.trainGroupSelection ?? DEFAULT_SETTINGS.trainGroupSelection;
-	const trainStateSelection =
-		sessionSettings?.trainStateSelection ?? DEFAULT_SETTINGS.trainStateSelection;
-
-	const caseMode = sessionSettings?.caseMode || 'group';
-	const selectedCases = sessionSettings?.selectedCases || {};
-
-	for (const groupId of Object.keys(GROUP_DEFINITIONS) as GroupId[]) {
-		// 1. check if this group is selected (only relevant for group mode)
-		if (caseMode === 'group' && !trainGroupSelection[groupId]) {
-			// console.log("groupId", groupId, "not selected");
-			continue;
-		}
-
-		const groupCaseStates = casesState[groupId];
-
-		for (const caseIdStr of Object.keys(groupCaseStates)) {
-			const caseId = Number(caseIdStr);
-			// console.log("groupId", groupId, "caseId", caseId);
-			if (Number.isNaN(caseId)) continue;
-
-			if (caseMode === 'individual') {
-				if (selectedCases[`${groupId}-${caseId}`]) count++;
-			} else {
-				const caseState = groupCaseStates[caseId];
-				const caseTrainState = caseState.trainState;
-
-				if (trainStateSelection[caseTrainState]) count++;
-			}
-		}
+	if (caseMode === 'individual') {
+		return Object.values(selectedCases).filter(Boolean).length;
 	}
-	return count;
+
+	// Group mode
+	return getNumberOfSelectedCasesFromSelections(trainGroupSelection, trainStateSelection);
 }

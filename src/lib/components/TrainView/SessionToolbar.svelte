@@ -3,6 +3,7 @@
 	import { Dropdown, DropdownItem, DropdownHeader } from 'flowbite-svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
+	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
 	import {
 		Settings as SettingsIcon,
 		Plus,
@@ -80,14 +81,11 @@
 							</div>
 							<!-- Session config badges -->
 							<div class="flex flex-wrap items-center gap-0">
-								<!-- Solve count -->
+								<!-- Case count -->
 								<span
 									class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
 								>
-									{(() => {
-										const solveCount = solveCounts[session.id] || 0;
-										return `${solveCount} solve${solveCount === 1 ? '' : 's'}`;
-									})()}
+									{getNumberOfSelectedCases(session.settings)} cases
 								</span>
 								<!-- Training mode -->
 								{#if session.settings.trainMode === 'drill'}
@@ -117,6 +115,15 @@
 										Recap
 									</span>
 								{/if}
+								<!-- Solve count -->
+								<span
+									class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+								>
+									{(() => {
+										const solveCount = solveCounts[session.id] || 0;
+										return `${solveCount} solve${solveCount === 1 ? '' : 's'}`;
+									})()}
+								</span>
 							</div>
 						</div>
 						{#if session.id === sessionState.activeSessionId}

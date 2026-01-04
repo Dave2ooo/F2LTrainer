@@ -72,7 +72,10 @@
 		if (newSession) {
 			startEditingSession(newSession.id, newSession.name);
 			await tick();
-			activeSessionsList?.firstElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+			activeSessionsList?.firstElementChild?.scrollIntoView({
+				behavior: 'smooth',
+				block: 'nearest'
+			});
 		}
 	}
 
@@ -212,43 +215,6 @@
 		settingsSessionId = sessionId;
 		showSettingsModal = true;
 	}
-
-	// Helper to get case count for a specific session
-	function getSessionCaseCount(settings: SessionSettings): number {
-		const caseMode = settings.caseMode || 'group';
-		const selectedCases = settings.selectedCases || {};
-
-		if (caseMode === 'individual') {
-			return Object.values(selectedCases).filter(Boolean).length;
-		} else {
-			// For group mode, count cases based on selections
-			// We'll need to import the logic from trainCaseQueue
-			return getNumberOfSelectedCases();
-		}
-	}
-
-	// Format session configuration as text
-	function formatSessionConfig(settings: SessionSettings): string {
-		const parts: string[] = [];
-
-		// Case count
-		const caseCount = getSessionCaseCount(settings);
-		parts.push(`${caseCount} case${caseCount === 1 ? '' : 's'}`);
-
-		// Train activity (note: Bluetooth icon will be shown inline, not in text)
-		if (settings.trainMode === 'drill') {
-			parts.push('Drill');
-		} else {
-			parts.push('Classic');
-		}
-
-		// Recap mode
-		if (settings.frequencyMode === 'recap') {
-			parts.push('Recap');
-		}
-
-		return parts.join(' • ');
-	}
 </script>
 
 <Modal
@@ -307,7 +273,7 @@
 											class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
 										>
 											{(() => {
-												const caseCount = getSessionCaseCount(session.settings);
+												const caseCount = getNumberOfSelectedCases(session.settings);
 												return `${caseCount} case${caseCount === 1 ? '' : 's'}`;
 											})()}
 										</span>
@@ -431,7 +397,7 @@
 										class="inline-flex items-center gap-1 rounded-md bg-gray-100/50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700/50 dark:text-gray-400"
 									>
 										{(() => {
-											const caseCount = getSessionCaseCount(session.settings);
+											const caseCount = getNumberOfSelectedCases(session.settings);
 											return `${caseCount} case${caseCount === 1 ? '' : 's'}`;
 										})()}
 									</span>
