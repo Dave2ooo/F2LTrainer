@@ -10,6 +10,7 @@
 	import TrainClassic from './TrainClassic.svelte';
 	import TrainClassicSmart from './TrainClassicSmart.svelte';
 	import TrainDrill from './TrainDrill.svelte';
+	import ResponsiveLayout from './ResponsiveLayout.svelte';
 
 	let showSessionSettings = $state(false);
 	let isNewSession = $state(false);
@@ -60,29 +61,33 @@
 
 <SessionManagerModal bind:open={showSessionManager} />
 
-{#if getNumberOfSelectedCases() > 0}
-	{#if activeSettings}
-		{#if activeSettings.trainMode === 'drill'}
-			{#if activeSettings.smartCubeEnabled}
-				<TrainDrill {sessionToolbar} bind:isRunning={isDrillRunning} />
+<ResponsiveLayout {sessionToolbar}>
+	{#snippet leftContent()}
+		{#if getNumberOfSelectedCases() > 0}
+			{#if activeSettings}
+				{#if activeSettings.trainMode === 'drill'}
+					{#if activeSettings.smartCubeEnabled}
+						<TrainDrill bind:isRunning={isDrillRunning} />
+					{:else}
+						<div class="flex flex-col items-center justify-center gap-4 p-8">
+							<P class="text-center text-lg">Drill mode requires a smart cube connection.</P>
+							<P class="text-center text-gray-500 dark:text-gray-400">
+								Enable "Smart Cube" in session settings to use drill mode.
+							</P>
+						</div>
+					{/if}
+				{:else if activeSettings.smartCubeEnabled}
+					<TrainClassicSmart />
+				{:else}
+					<!-- Default or Classic Mode -->
+					<TrainClassic />
+				{/if}
 			{:else}
-				<div class="flex flex-col items-center justify-center gap-4 p-8">
-					<P class="text-center text-lg">Drill mode requires a smart cube connection.</P>
-					<P class="text-center text-gray-500 dark:text-gray-400">
-						Enable "Smart Cube" in session settings to use drill mode.
-					</P>
-				</div>
+				<!-- Fallback if no settings loaded (should happen rarely/briefly) -->
+				<TrainClassic />
 			{/if}
-		{:else if activeSettings.smartCubeEnabled}
-			<TrainClassicSmart {sessionToolbar} />
 		{:else}
-			<!-- Default or Classic Mode -->
-			<TrainClassic {sessionToolbar} />
+			<P>No training cases available. Please select some cases first.</P>
 		{/if}
-	{:else}
-		<!-- Fallback if no settings loaded (should happen rarely/briefly) -->
-		<TrainClassic {sessionToolbar} />
-	{/if}
-{:else}
-	<P>No training cases available. Please select some cases first.</P>
-{/if}
+	{/snippet}
+</ResponsiveLayout>

@@ -45,7 +45,8 @@
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import DrillTimer from './DrillTimer.svelte';
 
-	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	// import ResponsiveLayout from './ResponsiveLayout.svelte';
+
 	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
@@ -399,230 +400,210 @@
 		drillPhase = 'stopped';
 	}
 
-	let {
-		sessionToolbar,
-		isRunning = $bindable(false)
-	}: { sessionToolbar: Snippet; isRunning?: boolean } = $props();
+	let { isRunning = $bindable(false) }: { isRunning?: boolean } = $props();
 
 	$effect(() => {
 		// Disable external controls only when drill is actively running, allowing access when gave up
 		isRunning = isDrillRunning && drillPhase !== 'gave_up';
 	});
-
-	import type { Snippet } from 'svelte';
 </script>
 
-<ResponsiveLayout {sessionToolbar}>
-	{#snippet leftContent()}
-		{#if drillPhase === 'countdown'}
-			<!-- Countdown display -->
-			<div class="flex flex-col items-center justify-center py-20">
-				<div class="animate-pulse text-9xl font-bold text-primary-600 dark:text-primary-400">
-					{countdownNumber}
-				</div>
-				<P class="mt-4 text-gray-600 dark:text-gray-400">Get ready...</P>
-				<div class="mt-8 flex justify-center">
-					<span
-						class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md"
-					>
-						Hold Green Front, White Up
-					</span>
-				</div>
-			</div>
-		{:else if isDrillRunning}
-			<!-- Drill is running - show TwistyPlayer and controls -->
+{#if drillPhase === 'countdown'}
+	<!-- Countdown display -->
+	<div class="flex flex-col items-center justify-center py-20">
+		<div class="animate-pulse text-9xl font-bold text-primary-600 dark:text-primary-400">
+			{countdownNumber}
+		</div>
+		<P class="mt-4 text-gray-600 dark:text-gray-400">Get ready...</P>
+		<div class="mt-8 flex justify-center">
+			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
+				Hold Green Front, White Up
+			</span>
+		</div>
+	</div>
+{:else if isDrillRunning}
+	<!-- Drill is running - show TwistyPlayer and controls -->
 
+	<div
+		class="relative mx-auto mt-4 size-50 md:size-60"
+		onpointerdowncapture={() => {
+			globalState.hasUsedTwistyPlayer = true;
+		}}
+	>
+		{#if drillPhase === 'transitioning'}
 			<div
-				class="relative mx-auto mt-4 size-50 md:size-60"
-				onpointerdowncapture={() => {
-					globalState.hasUsedTwistyPlayer = true;
-				}}
+				class="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-green-500/10 backdrop-blur-[1px]"
 			>
-				{#if drillPhase === 'transitioning'}
-					<div
-						class="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-green-500/10 backdrop-blur-[1px]"
-					>
-						<div class="relative flex items-center justify-center">
-							<!-- Checkmark in center -->
-							<Check size={48} class="absolute text-green-600 drop-shadow-lg dark:text-green-400" />
+				<div class="relative flex items-center justify-center">
+					<!-- Checkmark in center -->
+					<Check size={48} class="absolute text-green-600 drop-shadow-lg dark:text-green-400" />
 
-							<!-- Radial Progress -->
-							<svg class="size-32 -rotate-90 transform overflow-visible">
-								<circle
-									cx="64"
-									cy="64"
-									r="56"
-									stroke="currentColor"
-									stroke-width="8"
-									fill="transparent"
-									class="text-green-200 dark:text-green-900"
-								/>
-								<circle
-									cx="64"
-									cy="64"
-									r="56"
-									stroke="currentColor"
-									stroke-width="8"
-									fill="transparent"
-									class="radial-countdown text-green-500"
-									stroke-dasharray="352"
-									stroke-dashoffset="0"
-									style="--duration: {transitionDuration}s"
-								/>
-							</svg>
-						</div>
-					</div>
-				{/if}
-
-				{#if currentTrainCase}
-					<TwistyPlayer
-						bind:this={twistyPlayerRef}
-						bind:scramble
-						bind:movesAdded={alg}
-						groupId={currentTrainCase.groupId}
-						caseId={currentTrainCase.caseId}
-						algorithmSelection={currentAlgorithmSelection}
-						auf={currentTrainCase.auf}
-						side={currentTrainCase.side}
-						crossColor={currentTrainCase.crossColor}
-						frontColor={currentTrainCase.frontColor}
-						scrambleSelection={currentTrainCase.scramble}
-						stickering={sessionState.activeSession?.settings.trainHintStickering ??
-							DEFAULT_SETTINGS.trainHintStickering}
-						backView={sessionState.activeSession?.settings.backView || 'none'}
-						backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-						experimentalDragInput="auto"
-						class="size-full"
-						controlPanel="none"
-						showVisibilityToggle={false}
-						tempoScale={5}
-						showAlg={false}
-						onF2LSolved={() => {
-							const shouldTrigger = alg && alg.trim() !== '';
-							if (shouldTrigger) {
-								onF2LSolved();
-							}
-						}}
-					/>
-				{:else}
-					<div class="flex h-60 items-center justify-center">
-						<P>Loading case...</P>
-					</div>
-				{/if}
-			</div>
-
-			<!-- Drill Timer -->
-			<div class="mt-2">
-				<DrillTimer bind:this={drillTimerRef} />
-			</div>
-			<RecapProgress />
-
-			<!-- Action buttons / Gave up UI -->
-			{#if drillPhase === 'gave_up'}
-				<!-- Show algorithm and Redo/Resume buttons -->
-				<div class="mt-4 flex flex-col items-center gap-4">
-					<div
-						class="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800"
-					>
-						<div class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Algorithm:</div>
-						<div class="font-mono text-xl font-semibold">{displayAlg}</div>
-					</div>
-					<div class="flex gap-2">
-						<Button color="alternative" onclick={onRedo}>
-							<RotateCw class="mr-2 size-4" />
-							Redo
-						</Button>
-						<Button color="primary" onclick={onResume}>
-							<Play class="mr-2 size-4" />
-							Resume
-						</Button>
-					</div>
-				</div>
-			{:else}
-				<!-- Normal action buttons -->
-				<div class="mt-4 flex justify-center gap-2">
-					<Button
-						color="purple"
-						outline
-						onclick={onGiveUp}
-						disabled={drillPhase === 'transitioning'}
-					>
-						<Flag class="mr-2 size-4" />
-						Give up
-					</Button>
-					<Button color="light" onclick={onSkip} disabled={drillPhase === 'transitioning'}>
-						<SkipForward class="mr-2 size-4" />
-						Skip
-					</Button>
-					<Button color="red" outline onclick={onStop}>
-						<Square class="mr-2 size-4" />
-						Stop
-					</Button>
-				</div>
-			{/if}
-		{:else}
-			<!-- Drill is stopped - show Start button or Connect button -->
-			<div class="flex flex-col items-center justify-center gap-6 py-6">
-				<div class="text-center">
-					<h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Drill Mode</h2>
-					<P class="text-center text-gray-600 dark:text-gray-400">
-						Test your recognition and execution speed without hints.
-					</P>
-				</div>
-
-				{#if bluetoothState.isConnected}
-					<!-- Smart cube connected - show Start button -->
-					<Button color="primary" size="xl" onclick={onStartDrill}>
-						<Play class="mr-2 size-5" />
-						Start Drill
-					</Button>
-				{:else}
-					<!-- Not connected - show Connect button group -->
-					<div class="flex flex-col items-center gap-3">
-						<P class="text-center text-sm text-gray-500 dark:text-gray-400">
-							Connect a smart cube to start drilling
-						</P>
-						<ButtonGroup>
-							<Button
-								color="light"
-								onclick={handleSmartConnect}
-								disabled={bluetoothState.isConnecting}
-							>
-								{#if bluetoothState.isConnecting}
-									<Spinner class="mr-2" size="5" />
-									<span class="text-base font-medium">Connecting...</span>
-								{:else}
-									<Bluetooth class="mr-2 size-5" />
-									<span class="text-base font-medium">{connectButtonLabel}</span>
-								{/if}
-							</Button>
-							<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
-								<EllipsisVertical class="size-5" />
-							</Button>
-						</ButtonGroup>
-					</div>
-				{/if}
-
-				<div class="text-center text-sm text-gray-500 dark:text-gray-400">
-					<P>{getNumberOfSelectedCases()} cases selected</P>
+					<!-- Radial Progress -->
+					<svg class="size-32 -rotate-90 transform overflow-visible">
+						<circle
+							cx="64"
+							cy="64"
+							r="56"
+							stroke="currentColor"
+							stroke-width="8"
+							fill="transparent"
+							class="text-green-200 dark:text-green-900"
+						/>
+						<circle
+							cx="64"
+							cy="64"
+							r="56"
+							stroke="currentColor"
+							stroke-width="8"
+							fill="transparent"
+							class="radial-countdown text-green-500"
+							stroke-dasharray="352"
+							stroke-dashoffset="0"
+							style="--duration: {transitionDuration}s"
+						/>
+					</svg>
 				</div>
 			</div>
 		{/if}
 
-		<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+		{#if currentTrainCase}
+			<TwistyPlayer
+				bind:this={twistyPlayerRef}
+				bind:scramble
+				bind:movesAdded={alg}
+				groupId={currentTrainCase.groupId}
+				caseId={currentTrainCase.caseId}
+				algorithmSelection={currentAlgorithmSelection}
+				auf={currentTrainCase.auf}
+				side={currentTrainCase.side}
+				crossColor={currentTrainCase.crossColor}
+				frontColor={currentTrainCase.frontColor}
+				scrambleSelection={currentTrainCase.scramble}
+				stickering={sessionState.activeSession?.settings.trainHintStickering ??
+					DEFAULT_SETTINGS.trainHintStickering}
+				backView={sessionState.activeSession?.settings.backView || 'none'}
+				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+				experimentalDragInput="auto"
+				class="size-full"
+				controlPanel="none"
+				showVisibilityToggle={false}
+				tempoScale={5}
+				showAlg={false}
+				onF2LSolved={() => {
+					const shouldTrigger = alg && alg.trim() !== '';
+					if (shouldTrigger) {
+						onF2LSolved();
+					}
+				}}
+			/>
+		{:else}
+			<div class="flex h-60 items-center justify-center">
+				<P>Loading case...</P>
+			</div>
+		{/if}
+	</div>
 
-		<div class="flex flex-row justify-center gap-2">
-			<TrainStateSelect />
+	<!-- Drill Timer -->
+	<div class="mt-2">
+		<DrillTimer bind:this={drillTimerRef} />
+	</div>
+	<RecapProgress />
+
+	<!-- Action buttons / Gave up UI -->
+	{#if drillPhase === 'gave_up'}
+		<!-- Show algorithm and Redo/Resume buttons -->
+		<div class="mt-4 flex flex-col items-center gap-4">
+			<div
+				class="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800"
+			>
+				<div class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Algorithm:</div>
+				<div class="font-mono text-xl font-semibold">{displayAlg}</div>
+			</div>
+			<div class="flex gap-2">
+				<Button color="alternative" onclick={onRedo}>
+					<RotateCw class="mr-2 size-4" />
+					Redo
+				</Button>
+				<Button color="primary" onclick={onResume}>
+					<Play class="mr-2 size-4" />
+					Resume
+				</Button>
+			</div>
+		</div>
+	{:else}
+		<!-- Normal action buttons -->
+		<div class="mt-4 flex justify-center gap-2">
+			<Button color="purple" outline onclick={onGiveUp} disabled={drillPhase === 'transitioning'}>
+				<Flag class="mr-2 size-4" />
+				Give up
+			</Button>
+			<Button color="light" onclick={onSkip} disabled={drillPhase === 'transitioning'}>
+				<SkipForward class="mr-2 size-4" />
+				Skip
+			</Button>
+			<Button color="red" outline onclick={onStop}>
+				<Square class="mr-2 size-4" />
+				Stop
+			</Button>
+		</div>
+	{/if}
+{:else}
+	<!-- Drill is stopped - show Start button or Connect button -->
+	<div class="flex flex-col items-center justify-center gap-6 py-6">
+		<div class="text-center">
+			<h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Drill Mode</h2>
+			<P class="text-center text-gray-600 dark:text-gray-400">
+				Test your recognition and execution speed without hints.
+			</P>
 		</div>
 
-		<div class="mt-4">
-			<Details />
-		</div>
+		{#if bluetoothState.isConnected}
+			<!-- Smart cube connected - show Start button -->
+			<Button color="primary" size="xl" onclick={onStartDrill}>
+				<Play class="mr-2 size-5" />
+				Start Drill
+			</Button>
+		{:else}
+			<!-- Not connected - show Connect button group -->
+			<div class="flex flex-col items-center gap-3">
+				<P class="text-center text-sm text-gray-500 dark:text-gray-400">
+					Connect a smart cube to start drilling
+				</P>
+				<ButtonGroup>
+					<Button color="light" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
+						{#if bluetoothState.isConnecting}
+							<Spinner class="mr-2" size="5" />
+							<span class="text-base font-medium">Connecting...</span>
+						{:else}
+							<Bluetooth class="mr-2 size-5" />
+							<span class="text-base font-medium">{connectButtonLabel}</span>
+						{/if}
+					</Button>
+					<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
+						<EllipsisVertical class="size-5" />
+					</Button>
+				</ButtonGroup>
+			</div>
+		{/if}
 
-		<Settings bind:this={settingsRef} />
-		<BluetoothModal bind:open={bluetoothModalOpen} />
-	{/snippet}
-</ResponsiveLayout>
+		<div class="text-center text-sm text-gray-500 dark:text-gray-400">
+			<P>{getNumberOfSelectedCases()} cases selected</P>
+		</div>
+	</div>
+{/if}
+
+<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+
+<div class="flex flex-row justify-center gap-2">
+	<TrainStateSelect />
+</div>
+
+<div class="mt-4">
+	<Details />
+</div>
+
+<Settings bind:this={settingsRef} />
+<BluetoothModal bind:open={bluetoothModalOpen} />
 
 <style>
 	@keyframes countdown {

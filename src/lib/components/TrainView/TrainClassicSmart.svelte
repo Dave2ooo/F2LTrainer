@@ -22,7 +22,8 @@
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import SmartTimer from './SmartTimer.svelte';
 
-	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	// import ResponsiveLayout from './ResponsiveLayout.svelte';
+
 	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import {
@@ -42,8 +43,10 @@
 	} from '$lib/utils/moveValidator';
 	import { fade } from 'svelte/transition';
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
+	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 
 	let editAlgRef = $state<EditAlg>();
+
 	let smartTimerRef = $state<SmartTimer>();
 	let timerStarted = $state(false); // Track if timer has been started for current case
 
@@ -185,6 +188,15 @@
 			});
 		}
 	});
+
+	// Create keyboard event handlers
+	const { handleKeydown, handleKeyup } = createKeyboardHandlers(
+		() => undefined, // No timer ref for keyboard control in smart mode (timer is auto)
+		() => {
+			if (!isTransitioning) onNext();
+		},
+		() => {} // No manual stop via spacebar for smart timer
+	);
 
 	function validateMoveProgress() {
 		// Check if user is in undo mode (has pending undo moves)
@@ -663,15 +675,14 @@
 	}
 
 	let settingsRef = $state<Settings>();
-
-	let { sessionToolbar }: { sessionToolbar: Snippet } = $props();
-	import type { Snippet } from 'svelte';
 </script>
 
-<ResponsiveLayout {sessionToolbar}>
-	{#snippet leftContent()}
-		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-			<!-- <Button
+<svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
+
+<!-- ResponsiveLayout removed but wrapper div behavior preserved by parent component -->
+
+<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+	<!-- <Button
 				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				type="button"
 				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
@@ -681,163 +692,160 @@
 				type="button"
 				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 			> -->
-		</div>
+</div>
 
+<div
+	class="relative mx-auto size-50 md:size-60"
+	onpointerdowncapture={() => {
+		globalState.hasUsedTwistyPlayer = true;
+	}}
+>
+	{#if isTransitioning}
 		<div
-			class="relative mx-auto size-50 md:size-60"
-			onpointerdowncapture={() => {
-				globalState.hasUsedTwistyPlayer = true;
-			}}
+			class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
 		>
-			{#if isTransitioning}
-				<div
-					class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
-				>
-					<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
-				</div>
-			{/if}
-
-			{#if showRotationWarning && !isTransitioning}
-				<div
-					transition:fade={{ duration: 300 }}
-					class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
-				>
-					<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
-					<div
-						class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
-					>
-						Rotate to<br />Home Position
-					</div>
-				</div>
-			{/if}
-
-			{#if currentTrainCase}
-				<TwistyPlayer
-					bind:this={twistyPlayerRef}
-					bind:scramble
-					bind:movesAdded={alg}
-					groupId={currentTrainCase.groupId}
-					caseId={currentTrainCase.caseId}
-					algorithmSelection={currentAlgorithmSelection}
-					auf={currentTrainCase.auf}
-					side={currentTrainCase.side}
-					crossColor={currentTrainCase.crossColor}
-					frontColor={currentTrainCase.frontColor}
-					scrambleSelection={currentTrainCase.scramble}
-					stickering={sessionState.activeSession?.settings.trainHintStickering ??
-						DEFAULT_SETTINGS.trainHintStickering}
-					backView={sessionState.activeSession?.settings.backView || 'none'}
-					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-					experimentalDragInput="auto"
-					class="size-full"
-					controlPanel="none"
-					onclick={onNext}
-					showVisibilityToggle={false}
-					tempoScale={5}
-					showAlg={false}
-					onF2LSolved={() => {
-						// Prevent double triggering
-						if (isTransitioning) return;
-
-						// Only trigger onNext if moves have actually been applied AND validated
-						// This prevents false triggers during algorithm changes
-						// Both conditions must be true:
-						// 1. alg has content (moves have been added to TwistyPlayer)
-						const shouldTrigger = alg && alg.trim() !== '';
-						if (shouldTrigger) {
-							isTransitioning = true;
-
-							// Stop timer and record time
-							const elapsedTime = smartTimerRef?.stopTimer();
-							if (elapsedTime !== undefined) {
-								recordSolveTime(elapsedTime);
-							}
-
-							setTimeout(() => {
-								onNext();
-							}, 500); // 500ms delay for visual feedback
-						}
-					}}
-				/>
-				{#if !globalState.hasUsedTwistyPlayer}
-					<Pointer
-						class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
-					/>
-				{/if}
-			{:else}
-				<div class="flex h-60 items-center justify-center">
-					<P>Loading case...</P>
-				</div>
-			{/if}
+			<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
 		</div>
+	{/if}
 
-		{#if undoMoves.length >= 2}
-			<div class="mt-2 flex justify-center">
-				<span
-					class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md"
-				>
-					Hold Green Front, White Up
-				</span>
+	{#if showRotationWarning && !isTransitioning}
+		<div
+			transition:fade={{ duration: 300 }}
+			class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
+		>
+			<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
+			<div
+				class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
+			>
+				Rotate to<br />Home Position
 			</div>
-		{/if}
+		</div>
+	{/if}
 
-		<HintButtonSmart
-			alg={displayAlg}
-			movesAdded={alg}
-			{currentMoveIndex}
-			{validationFeedback}
-			{undoMoves}
-			editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
-			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-				DEFAULT_SETTINGS.trainHintAlgorithm}
-			hasMadeFirstMove={timerStarted}
-			onEditAlg={() => {
-				editAlgRef?.openModal();
+	{#if currentTrainCase}
+		<TwistyPlayer
+			bind:this={twistyPlayerRef}
+			bind:scramble
+			bind:movesAdded={alg}
+			groupId={currentTrainCase.groupId}
+			caseId={currentTrainCase.caseId}
+			algorithmSelection={currentAlgorithmSelection}
+			auf={currentTrainCase.auf}
+			side={currentTrainCase.side}
+			crossColor={currentTrainCase.crossColor}
+			frontColor={currentTrainCase.frontColor}
+			scrambleSelection={currentTrainCase.scramble}
+			stickering={sessionState.activeSession?.settings.trainHintStickering ??
+				DEFAULT_SETTINGS.trainHintStickering}
+			backView={sessionState.activeSession?.settings.backView || 'none'}
+			backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+			experimentalDragInput="auto"
+			class="size-full"
+			controlPanel="none"
+			onclick={onNext}
+			showVisibilityToggle={false}
+			tempoScale={5}
+			showAlg={false}
+			onF2LSolved={() => {
+				// Prevent double triggering
+				if (isTransitioning) return;
+
+				// Only trigger onNext if moves have actually been applied AND validated
+				// This prevents false triggers during algorithm changes
+				// Both conditions must be true:
+				// 1. alg has content (moves have been added to TwistyPlayer)
+				const shouldTrigger = alg && alg.trim() !== '';
+				if (shouldTrigger) {
+					isTransitioning = true;
+
+					// Stop timer and record time
+					const elapsedTime = smartTimerRef?.stopTimer();
+					if (elapsedTime !== undefined) {
+						recordSolveTime(elapsedTime);
+					}
+
+					setTimeout(() => {
+						onNext();
+					}, 500); // 500ms delay for visual feedback
+				}
 			}}
 		/>
-		<div
-			class:hidden={!(
-				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-			)}
-		>
-			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
-		</div>
-		<RecapProgress />
-
-		<div class="flex flex-row items-center justify-center gap-2">
-			<TrainStateSelect
-				onremove={async () => {
-					advanceToNextTrainCase();
-					await tick();
-					// Reset progress tracking (similar to onNext but no solve recording)
-					moveBuffer = [];
-					currentMoveIndex = 0;
-					validationFeedback = 'neutral';
-					cumulativeRotation = '';
-					caseHasRotation = false;
-					showRotationWarning = false;
-					undoMoves = [];
-					isTransitioning = false;
-					timerStarted = false;
-					smartTimerRef?.resetTimer();
-				}}
-			/>
-			<span class="text-sm text-gray-500 dark:text-gray-400"
-				>{getNumberOfSelectedCases()} cases selected</span
-			>
-		</div>
-
-		<Details />
-
-		<Settings bind:this={settingsRef} />
-
-		{#if currentTrainCase}
-			<EditAlg
-				bind:this={editAlgRef}
-				groupId={currentTrainCase.groupId}
-				caseId={currentTrainCase.caseId}
-				side={currentTrainCase.side}
+		{#if !globalState.hasUsedTwistyPlayer}
+			<Pointer
+				class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
 			/>
 		{/if}
-	{/snippet}
-</ResponsiveLayout>
+	{:else}
+		<div class="flex h-60 items-center justify-center">
+			<P>Loading case...</P>
+		</div>
+	{/if}
+</div>
+
+{#if undoMoves.length >= 2}
+	<div class="mt-2 flex justify-center">
+		<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
+			Hold Green Front, White Up
+		</span>
+	</div>
+{/if}
+
+<HintButtonSmart
+	alg={displayAlg}
+	movesAdded={alg}
+	{currentMoveIndex}
+	{validationFeedback}
+	{undoMoves}
+	editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+	hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+		DEFAULT_SETTINGS.trainHintAlgorithm}
+	hasMadeFirstMove={timerStarted}
+	onEditAlg={() => {
+		editAlgRef?.openModal();
+	}}
+/>
+<div
+	class:hidden={!(
+		sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+	)}
+>
+	<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+</div>
+
+<RecapProgress />
+
+<div class="flex flex-row items-center justify-center gap-2">
+	<TrainStateSelect
+		onremove={async () => {
+			advanceToNextTrainCase();
+			await tick();
+			// Reset progress tracking (similar to onNext but no solve recording)
+			moveBuffer = [];
+			currentMoveIndex = 0;
+			validationFeedback = 'neutral';
+			cumulativeRotation = '';
+			caseHasRotation = false;
+			showRotationWarning = false;
+			undoMoves = [];
+			isTransitioning = false;
+			timerStarted = false;
+			smartTimerRef?.resetTimer();
+		}}
+	/>
+	<span class="text-sm text-gray-500 dark:text-gray-400"
+		>{getNumberOfSelectedCases()} cases selected</span
+	>
+</div>
+
+<Details />
+
+<Settings bind:this={settingsRef} />
+
+{#if currentTrainCase}
+	<EditAlg
+		bind:this={editAlgRef}
+		groupId={currentTrainCase.groupId}
+		caseId={currentTrainCase.caseId}
+		side={currentTrainCase.side}
+	/>
+{/if}

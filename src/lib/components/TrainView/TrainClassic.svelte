@@ -22,7 +22,8 @@
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import Timer from './Timer.svelte';
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
-	import ResponsiveLayout from './ResponsiveLayout.svelte';
+	// import ResponsiveLayout from './ResponsiveLayout.svelte';
+
 	import RecapProgress from './RecapProgress.svelte';
 
 	// Delay in ms to ensure TwistyPlayer is fully initialized before attaching AlgViewer
@@ -249,121 +250,114 @@
 	});
 
 	let settingsRef = $state<Settings>();
-
-	let { sessionToolbar }: { sessionToolbar: Snippet } = $props();
-	import type { Snippet } from 'svelte';
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
-<ResponsiveLayout {sessionToolbar}>
-	{#snippet leftContent()}
-		<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-			<Button
-				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-				type="button"
-				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
-			>
-			<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
-				{scramble}
-			</div>
-			<Button
-				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-				type="button"
-				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
-			>
-		</div>
+<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+	<Button
+		class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+		type="button"
+		onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+	>
+	<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
+		{scramble}
+	</div>
+	<Button
+		class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
+		type="button"
+		onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+	>
+</div>
 
-		<div
-			class="relative mx-auto size-60 md:size-80"
-			onpointerdowncapture={() => {
-				globalState.hasUsedTwistyPlayer = true;
-			}}
-		>
-			{#if currentTrainCase}
-				<TwistyPlayer
-					bind:this={twistyPlayerRef}
-					bind:scramble
-					bind:alg
-					bind:hidePlayer={globalState.trainHideTwistyPlayer}
-					groupId={currentTrainCase.groupId}
-					caseId={currentTrainCase.caseId}
-					algorithmSelection={currentAlgorithmSelection}
-					auf={currentTrainCase.auf}
-					side={currentTrainCase.side}
-					crossColor={currentTrainCase.crossColor}
-					frontColor={currentTrainCase.frontColor}
-					scrambleSelection={currentTrainCase.scramble}
-					stickering={sessionState.activeSession?.settings.trainHintStickering ??
-						DEFAULT_SETTINGS.trainHintStickering}
-					backView={sessionState.activeSession?.settings.backView || 'none'}
-					backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-					experimentalDragInput="auto"
-					class="size-full"
-					controlPanel="bottom-row"
-					onclick={onNext}
-					showVisibilityToggle={true}
-				/>
-				{#if !globalState.hasUsedTwistyPlayer}
-					<Pointer
-						class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
-					/>
-				{/if}
-			{:else}
-				<div class="flex h-60 items-center justify-center">
-					<P>Loading case...</P>
-				</div>
-			{/if}
-		</div>
-
-		<HintButton
-			{alg}
-			bind:algViewerContainer
-			showAlgViewer={hintManager.showAlgViewer}
-			visible={hintManager.showHintButton}
-			hintCounter={hintManager.counter}
-			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-				DEFAULT_SETTINGS.trainHintAlgorithm}
-			onclick={showHintAlg}
-			onEditAlg={() => {
-				editAlgRef?.openModal();
-			}}
+<div
+	class="relative mx-auto size-60 md:size-80"
+	onpointerdowncapture={() => {
+		globalState.hasUsedTwistyPlayer = true;
+	}}
+>
+	{#if currentTrainCase}
+		<TwistyPlayer
+			bind:this={twistyPlayerRef}
+			bind:scramble
+			bind:alg
+			bind:hidePlayer={globalState.trainHideTwistyPlayer}
+			groupId={currentTrainCase.groupId}
+			caseId={currentTrainCase.caseId}
+			algorithmSelection={currentAlgorithmSelection}
+			auf={currentTrainCase.auf}
+			side={currentTrainCase.side}
+			crossColor={currentTrainCase.crossColor}
+			frontColor={currentTrainCase.frontColor}
+			scrambleSelection={currentTrainCase.scramble}
+			stickering={sessionState.activeSession?.settings.trainHintStickering ??
+				DEFAULT_SETTINGS.trainHintStickering}
+			backView={sessionState.activeSession?.settings.backView || 'none'}
+			backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+			experimentalDragInput="auto"
+			class="size-full"
+			controlPanel="bottom-row"
+			onclick={onNext}
+			showVisibilityToggle={true}
 		/>
-		{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
-			<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
-		{/if}
-		<RecapProgress />
-
-		<div class="flex flex-row items-center justify-center gap-2">
-			<TrainStateSelect
-				onremove={async () => {
-					advanceToNextTrainCase();
-					hintManager.reset();
-					await tick();
-					hintManager.initialize(
-						sessionState.activeSession?.settings.trainHintAlgorithm ??
-							DEFAULT_SETTINGS.trainHintAlgorithm,
-						twistyAlgViewerLoaded,
-						algViewerContainer
-					);
-				}}
+		{#if !globalState.hasUsedTwistyPlayer}
+			<Pointer
+				class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
 			/>
-			<span class="text-sm text-gray-500 dark:text-gray-400"
-				>{getNumberOfSelectedCases()} cases selected</span
-			>
+		{/if}
+	{:else}
+		<div class="flex h-60 items-center justify-center">
+			<P>Loading case...</P>
 		</div>
+	{/if}
+</div>
 
-		<Details />
+<HintButton
+	{alg}
+	bind:algViewerContainer
+	showAlgViewer={hintManager.showAlgViewer}
+	visible={hintManager.showHintButton}
+	hintCounter={hintManager.counter}
+	hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+		DEFAULT_SETTINGS.trainHintAlgorithm}
+	onclick={showHintAlg}
+	onEditAlg={() => {
+		editAlgRef?.openModal();
+	}}
+/>
+{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
+	<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
+{/if}
+<RecapProgress />
 
-		<Settings bind:this={settingsRef} />
+<div class="flex flex-row items-center justify-center gap-2">
+	<TrainStateSelect
+		onremove={async () => {
+			advanceToNextTrainCase();
+			hintManager.reset();
+			await tick();
+			hintManager.initialize(
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+					DEFAULT_SETTINGS.trainHintAlgorithm,
+				twistyAlgViewerLoaded,
+				algViewerContainer
+			);
+		}}
+	/>
+	<span class="text-sm text-gray-500 dark:text-gray-400"
+		>{getNumberOfSelectedCases()} cases selected</span
+	>
+</div>
 
-		{#if currentTrainCase}
-			<EditAlg
-				bind:this={editAlgRef}
-				groupId={currentTrainCase.groupId}
-				caseId={currentTrainCase.caseId}
-				side={currentTrainCase.side}
-			/>
-		{/if}
-	{/snippet}
-</ResponsiveLayout>
+<Details />
+
+<Settings bind:this={settingsRef} />
+
+{#if currentTrainCase}
+	<EditAlg
+		bind:this={editAlgRef}
+		groupId={currentTrainCase.groupId}
+		caseId={currentTrainCase.caseId}
+		side={currentTrainCase.side}
+	/>
+{/if}
