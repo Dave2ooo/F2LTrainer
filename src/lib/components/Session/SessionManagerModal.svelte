@@ -13,9 +13,11 @@
 		Edit2,
 		Check,
 		X,
-		GitMerge
+		GitMerge,
+		Settings
 	} from '@lucide/svelte';
 	import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
+	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
 
 	let { open = $bindable() }: { open: boolean } = $props();
 
@@ -34,6 +36,10 @@
 	let showMergeModal = $state(false);
 	let mergeSourceId = $state<string>('');
 	let mergeTargetId = $state<string>('');
+
+	// For settings
+	let showSettingsModal = $state(false);
+	let settingsSessionId = $state<string | undefined>(undefined);
 
 	// Derived lists - sorted by last played (most recent first) to match dropdown order
 	const activeSessions = $derived(
@@ -192,6 +198,11 @@
 		mergeSourceId = '';
 		mergeTargetId = '';
 	}
+
+	function handleOpenSettings(sessionId: string) {
+		settingsSessionId = sessionId;
+		showSettingsModal = true;
+	}
 </script>
 
 <Modal
@@ -249,7 +260,7 @@
 											: 's'} • Last played: {formatDate(session.lastPlayedAt)}
 									</p>
 								</div>
-								<div class="flex shrink-0 items-center gap-1">
+								<div class="grid shrink-0 grid-cols-3 gap-1 sm:flex sm:items-center">
 									<Button
 										color="alternative"
 										size="xs"
@@ -260,6 +271,15 @@
 										onclick={() => handleToggleFavorite(session.id)}
 									>
 										<Star class="size-4" fill={session.favorite ? 'currentColor' : 'none'} />
+									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2"
+										title="Session settings"
+										onclick={() => handleOpenSettings(session.id)}
+									>
+										<Settings class="size-4" />
 									</Button>
 									<Button
 										color="alternative"
@@ -358,6 +378,10 @@
 		</TabItem>
 	</Tabs>
 </Modal>
+
+{#if settingsSessionId}
+	<SessionSettingsModal bind:open={showSettingsModal} sessionId={settingsSessionId} />
+{/if}
 
 <ConfirmationModal
 	bind:open={showDeleteConfirmation}
