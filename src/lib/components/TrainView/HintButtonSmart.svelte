@@ -126,8 +126,7 @@
 		return '';
 	};
 
-	const editButtonClass =
-		'absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 transition-all duration-200 md:translate-x-10';
+	const editButtonClass = 'flex-shrink-0 rounded-full p-2 transition-all duration-200';
 
 	let showEditButton = $derived(totalMoves > 0);
 
@@ -144,7 +143,7 @@
 
 <!-- Container holds the hint button UI -->
 <div class="my-2 flex w-full flex-col items-center md:my-4">
-	<div class="relative">
+	<div class="relative flex max-w-full items-center justify-center gap-2">
 		<div class={`${className} ${getContainerFeedbackClass(validationFeedback)}`}>
 			{#if totalMoves > 0}
 				<div class={algContainerClass}>
