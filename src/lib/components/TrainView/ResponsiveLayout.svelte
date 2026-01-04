@@ -9,10 +9,10 @@
 
 	interface Props {
 		leftContent: Snippet;
-		sessionControl?: Snippet;
+		sessionToolbar: Snippet;
 	}
 
-	let { leftContent, sessionControl }: Props = $props();
+	let { leftContent, sessionToolbar }: Props = $props();
 
 	// Initialize from persisted state
 	let isRightPaneOpen = $state(globalState.rightPaneOpen);
@@ -48,7 +48,7 @@
 <div class="relative flex h-full w-full overflow-hidden">
 	<!-- Desktop & Mobile: Left Content Area -->
 	<div class="flex h-full flex-1 flex-col overflow-y-auto bg-gray-50 p-0 dark:bg-gray-800">
-		{@render sessionControl?.()}
+		{@render sessionToolbar()}
 		{@render leftContent()}
 
 		<!-- Desktop: Open Button (shown when right pane is closed) -->

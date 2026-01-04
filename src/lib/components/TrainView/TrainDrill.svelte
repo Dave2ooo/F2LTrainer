@@ -400,9 +400,9 @@
 	}
 
 	let {
-		sessionControl,
+		sessionToolbar,
 		isRunning = $bindable(false)
-	}: { sessionControl?: Snippet; isRunning?: boolean } = $props();
+	}: { sessionToolbar: Snippet; isRunning?: boolean } = $props();
 
 	$effect(() => {
 		// Disable external controls only when drill is actively running, allowing access when gave up
@@ -412,7 +412,7 @@
 	import type { Snippet } from 'svelte';
 </script>
 
-<ResponsiveLayout {sessionControl}>
+<ResponsiveLayout {sessionToolbar}>
 	{#snippet leftContent()}
 		{#if drillPhase === 'countdown'}
 			<!-- Countdown display -->
