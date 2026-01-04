@@ -10,10 +10,12 @@
 		Plus,
 		ChevronDown,
 		FolderCog,
-		Star
+		Star,
+		Bluetooth
 	} from '@lucide/svelte';
 	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
 	import SessionManagerModal from '$lib/components/Session/SessionManagerModal.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 
 	import TrainClassic from './TrainClassic.svelte';
 	import TrainClassicSmart from './TrainClassicSmart.svelte';
@@ -47,6 +49,18 @@
 			});
 		}
 	});
+
+	// Calculate solve counts per session for efficient lookup
+	const solveCounts = $derived(
+		statisticsState.allSolves.reduce(
+			(acc, solve) => {
+				const sid = solve.sessionId;
+				if (sid) acc[sid] = (acc[sid] || 0) + 1;
+				return acc;
+			},
+			{} as Record<string, number>
+		)
+	);
 </script>
 
 {#snippet sessionControl()}
@@ -82,11 +96,53 @@
 							class="flex w-full items-center justify-between gap-3 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
 							onclick={() => sessionState.setActiveSession(session.id)}
 						>
-							<div class="flex min-w-0 flex-1 items-center gap-2">
-								{#if session.favorite}
-									<Star size={12} class="shrink-0 text-yellow-500" fill="currentColor" />
-								{/if}
-								<span class="max-w-[180px] truncate">{session.name || 'Unnamed Session'}</span>
+							<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+								<div class="flex items-center gap-2">
+									{#if session.favorite}
+										<Star size={12} class="shrink-0 text-yellow-500" fill="currentColor" />
+									{/if}
+									<span class="max-w-[180px] truncate">{session.name || 'Unnamed Session'}</span>
+								</div>
+								<!-- Session config badges -->
+								<div class="flex flex-wrap items-center gap-0">
+									<!-- Solve count -->
+									<span
+										class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+									>
+										{(() => {
+											const solveCount = solveCounts[session.id] || 0;
+											return `${solveCount} solve${solveCount === 1 ? '' : 's'}`;
+										})()}
+									</span>
+									<!-- Training mode -->
+									{#if session.settings.trainMode === 'drill'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth size={10} />
+											{/if}
+											Drill
+										</span>
+									{:else}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth size={10} />
+											{/if}
+											Practice
+										</span>
+									{/if}
+									<!-- Recap mode -->
+									{#if session.settings.frequencyMode === 'recap'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-cyan-100 px-1.5 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+										>
+											Recap
+										</span>
+									{/if}
+								</div>
 							</div>
 							{#if session.id === sessionState.activeSessionId}
 								<!-- Simple indicator for active session -->

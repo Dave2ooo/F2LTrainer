@@ -14,10 +14,13 @@
 		Check,
 		X,
 		GitMerge,
-		Settings
+		Settings,
+		Bluetooth
 	} from '@lucide/svelte';
 	import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
 	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
+	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
+	import type { SessionSettings } from '$lib/types/session';
 
 	let { open = $bindable() }: { open: boolean } = $props();
 
@@ -203,6 +206,43 @@
 		settingsSessionId = sessionId;
 		showSettingsModal = true;
 	}
+
+	// Helper to get case count for a specific session
+	function getSessionCaseCount(settings: SessionSettings): number {
+		const caseMode = settings.caseMode || 'group';
+		const selectedCases = settings.selectedCases || {};
+
+		if (caseMode === 'individual') {
+			return Object.values(selectedCases).filter(Boolean).length;
+		} else {
+			// For group mode, count cases based on selections
+			// We'll need to import the logic from trainCaseQueue
+			return getNumberOfSelectedCases();
+		}
+	}
+
+	// Format session configuration as text
+	function formatSessionConfig(settings: SessionSettings): string {
+		const parts: string[] = [];
+
+		// Case count
+		const caseCount = getSessionCaseCount(settings);
+		parts.push(`${caseCount} case${caseCount === 1 ? '' : 's'}`);
+
+		// Train activity (note: Bluetooth icon will be shown inline, not in text)
+		if (settings.trainMode === 'drill') {
+			parts.push('Drill');
+		} else {
+			parts.push('Classic');
+		}
+
+		// Recap mode
+		if (settings.frequencyMode === 'recap') {
+			parts.push('Recap');
+		}
+
+		return parts.join(' • ');
+	}
 </script>
 
 <Modal
@@ -254,7 +294,47 @@
 											</span>
 										{/if}
 									</div>
-									<p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+									<!-- Session config badges -->
+									<div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+										<!-- Case count -->
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+										>
+											{(() => {
+												const caseCount = getSessionCaseCount(session.settings);
+												return `${caseCount} case${caseCount === 1 ? '' : 's'}`;
+											})()}
+										</span>
+										<!-- Training mode -->
+										{#if session.settings.trainMode === 'drill'}
+											<span
+												class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+											>
+												{#if session.settings.smartCubeEnabled}
+													<Bluetooth class="size-3" />
+												{/if}
+												Drill
+											</span>
+										{:else}
+											<span
+												class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+											>
+												{#if session.settings.smartCubeEnabled}
+													<Bluetooth class="size-3" />
+												{/if}
+												Practice
+											</span>
+										{/if}
+										<!-- Recap mode -->
+										{#if session.settings.frequencyMode === 'recap'}
+											<span
+												class="inline-flex items-center gap-1 rounded-md bg-cyan-100 px-2 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+											>
+												Recap
+											</span>
+										{/if}
+									</div>
+									<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
 										{solveCounts[session.id] || 0} solve{(solveCounts[session.id] || 0) === 1
 											? ''
 											: 's'} • Last played: {formatDate(session.lastPlayedAt)}
@@ -338,7 +418,47 @@
 								<span class="truncate font-medium text-gray-600 dark:text-gray-400">
 									{session.name || 'Unnamed Session'}
 								</span>
-								<p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
+								<!-- Session config badges (archived) -->
+								<div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+									<!-- Case count -->
+									<span
+										class="inline-flex items-center gap-1 rounded-md bg-gray-100/50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700/50 dark:text-gray-400"
+									>
+										{(() => {
+											const caseCount = getSessionCaseCount(session.settings);
+											return `${caseCount} case${caseCount === 1 ? '' : 's'}`;
+										})()}
+									</span>
+									<!-- Training mode -->
+									{#if session.settings.trainMode === 'drill'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-purple-100/50 px-2 py-0.5 text-xs font-medium text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth class="size-3" />
+											{/if}
+											Drill
+										</span>
+									{:else}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-blue-100/50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth class="size-3" />
+											{/if}
+											Practice
+										</span>
+									{/if}
+									<!-- Recap mode -->
+									{#if session.settings.frequencyMode === 'recap'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-cyan-100/50 px-2 py-0.5 text-xs font-medium text-cyan-600 dark:bg-cyan-900/20 dark:text-cyan-400"
+										>
+											Recap
+										</span>
+									{/if}
+								</div>
+								<p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
 									{solveCounts[session.id] || 0} solve{(solveCounts[session.id] || 0) === 1
 										? ''
 										: 's'} • Archived • Last played: {formatDate(session.lastPlayedAt)}
