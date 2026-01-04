@@ -75,12 +75,12 @@
 	const className = hintBase;
 
 	const algContainerClass =
-		'mr-10 inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
+		'inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
 
 	const chipClass = 'rounded bg-gray-100 px-2 py-1 font-mono font-semibold text-theme-text';
 
 	const editButtonClass =
-		'hover:bg-opacity-90 absolute top-1/2 right-0 z-10 translate-x-10 -translate-y-1/2 rounded-full p-2 text-primary-500 transition-all duration-200 md:translate-x-10';
+		'hover:bg-opacity-90 flex-shrink-0 rounded-full p-2 text-primary-500 transition-all duration-200';
 
 	// Show edit button when either algViewer or algorithm text is shown
 	let showEditButton = $derived(showAlgViewer || showAlgorithm);
@@ -88,7 +88,7 @@
 
 <!-- Container holds both the alg viewer element (used by TwistyAlgViewer) and the hint button UI -->
 <div class="my-2 flex w-full flex-col items-center md:my-4">
-	<div class="relative">
+	<div class="relative flex max-w-full items-center justify-center gap-2">
 		<div
 			bind:this={algViewerContainer}
 			style:display={showAlgViewer ? 'block' : 'none'}
