@@ -24,10 +24,12 @@ import TrainCase, { gernerateTrainCases } from './trainCases';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import type { SessionSettings } from './types/session';
 
-export let trainCaseQueue: TrainCase[] = [];
+export let trainCaseQueue = $state<TrainCase[]>([]);
 
 function createInitialTrainCase(): TrainCase | undefined {
-	trainCaseQueue = gernerateTrainCases();
+	const cases = gernerateTrainCases();
+	trainCaseQueue.length = 0;
+	trainCaseQueue.push(...cases);
 	// If no train cases were generated, throw a clear error or return a fallback.
 	if (trainCaseQueue.length === 0) {
 		console.warn('createInitialTrainCase found no train cases');
@@ -51,7 +53,9 @@ export const trainState: {
 });
 
 export function regenerateTrainCaseQueue(): number {
-	trainCaseQueue = gernerateTrainCases();
+	const cases = gernerateTrainCases();
+	trainCaseQueue.length = 0;
+	trainCaseQueue.push(...cases);
 	trainState.index = 0;
 
 	// Track batch size for recap mode progress display
