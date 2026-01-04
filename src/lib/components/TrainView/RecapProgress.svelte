@@ -12,27 +12,45 @@
 	// Progress calculation - use recapBatchSize for accurate total
 	let total = $derived(trainState.recapBatchSize);
 
-	// Use modulo to show progress within the current round, even if the queue grows during transition
-	let currentBatchIndex = $derived(total > 0 ? (trainState.index % total) + 1 : 1);
-	let progress = $derived(total > 0 ? (currentBatchIndex / total) * 100 : 0);
-	let label = $derived(`${currentBatchIndex}/${total}`);
+	// Track which batch we are currently in (0-based)
+	let currentBatchCount = $derived(total > 0 ? Math.floor(trainState.index / total) : 0);
+
+	// Track the last batch we acknowledged/celebrated
+	let lastSeenBatchCount = $state(0);
+	let initialized = $state(false);
+
+	// Initialize tracking on first load to avoid celebrating immediately if restoring state
+	$effect(() => {
+		if (!initialized && total > 0) {
+			lastSeenBatchCount = currentBatchCount;
+			initialized = true;
+		}
+	});
+
+	// Check for batch completion
+	let isNewBatch = $derived(initialized && currentBatchCount > lastSeenBatchCount);
 
 	// Success celebration state
 	let showSuccess = $state(false);
 
-	// Reset queue when recap is finished (user has seen all cases)
+	// Effect to manage success state and transitions
 	$effect(() => {
-		// Use total to detect when we've moved past the last case (index is 0-based)
-		const currentIndex = trainState.index + 1;
-		if (isRecapMode && total > 0 && currentIndex > total && !showSuccess) {
-			// Show success effect briefly before resetting
+		if (isRecapMode && isNewBatch && !showSuccess) {
 			showSuccess = true;
 			setTimeout(() => {
+				// Acknowledge the new batch, ending the success state and resetting progress display
+				lastSeenBatchCount = currentBatchCount;
 				showSuccess = false;
-				regenerateTrainCaseQueue();
 			}, 3000);
 		}
 	});
+
+	// Progress display
+	// If showing success, we force "Total/Total" (100%)
+	// Otherwise we show index relative to current batch (0 to Total-1)
+	let displayIndex = $derived(showSuccess ? total : total > 0 ? trainState.index % total : 0);
+	let progress = $derived(total > 0 ? (displayIndex / total) * 100 : 0);
+	let label = $derived(`${displayIndex}/${total}`);
 </script>
 
 {#if isRecapMode && total > 0}
