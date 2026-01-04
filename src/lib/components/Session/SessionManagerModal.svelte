@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { Button, Tabs, TabItem, Input, Select, Label } from 'flowbite-svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
@@ -44,6 +45,7 @@
 	let showSettingsModal = $state(false);
 	let settingsSessionId = $state<string | undefined>(undefined);
 
+	let activeSessionsList = $state<HTMLElement>();
 	// Derived lists - sorted by last played (most recent first) to match dropdown order
 	const activeSessions = $derived(
 		sessionState.sessions
@@ -65,9 +67,13 @@
 		)
 	);
 
-	function handleDuplicate(sessionId: string) {
-		sessionState.duplicateSession(sessionId);
-		open = false;
+	async function handleDuplicate(sessionId: string) {
+		const newSession = sessionState.duplicateSession(sessionId);
+		if (newSession) {
+			startEditingSession(newSession.id, newSession.name);
+			await tick();
+			activeSessionsList?.firstElementChild?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+		}
 	}
 
 	function handleArchive(sessionId: string) {
@@ -260,7 +266,7 @@
 		}}
 	>
 		<TabItem open title="Active ({activeSessions.length})">
-			<div class="mt-4 flex flex-col gap-2">
+			<div class="mt-4 flex flex-col gap-2" bind:this={activeSessionsList}>
 				{#if activeSessions.length === 0}
 					<p class="py-8 text-center text-gray-500 dark:text-gray-400">No active sessions</p>
 				{:else}
