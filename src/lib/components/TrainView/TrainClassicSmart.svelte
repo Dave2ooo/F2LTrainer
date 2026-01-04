@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, P } from 'flowbite-svelte';
+	import { Button, ButtonGroup, P, Spinner } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
@@ -17,7 +17,7 @@
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { ArrowLeft, ArrowRight, Pointer, Check, RotateCcw } from '@lucide/svelte';
+	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import SmartTimer from './SmartTimer.svelte';
@@ -26,6 +26,9 @@
 
 	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
+	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
+	import { connectNewCube, connectSavedCube } from '$lib/bluetooth/actions';
+	import BluetoothModal from '$lib/components/Modals/BluetoothModal.svelte';
 	import {
 		isRotationMove,
 		matchesMoveSequence,
@@ -675,14 +678,55 @@
 	}
 
 	let settingsRef = $state<Settings>();
+
+	// Bluetooth modal state
+	let bluetoothModalOpen = $state(false);
+
+	// Derived: latest saved cube for smart connect
+	let latestSavedCube = $derived.by(() => {
+		if (savedCubesState.cubes.length === 0) return null;
+		return [...savedCubesState.cubes].sort((a, b) => b.lastConnected - a.lastConnected)[0];
+	});
+
+	// Derived: button label for connect button
+	let connectButtonLabel = $derived.by(() => {
+		if (bluetoothState.isConnected) {
+			const saved = bluetoothState.deviceId
+				? savedCubesState.getCube(bluetoothState.deviceId)
+				: null;
+			return saved?.customName || bluetoothState.deviceName || 'Connected';
+		}
+		if (latestSavedCube) {
+			return latestSavedCube.customName;
+		}
+		return 'Connect Cube';
+	});
+
+	/**
+	 * Smart connect - connect to last cube or new cube
+	 */
+	async function handleSmartConnect() {
+		if (bluetoothState.isConnected) {
+			// If already connected, open modal to view details/disconnect
+			bluetoothModalOpen = true;
+			return;
+		}
+
+		if (latestSavedCube) {
+			await connectSavedCube(latestSavedCube.id);
+		} else {
+			await connectNewCube();
+		}
+	}
 </script>
 
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
 <!-- ResponsiveLayout removed but wrapper div behavior preserved by parent component -->
 
-<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-	<!-- <Button
+{#if bluetoothState.isConnected}
+	<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+		<!-- <Button
 				class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 				type="button"
 				onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
@@ -692,127 +736,151 @@
 				type="button"
 				onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 			> -->
-</div>
+	</div>
 
-<div
-	class="relative mx-auto size-50 md:size-60"
-	onpointerdowncapture={() => {
-		globalState.hasUsedTwistyPlayer = true;
-	}}
->
-	{#if isTransitioning}
-		<div
-			class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
-		>
-			<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
-		</div>
-	{/if}
-
-	{#if showRotationWarning && !isTransitioning}
-		<div
-			transition:fade={{ duration: 300 }}
-			class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
-		>
-			<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
+	<div
+		class="relative mx-auto size-50 md:size-60"
+		onpointerdowncapture={() => {
+			globalState.hasUsedTwistyPlayer = true;
+		}}
+	>
+		{#if isTransitioning}
 			<div
-				class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
+				class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
 			>
-				Rotate to<br />Home Position
+				<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
 			</div>
-		</div>
-	{/if}
-
-	{#if currentTrainCase}
-		<TwistyPlayer
-			bind:this={twistyPlayerRef}
-			bind:scramble
-			bind:movesAdded={alg}
-			groupId={currentTrainCase.groupId}
-			caseId={currentTrainCase.caseId}
-			algorithmSelection={currentAlgorithmSelection}
-			auf={currentTrainCase.auf}
-			side={currentTrainCase.side}
-			crossColor={currentTrainCase.crossColor}
-			frontColor={currentTrainCase.frontColor}
-			scrambleSelection={currentTrainCase.scramble}
-			stickering={sessionState.activeSession?.settings.trainHintStickering ??
-				DEFAULT_SETTINGS.trainHintStickering}
-			backView={sessionState.activeSession?.settings.backView || 'none'}
-			backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
-			experimentalDragInput="auto"
-			class="size-full"
-			controlPanel="none"
-			onclick={onNext}
-			showVisibilityToggle={false}
-			tempoScale={5}
-			showAlg={false}
-			onF2LSolved={() => {
-				// Prevent double triggering
-				if (isTransitioning) return;
-
-				// Only trigger onNext if moves have actually been applied AND validated
-				// This prevents false triggers during algorithm changes
-				// Both conditions must be true:
-				// 1. alg has content (moves have been added to TwistyPlayer)
-				const shouldTrigger = alg && alg.trim() !== '';
-				if (shouldTrigger) {
-					isTransitioning = true;
-
-					// Stop timer and record time
-					const elapsedTime = smartTimerRef?.stopTimer();
-					if (elapsedTime !== undefined) {
-						recordSolveTime(elapsedTime);
-					}
-
-					setTimeout(() => {
-						onNext();
-					}, 500); // 500ms delay for visual feedback
-				}
-			}}
-		/>
-		{#if !globalState.hasUsedTwistyPlayer}
-			<Pointer
-				class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
-			/>
 		{/if}
-	{:else}
-		<div class="flex h-60 items-center justify-center">
-			<P>Loading case...</P>
+
+		{#if showRotationWarning && !isTransitioning}
+			<div
+				transition:fade={{ duration: 300 }}
+				class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
+			>
+				<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
+				<div
+					class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
+				>
+					Rotate to<br />Home Position
+				</div>
+			</div>
+		{/if}
+
+		{#if currentTrainCase}
+			<TwistyPlayer
+				bind:this={twistyPlayerRef}
+				bind:scramble
+				bind:movesAdded={alg}
+				groupId={currentTrainCase.groupId}
+				caseId={currentTrainCase.caseId}
+				algorithmSelection={currentAlgorithmSelection}
+				auf={currentTrainCase.auf}
+				side={currentTrainCase.side}
+				crossColor={currentTrainCase.crossColor}
+				frontColor={currentTrainCase.frontColor}
+				scrambleSelection={currentTrainCase.scramble}
+				stickering={sessionState.activeSession?.settings.trainHintStickering ??
+					DEFAULT_SETTINGS.trainHintStickering}
+				backView={sessionState.activeSession?.settings.backView || 'none'}
+				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
+				experimentalDragInput="auto"
+				class="size-full"
+				controlPanel="none"
+				onclick={onNext}
+				showVisibilityToggle={false}
+				tempoScale={5}
+				showAlg={false}
+				onF2LSolved={() => {
+					// Prevent double triggering
+					if (isTransitioning) return;
+
+					// Only trigger onNext if moves have actually been applied AND validated
+					// This prevents false triggers during algorithm changes
+					// Both conditions must be true:
+					// 1. alg has content (moves have been added to TwistyPlayer)
+					const shouldTrigger = alg && alg.trim() !== '';
+					if (shouldTrigger) {
+						isTransitioning = true;
+
+						// Stop timer and record time
+						const elapsedTime = smartTimerRef?.stopTimer();
+						if (elapsedTime !== undefined) {
+							recordSolveTime(elapsedTime);
+						}
+
+						setTimeout(() => {
+							onNext();
+						}, 500); // 500ms delay for visual feedback
+					}
+				}}
+			/>
+			{#if !globalState.hasUsedTwistyPlayer}
+				<Pointer
+					class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+				/>
+			{/if}
+		{:else}
+			<div class="flex h-60 items-center justify-center">
+				<P>Loading case...</P>
+			</div>
+		{/if}
+	</div>
+
+	{#if undoMoves.length >= 2}
+		<div class="mt-2 flex justify-center">
+			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
+				Hold Green Front, White Up
+			</span>
 		</div>
 	{/if}
-</div>
 
-{#if undoMoves.length >= 2}
-	<div class="mt-2 flex justify-center">
-		<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
-			Hold Green Front, White Up
-		</span>
+	<HintButtonSmart
+		alg={displayAlg}
+		movesAdded={alg}
+		{currentMoveIndex}
+		{validationFeedback}
+		{undoMoves}
+		editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm}
+		hasMadeFirstMove={timerStarted}
+		onEditAlg={() => {
+			editAlgRef?.openModal();
+		}}
+	/>
+	<div
+		class:hidden={!(
+			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+		)}
+	>
+		<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+	</div>
+
+	<RecapProgress />
+{:else}
+	<!-- Not connected - show Connect button group -->
+	<div class="flex flex-col items-center justify-center gap-6 py-20">
+		<div class="flex flex-col items-center gap-3">
+			<P class="text-center text-sm text-gray-500 dark:text-gray-400">
+				Connect a smart cube to start training
+			</P>
+			<ButtonGroup>
+				<Button color="light" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
+					{#if bluetoothState.isConnecting}
+						<Spinner class="mr-2" size="5" />
+						<span class="text-base font-medium">Connecting...</span>
+					{:else}
+						<Bluetooth class="mr-2 size-5" />
+						<span class="text-base font-medium">{connectButtonLabel}</span>
+					{/if}
+				</Button>
+				<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
+					<EllipsisVertical class="size-5" />
+				</Button>
+			</ButtonGroup>
+		</div>
 	</div>
 {/if}
-
-<HintButtonSmart
-	alg={displayAlg}
-	movesAdded={alg}
-	{currentMoveIndex}
-	{validationFeedback}
-	{undoMoves}
-	editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
-	hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-		DEFAULT_SETTINGS.trainHintAlgorithm}
-	hasMadeFirstMove={timerStarted}
-	onEditAlg={() => {
-		editAlgRef?.openModal();
-	}}
-/>
-<div
-	class:hidden={!(
-		sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-	)}
->
-	<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
-</div>
-
-<RecapProgress />
 
 <div class="flex flex-row items-center justify-center gap-2">
 	<TrainStateSelect
@@ -840,6 +908,7 @@
 <Details />
 
 <Settings bind:this={settingsRef} />
+<BluetoothModal bind:open={bluetoothModalOpen} />
 
 {#if currentTrainCase}
 	<EditAlg
