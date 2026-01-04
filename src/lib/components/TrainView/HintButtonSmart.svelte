@@ -76,7 +76,7 @@
 	const className = hintBase;
 
 	const algContainerClass =
-		'mr-10 inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
+		'inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
 
 	const movesAddedChipClass =
 		'rounded bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 font-mono text-base md:text-xl text-blue-800 dark:text-blue-200';
