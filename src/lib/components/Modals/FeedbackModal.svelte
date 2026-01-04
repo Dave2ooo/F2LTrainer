@@ -26,13 +26,16 @@
 
 	export function openModal(errorContext?: string) {
 		if (errorContext) {
-			const textToAdd = `\nError details: ${errorContext}`;
-			// Avoid duplicating if already present
-			if (!formData.message.includes(errorContext)) {
-				formData.message = formData.message
-					? formData.message + '\n' + textToAdd
-					: textToAdd.trim();
-			}
+			// Remove any previously added error details to prevent accumulation
+			const cleanMessage = formData.message
+				.split('\n')
+				.filter((line) => !line.trim().startsWith('Error details:'))
+				.join('\n')
+				.trim();
+
+			const textToAdd = `Error details: ${errorContext}`;
+
+			formData.message = cleanMessage ? `${cleanMessage}\n\n${textToAdd}` : textToAdd;
 		}
 		open = true;
 	}

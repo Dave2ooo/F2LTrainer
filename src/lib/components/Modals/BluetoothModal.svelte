@@ -259,7 +259,7 @@
 				<button
 					type="button"
 					class="ml-1 font-semibold underline hover:text-red-700"
-					onclick={() => feedbackModal.openModal(bluetoothState.errorMessage)}
+					onclick={() => feedbackModal.openModal(bluetoothState.errorMessage ?? undefined)}
 				>
 					Report this issue
 				</button>
