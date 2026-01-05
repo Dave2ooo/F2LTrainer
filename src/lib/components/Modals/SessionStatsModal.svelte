@@ -84,7 +84,6 @@
 	const timedCount = $derived(displaySolves.filter((s) => s.time !== null).length);
 	const untimedCount = $derived(displaySolves.filter((s) => s.time === null).length);
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
-	const solvesLabel = $derived(timedCount === 0 ? 'Practice' : 'Solves');
 	const bestTime = $derived(calculateBestTime(displaySolves));
 	const meanTime = $derived(calculateMean(displaySolves));
 	const ao5 = $derived(calculateAo5(displaySolves));
@@ -357,49 +356,61 @@
 		{/if}
 
 		<!-- Summary Stats Grid -->
-		<div class="grid {hasMixedSolves ? 'grid-cols-6' : 'grid-cols-5'} gap-3 text-center">
+		<div class="grid grid-cols-3 gap-3 text-center sm:grid-cols-5">
 			{#if hasMixedSolves}
-				<!-- Mixed: Show two cards -->
-				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-					<span class="text-xs text-gray-500 dark:text-gray-400">Timed</span>
-					<span class="font-mono text-lg font-bold text-gray-900 dark:text-white">{timedCount}</span
-					>
-				</div>
-				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-					<span class="text-xs text-gray-500 dark:text-gray-400">Untimed</span>
-					<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
-						>{untimedCount}</span
-					>
+				<!-- Mixed: Show split card -->
+				<div
+					class="row-span-2 flex flex-col rounded-lg bg-gray-100 p-2 sm:row-span-1 dark:bg-gray-700"
+				>
+					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Solves</span>
+					<div class="flex h-full flex-col justify-center gap-1 sm:gap-0">
+						<div class="flex items-center justify-center gap-2">
+							<span class="text-xs text-gray-500 dark:text-gray-400">Timed</span>
+							<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
+								>{timedCount}</span
+							>
+						</div>
+						<div class="flex items-center justify-center gap-2">
+							<span class="text-xs text-gray-500 dark:text-gray-400">Untimed</span>
+							<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
+								>{untimedCount}</span
+							>
+						</div>
+					</div>
 				</div>
 			{:else}
 				<!-- All same type: Show single card -->
-				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-					<span class="text-xs text-gray-500 dark:text-gray-400">{solvesLabel}</span>
-					<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
-						>{solvesCount}</span
-					>
+				<div
+					class="row-span-2 flex flex-col rounded-lg bg-gray-100 p-2 sm:row-span-1 dark:bg-gray-700"
+				>
+					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Solves</span>
+					<div class="flex h-full items-center justify-center">
+						<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
+							>{solvesCount}</span
+						>
+					</div>
 				</div>
 			{/if}
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-xs text-gray-500 dark:text-gray-400">Best</span>
+				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Best</span>
 				<span class="font-mono text-lg font-bold text-green-600 dark:text-green-400"
 					>{formatTime(bestTime)}</span
 				>
 			</div>
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-xs text-gray-500 dark:text-gray-400">Mean</span>
+				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 					>{formatTime(meanTime)}</span
 				>
 			</div>
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-xs text-gray-500 dark:text-gray-400">Ao5</span>
+				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Ao5</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 					>{formatTime(ao5)}</span
 				>
 			</div>
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-xs text-gray-500 dark:text-gray-400">Ao12</span>
+				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Ao12</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 					>{formatTime(ao12)}</span
 				>
