@@ -662,12 +662,12 @@
 					id: solveId,
 					groupId,
 					caseId,
-					time: timeInCentiseconds,
 					timestamp: Date.now(),
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-					sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined,
+					executionTime: timeInCentiseconds
 				});
 			}
 
