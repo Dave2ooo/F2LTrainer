@@ -569,7 +569,6 @@
 					id: solveId,
 					groupId,
 					caseId,
-					time: null,
 					timestamp: Date.now(),
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,

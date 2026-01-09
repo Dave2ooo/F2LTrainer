@@ -81,8 +81,8 @@
 
 	// Summary statistics (based on selection)
 	const solvesCount = $derived(displaySolves.length);
-	const timedCount = $derived(displaySolves.filter((s) => s.time !== null).length);
-	const untimedCount = $derived(displaySolves.filter((s) => s.time === null).length);
+	const timedCount = $derived(displaySolves.filter((s) => s.time !== undefined).length);
+	const untimedCount = $derived(displaySolves.filter((s) => s.time === undefined).length);
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
 	const bestTime = $derived(calculateBestTime(displaySolves));
 	const meanTime = $derived(calculateMean(displaySolves));
@@ -106,7 +106,7 @@
 	});
 
 	// Chart data (based on selection)
-	const chartSolves = $derived(displaySolves.filter((s) => s.time !== null));
+	const chartSolves = $derived(displaySolves.filter((s) => s.time !== undefined));
 	const rollingAo5 = $derived(calculateRollingAo5(displaySolves));
 	const rollingAo12 = $derived(calculateRollingAo12(displaySolves));
 
@@ -117,7 +117,7 @@
 			const originalIndex = solveIdToIndex.get(solve.id);
 			if (originalIndex === undefined) return null;
 			const ao5Val = rollingAo5[originalIndex];
-			return ao5Val !== null ? parseFloat((ao5Val / 100).toFixed(2)) : null;
+			return ao5Val !== undefined ? parseFloat((ao5Val / 100).toFixed(2)) : null;
 		})
 	);
 
@@ -126,7 +126,7 @@
 			const originalIndex = solveIdToIndex.get(solve.id);
 			if (originalIndex === undefined) return null;
 			const ao12Val = rollingAo12[originalIndex];
-			return ao12Val !== null ? parseFloat((ao12Val / 100).toFixed(2)) : null;
+			return ao12Val !== undefined ? parseFloat((ao12Val / 100).toFixed(2)) : null;
 		})
 	);
 
@@ -152,7 +152,7 @@
 		series: [
 			{
 				name: 'Solve Time',
-				data: chartSolves.map((s) => parseFloat(((s.time as number) / 100).toFixed(2)))
+				data: chartSolves.map((s) => parseFloat((s.time! / 100).toFixed(2)))
 			},
 			{
 				name: 'Ao5',
@@ -245,8 +245,8 @@
 		count: number;
 		timedCount: number;
 		untimedCount: number;
-		best: number | null;
-		mean: number | null;
+		best: number | undefined;
+		mean: number | undefined;
 	};
 
 	const caseBreakdown = $derived.by(() => {
@@ -266,7 +266,7 @@
 				});
 			}
 			const caseEntry = caseMap.get(key)!;
-			if (solve.time !== null) {
+			if (solve.time !== undefined) {
 				caseEntry.times.push(solve.time);
 			} else {
 				caseEntry.untimedCount++;
@@ -286,11 +286,11 @@
 				count: data.times.length + data.untimedCount,
 				timedCount: data.times.length,
 				untimedCount: data.untimedCount,
-				best: data.times.length > 0 ? Math.min(...data.times) : null,
+				best: data.times.length > 0 ? Math.min(...data.times) : undefined,
 				mean:
 					data.times.length > 0
 						? Math.round(data.times.reduce((a, b) => a + b, 0) / data.times.length)
-						: null
+						: undefined
 			});
 		}
 
@@ -319,16 +319,16 @@
 					break;
 				case 'best':
 					// Null values go to the end
-					if (a.best === null && b.best === null) comparison = 0;
-					else if (a.best === null) comparison = 1;
-					else if (b.best === null) comparison = -1;
+					if (a.best === undefined && b.best === undefined) comparison = 0;
+					else if (a.best === undefined) comparison = 1;
+					else if (b.best === undefined) comparison = -1;
 					else comparison = a.best - b.best;
 					break;
 				case 'avg':
 					// Null values go to the end
-					if (a.mean === null && b.mean === null) comparison = 0;
-					else if (a.mean === null) comparison = 1;
-					else if (b.mean === null) comparison = -1;
+					if (a.mean === undefined && b.mean === undefined) comparison = 0;
+					else if (a.mean === undefined) comparison = 1;
+					else if (b.mean === undefined) comparison = -1;
 					else comparison = a.mean - b.mean;
 					break;
 			}

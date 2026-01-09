@@ -6,15 +6,15 @@ export type Solve = {
 	id: string;
 	groupId: GroupId;
 	caseId: CaseId;
-	time: number | null; // Time in centiseconds (1/100s), or null for untimed solves
+	time?: number; // Time in centiseconds (1/100s), undefined for untimed solves
 	timestamp: number;
 	auf: Auf;
 	side: Side;
 	scrambleSelection: number;
 	sessionId?: string;
 	// Drill mode timing (optional - only set for drill mode solves)
-	recognitionTime?: number | null; // Time from case display to first non-U move (centiseconds)
-	executionTime?: number | null; // Time from first non-U move to F2L solved (centiseconds)
+	recognitionTime?: number; // Time from case display to first non-U move (centiseconds)
+	executionTime?: number; // Time from first non-U move to F2L solved (centiseconds)
 };
 
 export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
@@ -25,14 +25,14 @@ export type CompressedSolve = {
 	id: string;
 	gId: CompressedGroupId;
 	cId: number;
-	t: number | null;
+	t?: number;
 	ts: number;
 	a: CompressedAuf;
 	s: CompressedSide;
 	sid?: string;
 	// Drill mode timing (optional)
-	rt?: number | null; // recognitionTime compressed
-	et?: number | null; // executionTime compressed
+	rt?: number; // recognitionTime compressed
+	et?: number; // executionTime compressed
 };
 
 export type StatisticsState = Solve[];

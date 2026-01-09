@@ -48,7 +48,7 @@ describe('calculateRollingAo5', () => {
 		];
 
 		const result = calculateRollingAo5(solves);
-		expect(result).toEqual([null, null, null, null]);
+		expect(result).toEqual([undefined, undefined, undefined, undefined]);
 	});
 
 	it('should calculate Ao5 starting from 5th solve', () => {
@@ -183,7 +183,7 @@ describe('calculateRollingAo5', () => {
 		expect(result[5]).toBe(700);
 	});
 
-	it('should skip null times when calculating', () => {
+	it('should skip undefined times when calculating', () => {
 		const solves: Solve[] = [
 			{
 				id: '1',
@@ -197,7 +197,7 @@ describe('calculateRollingAo5', () => {
 			},
 			{
 				id: '2',
-				time: null,
+				// time is undefined (untimed solve)
 				groupId: 'basic',
 				caseId: 1,
 				timestamp: 2,
@@ -272,7 +272,7 @@ describe('calculateRollingAo12', () => {
 		}));
 
 		const result = calculateRollingAo12(solves);
-		expect(result.every((v) => v === null)).toBe(true);
+		expect(result.every((v) => v === undefined)).toBe(true);
 	});
 
 	it('should calculate Ao12 starting from 12th solve', () => {
@@ -313,7 +313,7 @@ describe('calculateRollingAo12', () => {
 		expect(result[12]).toBe(750);
 	});
 
-	it('should skip null times when calculating', () => {
+	it('should skip undefined times when calculating', () => {
 		const solves: Solve[] = [
 			...Array.from({ length: 10 }, (_, i) => ({
 				id: String(i + 1),
@@ -327,7 +327,7 @@ describe('calculateRollingAo12', () => {
 			})),
 			{
 				id: '11',
-				time: null,
+				// time is undefined (untimed solve)
 				groupId: 'basic' as const,
 				caseId: 1,
 				timestamp: 11,

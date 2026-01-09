@@ -61,8 +61,8 @@
 	const ao12 = $derived(calculateAo12(caseSolves));
 	const solvesCount = $derived(caseSolves.length);
 
-	const timedCount = $derived(caseSolves.filter((s) => s.time !== null).length);
-	const untimedCount = $derived(caseSolves.filter((s) => s.time === null).length);
+	const timedCount = $derived(caseSolves.filter((s) => s.time !== undefined).length);
+	const untimedCount = $derived(caseSolves.filter((s) => s.time === undefined).length);
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
 
 	const sessionsWithSolves = $derived.by(() => {
@@ -73,7 +73,7 @@
 
 	// Find the index of the best time
 	const bestTimeIndex = $derived(
-		bestTime !== null && caseSolves.length > 0
+		bestTime !== undefined && caseSolves.length > 0
 			? caseSolves.findIndex((s) => s.time === bestTime)
 			: null
 	);
@@ -105,7 +105,7 @@
 	const axisFontSize = $derived(innerWidth < 768 ? '1rem' : '1.2rem');
 	const tooltipFontSize = $derived(innerWidth < 768 ? '1rem' : '1rem'); // Does not work
 
-	const chartSolves = $derived(caseSolves.filter((s) => s.time !== null));
+	const chartSolves = $derived(caseSolves.filter((s) => s.time !== undefined));
 
 	// Calculate rolling Ao5 and Ao12 for the chart
 	const rollingAo5 = $derived(calculateRollingAo5(caseSolves));
@@ -122,7 +122,7 @@
 			const originalIndex = solveIdToIndex.get(solve.id);
 			if (originalIndex === undefined) return null;
 			const ao5 = rollingAo5[originalIndex];
-			return ao5 !== null ? parseFloat((ao5 / 100).toFixed(2)) : null;
+			return ao5 !== undefined ? parseFloat((ao5 / 100).toFixed(2)) : null;
 		})
 	);
 
@@ -132,19 +132,19 @@
 			const originalIndex = solveIdToIndex.get(solve.id);
 			if (originalIndex === undefined) return null;
 			const ao12 = rollingAo12[originalIndex];
-			return ao12 !== null ? parseFloat((ao12 / 100).toFixed(2)) : null;
+			return ao12 !== undefined ? parseFloat((ao12 / 100).toFixed(2)) : null;
 		})
 	);
 
 	// Index mapping functions between caseSolves (includes nulls) and chartSolves (filtered)
 	function caseSolvesIndexToChartIndex(caseSolvesIdx: number): number | null {
 		if (caseSolvesIdx < 0 || caseSolvesIdx >= caseSolves.length) return null;
-		if (caseSolves[caseSolvesIdx].time === null) return null;
+		if (caseSolves[caseSolvesIdx].time === undefined) return null;
 
 		// Count non-null times before this index
 		let chartIdx = 0;
 		for (let i = 0; i < caseSolvesIdx; i++) {
-			if (caseSolves[i].time !== null) chartIdx++;
+			if (caseSolves[i].time !== undefined) chartIdx++;
 		}
 		return chartIdx;
 	}
@@ -155,7 +155,7 @@
 		// Find the nth non-null time in caseSolves
 		let count = 0;
 		for (let i = 0; i < caseSolves.length; i++) {
-			if (caseSolves[i].time !== null) {
+			if (caseSolves[i].time !== undefined) {
 				if (count === chartIdx) return i;
 				count++;
 			}
@@ -191,7 +191,7 @@
 		series: [
 			{
 				name: 'Solve Time',
-				data: chartSolves.map((s) => parseFloat(((s.time as number) / 100).toFixed(2)))
+				data: chartSolves.map((s) => parseFloat((s.time! / 100).toFixed(2)))
 			},
 			{
 				name: 'Ao5',
@@ -454,7 +454,7 @@
 					>
 						{#each caseSolves.slice().reverse() as solve, index}
 							{@const realIndex = caseSolves.length - 1 - index}
-							{#if solve.time !== null}
+							{#if solve.time !== undefined}
 								<Badge
 									class="cursor-pointer text-sm md:text-base {hoveredIndex === realIndex ||
 									selectedIndex === realIndex

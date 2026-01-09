@@ -1,6 +1,5 @@
 import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
-import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
-import { casesStatic } from './casesStatic';
+import { type GroupId } from './types/group';
 import type {
 	StatisticsState,
 	Solve,
@@ -64,7 +63,6 @@ function compressSolve(solve: Solve): CompressedSolve {
 		a: AUF_MAP[solve.auf],
 		s: SIDE_MAP[solve.side],
 		sid: solve.sessionId,
-		// Drill mode timing (only include if present)
 		rt: solve.recognitionTime,
 		et: solve.executionTime
 	};
