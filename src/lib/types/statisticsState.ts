@@ -2,6 +2,8 @@ import type { Auf } from './trainCase';
 import type { Side } from '$lib/types/Side';
 import type { CaseId, GroupId } from './group';
 
+export type TrainMode = 'classic' | 'smart' | 'drill';
+
 export type Solve = {
 	id: string;
 	groupId: GroupId;
@@ -15,6 +17,7 @@ export type Solve = {
 	// Drill mode timing (optional - only set for drill mode solves)
 	recognitionTime?: number; // Time from case display to first non-U move (centiseconds)
 	executionTime?: number; // Time from first non-U move to F2L solved (centiseconds)
+	trainMode: TrainMode;
 };
 
 export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';
@@ -33,6 +36,7 @@ export type CompressedSolve = {
 	// Drill mode timing (optional)
 	rt?: number; // recognitionTime compressed
 	et?: number; // executionTime compressed
+	m: 'c' | 's' | 'd'; // trainMode compressed
 };
 
 export type StatisticsState = Solve[];

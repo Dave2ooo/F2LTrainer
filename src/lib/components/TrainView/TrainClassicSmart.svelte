@@ -573,7 +573,8 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-					sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined,
+					trainMode: 'smart'
 				});
 
 				// Update the TrainCase with the solve ID so we don't record it again
@@ -667,7 +668,8 @@
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
 					sessionId: sessionState.activeSessionId || undefined,
-					executionTime: timeInCentiseconds
+					executionTime: timeInCentiseconds,
+					trainMode: 'smart'
 				});
 			}
 

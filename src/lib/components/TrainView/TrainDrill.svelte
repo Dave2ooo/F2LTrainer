@@ -245,7 +245,8 @@
 				scrambleSelection: currentTrainCase.scramble,
 				sessionId: sessionState.activeSessionId || undefined,
 				recognitionTime,
-				executionTime
+				executionTime,
+				trainMode: 'drill'
 			});
 
 			markAsSolved(true);

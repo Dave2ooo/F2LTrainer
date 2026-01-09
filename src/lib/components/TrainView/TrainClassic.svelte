@@ -89,7 +89,8 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-					sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined,
+					trainMode: 'classic'
 				});
 
 				// Update the TrainCase with the solve ID so we don't record it again
@@ -170,7 +171,8 @@
 					auf: currentTrainCase.auf,
 					side: currentTrainCase.side,
 					scrambleSelection: currentTrainCase.scramble,
-					sessionId: sessionState.activeSessionId || undefined
+					sessionId: sessionState.activeSessionId || undefined,
+					trainMode: 'classic'
 				});
 
 				// Mark as solved

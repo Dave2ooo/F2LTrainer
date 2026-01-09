@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
 	import { P, Select, Button } from 'flowbite-svelte';
-	import type { Solve } from '$lib/types/statisticsState';
+	import type { Solve, TrainMode } from '$lib/types/statisticsState';
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 	import { ArrowUp, ArrowDown, ChartNoAxesColumn } from '@lucide/svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -80,18 +80,15 @@
 	const sessionName = $derived(sessionState.activeSession?.name ?? 'Session');
 
 	// Train type filter
-	type TrainType = 'classic' | 'smart' | 'drill';
-	let trainTypeFilter = $state<TrainType>('classic');
+	let trainTypeFilter = $state<TrainMode>('classic');
 
 	// Detect solve type based on recorded fields
-	function getSolveType(solve: Solve): 'classic' | 'smart' | 'drill' {
-		if (solve.recognitionTime !== undefined) return 'drill';
-		if (solve.executionTime !== undefined) return 'smart';
-		return 'classic';
+	function getSolveType(solve: Solve): TrainMode {
+		return solve.trainMode;
 	}
 
 	const trainTypeOptions = $derived.by(() => {
-		const types = new Set<TrainType>();
+		const types = new Set<TrainMode>();
 		for (const solve of sessionSolves) {
 			types.add(getSolveType(solve));
 		}
@@ -105,7 +102,7 @@
 	$effect(() => {
 		const validValues = trainTypeOptions.map((o) => o.value);
 		if (validValues.length > 0 && !validValues.includes(trainTypeFilter)) {
-			trainTypeFilter = validValues[0] as TrainType;
+			trainTypeFilter = validValues[0] as TrainMode;
 		}
 	});
 

@@ -51,6 +51,21 @@ const REVERSE_AUF_MAP: Record<CompressedAuf, Auf> = {
 	3: "U'"
 };
 
+const MODE_MAP: Record<NonNullable<Solve['trainMode']>, NonNullable<CompressedSolve['m']>> = {
+	classic: 'c',
+	smart: 's',
+	drill: 'd'
+};
+
+const REVERSE_MODE_MAP: Record<
+	NonNullable<CompressedSolve['m']>,
+	NonNullable<Solve['trainMode']>
+> = {
+	c: 'classic',
+	s: 'smart',
+	d: 'drill'
+};
+
 import { sessionState } from '$lib/sessionState.svelte';
 
 function compressSolve(solve: Solve): CompressedSolve {
@@ -64,7 +79,8 @@ function compressSolve(solve: Solve): CompressedSolve {
 		s: SIDE_MAP[solve.side],
 		sid: solve.sessionId,
 		rt: solve.recognitionTime,
-		et: solve.executionTime
+		et: solve.executionTime,
+		m: MODE_MAP[solve.trainMode]
 	};
 }
 
@@ -82,7 +98,8 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		sessionId: compressed.sid,
 		// Drill mode timing (optional)
 		recognitionTime: compressed.rt,
-		executionTime: compressed.et
+		executionTime: compressed.et,
+		trainMode: REVERSE_MODE_MAP[compressed.m]
 	};
 }
 
