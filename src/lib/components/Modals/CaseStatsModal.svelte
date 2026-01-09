@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { Badge, Button, Dropdown, Checkbox, DropdownItem } from 'flowbite-svelte';
+	import { Badge, Button, Dropdown, Checkbox, DropdownItem, Select } from 'flowbite-svelte';
+	import type { Solve } from '$lib/types/statisticsState';
 	import { Funnel } from '@lucide/svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
@@ -20,9 +21,11 @@
 
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 
-	let { groupId, caseId }: { groupId: GroupId; caseId: CaseId } = $props();
-
-	let open = $state(false);
+	let {
+		groupId,
+		caseId,
+		open = $bindable(false)
+	}: { groupId: GroupId; caseId: CaseId; open?: boolean } = $props();
 
 	export function openModal() {
 		open = true;
@@ -49,13 +52,62 @@
 		}
 	}
 
-	const caseSolves = $derived(
-		getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
-			(s) =>
-				selectedSessionIds.length === 0 ||
-				(s.sessionId !== undefined && selectedSessionIds.includes(s.sessionId))
-		)
-	);
+	// Train type filter
+	type TrainType = 'classic' | 'smart' | 'drill';
+	let trainTypeFilter = $state<TrainType>('classic');
+
+	// Detect solve type based on recorded fields
+	function getSolveType(solve: Solve): 'classic' | 'smart' | 'drill' {
+		if (solve.recognitionTime !== undefined) return 'drill';
+		if (solve.executionTime !== undefined) return 'smart';
+		return 'classic';
+	}
+
+	const solvesInSession = $derived.by(() => {
+		let solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
+		// Filter by session
+		if (selectedSessionIds.length > 0) {
+			solves = solves.filter(
+				(s) => s.sessionId !== undefined && selectedSessionIds.includes(s.sessionId)
+			);
+		}
+		return solves;
+	});
+
+	const trainTypeOptions = $derived.by(() => {
+		const types = new Set<TrainType>();
+		for (const solve of solvesInSession) {
+			types.add(getSolveType(solve));
+		}
+		const options = [];
+		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
+		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
+		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		return options;
+	});
+
+	$effect(() => {
+		const validValues = trainTypeOptions.map((o) => o.value);
+		if (validValues.length > 0 && !validValues.includes(trainTypeFilter)) {
+			trainTypeFilter = validValues[0] as TrainType;
+		}
+	});
+
+	const caseSolves = $derived.by(() => {
+		// Filter by train type and map time
+		return solvesInSession
+			.filter((s) => getSolveType(s) === trainTypeFilter)
+			.map((s) => {
+				let time = s.time;
+				if (trainTypeFilter === 'smart') time = s.executionTime;
+				if (trainTypeFilter === 'drill')
+					time =
+						s.recognitionTime !== undefined && s.executionTime !== undefined
+							? s.recognitionTime + s.executionTime
+							: undefined;
+				return { ...s, time };
+			});
+	});
 	const bestTime = $derived(calculateBestTime(caseSolves));
 	const ao5 = $derived(calculateAo5(caseSolves));
 	const ao12 = $derived(calculateAo12(caseSolves));
@@ -370,6 +422,13 @@
 						{/each}
 					</div>
 				</Dropdown>
+			</div>
+		{/if}
+
+		<!-- Train Type Filter -->
+		{#if trainTypeOptions.length > 1}
+			<div class="flex justify-center">
+				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-64" />
 			</div>
 		{/if}
 

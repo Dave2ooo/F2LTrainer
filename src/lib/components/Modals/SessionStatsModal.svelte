@@ -1,10 +1,12 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
-	import { P } from 'flowbite-svelte';
+	import { P, Select, Button } from 'flowbite-svelte';
+	import type { Solve } from '$lib/types/statisticsState';
 	import { Chart } from '@flowbite-svelte-plugins/chart';
-	import { ArrowUp, ArrowDown } from '@lucide/svelte';
+	import { ArrowUp, ArrowDown, ChartNoAxesColumn } from '@lucide/svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
+	import CaseStatsModal from './CaseStatsModal.svelte';
 	import {
 		formatTime,
 		calculateBestTime,
@@ -20,6 +22,15 @@
 
 	let open = $state(false);
 	let innerWidth = $state(0);
+
+	// Case Stats Modal state
+	let caseStatsOpen = $state(false);
+	let currentStatsCase = $state<{ groupId: GroupId; caseId: CaseId } | null>(null);
+
+	function openCaseStats(groupId: GroupId, caseId: CaseId) {
+		currentStatsCase = { groupId, caseId };
+		caseStatsOpen = true;
+	}
 
 	// Sorting state
 	type SortColumn = 'case' | 'count' | 'timedCount' | 'untimedCount' | 'best' | 'avg';
@@ -68,15 +79,61 @@
 	const sessionSolves = $derived(statisticsState.statistics);
 	const sessionName = $derived(sessionState.activeSession?.name ?? 'Session');
 
-	// Filtered solves based on case selection
+	// Train type filter
+	type TrainType = 'classic' | 'smart' | 'drill';
+	let trainTypeFilter = $state<TrainType>('classic');
+
+	// Detect solve type based on recorded fields
+	function getSolveType(solve: Solve): 'classic' | 'smart' | 'drill' {
+		if (solve.recognitionTime !== undefined) return 'drill';
+		if (solve.executionTime !== undefined) return 'smart';
+		return 'classic';
+	}
+
+	const trainTypeOptions = $derived.by(() => {
+		const types = new Set<TrainType>();
+		for (const solve of sessionSolves) {
+			types.add(getSolveType(solve));
+		}
+		const options = [];
+		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
+		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
+		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		return options;
+	});
+
+	$effect(() => {
+		const validValues = trainTypeOptions.map((o) => o.value);
+		if (validValues.length > 0 && !validValues.includes(trainTypeFilter)) {
+			trainTypeFilter = validValues[0] as TrainType;
+		}
+	});
+
+	// Solves filtered by train type and with time mapped
+	const trainModeSolves = $derived.by(() => {
+		return sessionSolves
+			.filter((s) => getSolveType(s) === trainTypeFilter)
+			.map((s) => {
+				let time = s.time;
+				if (trainTypeFilter === 'smart') time = s.executionTime;
+				if (trainTypeFilter === 'drill')
+					time =
+						s.recognitionTime !== undefined && s.executionTime !== undefined
+							? s.recognitionTime + s.executionTime
+							: undefined;
+				return { ...s, time };
+			});
+	});
+
+	// Filtered solves based on case selection (subset of trainModeSolves)
 	const displaySolves = $derived.by(() => {
 		const selected = selectedCase;
 		if (selected) {
-			return sessionSolves.filter(
+			return trainModeSolves.filter(
 				(s) => s.groupId === selected.groupId && s.caseId === selected.caseId
 			);
 		}
-		return sessionSolves;
+		return trainModeSolves;
 	});
 
 	// Summary statistics (based on selection)
@@ -86,6 +143,17 @@
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
 	const bestTime = $derived(calculateBestTime(displaySolves));
 	const meanTime = $derived(calculateMean(displaySolves));
+	// Drill specific means
+	const meanRec = $derived(
+		trainTypeFilter === 'drill'
+			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.recognitionTime }) as Solve))
+			: undefined
+	);
+	const meanExec = $derived(
+		trainTypeFilter === 'drill'
+			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.executionTime }) as Solve))
+			: undefined
+	);
 	const ao5 = $derived(calculateAo5(displaySolves));
 	const ao12 = $derived(calculateAo12(displaySolves));
 
@@ -255,7 +323,7 @@
 			{ groupId: GroupId; caseId: CaseId; times: number[]; untimedCount: number }
 		>();
 
-		for (const solve of sessionSolves) {
+		for (const solve of trainModeSolves) {
 			const key = `${solve.groupId}-${solve.caseId}`;
 			if (!caseMap.has(key)) {
 				caseMap.set(key, {
@@ -355,8 +423,19 @@
 			<p class="-mt-2 text-center text-sm text-gray-500 dark:text-gray-400">{dateRange}</p>
 		{/if}
 
+		<!-- Train Type Filter -->
+		{#if trainTypeOptions.length > 1}
+			<div class="flex justify-center">
+				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-64" />
+			</div>
+		{/if}
+
 		<!-- Summary Stats Grid -->
-		<div class="grid grid-cols-3 gap-3 text-center sm:grid-cols-5">
+		<div
+			class="grid gap-3 text-center {trainTypeFilter === 'drill'
+				? 'grid-cols-3 sm:grid-cols-7'
+				: 'grid-cols-3 sm:grid-cols-5'}"
+		>
 			{#if hasMixedSolves}
 				<!-- Mixed: Show split card -->
 				<div
@@ -397,12 +476,31 @@
 					>{formatTime(bestTime)}</span
 				>
 			</div>
+			<!-- Mean Time -->
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
 				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean</span>
-				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
+				<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
 					>{formatTime(meanTime)}</span
 				>
 			</div>
+
+			<!-- Drill Split Stats -->
+			{#if trainTypeFilter === 'drill'}
+				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
+					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean Rec</span>
+					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
+						>{formatTime(meanRec)}</span
+					>
+				</div>
+				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
+					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean Exec</span>
+					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
+						>{formatTime(meanExec)}</span
+					>
+				</div>
+			{/if}
+
+			<!-- Ao5 -->
 			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
 				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Ao5</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
@@ -522,7 +620,7 @@
 									onclick={() => toggleSort('avg')}
 								>
 									<span class="flex items-center justify-end gap-1">
-										Avg
+										Mean
 										<span class={sortColumn === 'avg' ? 'opacity-100' : 'opacity-0'}>
 											{#if sortDirection === 'asc' && sortColumn === 'avg'}
 												<ArrowUp class="size-3" />
@@ -532,6 +630,7 @@
 										</span>
 									</span>
 								</th>
+								<th class="px-2 py-2"></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -569,6 +668,18 @@
 									<td class="px-2 py-2 text-right font-mono text-gray-600 dark:text-gray-400"
 										>{formatTime(caseData.mean)}</td
 									>
+									<td class="px-2 py-2 text-right">
+										<button
+											type="button"
+											class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
+											onclick={(e) => {
+												e.stopPropagation();
+												openCaseStats(caseData.groupId, caseData.caseId);
+											}}
+										>
+											<ChartNoAxesColumn size={16} />
+										</button>
+									</td>
 								</tr>
 							{/each}
 						</tbody>
@@ -579,4 +690,12 @@
 			<P class="text-center text-gray-500 dark:text-gray-400">No solves recorded yet.</P>
 		{/if}
 	</div>
+
+	{#if caseStatsOpen && currentStatsCase}
+		<CaseStatsModal
+			bind:open={caseStatsOpen}
+			groupId={currentStatsCase.groupId}
+			caseId={currentStatsCase.caseId}
+		/>
+	{/if}
 </Modal>
