@@ -5,22 +5,30 @@ export function getSolvesForCase(solves: Solve[], groupId: GroupId, caseId: Case
 	return solves.filter((s) => s.groupId === groupId && s.caseId === caseId);
 }
 
+/**
+ * Get the effective time for a solve, preferring time, then falling back to executionTime.
+ * This handles different training modes which store time in different fields.
+ */
+export function getEffectiveTime(solve: Solve): number | undefined {
+	return solve.time ?? solve.executionTime;
+}
+
 export function calculateBestTime(solves: Solve[]): number | undefined {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== undefined);
+	const times = solves.map((s) => getEffectiveTime(s)).filter((t): t is number => t !== undefined);
 	if (times.length === 0) return undefined;
 	const best = Math.min(...times);
 	return Math.round(best);
 }
 
 export function calculateMean(solves: Solve[]): number | undefined {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== undefined);
+	const times = solves.map((s) => getEffectiveTime(s)).filter((t): t is number => t !== undefined);
 	if (times.length === 0) return undefined;
 	const sum = times.reduce((a, b) => a + b, 0);
 	return Math.round(sum / times.length);
 }
 
 export function calculateAo5(solves: Solve[]): number | undefined {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== undefined);
+	const times = solves.map((s) => getEffectiveTime(s)).filter((t): t is number => t !== undefined);
 	if (times.length < 5) return undefined;
 
 	// Get last 5 solves
@@ -36,7 +44,7 @@ export function calculateAo5(solves: Solve[]): number | undefined {
 }
 
 export function calculateAo12(solves: Solve[]): number | undefined {
-	const times = solves.map((s) => s.time).filter((t): t is number => t !== undefined);
+	const times = solves.map((s) => getEffectiveTime(s)).filter((t): t is number => t !== undefined);
 	if (times.length < 12) return undefined;
 
 	// Get last 12 solves
@@ -72,7 +80,7 @@ export function calculateRollingAo5(solves: Solve[]): (number | undefined)[] {
 	const nonNullTimes: number[] = [];
 
 	for (let i = 0; i < solves.length; i++) {
-		const currentTime = solves[i].time;
+		const currentTime = getEffectiveTime(solves[i]);
 
 		// Add current time to our running list if it's not undefined
 		if (currentTime !== undefined) {
@@ -110,7 +118,7 @@ export function calculateRollingAo12(solves: Solve[]): (number | undefined)[] {
 	const nonNullTimes: number[] = [];
 
 	for (let i = 0; i < solves.length; i++) {
-		const currentTime = solves[i].time;
+		const currentTime = getEffectiveTime(solves[i]);
 
 		// Add current time to our running list if it's not undefined
 		if (currentTime !== undefined) {
