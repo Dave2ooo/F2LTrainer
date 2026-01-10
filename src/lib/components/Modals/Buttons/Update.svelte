@@ -19,7 +19,7 @@
 	}: Props = $props();
 </script>
 
-<div class="mt-4 flex w-full justify-center gap-3">
+<div class="modal-footer">
 	<Button type="submit" class="gap-2 py-2 md:text-lg" onclick={onSubmit} {disabled}>
 		<Icon />{submitText}
 	</Button>

@@ -446,16 +446,16 @@
 			<div class="flex min-w-[100px] flex-col gap-3 text-center">
 				{#if hasMixedSolves}
 					<div class="flex flex-col">
-						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Timed</span>
+						<span class="text-secondary md:text-base">#Timed</span>
 						<span class="text-xl font-bold md:text-2xl">{timedCount}</span>
 					</div>
 					<div class="flex flex-col">
-						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Untimed</span>
+						<span class="text-secondary md:text-base">#Untimed</span>
 						<span class="text-xl font-bold md:text-2xl">{untimedCount}</span>
 					</div>
 				{:else}
 					<div class="flex flex-col">
-						<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">#Solves</span>
+						<span class="text-secondary md:text-base">#Solves</span>
 						<span class="text-xl font-bold md:text-2xl">{solvesCount}</span>
 					</div>
 				{/if}
@@ -479,15 +479,15 @@
 						}
 					}}
 				>
-					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Best</span>
+					<span class="text-secondary md:text-base">Best</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(bestTime)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Ao5</span>
+					<span class="text-secondary md:text-base">Ao5</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(ao5)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-sm text-gray-500 md:text-base dark:text-gray-400">Ao12</span>
+					<span class="text-secondary md:text-base">Ao12</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(ao12)}</span>
 				</div>
 			</div>

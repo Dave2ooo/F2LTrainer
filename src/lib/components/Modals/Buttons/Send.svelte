@@ -11,7 +11,7 @@
 	let { onCancel, disabled = false, submitText = 'Send' }: Props = $props();
 </script>
 
-<div class="mt-4 flex w-full justify-center gap-3">
+<div class="modal-footer">
 	<Button type="submit" class="gap-2 py-2 md:text-lg" {disabled}>
 		{#if disabled}
 			<Spinner size="6" />

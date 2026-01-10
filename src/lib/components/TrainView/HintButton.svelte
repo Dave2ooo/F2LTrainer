@@ -56,23 +56,9 @@
 		return displayedAlg.split(' ').filter((move) => move.trim() !== '');
 	});
 
-	// Tailwind classes separated into named groups for readability
-	const hintBase = [
-		'min-w-60',
-		'cursor-pointer',
-		'rounded',
-		'border border-gray-300',
-		'bg-transparent',
-		'p-5',
-		'text-center',
-		'text-xl md:text-2xl',
-		'shadow-sm',
-		'transition-colors',
-		'hover:bg-gray-50 dark:hover:bg-gray-700',
-		'focus:ring-2 focus:ring-primary-600 focus:outline-none'
-	].join(' ');
-
-	const className = hintBase;
+	// Tailwind classes - uses display-box utility from app.css and adds specific overrides
+	const className =
+		'display-box cursor-pointer text-xl md:text-2xl hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-primary-600 focus:outline-none';
 
 	const algContainerClass =
 		'inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';

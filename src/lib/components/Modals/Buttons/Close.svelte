@@ -9,6 +9,6 @@
 	let { onClose }: Props = $props();
 </script>
 
-<div class="mt-4 flex w-full justify-center">
+<div class="modal-footer">
 	<Button type="button" onclick={onClose} class="gap-2 py-2 md:text-lg"><X />Close</Button>
 </div>

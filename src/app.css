@@ -83,3 +83,89 @@
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+@layer components {
+	/* ========================================
+	   BUTTON UTILITIES
+	   ======================================== */
+
+	/* Transparent icon button - for nav icons and action buttons */
+	.btn-icon-transparent {
+		@apply !bg-transparent !p-1 hover:!bg-transparent dark:!bg-transparent dark:hover:!bg-transparent;
+	}
+
+	/* ========================================
+	   CARD CONTAINERS
+	   ======================================== */
+
+	/* Standard card container - for sections and grouped content */
+	.card {
+		@apply rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800;
+	}
+
+	/* Selectable card base - for radio-like card selections */
+	.selectable-card {
+		@apply cursor-pointer rounded-lg border p-4 transition-colors;
+	}
+
+	/* Selectable card active state */
+	.selectable-card-active {
+		@apply border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20;
+	}
+
+	/* Selectable card inactive state */
+	.selectable-card-inactive {
+		@apply border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700;
+	}
+
+	/* Stat display card - for statistics in modals */
+	.stat-card {
+		@apply flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700;
+	}
+
+	/* ========================================
+	   TEXT UTILITIES
+	   ======================================== */
+
+	/* Secondary/muted text */
+	.text-secondary {
+		@apply text-sm text-gray-500 dark:text-gray-400;
+	}
+
+	/* Section labels - uppercase section headers */
+	.section-label {
+		@apply text-xs font-semibold text-gray-500 uppercase;
+	}
+
+	/* Label text - form labels and small headers */
+	.label-text {
+		@apply text-sm font-semibold text-gray-700 dark:text-gray-300;
+	}
+
+	/* ========================================
+	   INTERACTIVE UTILITIES
+	   ======================================== */
+
+	/* Interactive hover state - for clickable list items and table rows */
+	.hover-interactive {
+		@apply cursor-pointer transition-colors hover:bg-gray-100 dark:hover:bg-gray-600;
+	}
+
+	/* ========================================
+	   DISPLAY COMPONENTS
+	   ======================================== */
+
+	/* Timer/display box - for timer and hint displays */
+	.display-box {
+		@apply min-w-60 rounded border border-gray-300 bg-transparent p-5 text-center shadow-sm transition-colors select-none;
+	}
+
+	/* ========================================
+	   MODAL UTILITIES
+	   ======================================== */
+
+	/* Modal footer - for modal action buttons */
+	.modal-footer {
+		@apply mt-4 flex w-full justify-center gap-3;
+	}
+}

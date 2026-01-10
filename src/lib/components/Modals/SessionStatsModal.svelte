@@ -19,6 +19,7 @@
 	import { GROUP_DEFINITIONS, type GroupId, type CaseId } from '$lib/types/group';
 	import { getCaseName } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
+	import { createSolveChartOptions } from '$lib/utils/chartConfig';
 
 	let open = $state(false);
 	let innerWidth = $state(0);
@@ -195,112 +196,30 @@
 		})
 	);
 
-	const axisLabelColor = 'var(--color-chart-axis)';
 	const axisFontSize = $derived(innerWidth < 768 ? '0.875rem' : '1rem');
 
-	const chartOptions = $derived({
-		chart: {
-			type: 'line',
+	const chartOptions = $derived(
+		createSolveChartOptions({
 			height: 180,
-			width: '100%',
-			animations: {
-				enabled: false
-			},
-			toolbar: {
-				show: false
-			},
-			parentHeightOffset: 0,
-			zoom: {
-				enabled: false
-			}
-		},
-		series: [
-			{
-				name: 'Solve Time',
-				data: chartSolves.map((s) => parseFloat((s.time! / 100).toFixed(2)))
-			},
-			{
-				name: 'Ao5',
-				data: chartRollingAo5
-			},
-			{
-				name: 'Ao12',
-				data: chartRollingAo12
-			}
-		],
-		xaxis: {
-			categories: chartSolves.map((_, i) => i + 1),
-			labels: {
-				show: false,
-				style: {
-					colors: axisLabelColor,
-					fontSize: axisFontSize,
-					fontFamily: 'Inter, sans-serif'
-				}
-			},
-			axisBorder: {
-				show: false
-			},
-			axisTicks: {
-				show: false
-			}
-		},
-		yaxis: {
-			show: true,
-			min: 0,
-			labels: {
-				formatter: function (val: number) {
-					return Math.round(val).toString();
+			axisFontSize,
+			series: [
+				{
+					name: 'Solve Time',
+					data: chartSolves.map((s) => parseFloat((s.time! / 100).toFixed(2)))
 				},
-				style: {
-					colors: axisLabelColor,
-					fontSize: axisFontSize,
-					fontFamily: 'Inter, sans-serif'
+				{
+					name: 'Ao5',
+					data: chartRollingAo5
+				},
+				{
+					name: 'Ao12',
+					data: chartRollingAo12
 				}
-			}
-		},
-		grid: {
-			show: false
-		},
-		dataLabels: {
-			enabled: false
-		},
-		stroke: {
-			curve: 'smooth',
-			width: 2,
-			colors: ['#1A56DB', '#10B981', '#F59E0B']
-		},
-		tooltip: {
-			enabled: true,
-			style: {
-				fontSize: '0.875rem',
-				fontFamily: 'Inter, sans-serif'
-			},
-			x: {
-				show: false,
-				formatter: function (val: any) {
-					return 'Solve ' + val;
-				}
-			},
-			y: {
-				formatter: function (val: number | null) {
-					if (val === null || val === undefined) return '-';
-					return val.toFixed(2);
-				}
-			}
-		},
-		markers: {
-			size: 0
-		},
-		legend: {
-			show: true,
-			position: 'top',
-			horizontalAlign: 'center',
-			labels: {
-				colors: axisLabelColor
-			}
-		}
-	});
+			],
+			categories: chartSolves.map((_, i) => i + 1),
+			showLegend: true
+		})
+	);
 
 	// Case breakdown - group solves by case
 	type CaseBreakdown = {
@@ -435,10 +354,8 @@
 		>
 			{#if hasMixedSolves}
 				<!-- Mixed: Show split card -->
-				<div
-					class="row-span-2 flex flex-col rounded-lg bg-gray-100 p-2 sm:row-span-1 dark:bg-gray-700"
-				>
-					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Solves</span>
+				<div class="stat-card row-span-2 sm:row-span-1">
+					<span class="text-secondary sm:text-base">Solves</span>
 					<div class="flex h-full flex-col justify-center gap-1 sm:gap-0">
 						<div class="flex items-center justify-center gap-2">
 							<span class="text-xs text-gray-500 dark:text-gray-400">Timed</span>
@@ -456,10 +373,8 @@
 				</div>
 			{:else}
 				<!-- All same type: Show single card -->
-				<div
-					class="row-span-2 flex flex-col rounded-lg bg-gray-100 p-2 sm:row-span-1 dark:bg-gray-700"
-				>
-					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Solves</span>
+				<div class="stat-card row-span-2 sm:row-span-1">
+					<span class="text-secondary sm:text-base">Solves</span>
 					<div class="flex h-full items-center justify-center">
 						<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 							>{solvesCount}</span
@@ -467,15 +382,15 @@
 					</div>
 				</div>
 			{/if}
-			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Best</span>
+			<div class="stat-card">
+				<span class="text-secondary sm:text-base">Best</span>
 				<span class="font-mono text-lg font-bold text-green-600 dark:text-green-400"
 					>{formatTime(bestTime)}</span
 				>
 			</div>
 			<!-- Mean Time -->
-			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean</span>
+			<div class="stat-card">
+				<span class="text-secondary sm:text-base">Mean</span>
 				<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
 					>{formatTime(meanTime)}</span
 				>
@@ -483,14 +398,14 @@
 
 			<!-- Drill Split Stats -->
 			{#if trainTypeFilter === 'drill'}
-				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean Rec</span>
+				<div class="stat-card">
+					<span class="text-secondary sm:text-base">Mean Rec</span>
 					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
 						>{formatTime(meanRec)}</span
 					>
 				</div>
-				<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-					<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Mean Exec</span>
+				<div class="stat-card">
+					<span class="text-secondary sm:text-base">Mean Exec</span>
 					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"
 						>{formatTime(meanExec)}</span
 					>
@@ -498,14 +413,14 @@
 			{/if}
 
 			<!-- Ao5 -->
-			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Ao5</span>
+			<div class="stat-card">
+				<span class="text-secondary sm:text-base">Ao5</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 					>{formatTime(ao5)}</span
 				>
 			</div>
-			<div class="flex flex-col rounded-lg bg-gray-100 p-2 dark:bg-gray-700">
-				<span class="text-sm text-gray-500 sm:text-base dark:text-gray-400">Ao12</span>
+			<div class="stat-card">
+				<span class="text-secondary sm:text-base">Ao12</span>
 				<span class="font-mono text-lg font-bold text-gray-900 dark:text-white"
 					>{formatTime(ao12)}</span
 				>

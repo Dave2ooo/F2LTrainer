@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select, Range } from 'flowbite-svelte';
 	import Modal from '$lib/components/Modal.svelte';
+	import RadioDot from '$lib/components/RadioDot.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
@@ -110,13 +111,8 @@
 	>
 		<div class="flex flex-col gap-2">
 			<!-- General Settings Section -->
-			<div
-				class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-			>
-				<Label
-					for="session-name"
-					class="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">Session Name</Label
-				>
+			<div class="card">
+				<Label for="session-name" class="label-text mb-2">Session Name</Label>
 				<Input
 					id="session-name"
 					bind:value={session.name}
@@ -137,23 +133,13 @@
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
-							class="cursor-pointer rounded-lg border p-4 transition-colors {settings.caseMode ===
-							'group'
-								? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-								: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+							class="selectable-card {settings.caseMode === 'group'
+								? 'selectable-card-active'
+								: 'selectable-card-inactive'}"
 							onclick={() => (settings.caseMode = 'group')}
 						>
 							<div class="mb-2 flex items-center gap-2">
-								<div
-									class="flex h-4 w-4 items-center justify-center rounded-full border {settings.caseMode ===
-									'group'
-										? 'border-blue-600 bg-blue-600'
-										: 'border-gray-400 bg-transparent'}"
-								>
-									{#if settings.caseMode === 'group'}
-										<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-									{/if}
-								</div>
+								<RadioDot selected={settings.caseMode === 'group'} />
 								<span class="font-medium text-gray-900 dark:text-white">Group Selection</span>
 							</div>
 
@@ -161,9 +147,7 @@
 								<div class="mt-3 ml-6 space-y-4 border-t border-blue-200 pt-3 dark:border-blue-800">
 									<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 										<div>
-											<Label class="mb-2 text-xs font-semibold text-gray-500 uppercase"
-												>F2L Groups</Label
-											>
+											<Label class="section-label mb-2">F2L Groups</Label>
 											<div class="space-y-2">
 												{#each GROUP_IDS as groupId}
 													<Checkbox bind:checked={settings.trainGroupSelection[groupId]}
@@ -173,9 +157,7 @@
 											</div>
 										</div>
 										<div>
-											<Label class="mb-2 text-xs font-semibold text-gray-500 uppercase"
-												>Training State</Label
-											>
+											<Label class="section-label mb-2">Training State</Label>
 											<div class="space-y-2">
 												<Checkbox bind:checked={settings.trainStateSelection.unlearned} color="red"
 													>Unlearned</Checkbox
@@ -198,23 +180,13 @@
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
 						<!-- svelte-ignore a11y_no_static_element_interactions -->
 						<div
-							class="cursor-pointer rounded-lg border p-4 transition-colors {settings.caseMode ===
-							'individual'
-								? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-								: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+							class="selectable-card {settings.caseMode === 'individual'
+								? 'selectable-card-active'
+								: 'selectable-card-inactive'}"
 							onclick={() => (settings.caseMode = 'individual')}
 						>
 							<div class="mb-2 flex items-center gap-2">
-								<div
-									class="flex h-4 w-4 items-center justify-center rounded-full border {settings.caseMode ===
-									'individual'
-										? 'border-blue-600 bg-blue-600'
-										: 'border-gray-400 bg-transparent'}"
-								>
-									{#if settings.caseMode === 'individual'}
-										<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-									{/if}
-								</div>
+								<RadioDot selected={settings.caseMode === 'individual'} />
 								<span class="font-medium text-gray-900 dark:text-white">Individual Selection</span>
 							</div>
 
@@ -246,23 +218,13 @@
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
-									class="flex h-full cursor-pointer flex-col rounded-lg border p-4 transition-colors {settings.trainMode ===
-									'classic'
-										? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+									class="selectable-card flex h-full flex-col {settings.trainMode === 'classic'
+										? 'selectable-card-active'
+										: 'selectable-card-inactive'}"
 									onclick={() => (settings.trainMode = 'classic')}
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<div
-											class="flex h-4 w-4 items-center justify-center rounded-full border {settings.trainMode ===
-											'classic'
-												? 'border-blue-600 bg-blue-600'
-												: 'border-gray-400 bg-transparent'}"
-										>
-											{#if settings.trainMode === 'classic'}
-												<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-											{/if}
-										</div>
+										<RadioDot selected={settings.trainMode === 'classic'} />
 										<span class="font-medium text-gray-900 dark:text-white">Standard Practice</span>
 									</div>
 									<p class="mb-4 ml-6 flex-grow text-xs text-gray-500 dark:text-gray-400">
@@ -288,26 +250,16 @@
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
-									class="flex h-full cursor-pointer flex-col rounded-lg border p-4 transition-colors {settings.trainMode ===
-									'drill'
-										? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+									class="selectable-card flex h-full flex-col {settings.trainMode === 'drill'
+										? 'selectable-card-active'
+										: 'selectable-card-inactive'}"
 									onclick={() => {
 										settings.trainMode = 'drill';
 										settings.smartCubeEnabled = true;
 									}}
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<div
-											class="flex h-4 w-4 items-center justify-center rounded-full border {settings.trainMode ===
-											'drill'
-												? 'border-blue-600 bg-blue-600'
-												: 'border-gray-400 bg-transparent'}"
-										>
-											{#if settings.trainMode === 'drill'}
-												<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-											{/if}
-										</div>
+										<RadioDot selected={settings.trainMode === 'drill'} />
 										<span class="font-medium text-gray-900 dark:text-white">Speed Drill</span>
 									</div>
 									<p class="mb-4 ml-6 flex-grow text-xs text-gray-500 dark:text-gray-400">
@@ -322,11 +274,9 @@
 								</div>
 							</div>
 							{#if settings.trainMode === 'drill'}
-								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
+								<div class="card">
 									<div class="mb-4 flex items-center justify-between">
-										<Label class="text-xs font-semibold text-gray-500 uppercase">Drill Flow</Label>
+										<Label class="section-label">Drill Flow</Label>
 										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
 											>{settings.drillTimeBetweenCases}s delay</span
 										>
@@ -354,23 +304,13 @@
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
-									class="flex h-full cursor-pointer flex-col rounded-lg border p-4 transition-colors {settings.frequencyMode ===
-									'smart'
-										? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+									class="selectable-card flex h-full flex-col {settings.frequencyMode === 'smart'
+										? 'selectable-card-active'
+										: 'selectable-card-inactive'}"
 									onclick={() => (settings.frequencyMode = 'smart')}
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<div
-											class="flex h-4 w-4 items-center justify-center rounded-full border {settings.frequencyMode ===
-											'smart'
-												? 'border-blue-600 bg-blue-600'
-												: 'border-gray-400 bg-transparent'}"
-										>
-											{#if settings.frequencyMode === 'smart'}
-												<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-											{/if}
-										</div>
+										<RadioDot selected={settings.frequencyMode === 'smart'} />
 										<span class="font-medium text-gray-900 dark:text-white">Smart Frequency</span>
 									</div>
 
@@ -396,23 +336,13 @@
 								<!-- svelte-ignore a11y_click_events_have_key_events -->
 								<!-- svelte-ignore a11y_no_static_element_interactions -->
 								<div
-									class="flex h-full cursor-pointer flex-col rounded-lg border p-4 transition-colors {settings.frequencyMode ===
-									'recap'
-										? 'border-blue-500 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/20'
-										: 'border-gray-200 bg-white hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700'}"
+									class="selectable-card flex h-full flex-col {settings.frequencyMode === 'recap'
+										? 'selectable-card-active'
+										: 'selectable-card-inactive'}"
 									onclick={() => (settings.frequencyMode = 'recap')}
 								>
 									<div class="mb-2 flex items-center gap-2">
-										<div
-											class="flex h-4 w-4 items-center justify-center rounded-full border {settings.frequencyMode ===
-											'recap'
-												? 'border-blue-600 bg-blue-600'
-												: 'border-gray-400 bg-transparent'}"
-										>
-											{#if settings.frequencyMode === 'recap'}
-												<div class="h-1.5 w-1.5 rounded-full bg-white"></div>
-											{/if}
-										</div>
+										<RadioDot selected={settings.frequencyMode === 'recap'} />
 										<span class="font-medium text-gray-900 dark:text-white">Recap Mode</span>
 									</div>
 									<p class="ml-6 text-sm text-gray-500 dark:text-gray-400">
@@ -427,9 +357,7 @@
 							<!-- Configuration (Cube Slots) -->
 							<div class="flex flex-col gap-4">
 								<Label class="text-sm font-semibold">Configuration</Label>
-								<div
-									class="h-full rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
+								<div class="card h-full">
 									<Label class="mb-3 text-sm font-semibold">Cube Slots</Label>
 									<div class="space-y-2">
 										<Checkbox bind:checked={settings.trainSideSelection.left}>Left Slots</Checkbox>
@@ -442,14 +370,10 @@
 							<!-- Assistance & Tools -->
 							<div class="flex flex-col gap-4">
 								<Label class="text-sm font-semibold">Assistance & Tools</Label>
-								<div
-									class="h-full space-y-4 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
+								<div class="card h-full space-y-4">
 									{#if settings.trainMode !== 'drill'}
 										<div>
-											<Label class="mb-1.5 text-xs font-semibold text-gray-500 uppercase"
-												>Algorithm Hint</Label
-											>
+											<Label class="section-label mb-1.5">Algorithm Hint</Label>
 											<Select
 												items={hintAlgoOptions}
 												bind:value={settings.trainHintAlgorithm}
@@ -481,12 +405,8 @@
 						<div class="flex flex-col gap-4">
 							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 								<!-- Cross Color -->
-								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
-									<Label class="mb-3 text-xs font-semibold text-gray-500 uppercase"
-										>Cross Color</Label
-									>
+								<div class="card">
+									<Label class="section-label mb-3">Cross Color</Label>
 									<div class="grid grid-cols-2 gap-2">
 										{#each STICKER_COLORS as color}
 											<Checkbox bind:group={settings.crossColor} value={color}>
@@ -497,12 +417,8 @@
 								</div>
 
 								<!-- Front Color -->
-								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
-									<Label class="mb-3 text-xs font-semibold text-gray-500 uppercase"
-										>Front Color</Label
-									>
+								<div class="card">
+									<Label class="section-label mb-3">Front Color</Label>
 									<div class="grid grid-cols-2 gap-2">
 										{#each STICKER_COLORS as color}
 											{@const isDisabled =
@@ -528,12 +444,8 @@
 								</div>
 
 								<!-- Sticker Style -->
-								<div
-									class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-								>
-									<Label class="mb-3 text-xs font-semibold text-gray-500 uppercase"
-										>Stickering Style</Label
-									>
+								<div class="card">
+									<Label class="section-label mb-3">Stickering Style</Label>
 									<Select
 										items={hintStickerOptions}
 										bind:value={settings.trainHintStickering}
@@ -545,9 +457,7 @@
 
 						<!-- Interface Section -->
 						<div class="flex flex-col gap-4">
-							<div
-								class="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800"
-							>
+							<div class="card">
 								<Label class="mb-3 text-sm font-semibold">View Options</Label>
 								<div class="space-y-2">
 									<Checkbox

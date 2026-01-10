@@ -256,18 +256,14 @@
 <svelte:window onkeydown={handleKeydown} onkeyup={handleKeyup} />
 
 <div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
-	<Button
-		class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-		type="button"
-		onclick={onPrevious}><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
+	<Button class="btn-icon-transparent" type="button" onclick={onPrevious}
+		><ArrowLeft class="size-8 text-primary-600 md:size-12" /></Button
 	>
 	<div class="min-w-48 text-center font-mono text-2xl font-semibold md:text-3xl">
 		{scramble}
 	</div>
-	<Button
-		class="bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-		type="button"
-		onclick={onNext}><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
+	<Button class="btn-icon-transparent" type="button" onclick={onNext}
+		><ArrowRight class="size-8 text-primary-600 md:size-12" /></Button
 	>
 </div>
 
