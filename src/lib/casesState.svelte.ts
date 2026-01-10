@@ -1,5 +1,10 @@
 import { casesStatic } from './casesStatic';
-import { loadFromLocalStorage } from './utils/localStorage';
+import { loadFromLocalStorage, saveToLocalStorage } from './utils/localStorage';
+import {
+	migrateOldLocalStorage,
+	hasMigrated,
+	markMigrationComplete
+} from './utils/migrateOldLocalStorage';
 import type { AlgorithmSelection, CaseState, CustomAlgorithm, TrainState } from './types/caseState';
 import { GROUP_IDS, type CaseId, type GroupId } from './types/group';
 import type { CaseStatic } from './types/casesStatic';
@@ -57,7 +62,18 @@ const validateAlgorithmSelection = (
 	return selection;
 };
 
-const persistedCasesState = loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
+// Try to load existing new-format data, or migrate from old format
+let persistedCasesState = loadFromLocalStorage<PersistedCasesState>(CASES_STATE_STORAGE_KEY);
+
+// If no new-format data exists and migration hasn't run, try migrating from old format
+if (!persistedCasesState && !hasMigrated()) {
+	const migratedData = migrateOldLocalStorage(true); // true = delete old keys
+	if (migratedData) {
+		saveToLocalStorage(CASES_STATE_STORAGE_KEY, migratedData);
+		markMigrationComplete();
+		persistedCasesState = migratedData;
+	}
+}
 
 if (persistedCasesState && typeof persistedCasesState === 'object') {
 	for (const groupId of GROUP_IDS) {
