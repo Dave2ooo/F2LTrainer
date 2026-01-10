@@ -309,7 +309,7 @@
 											e.key === 'Enter' &&
 											handleStatsClick(e as any, item.solve!.groupId, item.solve!.caseId)}
 									>
-										{formatTime(item.solve!.time)}
+										{formatTime(item.solve!.time ?? item.solve!.executionTime)}
 									</span>
 									<Button
 										class="solve-delete-btn bg-transparent p-1 transition-opacity hover:bg-transparent focus:pointer-events-auto focus:bg-transparent focus:opacity-100 focus:ring-2 focus:ring-red-600 focus:outline-none dark:bg-transparent dark:hover:bg-transparent"
