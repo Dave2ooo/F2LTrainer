@@ -19,12 +19,7 @@
 	import { Button } from 'flowbite-svelte';
 	import { Ellipsis, Pointer } from '@lucide/svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
-	import {
-		calculateBestTime,
-		calculateAo5,
-		formatTime,
-		getSolvesForCase
-	} from '$lib/utils/statistics';
+	import { getSolvesForCase } from '$lib/utils/statistics';
 
 	let editAlgRef: EditAlg;
 	let caseStatsRef: CaseStatsModal;
@@ -61,8 +56,7 @@
 	);
 
 	const caseSolves = $derived(getSolvesForCase(statisticsState.allSolves, groupId, caseId));
-	const bestTime = $derived(calculateBestTime(caseSolves));
-	const ao5 = $derived(calculateAo5(caseSolves));
+	const solveCount = $derived(caseSolves.length);
 
 	function cycleTrainStates() {
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
@@ -187,15 +181,7 @@
 		<span class="font-arial">
 			{alg}
 		</span>
-		{#if bestTime !== null}
-			<!-- Hidden copy to reserve width -->
-			<div
-				class="invisible h-0 overflow-hidden text-sm font-normal whitespace-nowrap opacity-0"
-				aria-hidden="true"
-			>
-				<span class="mr-2">Best: {formatTime(bestTime)}</span>
-				<span>Ao5: {formatTime(ao5)}</span>
-			</div>
+		{#if solveCount > 0}
 			<!-- Visible absolute positioned stats -->
 			<div
 				role="button"
@@ -204,8 +190,7 @@
 				onclick={handleStatsClick}
 				onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any)}
 			>
-				<span>Best: {formatTime(bestTime)}</span>
-				<span>Ao5: {formatTime(ao5)}</span>
+				<span>Solves: {solveCount}</span>
 			</div>
 		{/if}
 	</div>
