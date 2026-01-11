@@ -26,7 +26,7 @@
 	}
 </script>
 
-<div class="flex flex-wrap gap-3 p-4">
+<div class="flex flex-wrap gap-1 p-0">
 	{#each categoryCases as caseId}
 		{@const caseKey = getCaseKey(caseId)}
 		<SessionCaseCard

@@ -26,25 +26,36 @@
 	}
 </script>
 
-<Tabs
-	bind:selected={selectedGroup}
-	tabStyle="underline"
-	classes={{
-		content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
-	}}
->
-	{#each GROUP_IDS as groupId}
-		{@const counts = getGroupCaseCounts(groupId)}
-		<TabItem key={groupId}>
-			{#snippet titleSlot()}
-				<span class="text-sm font-semibold">
-					{GROUP_DEFINITIONS[groupId].name}
-					<span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
-						({counts.selected}/{counts.total})
+<div class="individual-case-tabs">
+	<Tabs
+		bind:selected={selectedGroup}
+		tabStyle="underline"
+		classes={{
+			content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
+		}}
+	>
+		{#each GROUP_IDS as groupId}
+			{@const counts = getGroupCaseCounts(groupId)}
+			<TabItem key={groupId}>
+				{#snippet titleSlot()}
+					<span class="text-sm font-semibold">
+						{GROUP_DEFINITIONS[groupId].name}
+						<span class="ml-1 text-xs text-gray-500 dark:text-gray-400">
+							({counts.selected}/{counts.total})
+						</span>
 					</span>
-				</span>
-			{/snippet}
-			<SessionGroupComponent {groupId} {crossColor} {frontColor} bind:selectedCases />
-		</TabItem>
-	{/each}
-</Tabs>
+				{/snippet}
+				<SessionGroupComponent {groupId} {crossColor} {frontColor} bind:selectedCases />
+			</TabItem>
+		{/each}
+	</Tabs>
+</div>
+
+<style>
+	/* Reduce tab padding on small screens */
+	@media (max-width: 640px) {
+		.individual-case-tabs :global(button[role='tab']) {
+			padding: 0.5rem 0;
+		}
+	}
+</style>

@@ -36,7 +36,7 @@
 <button
 	type="button"
 	onclick={toggleSelection}
-	class="flex cursor-pointer items-center gap-3 rounded-lg border-2 p-3 transition-all hover:shadow-md
+	class="flex cursor-pointer items-center gap-1 rounded-lg border-2 pl-1 transition-all hover:shadow-md
 		{isSelected
 		? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
 		: 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'}"
