@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getContext, untrack } from 'svelte';
 	import { slide } from 'svelte/transition';
 	import type { AccordionContext } from './types';
 
@@ -24,21 +24,26 @@
 	// Single selection logic
 	const self = Symbol('accordion-item');
 
-	// If single selection mode, sync with context
+	// Handle single-selection mode: when this item opens, register it as selected
+	// When another item becomes selected, close this one
 	$effect(() => {
-		if (context && !context.multiple && open && context.selectedItem !== self) {
-			context.selectedItem = self;
-		}
-	});
+		if (!context || context.multiple) return;
 
-	// Listen to context changes to close when another item opens
-	$effect(() => {
-		if (context && !context.multiple && context.selectedItem !== self && open) {
+		const isSelected = context.selectedItem === self;
+
+		// If we're open but not selected, close ourselves
+		if (untrack(() => open) && !isSelected) {
 			open = false;
 		}
 	});
 
 	const handleToggle = () => {
+		if (context && !context.multiple) {
+			// In single-selection mode, update context when opening
+			if (!open) {
+				context.selectedItem = self;
+			}
+		}
 		open = !open;
 	};
 </script>
