@@ -20,6 +20,7 @@ interface EventListenerInfo {
  * @returns Object with event listeners array and cleanup function
  */
 export function setupTwistyPlayerClickHandlers(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	player: any,
 	onClick: () => void
 ): {

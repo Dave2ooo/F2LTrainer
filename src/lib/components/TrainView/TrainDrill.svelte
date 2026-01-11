@@ -38,7 +38,6 @@
 		Play,
 		Check,
 		Bluetooth,
-		BluetoothConnected,
 		EllipsisVertical
 	} from '@lucide/svelte';
 	import Details from './Details.svelte';

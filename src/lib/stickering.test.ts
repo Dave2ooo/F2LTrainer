@@ -3,7 +3,7 @@ import getStickeringString from './stickering';
 import type { StickerHidden } from './types/stickering';
 import type { Side } from './types/Side';
 import type { StickerColor } from './types/stickering';
-import { STICKERING, SIDE_COLOR } from './types/stickering';
+import { SIDE_COLOR } from './types/stickering';
 
 describe('getStickeringString', () => {
 	it('should correctly hide FR slot with white cross and red front on right side', () => {

@@ -612,26 +612,6 @@
 		timerStarted = false;
 	}
 
-	async function onPrevious() {
-		advanceToPreviousTrainCase();
-		// Wait for next tick to ensure DOM is updated
-		await tick();
-
-		// Reset progress tracking
-		moveBuffer = [];
-		currentMoveIndex = 0;
-		validationFeedback = 'neutral';
-		cumulativeRotation = '';
-		caseHasRotation = false;
-		showRotationWarning = false;
-		undoMoves = [];
-		isTransitioning = false;
-
-		// Reset timer for new case
-		// smartTimerRef?.resetTimer();
-		timerStarted = false;
-	}
-
 	/**
 	 * Record the solve time and save to statistics
 	 * Called when F2L is solved (timer stopped automatically)

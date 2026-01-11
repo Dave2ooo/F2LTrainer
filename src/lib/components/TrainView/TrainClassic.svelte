@@ -13,7 +13,6 @@
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
-	import { casesStatic } from '$lib/casesStatic';
 	import HintButton from './HintButton.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { createHintManager } from '$lib/utils/hintManager.svelte';
@@ -33,7 +32,6 @@
 	let timerRef = $state<Timer>();
 
 	let twistyPlayerRef = $state<any>();
-	let physicalTwistyPlayerRef = $state<any>();
 	let algViewerContainer = $state<HTMLElement>();
 	let twistyAlgViewerLoaded = $state(false);
 

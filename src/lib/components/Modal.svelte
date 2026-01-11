@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { Modal as FlowbiteModal, type ModalProps } from 'flowbite-svelte';
+	import type { Snippet } from 'svelte';
 
 	let {
 		open = $bindable(false),
 		classes = {},
 		children,
-		header,
-		footer,
+		header: headerSnippet,
+		footer: footerSnippet,
 		...restProps
-	}: ModalProps & { children?: any; header?: any; footer?: any } = $props();
+	}: ModalProps & { children?: Snippet; header?: Snippet; footer?: Snippet } = $props();
 
 	// Merge default header classes with any custom classes provided
 	const mergedClasses = $derived({
@@ -23,14 +24,14 @@
 	{#if children}
 		{@render children()}
 	{/if}
-	{#if header}
+	{#if headerSnippet}
 		{#snippet header()}
-			{@render header()}
+			{@render headerSnippet()}
 		{/snippet}
 	{/if}
-	{#if footer}
+	{#if footerSnippet}
 		{#snippet footer()}
-			{@render footer()}
+			{@render footerSnippet()}
 		{/snippet}
 	{/if}
 </FlowbiteModal>

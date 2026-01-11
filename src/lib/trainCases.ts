@@ -1,7 +1,6 @@
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import {
 	OPPOSITE_COLOR,
-	STICKER_COLORS,
 	SIDE_COLOR,
 	type StickerColor,
 	type StickerHidden

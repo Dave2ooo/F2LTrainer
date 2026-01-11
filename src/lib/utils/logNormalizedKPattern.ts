@@ -76,6 +76,7 @@ function isF2LSolved(
  * @param alg - The solution algorithm
  */
 export async function logNormalizedKPattern(
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	pattern: any,
 	scramble: string,
 	alg: string,

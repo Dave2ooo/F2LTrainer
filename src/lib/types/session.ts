@@ -1,8 +1,7 @@
 import type { GroupId } from './group';
 import type { TrainState } from './caseState';
 import type { Side } from './Side';
-import type { View, HintAlgorithm, HintStickering } from './globalState';
-import type { StickerColor } from './stickering';
+import type { HintAlgorithm, HintStickering } from './globalState';
 
 export type CaseMode = 'group' | 'individual';
 export type FrequencyMode = 'smart' | 'recap';

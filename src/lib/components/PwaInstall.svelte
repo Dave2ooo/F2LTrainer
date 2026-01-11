@@ -3,8 +3,6 @@
 	import { Download } from '@lucide/svelte';
 	import { pwaPrompt, clearPwaPrompt } from '$lib/pwaPrompt.svelte';
 
-	let showReloadPrompt = $state(false);
-
 	async function installPwa() {
 		if (pwaPrompt.deferredPrompt) {
 			try {

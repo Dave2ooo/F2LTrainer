@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { casesStatic } from './casesStatic';
-import type { CaseId, GroupId } from './types/group';
+import type { GroupId } from './types/group';
 
 describe('Algorithm Selection Validation', () => {
 	it('should have valid algorithm pools for all cases', () => {
@@ -9,8 +9,7 @@ describe('Algorithm Selection Validation', () => {
 		for (const groupId of groupIds) {
 			const cases = casesStatic[groupId];
 
-			for (const [caseIdStr, caseData] of Object.entries(cases)) {
-				const caseId = Number(caseIdStr) as CaseId;
+			for (const caseData of Object.values(cases)) {
 				const algPool = caseData.algPool;
 
 				// Every case should have at least one algorithm

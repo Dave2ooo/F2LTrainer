@@ -4,7 +4,7 @@
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';
-	import { trainState } from '$lib/trainCaseQueue.svelte';
+
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import HelpModal from '$lib/components/Modals/HelpModal.svelte';
@@ -13,7 +13,6 @@
 	import { exportToURL, importFromURL } from '$lib/utils/urlSave';
 	import { onMount } from 'svelte';
 	import AppNavbar from '$lib/components/AppNavbar.svelte';
-	const currentTrainState = trainState; // Keep at +page to keep global
 
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;

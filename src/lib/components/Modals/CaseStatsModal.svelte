@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Badge, Button, Dropdown, Checkbox, DropdownItem, Select } from 'flowbite-svelte';
+	import { Badge, Button, Dropdown, Checkbox, Select } from 'flowbite-svelte';
 	import type { Solve, TrainMode } from '$lib/types/statisticsState';
 	import { Funnel } from '@lucide/svelte';
 	import Modal from '../Modal.svelte';
@@ -29,10 +29,6 @@
 
 	export function openModal() {
 		open = true;
-	}
-
-	function onClose() {
-		open = false;
 	}
 
 	function removeTime(index: number) {

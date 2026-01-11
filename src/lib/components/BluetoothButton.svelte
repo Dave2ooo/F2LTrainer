@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Tooltip, Spinner } from 'flowbite-svelte';
+	import { Button, Spinner } from 'flowbite-svelte';
 	import { Bluetooth, BluetoothConnected, EllipsisVertical } from '@lucide/svelte';
 	import BluetoothModal from './Modals/BluetoothModal.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';

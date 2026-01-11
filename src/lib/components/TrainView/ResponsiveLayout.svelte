@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Drawer, P } from 'flowbite-svelte';
+	import { Drawer } from 'flowbite-svelte';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import RightPaneContent from './RightPaneContent.svelte';

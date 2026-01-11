@@ -95,36 +95,6 @@
 		}
 	}
 
-	function handleJumpToStartClick(e: MouseEvent) {
-		e.stopPropagation();
-		handleJumpToStart();
-	}
-
-	function handleJumpToEndClick(e: MouseEvent) {
-		e.stopPropagation();
-		handleJumpToEnd();
-	}
-
-	function handlePlayClick(e: MouseEvent) {
-		e.stopPropagation();
-		handlePlay();
-	}
-
-	function handlePauseClick(e: MouseEvent) {
-		e.stopPropagation();
-		handlePause();
-	}
-
-	function handleTogglePlayClick(e: MouseEvent) {
-		e.stopPropagation();
-		handleTogglePlay();
-	}
-
-	function handleMirrorClick(e: MouseEvent) {
-		e.stopPropagation();
-		side = OPPOSITE_SIDE[side];
-	}
-
 	function handleEditAlgClick(e: MouseEvent) {
 		e.stopPropagation();
 		editAlgRef.openModal();
@@ -136,7 +106,6 @@
 	}
 </script>
 
-<!-- <Button outline onclick={toggleLearningState} class="flex items-center"> -->
 <button
 	type="button"
 	onclick={cycleTrainStates}

@@ -2,7 +2,6 @@
 	import { globalState } from '$lib/globalState.svelte';
 	import { Button } from 'flowbite-svelte';
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
-	import { MousePointer2, Play } from '@lucide/svelte';
 
 	let buttonText = $derived(
 		globalState.view == 'select'

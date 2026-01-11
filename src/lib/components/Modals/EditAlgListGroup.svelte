@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { casesState } from '$lib/casesState.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import type { Side } from '$lib/types/Side';
 	import type { AlgorithmSelection, CustomAlgorithm } from '$lib/types/caseState';
@@ -30,23 +29,13 @@
 	);
 
 	const staticData = casesStatic[groupId][caseId];
-	const caseState = casesState[groupId][caseId];
 
 	const algorithmPool = staticData.algPool;
 
-	// let algSelection = $state(
-	// 	side === 'left' ? caseState.algorithmSelection.left : caseState.algorithmSelection.right
-	// );
 	let customAlg = $state(side === 'left' ? customAlgInitial.left : customAlgInitial.right);
 	$effect(() => {
 		onCustomAlgChange(customAlg, side);
 	});
-
-	// const selectedClass =
-	// 	'bg-[var(--color-primary-600)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)]';
-	// // input should also show orange background in light mode when selected
-	// const selectedInputClass =
-	// 	'bg-[var(--color-primary-600)] text-white dark:bg-transparent dark:text-[var(--color-primary-500)] placeholder:text-white/80 ';
 
 	// selected item/input should show orange background and white text in both themes
 	const selectedClass =

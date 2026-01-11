@@ -138,7 +138,7 @@ function encodeCustomAlgorithm(algorithm: string): string {
 /**
  * Decodes a Base62 string back to a custom algorithm string.
  */
-function decodeCustomAlgorithm(encoded: string, expectedLength: number): string {
+function decodeCustomAlgorithm(encoded: string): string {
 	if (!encoded) return '';
 
 	// Decode Base62 to value
@@ -382,15 +382,15 @@ export async function importFromURL(confirmModal: {
 						if (casesState[groupId][caseId]) {
 							if (parts.length === 2) {
 								// Format: caseId.encoded (both left and right are the same)
-								const decoded = decodeCustomAlgorithm(parts[1], 0);
+								const decoded = decodeCustomAlgorithm(parts[1]);
 								casesState[groupId][caseId].customAlgorithm = {
 									left: decoded,
 									right: decoded
 								};
 							} else if (parts.length === 3) {
 								// Format: caseId.leftEncoded.rightEncoded
-								const leftDecoded = parts[1] ? decodeCustomAlgorithm(parts[1], 0) : '';
-								const rightDecoded = parts[2] ? decodeCustomAlgorithm(parts[2], 0) : '';
+								const leftDecoded = parts[1] ? decodeCustomAlgorithm(parts[1]) : '';
+								const rightDecoded = parts[2] ? decodeCustomAlgorithm(parts[2]) : '';
 								casesState[groupId][caseId].customAlgorithm = {
 									left: leftDecoded,
 									right: rightDecoded
@@ -407,5 +407,6 @@ export async function importFromURL(confirmModal: {
 	}
 
 	// Reset URL in addressbar
+	// eslint-disable-next-line svelte/no-navigation-without-resolve
 	pushState(window.location.pathname, {});
 }

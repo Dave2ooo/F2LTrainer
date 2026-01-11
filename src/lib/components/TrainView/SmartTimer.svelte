@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import { Pointer } from '@lucide/svelte';
 	import { globalState } from '$lib/globalState.svelte';
 
 	// Props - time is now in centiseconds (1/100s)

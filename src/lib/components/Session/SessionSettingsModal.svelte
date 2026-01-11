@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Input, Label, Checkbox, Tabs, TabItem, Select, Range } from 'flowbite-svelte';
+	import { Input, Label, Checkbox, Tabs, TabItem, Select, Range } from 'flowbite-svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import RadioDot from '$lib/components/RadioDot.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';

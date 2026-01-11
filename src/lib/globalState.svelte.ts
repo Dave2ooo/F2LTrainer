@@ -1,7 +1,6 @@
 import type { GlobalState } from '$lib/types/globalState';
 import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from './types/group';
 import { loadFromLocalStorage } from './utils/localStorage';
-import { sessionState, DEFAULT_SETTINGS } from './sessionState.svelte';
 
 export const GLOBAL_STATE_STORAGE_KEY = 'globalState';
 

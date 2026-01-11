@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Button, Modal } from 'flowbite-svelte';
 	import { TriangleAlert } from '@lucide/svelte';
+	import type { ComponentProps } from 'svelte';
 
 	let {
 		open = $bindable(),
@@ -9,6 +10,13 @@
 		onConfirm,
 		confirmText = 'Delete',
 		confirmColor = 'red'
+	}: {
+		open: boolean;
+		title: string;
+		message: string;
+		onConfirm: () => void;
+		confirmText?: string;
+		confirmColor?: ComponentProps<typeof Button>['color'];
 	} = $props();
 
 	function handleConfirm() {
@@ -26,7 +34,7 @@
 				{message}
 			</div>
 		</h3>
-		<Button color={confirmColor as any} class="me-2" onclick={handleConfirm}>{confirmText}</Button>
+		<Button color={confirmColor} class="me-2" onclick={handleConfirm}>{confirmText}</Button>
 		<Button color="alternative" onclick={() => (open = false)}>Cancel</Button>
 	</div>
 </Modal>

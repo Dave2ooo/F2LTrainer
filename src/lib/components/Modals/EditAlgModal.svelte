@@ -1,11 +1,10 @@
 <script lang="ts">
 	import { GROUP_DEFINITIONS, type CaseId, type GroupId } from '$lib/types/group';
-	import { Checkbox, Button } from 'flowbite-svelte';
+	import { Checkbox } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import ToggleSwitch from '../ToggleSwitch.svelte';
 	import { casesState } from '$lib/casesState.svelte';
-	import { casesStatic } from '$lib/casesStatic';
 	import { globalState } from '$lib/globalState.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
@@ -13,12 +12,16 @@
 	import type { Side } from '$lib/types/Side';
 	import { syncAlgorithms } from '$lib/utils/syncAlgorithms';
 	import Update from './Buttons/Update.svelte';
+	import type { StickerColor } from '$lib/types/stickering';
 
-	let twistyPlayerRightRef: any = $state();
-	let twistyPlayerLeftRef: any = $state();
+	let twistyPlayerRightRef: TwistyPlayer | undefined = $state();
+	let twistyPlayerLeftRef: TwistyPlayer | undefined = $state();
 
 	// Track pending timeouts so we can clear them if a new animation is requested
-	let animationTimeouts: { left?: any; right?: any } = {};
+	let animationTimeouts: {
+		left?: ReturnType<typeof setTimeout> | null;
+		right?: ReturnType<typeof setTimeout> | null;
+	} = {};
 
 	let { groupId, caseId, side }: { groupId: GroupId; caseId: CaseId; side: Side } = $props();
 
@@ -68,7 +71,9 @@
 
 		// Schedule play after 500ms
 		animationTimeouts[side] = setTimeout(() => {
-			twistyPlayerRef.play();
+			if (twistyPlayerRef) {
+				twistyPlayerRef.play();
+			}
 			animationTimeouts[side] = null;
 		}, 200);
 
@@ -88,7 +93,6 @@
 
 	// Use $derived to react to prop changes
 	const title = $derived(GROUP_DEFINITIONS[groupId].editName + ' Case ' + caseId);
-	const staticData = $derived(casesStatic[groupId][caseId]);
 	const caseState = $derived(casesState[groupId][caseId]);
 
 	// Initialize with safe defaults - openModal() will reset with current caseState values
@@ -149,7 +153,7 @@
 	);
 
 	const [crossColor, frontColor] = $derived(
-		resolveStickerColors(safeCrossColor as any, safeFrontColor as any)
+		resolveStickerColors(safeCrossColor as StickerColor[], safeFrontColor as StickerColor[])
 	);
 
 	const controlPanel = 'bottom-row';

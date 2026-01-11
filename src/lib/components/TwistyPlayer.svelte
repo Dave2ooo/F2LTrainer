@@ -87,9 +87,6 @@
 	let isPlayerInitialized = $state(false);
 	let kpuzzle: any = null;
 
-	// Compute width/height based on size and control panel configuration
-	const aspectRatio = $derived(controlPanel === 'bottom-row' ? 1.15 : 1);
-
 	// When the parent supplies a CSS class, the wrapper should let CSS handle sizing
 	// (use classes like `w-[20vw] md:w-[30vw] aspect-[5/6]`). Otherwise use numeric
 	// `size` prop for fixed pixel sizing.

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Spinner, Input, Label } from 'flowbite-svelte';
+	import { Button, Spinner, Input } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
 	import { Bluetooth, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
@@ -7,13 +7,14 @@
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
+	import type { TwistyPlayerElement } from '$lib/types/twisty';
 
 	import MacAddressModal from './MacAddressModal.svelte';
 	import { connectNewCube, connectSavedCube, disconnectCube } from '$lib/bluetooth/actions';
 
 	let { open = $bindable(false) } = $props();
 
-	let twistyPlayerComponent = $state<any>(null);
+	let twistyPlayerComponent = $state<TwistyPlayer | null>(null);
 
 	let editingCubeId = $state<string | null>(null);
 	let editingCubeName = $state('');
@@ -26,7 +27,7 @@
 	// Handle incoming moves from subscription
 	function handleMove(move: string) {
 		if (twistyPlayerComponent) {
-			const el = twistyPlayerComponent.getElement();
+			const el = twistyPlayerComponent.getElement() as TwistyPlayerElement;
 			if (el && el.experimentalAddMove) {
 				try {
 					const m = move.trim();
@@ -52,7 +53,7 @@
 	// Clear TwistyPlayer when modal opens
 	$effect(() => {
 		if (twistyPlayerComponent && open) {
-			const el = twistyPlayerComponent.getElement();
+			const el = twistyPlayerComponent.getElement() as TwistyPlayerElement;
 			if (el) {
 				// Clear any case-specific setup
 				el.experimentalSetupAlg = '';
@@ -76,7 +77,7 @@
 
 	function onSync() {
 		if (twistyPlayerComponent) {
-			const el = twistyPlayerComponent.getElement();
+			const el = twistyPlayerComponent.getElement() as TwistyPlayerElement;
 			if (el) {
 				el.experimentalSetupAlg = '';
 				el.alg = '';

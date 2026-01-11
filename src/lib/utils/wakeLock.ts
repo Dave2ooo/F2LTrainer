@@ -65,7 +65,7 @@ export async function requestWakeLock(): Promise<boolean> {
 		});
 
 		return true;
-	} catch (err) {
+	} catch (err: unknown) {
 		// Common reasons: page not visible, low battery, browser policy
 		const error = err as Error;
 		console.log('Wake Lock: Failed to acquire -', error.name, error.message);
@@ -98,7 +98,7 @@ export async function releaseWakeLock(): Promise<void> {
 export function isWakeLockActive(): boolean {
 	try {
 		return wakeLock !== null && !wakeLock.released;
-	} catch (err) {
+	} catch {
 		// Handle case where wakeLock object might be in an invalid state
 		return false;
 	}

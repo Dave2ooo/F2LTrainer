@@ -3,7 +3,6 @@
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
-	import { statisticsState } from '$lib/statisticsState.svelte';
 
 	let currentTrainCase = $derived(trainState.current);
 	let caseState = $derived(

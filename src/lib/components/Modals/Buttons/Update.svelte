@@ -1,12 +1,13 @@
 <script lang="ts">
 	import { Button } from 'flowbite-svelte';
 	import { Check, X } from '@lucide/svelte';
+	import type { Component } from 'svelte';
 
 	interface Props {
 		onCancel: () => void;
 		onSubmit?: () => void;
 		submitText?: string;
-		Icon?: any;
+		Icon?: Component;
 		disabled?: boolean;
 	}
 

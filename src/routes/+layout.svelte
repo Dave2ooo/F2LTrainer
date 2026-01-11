@@ -1,7 +1,7 @@
 <script lang="ts">
 	import '../app.css';
 	import { browser } from '$app/environment';
-	import { base } from '$app/paths';
+
 	// pwa prompt state centralized in $lib/pwaPrompt.svelte - used by components
 	import { startPwaManager } from '$lib/pwa/pwaManager.svelte';
 	import { startWakeLockManager } from '$lib/wakeLock/wakeLockManager.svelte';

@@ -55,10 +55,10 @@
 	let totalMoves = $derived(algMoves.length);
 
 	// For displaying "applied moves" - kept for reference
-	let movesAddedList = $derived.by(() => {
-		if (!movesAdded) return [];
-		return movesAdded.split(' ').filter((move) => move.trim() !== '');
-	});
+	// let movesAddedList = $derived.by(() => {
+	// 	if (!movesAdded) return [];
+	// 	return movesAdded.split(' ').filter((move) => move.trim() !== '');
+	// });
 
 	// Tailwind classes separated into named groups for readability
 	const hintBase = [
@@ -78,8 +78,8 @@
 	const algContainerClass =
 		'inline-flex flex-wrap items-center justify-center gap-1 font-mono text-lg font-semibold md:text-3xl';
 
-	const movesAddedChipClass =
-		'rounded bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 font-mono text-base md:text-xl text-blue-800 dark:text-blue-200';
+	// const movesAddedChipClass =
+	// 	'rounded bg-blue-100 dark:bg-blue-900 px-1.5 py-0.5 font-mono text-base md:text-xl text-blue-800 dark:text-blue-200';
 
 	// Completed moves - dimmed, greenish tint
 	const completedChipClass =

@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Progressbar, Badge } from 'flowbite-svelte';
-	import { trainState, regenerateTrainCaseQueue } from '$lib/trainCaseQueue.svelte';
+	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { Check } from '@lucide/svelte';
 	import { Confetti } from 'svelte-confetti';

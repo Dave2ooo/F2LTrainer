@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
-	import { P, Select, Button } from 'flowbite-svelte';
+	import { P, Select } from 'flowbite-svelte';
 	import type { Solve, TrainMode } from '$lib/types/statisticsState';
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 	import { ArrowUp, ArrowDown, ChartNoAxesColumn } from '@lucide/svelte';
@@ -70,10 +70,6 @@
 
 	export function openModal() {
 		open = true;
-	}
-
-	function onClose() {
-		open = false;
 	}
 
 	// Get session solves
