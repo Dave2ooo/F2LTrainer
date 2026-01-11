@@ -502,7 +502,7 @@ export function cancelMoves(moves: string[]): string[] {
  */
 export function normalizeMoves(moves: string[]): string[] {
 	// Step 1: Expand slice moves (use first ordering for simplicity)
-	let expanded: string[] = [];
+	const expanded: string[] = [];
 	for (const move of moves) {
 		if (isSliceMove(move)) {
 			const expansions = expandSliceMove(move);
@@ -513,10 +513,10 @@ export function normalizeMoves(moves: string[]): string[] {
 	}
 
 	// Step 2: Coalesce consecutive moves
-	let coalesced = coalesceMoves(expanded);
+	const coalesced = coalesceMoves(expanded);
 
 	// Step 3: Cancel opposing moves
-	let cancelled = cancelMoves(coalesced);
+	const cancelled = cancelMoves(coalesced);
 
 	return cancelled;
 }

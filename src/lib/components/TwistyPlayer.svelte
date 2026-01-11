@@ -387,8 +387,8 @@
 	{/if}
 
 	<twisty-player
-		style:width={'100%'}
-		style:height={'100%'}
+		style:width="100%"
+		style:height="100%"
 		style:opacity={hidePlayer ? '0' : '1'}
 		style:pointer-events={hidePlayer ? 'none' : 'auto'}
 		bind:this={el}

@@ -172,7 +172,7 @@ function decodeCustomAlgorithm(encoded: string, expectedLength: number): string 
  */
 export function exportToURL(): string {
 	// Base URL of your site
-	let baseURL = window.location.origin + window.location.pathname;
+	const baseURL = window.location.origin + window.location.pathname;
 
 	const urlParams = new URLSearchParams();
 

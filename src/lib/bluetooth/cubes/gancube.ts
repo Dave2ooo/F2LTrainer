@@ -79,7 +79,7 @@ const KEYS = [
 ];
 
 function getKey(version: number, value: DataView): number[] | undefined {
-	let keyStr = KEYS[(version >> 8) & 0xff];
+	const keyStr = KEYS[(version >> 8) & 0xff];
 	if (!keyStr) {
 		return undefined;
 	}
@@ -162,7 +162,7 @@ function v1init() {
 			return chrct.readValue();
 		})
 		.then(function (value: DataView) {
-			let version = (value.getUint8(0) << 16) | (value.getUint8(1) << 8) | value.getUint8(2);
+			const version = (value.getUint8(0) << 16) | (value.getUint8(1) << 8) | value.getUint8(2);
 			giikerutil.log('[gancube] version', version.toString(16));
 			decoder = null;
 			if (version > 0x010007 && (version & 0xfffe00) == 0x010000) {
@@ -172,7 +172,7 @@ function v1init() {
 						return chrct.readValue();
 					})
 					.then(function (value: DataView) {
-						let key = getKey(version, value);
+						const key = getKey(version, value);
 						if (!key) {
 							// logohint.push(LGHINT_BTNOTSUP);
 							giikerutil.log('[gancube] key not found');
@@ -211,7 +211,7 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 		giikerutil.log('[gancube] manufacturer data:', '0x' + key.toString(16).padStart(4, '0'), value);
 	});
 
-	for (let id of GAN_CIC_LIST) {
+	for (const id of GAN_CIC_LIST) {
 		if (mfData.has(id)) {
 			giikerutil.log(
 				'[gancube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0')
@@ -231,7 +231,7 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 }
 
 async function v2initKey(forcePrompt: boolean, isWrongKey: boolean, ver: number) {
-	let mac = await giikerutil.reqMacAddr(forcePrompt, isWrongKey, deviceMac, null);
+	const mac = await giikerutil.reqMacAddr(forcePrompt, isWrongKey, deviceMac, null);
 	if (!mac) {
 		decoder = null;
 		throw new Error('MAC address required');
@@ -242,11 +242,11 @@ async function v2initKey(forcePrompt: boolean, isWrongKey: boolean, ver: number)
 }
 
 function v2initDecoder(mac: string, ver: number) {
-	let value: number[] = [];
+	const value: number[] = [];
 	for (let i = 0; i < 6; i++) {
 		value.push(parseInt(mac.slice(i * 3, i * 3 + 2), 16));
 	}
-	let keyiv = getKeyV2(value, ver);
+	const keyiv = getKeyV2(value, ver);
 	decoder = $.aes128(keyiv[0]);
 	decoder!.iv = keyiv[1];
 }
@@ -256,13 +256,13 @@ function v2sendRequest(req: number[]) {
 		giikerutil.log('[gancube] v2sendRequest cannot find v2write chrct');
 		return;
 	}
-	let encodedReq = encode(req.slice());
+	const encodedReq = encode(req.slice());
 	giikerutil.log('[gancube] v2sendRequest', req, encodedReq);
 	return _chrct_v2write.writeValue(new Uint8Array(encodedReq).buffer);
 }
 
 function v2sendSimpleRequest(opcode: number) {
-	let req = mathlib.valuedArray(20, 0);
+	const req = mathlib.valuedArray(20, 0);
 	req[0] = opcode;
 	return v2sendRequest(req);
 }
@@ -318,13 +318,13 @@ function v3sendRequest(req: number[]) {
 		giikerutil.log('[gancube] v3sendRequest cannot find v3write chrct');
 		return;
 	}
-	let encodedReq = encode(req.slice());
+	const encodedReq = encode(req.slice());
 	giikerutil.log('[gancube] v3sendRequest', req, encodedReq);
 	return _chrct_v3write.writeValue(new Uint8Array(encodedReq).buffer);
 }
 
 function v3sendSimpleRequest(opcode: number) {
-	let req = mathlib.valuedArray(16, 0);
+	const req = mathlib.valuedArray(16, 0);
 	req[0] = 0x68;
 	req[1] = opcode;
 	return v3sendRequest(req);
@@ -381,13 +381,13 @@ function v4sendRequest(req: number[]) {
 		giikerutil.log('[gancube] v4sendRequest cannot find v4write chrct');
 		return;
 	}
-	let encodedReq = encode(req.slice());
+	const encodedReq = encode(req.slice());
 	giikerutil.log('[gancube] v4sendRequest', req, encodedReq);
 	return _chrct_v4write.writeValue(new Uint8Array(encodedReq).buffer);
 }
 
 function v4requestFacelets() {
-	let req = mathlib.valuedArray(20, 0);
+	const req = mathlib.valuedArray(20, 0);
 	req[0] = 0xdd;
 	req[1] = 0x04;
 	req[3] = 0xed;
@@ -395,7 +395,7 @@ function v4requestFacelets() {
 }
 
 function v4requestBattery() {
-	let req = mathlib.valuedArray(20, 0);
+	const req = mathlib.valuedArray(20, 0);
 	req[0] = 0xdd;
 	req[1] = 0x04;
 	req[3] = 0xef;
@@ -403,7 +403,7 @@ function v4requestBattery() {
 }
 
 function v4requestHardwareInfo() {
-	let req = mathlib.valuedArray(20, 0);
+	const req = mathlib.valuedArray(20, 0);
 	req[0] = 0xdf;
 	req[1] = 0x03;
 	return v4sendRequest(req);
@@ -449,9 +449,9 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 	giikerutil.log('[gancube] init gan cube start');
 	return GiikerCube.waitForAdvs()
 		.then(function (mfData: BluetoothManufacturerData) {
-			let dataView = getManufacturerDataBytes(mfData);
+			const dataView = getManufacturerDataBytes(mfData);
 			if (dataView && dataView.byteLength >= 6) {
-				let mac: string[] = [];
+				const mac: string[] = [];
 				for (let i = 0; i < 6; i++) {
 					mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
 				}
@@ -516,7 +516,7 @@ function getMacAddress(): Promise<string | null> {
 
 let prevMoves: string[] = [];
 let timeOffs: number[] = [];
-let moveBuffer: any[][] = []; // [ [moveCnt, move, ts, locTime], ... ]
+const moveBuffer: any[][] = []; // [ [moveCnt, move, ts, locTime], ... ]
 let prevCubie = new mathlib.CubieCube();
 let curCubie = new mathlib.CubieCube();
 let latestFacelet = mathlib.SOLVED_FACELET;
@@ -530,7 +530,7 @@ let batteryLevel = 0;
 let badPacketCount = 0;
 
 function initCubeState() {
-	let locTime = $.now();
+	const locTime = $.now();
 	giikerutil.log('[gancube]', 'init cube state');
 	GiikerCube.callback(latestFacelet, [], [null, locTime], deviceName);
 	prevCubie.fromFacelet(latestFacelet);
@@ -548,10 +548,10 @@ function checkState() {
 		return Promise.resolve(false);
 	}
 	return _chrct_f2!.readValue().then(function (value: DataView) {
-		let decoded = decode(value);
-		let state: string[] = [];
+		const decoded = decode(value);
+		const state: string[] = [];
 		for (let i = 0; i < decoded.length - 2; i += 3) {
-			let face = (decoded[i ^ 1] << 16) | (decoded[(i + 1) ^ 1] << 8) | decoded[(i + 2) ^ 1];
+			const face = (decoded[i ^ 1] << 16) | (decoded[(i + 1) ^ 1] << 8) | decoded[(i + 2) ^ 1];
 			for (let j = 21; j >= 0; j -= 3) {
 				state.push('URFDLB'.charAt((face >> j) & 0x7));
 				if (j == 12) {
@@ -587,7 +587,7 @@ function updateMoveTimes(locTime: number, isV2: number) {
 		deviceTime += locTime - calcTs;
 	}
 	for (let i = moveDiff - 1; i >= 0; i--) {
-		let m = 'URFDLB'.indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
+		const m = 'URFDLB'.indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
 		mathlib.CubieCube.CubeMult(prevCubie, mathlib.CubieCube.moveCube[m], curCubie);
 		deviceTime += timeOffs[i];
 		GiikerCube.callback(
@@ -596,7 +596,7 @@ function updateMoveTimes(locTime: number, isV2: number) {
 			[deviceTime, i == 0 ? locTime : null],
 			deviceName + (isV2 ? '*' : '')
 		);
-		let tmp = curCubie;
+		const tmp = curCubie;
 		curCubie = prevCubie;
 		prevCubie = tmp;
 		giikerutil.log('[gancube] move', prevMoves[i], timeOffs[i]);
@@ -611,15 +611,15 @@ function loopRead(): Promise<void> | undefined {
 	return _chrct_f5!
 		.readValue()
 		.then(function (value: DataView) {
-			let decoded = decode(value);
-			let locTime = $.now();
+			const decoded = decode(value);
+			const locTime = $.now();
 			moveCnt = decoded[12];
 			if (moveCnt == prevMoveCnt) {
 				return;
 			}
 			prevMoves = [];
 			for (let i = 0; i < 6; i++) {
-				let m = decoded[13 + i];
+				const m = decoded[13 + i];
 				prevMoves.unshift('URFDLB'.charAt(~~(m / 3)) + " 2'".charAt(m % 3));
 			}
 			let f6val: number[];
@@ -641,7 +641,7 @@ function loopRead(): Promise<void> | undefined {
 
 					timeOffs = [];
 					for (let i = 0; i < 9; i++) {
-						let off = f6val[i * 2 + 1] | (f6val[i * 2 + 2] << 8);
+						const off = f6val[i * 2 + 1] | (f6val[i * 2 + 2] << 8);
 						timeOffs.unshift(off);
 					}
 					updateMoveTimes(locTime, 0);
@@ -658,7 +658,7 @@ function getBatteryLevel(): Promise<[number, string]> {
 		return Promise.resolve([batteryLevel, deviceName + '*']);
 	} else if (_chrct_f7) {
 		return _chrct_f7.readValue().then(function (value: DataView) {
-			let decoded = decode(value);
+			const decoded = decode(value);
 			return Promise.resolve([decoded[7], deviceName || 'GAN']);
 		});
 	} else {
@@ -669,7 +669,7 @@ function getBatteryLevel(): Promise<[number, string]> {
 let keyCheck = 0;
 
 function onStateChangedV2(event: Event) {
-	let value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
+	const value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
 	if (decoder == null) {
 		return;
 	}
@@ -677,14 +677,14 @@ function onStateChangedV2(event: Event) {
 }
 
 function parseV2Data(value: DataView | any) {
-	let locTime = $.now();
-	let decoded = decode(value);
-	let binStr: string[] = [];
+	const locTime = $.now();
+	const decoded = decode(value);
+	const binStr: string[] = [];
 	for (let i = 0; i < decoded.length; i++) {
 		binStr[i] = (decoded[i] + 256).toString(2).slice(1);
 	}
-	let bin = binStr.join('');
-	let mode = parseInt(bin.slice(0, 4), 2);
+	const bin = binStr.join('');
+	const mode = parseInt(bin.slice(0, 4), 2);
 	// Basic validation for V2 can be difficult as mode is just 4 bits.
 	// But if we get a mode > 9 consistently (except 15?), it might be wrong key.
 	// For now, implicit failures in checksums (keyCheck) are relying on existing logic.
@@ -708,7 +708,7 @@ function parseV2Data(value: DataView | any) {
 		prevMoves = [];
 		let keyChkInc = 0;
 		for (let i = 0; i < 7; i++) {
-			let m = parseInt(bin.slice(12 + i * 5, 17 + i * 5), 2);
+			const m = parseInt(bin.slice(12 + i * 5, 17 + i * 5), 2);
 			timeOffs[i] = parseInt(bin.slice(47 + i * 16, 63 + i * 16), 2);
 			prevMoves[i] = 'URFDLB'.charAt(m >> 1) + " '".charAt(m & 1);
 			if (m >= 12) {
@@ -726,20 +726,20 @@ function parseV2Data(value: DataView | any) {
 		giikerutil.log('[gancube]', 'v2 received facelets event', decoded);
 		if (prevMoveCnt != -1) return;
 		moveCnt = parseInt(bin.slice(4, 12), 2);
-		let cc = new mathlib.CubieCube();
+		const cc = new mathlib.CubieCube();
 		let echk = 0;
 		let cchk = 0xf00;
 		for (let i = 0; i < 7; i++) {
-			let perm = parseInt(bin.slice(12 + i * 3, 15 + i * 3), 2);
-			let ori = parseInt(bin.slice(33 + i * 2, 35 + i * 2), 2);
+			const perm = parseInt(bin.slice(12 + i * 3, 15 + i * 3), 2);
+			const ori = parseInt(bin.slice(33 + i * 2, 35 + i * 2), 2);
 			cchk -= ori << 3;
 			cchk ^= perm;
 			cc.ca[i] = (ori << 3) | perm;
 		}
 		cc.ca[7] = (cchk & 0xff8) % 24 | (cchk & 0x7);
 		for (let i = 0; i < 11; i++) {
-			let perm = parseInt(bin.slice(47 + i * 4, 51 + i * 4), 2);
-			let ori = parseInt(bin.slice(91 + i, 92 + i), 2);
+			const perm = parseInt(bin.slice(47 + i * 4, 51 + i * 4), 2);
+			const ori = parseInt(bin.slice(91 + i, 92 + i), 2);
 			echk ^= (perm << 1) | ori;
 			cc.ea[i] = (perm << 1) | ori;
 		}
@@ -755,12 +755,12 @@ function parseV2Data(value: DataView | any) {
 	} else if (mode == 5) {
 		// hardware info
 		giikerutil.log('[gancube]', 'v2 received hardware info event', decoded);
-		let hardwareVersion = parseInt(bin.slice(8, 16), 2) + '.' + parseInt(bin.slice(16, 24), 2);
-		let softwareVersion = parseInt(bin.slice(24, 32), 2) + '.' + parseInt(bin.slice(32, 40), 2);
+		const hardwareVersion = parseInt(bin.slice(8, 16), 2) + '.' + parseInt(bin.slice(16, 24), 2);
+		const softwareVersion = parseInt(bin.slice(24, 32), 2) + '.' + parseInt(bin.slice(32, 40), 2);
 		let devName = '';
 		for (let i = 0; i < 8; i++)
 			devName += String.fromCharCode(parseInt(bin.slice(40 + i * 8, 48 + i * 8), 2));
-		let gyroEnabled = 1 === parseInt(bin.slice(104, 105), 2);
+		const gyroEnabled = 1 === parseInt(bin.slice(104, 105), 2);
 		giikerutil.log('[gancube]', 'Hardware Version', hardwareVersion);
 		giikerutil.log('[gancube]', 'Software Version', softwareVersion);
 		giikerutil.log('[gancube]', 'Device Name', devName);
@@ -853,7 +853,7 @@ function requestMoveHistory(startMoveCnt: number, numberOfMoves: number) {
 	req[4] = numberOfMoves;
 	req[5] = 0;
 	giikerutil.log('[gancube]', 'requesting move history', prevMoveCnt, startMoveCnt, numberOfMoves);
-	let encodedReq = encode(req.slice());
+	const encodedReq = encode(req.slice());
 	// We can safely suppress and ignore possible GATT write errors
 	// requestMoveHistory command is automatically retried on each move event if needed
 	if (chrct) {
@@ -863,7 +863,7 @@ function requestMoveHistory(startMoveCnt: number, numberOfMoves: number) {
 
 function evictMoveBuffer(reqLostMoves: boolean) {
 	while (moveBuffer.length > 0) {
-		let diff = (moveBuffer[0][0] - prevMoveCnt) & 0xff;
+		const diff = (moveBuffer[0][0] - prevMoveCnt) & 0xff;
 		if (diff > 1) {
 			giikerutil.log('[gancube]', 'lost move detected', prevMoveCnt, moveBuffer[0][0], diff);
 			if (reqLostMoves) {
@@ -871,13 +871,13 @@ function evictMoveBuffer(reqLostMoves: boolean) {
 			}
 			break;
 		} else {
-			let move = moveBuffer.shift()!;
-			let m = 'URFDLB'.indexOf(move[1][0]) * 3 + " 2'".indexOf(move[1][1]);
+			const move = moveBuffer.shift()!;
+			const m = 'URFDLB'.indexOf(move[1][0]) * 3 + " 2'".indexOf(move[1][1]);
 			mathlib.CubieCube.CubeMult(prevCubie, mathlib.CubieCube.moveCube[m], curCubie);
 			prevMoves.unshift(move[1]);
 			if (prevMoves.length > 8) prevMoves = prevMoves.slice(0, 8);
 			GiikerCube.callback(curCubie.toFaceCube(), prevMoves, [move[2], move[3]], deviceName + '*');
-			let tmp = curCubie;
+			const tmp = curCubie;
 			curCubie = prevCubie;
 			prevCubie = tmp;
 			prevMoveCnt = move[0];
@@ -903,7 +903,7 @@ function evictMoveBuffer(reqLostMoves: boolean) {
 }
 
 function onStateChangedV3(event: Event) {
-	let value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
+	const value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
 	if (decoder == null) {
 		return;
 	}
@@ -911,16 +911,16 @@ function onStateChangedV3(event: Event) {
 }
 
 function parseV3Data(value: DataView | any) {
-	let locTime = $.now();
-	let decoded = decode(value);
-	let binStr: string[] = [];
+	const locTime = $.now();
+	const decoded = decode(value);
+	const binStr: string[] = [];
 	for (let i = 0; i < decoded.length; i++) {
 		binStr[i] = (decoded[i] + 256).toString(2).slice(1);
 	}
-	let bin = binStr.join('');
-	let magic = parseInt(bin.slice(0, 8), 2);
-	let mode = parseInt(bin.slice(8, 16), 2);
-	let len = parseInt(bin.slice(16, 24), 2);
+	const bin = binStr.join('');
+	const magic = parseInt(bin.slice(0, 8), 2);
+	const mode = parseInt(bin.slice(8, 16), 2);
+	const len = parseInt(bin.slice(16, 24), 2);
 	if (magic != 0x55 || len <= 0) {
 		giikerutil.log('[gancube]', 'v3 invalid magic or len', decoded);
 		badPacketCount++;
@@ -939,17 +939,17 @@ function parseV3Data(value: DataView | any) {
 		if (moveCnt == prevMoveCnt || prevMoveCnt == -1) {
 			return;
 		}
-		let ts = parseInt(
+		const ts = parseInt(
 			bin.slice(48, 56) + bin.slice(40, 48) + bin.slice(32, 40) + bin.slice(24, 32),
 			2
 		);
-		let pow = parseInt(bin.slice(72, 74), 2);
-		let axis = [2, 32, 8, 1, 16, 4].indexOf(parseInt(bin.slice(74, 80), 2));
+		const pow = parseInt(bin.slice(72, 74), 2);
+		const axis = [2, 32, 8, 1, 16, 4].indexOf(parseInt(bin.slice(74, 80), 2));
 		if (axis == -1) {
 			giikerutil.log('[gancube]', 'v3 move event invalid axis');
 			return;
 		}
-		let move = 'URFDLB'.charAt(axis) + " '".charAt(pow);
+		const move = 'URFDLB'.charAt(axis) + " '".charAt(pow);
 		moveBuffer.push([moveCnt, move, ts, locTime]);
 		giikerutil.log('[gancube]', 'v3 move placed to fifo buffer', moveCnt, move, ts, locTime);
 		evictMoveBuffer(true);
@@ -959,7 +959,7 @@ function parseV3Data(value: DataView | any) {
 		if (prevMoveCnt != -1) {
 			if (prevMoveLocTime != null && locTime - prevMoveLocTime > 500) {
 				// Debounce the facelet event if there are active cube moves
-				let diff = (moveCnt - prevMoveCnt) & 0xff;
+				const diff = (moveCnt - prevMoveCnt) & 0xff;
 				if (diff > 0) {
 					giikerutil.log(
 						'[gancube]',
@@ -972,7 +972,7 @@ function parseV3Data(value: DataView | any) {
 					// When receiving facelets state with 0 move counter we can't be sure that
 					// move with 0 counter is fulfilled, and wrong move from previous loop may be restored instead.
 					if (moveCnt != 0) {
-						let startMoveCnt = moveBuffer[0] ? moveBuffer[0][0] : (moveCnt + 1) & 0xff;
+						const startMoveCnt = moveBuffer[0] ? moveBuffer[0][0] : (moveCnt + 1) & 0xff;
 						requestMoveHistory(startMoveCnt, diff + 1);
 					}
 				}
@@ -980,20 +980,20 @@ function parseV3Data(value: DataView | any) {
 			return;
 		}
 		giikerutil.log('[gancube]', 'v3 processing facelets event', prevMoveCnt, moveCnt, decoded);
-		let cc = new mathlib.CubieCube();
+		const cc = new mathlib.CubieCube();
 		let echk = 0;
 		let cchk = 0xf00;
 		for (let i = 0; i < 7; i++) {
-			let perm = parseInt(bin.slice(40 + i * 3, 43 + i * 3), 2);
-			let ori = parseInt(bin.slice(61 + i * 2, 63 + i * 2), 2);
+			const perm = parseInt(bin.slice(40 + i * 3, 43 + i * 3), 2);
+			const ori = parseInt(bin.slice(61 + i * 2, 63 + i * 2), 2);
 			cchk -= ori << 3;
 			cchk ^= perm;
 			cc.ca[i] = (ori << 3) | perm;
 		}
 		cc.ca[7] = (cchk & 0xff8) % 24 | (cchk & 0x7);
 		for (let i = 0; i < 11; i++) {
-			let perm = parseInt(bin.slice(77 + i * 4, 81 + i * 4), 2);
-			let ori = parseInt(bin.slice(121 + i, 122 + i), 2);
+			const perm = parseInt(bin.slice(77 + i * 4, 81 + i * 4), 2);
+			const ori = parseInt(bin.slice(121 + i, 122 + i), 2);
 			echk ^= (perm << 1) | ori;
 			cc.ea[i] = (perm << 1) | ori;
 		}
@@ -1008,8 +1008,8 @@ function parseV3Data(value: DataView | any) {
 		initCubeState();
 	} else if (mode == 6) {
 		// move history
-		let startMoveCnt = parseInt(bin.slice(24, 32), 2);
-		let numberOfMoves = (len - 1) * 2;
+		const startMoveCnt = parseInt(bin.slice(24, 32), 2);
+		const numberOfMoves = (len - 1) * 2;
 		giikerutil.log(
 			'[gancube]',
 			'v3 received move history event',
@@ -1018,10 +1018,10 @@ function parseV3Data(value: DataView | any) {
 			decoded
 		);
 		for (let i = 0; i < numberOfMoves; i++) {
-			let axis = parseInt(bin.slice(32 + 4 * i, 35 + 4 * i), 2);
-			let pow = parseInt(bin.slice(35 + 4 * i, 36 + 4 * i), 2);
+			const axis = parseInt(bin.slice(32 + 4 * i, 35 + 4 * i), 2);
+			const pow = parseInt(bin.slice(35 + 4 * i, 36 + 4 * i), 2);
 			if (axis < 6) {
-				let move = 'DUBFLR'.charAt(axis) + " '".charAt(pow);
+				const move = 'DUBFLR'.charAt(axis) + " '".charAt(pow);
 				injectLostMoveToBuffer([(startMoveCnt - i) & 0xff, move, null, null]);
 			}
 		}
@@ -1029,8 +1029,8 @@ function parseV3Data(value: DataView | any) {
 	} else if (mode == 7) {
 		// hardware info
 		giikerutil.log('[gancube]', 'v3 received hardware info event', decoded);
-		let hardwareVersion = parseInt(bin.slice(80, 84), 2) + '.' + parseInt(bin.slice(84, 88), 2);
-		let softwareVersion = parseInt(bin.slice(72, 76), 2) + '.' + parseInt(bin.slice(76, 80), 2);
+		const hardwareVersion = parseInt(bin.slice(80, 84), 2) + '.' + parseInt(bin.slice(84, 88), 2);
+		const softwareVersion = parseInt(bin.slice(72, 76), 2) + '.' + parseInt(bin.slice(76, 80), 2);
 		let devName = '';
 		for (let i = 0; i < 5; i++)
 			devName += String.fromCharCode(parseInt(bin.slice(32 + i * 8, 40 + i * 8), 2));
@@ -1050,7 +1050,7 @@ function parseV3Data(value: DataView | any) {
 ($ as any).parseV3Data = parseV3Data; // for debug
 
 function onStateChangedV4(event: Event) {
-	let value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
+	const value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
 	if (decoder == null) {
 		return;
 	}
@@ -1058,15 +1058,15 @@ function onStateChangedV4(event: Event) {
 }
 
 function parseV4Data(value: DataView | any) {
-	let locTime = $.now();
-	let decoded = decode(value);
-	let binStr: string[] = [];
+	const locTime = $.now();
+	const decoded = decode(value);
+	const binStr: string[] = [];
 	for (let i = 0; i < decoded.length; i++) {
 		binStr[i] = (decoded[i] + 256).toString(2).slice(1);
 	}
-	let bin = binStr.join('');
-	let mode = parseInt(bin.slice(0, 8), 2);
-	let len = parseInt(bin.slice(8, 16), 2);
+	const bin = binStr.join('');
+	const mode = parseInt(bin.slice(0, 8), 2);
+	const len = parseInt(bin.slice(8, 16), 2);
 	// V4 validation: mode should be known
 	if (![0x01, 0xed, 0xd1, 0xf5, 0xf6, 0xfa, 0xfc, 0xfd, 0xfe, 0xff, 0xef, 0xec].includes(mode)) {
 		badPacketCount++;
@@ -1087,17 +1087,17 @@ function parseV4Data(value: DataView | any) {
 		if (moveCnt == prevMoveCnt || prevMoveCnt == -1) {
 			return;
 		}
-		let ts = parseInt(
+		const ts = parseInt(
 			bin.slice(40, 48) + bin.slice(32, 40) + bin.slice(24, 32) + bin.slice(16, 24),
 			2
 		);
-		let pow = parseInt(bin.slice(64, 66), 2);
-		let axis = [2, 32, 8, 1, 16, 4].indexOf(parseInt(bin.slice(66, 72), 2));
+		const pow = parseInt(bin.slice(64, 66), 2);
+		const axis = [2, 32, 8, 1, 16, 4].indexOf(parseInt(bin.slice(66, 72), 2));
 		if (axis == -1) {
 			giikerutil.log('[gancube]', 'v4 move event invalid axis');
 			return;
 		}
-		let move = 'URFDLB'.charAt(axis) + " '".charAt(pow);
+		const move = 'URFDLB'.charAt(axis) + " '".charAt(pow);
 		moveBuffer.push([moveCnt, move, ts, locTime]);
 		giikerutil.log('[gancube]', 'v4 move placed to fifo buffer', moveCnt, move, ts, locTime);
 		evictMoveBuffer(true);
@@ -1107,7 +1107,7 @@ function parseV4Data(value: DataView | any) {
 		if (prevMoveCnt != -1) {
 			if (prevMoveLocTime != null && locTime - prevMoveLocTime > 500) {
 				// Debounce the facelet event if there are active cube moves
-				let diff = (moveCnt - prevMoveCnt) & 0xff;
+				const diff = (moveCnt - prevMoveCnt) & 0xff;
 				if (diff > 0) {
 					giikerutil.log(
 						'[gancube]',
@@ -1120,7 +1120,7 @@ function parseV4Data(value: DataView | any) {
 					// When receiving facelets state with 0 move counter we can't be sure that
 					// move with 0 counter is fulfilled, and wrong move from previous loop may be restored instead.
 					if (moveCnt != 0) {
-						let startMoveCnt = moveBuffer[0] ? moveBuffer[0][0] : (moveCnt + 1) & 0xff;
+						const startMoveCnt = moveBuffer[0] ? moveBuffer[0][0] : (moveCnt + 1) & 0xff;
 						requestMoveHistory(startMoveCnt, diff + 1);
 					}
 				}
@@ -1128,20 +1128,20 @@ function parseV4Data(value: DataView | any) {
 			return;
 		}
 		giikerutil.log('[gancube]', 'v4 processing facelets event', prevMoveCnt, moveCnt, decoded);
-		let cc = new mathlib.CubieCube();
+		const cc = new mathlib.CubieCube();
 		let echk = 0;
 		let cchk = 0xf00;
 		for (let i = 0; i < 7; i++) {
-			let perm = parseInt(bin.slice(32 + i * 3, 35 + i * 3), 2);
-			let ori = parseInt(bin.slice(53 + i * 2, 55 + i * 2), 2);
+			const perm = parseInt(bin.slice(32 + i * 3, 35 + i * 3), 2);
+			const ori = parseInt(bin.slice(53 + i * 2, 55 + i * 2), 2);
 			cchk -= ori << 3;
 			cchk ^= perm;
 			cc.ca[i] = (ori << 3) | perm;
 		}
 		cc.ca[7] = (cchk & 0xff8) % 24 | (cchk & 0x7);
 		for (let i = 0; i < 11; i++) {
-			let perm = parseInt(bin.slice(69 + i * 4, 73 + i * 4), 2);
-			let ori = parseInt(bin.slice(113 + i, 114 + i), 2);
+			const perm = parseInt(bin.slice(69 + i * 4, 73 + i * 4), 2);
+			const ori = parseInt(bin.slice(113 + i, 114 + i), 2);
 			echk ^= (perm << 1) | ori;
 			cc.ea[i] = (perm << 1) | ori;
 		}
@@ -1156,8 +1156,8 @@ function parseV4Data(value: DataView | any) {
 		initCubeState();
 	} else if (mode == 0xd1) {
 		// move history
-		let startMoveCnt = parseInt(bin.slice(16, 24), 2);
-		let numberOfMoves = (len - 1) * 2;
+		const startMoveCnt = parseInt(bin.slice(16, 24), 2);
+		const numberOfMoves = (len - 1) * 2;
 		giikerutil.log(
 			'[gancube]',
 			'v4 received move history event',
@@ -1166,10 +1166,10 @@ function parseV4Data(value: DataView | any) {
 			decoded
 		);
 		for (let i = 0; i < numberOfMoves; i++) {
-			let axis = parseInt(bin.slice(24 + 4 * i, 27 + 4 * i), 2);
-			let pow = parseInt(bin.slice(27 + 4 * i, 28 + 4 * i), 2);
+			const axis = parseInt(bin.slice(24 + 4 * i, 27 + 4 * i), 2);
+			const pow = parseInt(bin.slice(27 + 4 * i, 28 + 4 * i), 2);
 			if (axis < 6) {
-				let move = 'DUBFLR'.charAt(axis) + " '".charAt(pow);
+				const move = 'DUBFLR'.charAt(axis) + " '".charAt(pow);
 				injectLostMoveToBuffer([(startMoveCnt - i) & 0xff, move, null, null]);
 			}
 		}
@@ -1178,9 +1178,9 @@ function parseV4Data(value: DataView | any) {
 		// hardware info
 		switch (mode) {
 			case 0xfa:
-				let year = parseInt(bin.slice(32, 40) + bin.slice(24, 32), 2);
-				let month = parseInt(bin.slice(40, 48), 2);
-				let day = parseInt(bin.slice(48, 56), 2);
+				const year = parseInt(bin.slice(32, 40) + bin.slice(24, 32), 2);
+				const month = parseInt(bin.slice(40, 48), 2);
+				const day = parseInt(bin.slice(48, 56), 2);
 				giikerutil.log('[gancube]', 'Product Date', year + '-' + month + '-' + day);
 				break;
 			case 0xfc:
@@ -1190,13 +1190,13 @@ function parseV4Data(value: DataView | any) {
 				giikerutil.log('[gancube]', 'Hardware Name', hwName);
 				break;
 			case 0xfd:
-				let swMajor = parseInt(bin.slice(24, 28), 2);
-				let swMinor = parseInt(bin.slice(28, 32), 2);
+				const swMajor = parseInt(bin.slice(24, 28), 2);
+				const swMinor = parseInt(bin.slice(28, 32), 2);
 				giikerutil.log('[gancube]', 'Software Version', swMajor + '.' + swMinor);
 				break;
 			case 0xfe:
-				let hwMajor = parseInt(bin.slice(24, 28), 2);
-				let hwMinor = parseInt(bin.slice(28, 32), 2);
+				const hwMajor = parseInt(bin.slice(24, 28), 2);
+				const hwMinor = parseInt(bin.slice(28, 32), 2);
 				giikerutil.log('[gancube]', 'Hardware Version', hwMajor + '.' + hwMinor);
 				break;
 		}

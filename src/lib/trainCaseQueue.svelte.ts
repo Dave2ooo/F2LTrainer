@@ -24,7 +24,7 @@ import TrainCase, { gernerateTrainCases } from './trainCases';
 import { GROUP_DEFINITIONS, type GroupId } from './types/group';
 import type { SessionSettings } from './types/session';
 
-export let trainCaseQueue = $state<TrainCase[]>([]);
+export const trainCaseQueue = $state<TrainCase[]>([]);
 
 function createInitialTrainCase(): TrainCase | undefined {
 	const cases = gernerateTrainCases();

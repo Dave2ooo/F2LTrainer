@@ -158,7 +158,7 @@ function getManufacturerDataBytes(mfData: BluetoothManufacturerData): DataView |
 		// this is workaround for Bluefy browser
 		return new DataView(mfData.buffer.slice(2));
 	}
-	for (let id of MOYU32_CIC_LIST) {
+	for (const id of MOYU32_CIC_LIST) {
 		if (mfData.has(id)) {
 			giikerutil.log(
 				'[Moyu32Cube] found Manufacturer Data under CIC = 0x' + id.toString(16).padStart(4, '0')
@@ -228,9 +228,9 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 	giikerutil.log('[Moyu32Cube] start init device');
 	return GiikerCube.waitForAdvs()
 		.then(function (mfData: BluetoothManufacturerData) {
-			let dataView = getManufacturerDataBytes(mfData);
+			const dataView = getManufacturerDataBytes(mfData);
 			if (dataView && dataView.byteLength >= 6) {
-				let mac: string[] = [];
+				const mac: string[] = [];
 				for (let i = 0; i < 6; i++) {
 					mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
 				}
@@ -289,7 +289,7 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 }
 
 function onStateChanged(event: Event) {
-	let value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
+	const value = (event.target as BluetoothRemoteGATTCharacteristic).value!;
 	if (decoder == null) {
 		return;
 	}
@@ -297,7 +297,7 @@ function onStateChanged(event: Event) {
 }
 
 function initCubeState() {
-	let locTime = $.now();
+	const locTime = $.now();
 	giikerutil.log('[Moyu32Cube] initialising cube state');
 	GiikerCube.callback(latestFacelet, [], [null, locTime], deviceName);
 	prevCubie.fromFacelet(latestFacelet);
@@ -311,22 +311,22 @@ function initCubeState() {
 }
 
 function parseData(value: DataView | any) {
-	let locTime = $.now();
-	let decoded = decode(value);
-	let binStr: string[] = [];
+	const locTime = $.now();
+	const decoded = decode(value);
+	const binStr: string[] = [];
 	for (let i = 0; i < decoded.length; i++) {
 		binStr[i] = (decoded[i] + 256).toString(2).slice(1);
 	}
-	let bin = binStr.join('');
-	let msgType = parseInt(bin.slice(0, 8), 2);
+	const bin = binStr.join('');
+	const msgType = parseInt(bin.slice(0, 8), 2);
 	if (msgType == 161) {
 		// info
 		giikerutil.log('[Moyu32Cube] received hardware info event', decoded);
 		let devName = '';
 		for (let i = 0; i < 8; i++)
 			devName += String.fromCharCode(parseInt(bin.slice(8 + i * 8, 16 + i * 8), 2));
-		let hardwareVersion = parseInt(bin.slice(88, 96), 2) + '.' + parseInt(bin.slice(96, 104), 2);
-		let softwareVersion = parseInt(bin.slice(72, 80), 2) + '.' + parseInt(bin.slice(80, 88), 2);
+		const hardwareVersion = parseInt(bin.slice(88, 96), 2) + '.' + parseInt(bin.slice(96, 104), 2);
+		const softwareVersion = parseInt(bin.slice(72, 80), 2) + '.' + parseInt(bin.slice(80, 88), 2);
 		giikerutil.log('[Moyu32Cube] Hardware Version (?)', hardwareVersion);
 		giikerutil.log('[Moyu32Cube] Software Version', softwareVersion);
 		giikerutil.log('[Moyu32Cube] Device Name', devName);
@@ -352,7 +352,7 @@ function parseData(value: DataView | any) {
 		prevMoves = [];
 		let invalidMove = false;
 		for (let i = 0; i < 5; i++) {
-			let m = parseInt(bin.slice(96 + i * 5, 101 + i * 5), 2);
+			const m = parseInt(bin.slice(96 + i * 5, 101 + i * 5), 2);
 			timeOffs[i] = parseInt(bin.slice(8 + i * 16, 24 + i * 16), 2);
 			prevMoves[i] = 'FBUDLR'.charAt(m >> 1) + " '".charAt(m & 1);
 			if (m >= 12) {
@@ -383,7 +383,7 @@ function updateMoveTimes(locTime: number) {
 		deviceTime += locTime - calcTs;
 	}
 	for (let i = moveDiff - 1; i >= 0; i--) {
-		let m = 'URFDLB'.indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
+		const m = 'URFDLB'.indexOf(prevMoves[i][0]) * 3 + " 2'".indexOf(prevMoves[i][1]);
 		mathlib.CubieCube.CubeMult(prevCubie, mathlib.CubieCube.moveCube[m], curCubie);
 		deviceTime += timeOffs[i];
 		GiikerCube.callback(
@@ -392,7 +392,7 @@ function updateMoveTimes(locTime: number) {
 			[deviceTime, i == 0 ? locTime : null],
 			deviceName + '*'
 		);
-		let tmp = curCubie;
+		const tmp = curCubie;
 		curCubie = prevCubie;
 		prevCubie = tmp;
 		giikerutil.log('[Moyu32Cube] move', prevMoves[i], timeOffs[i]);
@@ -401,10 +401,10 @@ function updateMoveTimes(locTime: number) {
 }
 
 function parseFacelet(faceletBits: string): string {
-	let state: string[] = [];
-	let faces = [2, 5, 0, 3, 4, 1]; // parse in order URFDLB instead of FBUDLR
+	const state: string[] = [];
+	const faces = [2, 5, 0, 3, 4, 1]; // parse in order URFDLB instead of FBUDLR
 	for (let i = 0; i < 6; i += 1) {
-		let face = faceletBits.slice(faces[i] * 24, 24 + faces[i] * 24);
+		const face = faceletBits.slice(faces[i] * 24, 24 + faces[i] * 24);
 		for (let j = 0; j < 8; j += 1) {
 			state.push('FBUDLR'.charAt(parseInt(face.slice(j * 3, 3 + j * 3), 2)));
 			if (j == 3) {

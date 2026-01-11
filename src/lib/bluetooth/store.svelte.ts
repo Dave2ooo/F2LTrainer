@@ -16,7 +16,7 @@ let facelet = $state<string | null>(null);
 let lastMove = $state<string | null>(null);
 let moveCounter = $state(0);
 let errorMessage = $state<string | null>(null);
-let macAddressRequest = $state({
+const macAddressRequest = $state({
 	isOpen: false,
 	isWrongKey: false,
 	deviceMac: null as string | null,

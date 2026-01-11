@@ -92,7 +92,7 @@ export const giikerutil: GiikerUtil = {
 		defaultMac: string | null
 	): Promise<string | undefined> => {
 		try {
-			let mac = deviceMac;
+			const mac = deviceMac;
 
 			// If we have a MAC passed in (from saved cubes), use it
 			if (mac) {

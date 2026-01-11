@@ -100,7 +100,7 @@
 			<Input
 				type="text"
 				bind:value={macInput}
-				placeholder={'xx:xx:xx:xx:xx:xx'}
+				placeholder="xx:xx:xx:xx:xx:xx"
 				required
 				pattern={macPattern}
 				maxlength={17}

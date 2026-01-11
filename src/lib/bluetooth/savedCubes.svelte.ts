@@ -53,7 +53,7 @@ export const savedCubesState = {
 		let existingMacIndex = macAddress ? cubes.findIndex((c) => c.macAddress === macAddress) : -1;
 
 		// Also check for deviceId match (might be a stale entry)
-		let existingIdIndex = cubes.findIndex((c) => c.id === deviceId);
+		const existingIdIndex = cubes.findIndex((c) => c.id === deviceId);
 
 		if (existingMacIndex >= 0) {
 			// Found a cube with matching MAC - update it
