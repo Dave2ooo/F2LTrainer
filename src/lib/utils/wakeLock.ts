@@ -52,11 +52,11 @@ export async function requestWakeLock(): Promise<boolean> {
 
 	try {
 		wakeLock = await navigator.wakeLock.request('screen');
-		console.log('Wake Lock: Acquired successfully');
+		// console.log('Wake Lock: Acquired successfully');
 
 		// Listen for release events (browser may release for various reasons)
 		wakeLock.addEventListener('release', () => {
-			console.log('Wake Lock: Released by browser');
+			// console.log('Wake Lock: Released by browser');
 			wakeLock = null;
 			// Notify callback so it can re-acquire if needed
 			if (onReleaseCallback && document.visibilityState === 'visible') {
