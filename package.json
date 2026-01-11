@@ -1,6 +1,13 @@
 {
 	"name": "f2ltrainer-svelte",
-	"version": "0.0.1",
+	"version": "2.0.0",
+	"description": "A speedcubing training application for F2L (First 2 Layers), featuring 3D cube rendering, algorithm management, and timing statistics.",
+	"author": "Dave2ooo",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Dave2ooo/F2LTrainer-Svelte.git"
+	},
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack && npm run pages:prepare",
@@ -79,7 +86,15 @@
 		"vitest-browser-svelte": "^1.1.0"
 	},
 	"keywords": [
-		"svelte"
+		"svelte",
+		"speedcubing",
+		"f2l",
+		"trainer",
+		"cube",
+		"rubiks",
+		"timer",
+		"algorithms",
+		"svelte5"
 	],
 	"dependencies": {
 		"@flowbite-svelte-plugins/chart": "^0.2.4",
