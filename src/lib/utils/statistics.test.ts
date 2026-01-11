@@ -13,7 +13,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 1,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '2',
@@ -23,7 +24,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 2,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '3',
@@ -33,7 +35,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 3,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '4',
@@ -43,7 +46,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 4,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			}
 		];
 
@@ -61,7 +65,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 1,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '2',
@@ -71,7 +76,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 2,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '3',
@@ -81,7 +87,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 3,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '4',
@@ -91,7 +98,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 4,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '5',
@@ -101,7 +109,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 5,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			}
 		];
 
@@ -122,7 +131,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 1,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '2',
@@ -132,7 +142,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 2,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '3',
@@ -142,7 +153,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 3,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '4',
@@ -152,7 +164,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 4,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '5',
@@ -162,7 +175,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 5,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '6',
@@ -172,7 +186,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 6,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			}
 		];
 
@@ -193,7 +208,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 1,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '2',
@@ -203,7 +219,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 2,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '3',
@@ -213,7 +230,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 3,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '4',
@@ -223,7 +241,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 4,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '5',
@@ -233,7 +252,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 5,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '6',
@@ -243,7 +263,8 @@ describe('calculateRollingAo5', () => {
 				timestamp: 6,
 				auf: '' as const,
 				side: 'right',
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			}
 		];
 
@@ -268,7 +289,8 @@ describe('calculateRollingAo12', () => {
 			timestamp: i + 1,
 			auf: '' as const,
 			side: 'right' as const,
-			scrambleSelection: 0
+			scrambleSelection: 0,
+			trainMode: 'classic' as const
 		}));
 
 		const result = calculateRollingAo12(solves);
@@ -284,7 +306,8 @@ describe('calculateRollingAo12', () => {
 			timestamp: i + 1,
 			auf: '' as const,
 			side: 'right' as const,
-			scrambleSelection: 0
+			scrambleSelection: 0,
+			trainMode: 'classic' as const
 		}));
 		// Times: 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 1200
 		// Remove min (100) and max (1200): 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100
@@ -303,7 +326,8 @@ describe('calculateRollingAo12', () => {
 			timestamp: i + 1,
 			auf: '' as const,
 			side: 'right' as const,
-			scrambleSelection: 0
+			scrambleSelection: 0,
+			trainMode: 'classic' as const
 		}));
 
 		const result = calculateRollingAo12(solves);
@@ -323,7 +347,8 @@ describe('calculateRollingAo12', () => {
 				timestamp: i + 1,
 				auf: '' as const,
 				side: 'right' as const,
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			})),
 			{
 				id: '11',
@@ -333,7 +358,8 @@ describe('calculateRollingAo12', () => {
 				timestamp: 11,
 				auf: '' as const,
 				side: 'right' as const,
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '12',
@@ -343,7 +369,8 @@ describe('calculateRollingAo12', () => {
 				timestamp: 12,
 				auf: '' as const,
 				side: 'right' as const,
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			},
 			{
 				id: '13',
@@ -353,7 +380,8 @@ describe('calculateRollingAo12', () => {
 				timestamp: 13,
 				auf: '' as const,
 				side: 'right' as const,
-				scrambleSelection: 0
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
 			}
 		];
 
