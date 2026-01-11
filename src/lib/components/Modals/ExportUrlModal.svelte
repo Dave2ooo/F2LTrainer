@@ -34,10 +34,17 @@
 
 <Modal bind:open title="Share Link" size="md" outsideclose={true} autoclose={false}>
 	<div class="space-y-4">
-		<p>
-			This link includes the Train State, Selected Algorithm, and any Custom Algorithm for each
-			case. Use it to share your progress or load these case settings on another device.
-		</p>
+		<div>
+			<p>This link includes the following for each case:</p>
+			<ul class="list-disc pl-5">
+				<li>Train State</li>
+				<li>Selected Algorithm</li>
+				<li>Custom Algorithm</li>
+			</ul>
+			<p class="mt-2">
+				Use it to share your progress or load these case settings on another device.
+			</p>
+		</div>
 
 		<div>
 			<Label for="export-url-input" class="mb-2">Shareable URL</Label>
