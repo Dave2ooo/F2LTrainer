@@ -21,7 +21,10 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { createSolveChartOptions } from '$lib/utils/chartConfig';
 
-	let open = $state(false);
+	// Props - sessionId is optional (shows active session if not provided), open is bindable
+	let { sessionId = undefined, open = $bindable(false) }: { sessionId?: string; open?: boolean } =
+		$props();
+
 	let innerWidth = $state(0);
 
 	// Case Stats Modal state
@@ -72,9 +75,17 @@
 		open = true;
 	}
 
-	// Get session solves
-	const sessionSolves = $derived(statisticsState.statistics);
-	const sessionName = $derived(sessionState.activeSession?.name ?? 'Session');
+	// Get session solves - use provided sessionId or fall back to active session
+	const sessionSolves = $derived(
+		sessionId
+			? statisticsState.allSolves.filter((s) => s.sessionId === sessionId)
+			: statisticsState.statistics
+	);
+	const sessionName = $derived(
+		sessionId
+			? (sessionState.sessions.find((s) => s.id === sessionId)?.name ?? 'Session')
+			: (sessionState.activeSession?.name ?? 'Session')
+	);
 
 	// Train type filter
 	let trainTypeFilter = $state<TrainMode>('classic');

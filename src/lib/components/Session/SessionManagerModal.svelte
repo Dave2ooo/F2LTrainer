@@ -11,15 +11,17 @@
 		Trash2,
 		Archive,
 		Star,
-		Edit2,
 		Check,
 		X,
 		GitMerge,
 		Settings,
-		Bluetooth
+		Bluetooth,
+		ChartNoAxesColumn,
+		Pencil
 	} from '@lucide/svelte';
 	import ConfirmationModal from '$lib/components/Modals/ConfirmationModal.svelte';
 	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
+	import SessionStatsModal from '$lib/components/Modals/SessionStatsModal.svelte';
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
 	import type { SessionSettings } from '$lib/types/session';
 
@@ -43,6 +45,10 @@
 
 	// For settings
 	let showSettingsModal = $state(false);
+
+	// For session stats
+	let showStatsModal = $state(false);
+	let statsSessionId = $state<string | undefined>(undefined);
 	let settingsSessionId = $state<string | undefined>(undefined);
 
 	let activeSessionsList = $state<HTMLElement>();
@@ -215,6 +221,11 @@
 		settingsSessionId = sessionId;
 		showSettingsModal = true;
 	}
+
+	function handleOpenStats(sessionId: string) {
+		statsSessionId = sessionId;
+		showStatsModal = true;
+	}
 </script>
 
 <Modal
@@ -316,13 +327,11 @@
 									<Button
 										color="alternative"
 										size="xs"
-										class="!p-2 {session.favorite
-											? 'text-yellow-500 hover:text-yellow-600'
-											: 'text-gray-400 hover:text-yellow-500'}"
-										title={session.favorite ? 'Remove from favorites' : 'Add to favorites'}
-										onclick={() => handleToggleFavorite(session.id)}
+										class="!p-2"
+										title="Rename session"
+										onclick={() => startEditingSession(session.id, session.name)}
 									>
-										<Star class="size-4" fill={session.favorite ? 'currentColor' : 'none'} />
+										<Pencil class="size-4" />
 									</Button>
 									<Button
 										color="alternative"
@@ -337,20 +346,32 @@
 										color="alternative"
 										size="xs"
 										class="!p-2"
-										title="Rename session"
-										onclick={() => startEditingSession(session.id, session.name)}
-									>
-										<Edit2 class="size-4" />
-									</Button>
-									<Button
-										color="alternative"
-										size="xs"
-										class="!p-2"
 										title="Duplicate session"
 										onclick={() => handleDuplicate(session.id)}
 									>
 										<Copy class="size-4" />
 									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2 {session.favorite
+											? 'text-yellow-500 hover:text-yellow-600'
+											: 'text-gray-400 hover:text-yellow-500'}"
+										title={session.favorite ? 'Remove from favorites' : 'Add to favorites'}
+										onclick={() => handleToggleFavorite(session.id)}
+									>
+										<Star class="size-4" fill={session.favorite ? 'currentColor' : 'none'} />
+									</Button>
+									<Button
+										color="alternative"
+										size="xs"
+										class="!p-2"
+										title="View session stats"
+										onclick={() => handleOpenStats(session.id)}
+									>
+										<ChartNoAxesColumn class="size-4" />
+									</Button>
+
 									<Button
 										color="alternative"
 										size="xs"
@@ -440,6 +461,15 @@
 								<Button
 									color="alternative"
 									size="xs"
+									class="!p-2"
+									title="View session stats"
+									onclick={() => handleOpenStats(session.id)}
+								>
+									<ChartNoAxesColumn class="size-4" />
+								</Button>
+								<Button
+									color="alternative"
+									size="xs"
 									class="!p-2 text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400"
 									title="Restore session"
 									onclick={() => handleRestore(session.id)}
@@ -473,6 +503,10 @@
 
 {#if settingsSessionId}
 	<SessionSettingsModal bind:open={showSettingsModal} sessionId={settingsSessionId} />
+{/if}
+
+{#if statsSessionId}
+	<SessionStatsModal bind:open={showStatsModal} sessionId={statsSessionId} />
 {/if}
 
 <ConfirmationModal
