@@ -425,7 +425,7 @@
 	<!-- Drill is running - show TwistyPlayer and controls -->
 
 	<div
-		class="relative mx-auto mt-4 size-50 md:size-60"
+		class="relative mx-auto mt-4 aspect-square size-50 shrink-0 md:size-60"
 		onpointerdowncapture={() => {
 			globalState.hasUsedTwistyPlayer = true;
 		}}
