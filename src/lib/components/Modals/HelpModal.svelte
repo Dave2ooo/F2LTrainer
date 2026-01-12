@@ -40,7 +40,7 @@
 						<span>Getting Started</span>
 					</div>
 				{/snippet}
-				<div class="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-3 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<p>
 						<strong>F2L Trainer</strong> helps you master the First Two Layers (F2L) step of the CFOP
 						method for solving a Rubik's Cube. Track your learning progress, discover algorithms, and
@@ -77,9 +77,9 @@
 						<span>Training Modes</span>
 					</div>
 				{/snippet}
-				<div class="space-y-4 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-4 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<!-- Standard Practice -->
-					<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-600">
+					<div class="rounded-lg border border-gray-200 px-3 py-1 dark:border-gray-600">
 						<div class="mb-2 flex items-center gap-2">
 							<BookOpen class="size-4 text-blue-500" />
 							<span class="font-semibold">Standard Practice</span>
@@ -97,7 +97,7 @@
 					</div>
 
 					<!-- Standard Practice Smart -->
-					<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-600">
+					<div class="rounded-lg border border-gray-200 px-3 py-1 dark:border-gray-600">
 						<div class="mb-2 flex items-center gap-2">
 							<Zap class="size-4 text-purple-500" />
 							<span class="font-semibold">Standard Practice Smart</span>
@@ -116,7 +116,7 @@
 					</div>
 
 					<!-- Speed Drill -->
-					<div class="rounded-lg border border-gray-200 p-3 dark:border-gray-600">
+					<div class="rounded-lg border border-gray-200 px-3 py-1 dark:border-gray-600">
 						<div class="mb-2 flex items-center gap-2">
 							<Timer class="size-4 text-green-500" />
 							<span class="font-semibold">Speed Drill</span>
@@ -148,7 +148,7 @@
 						<span>Advanced Settings</span>
 					</div>
 				{/snippet}
-				<div class="space-y-4 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-4 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<!-- Smart Frequency -->
 					<div class="space-y-2">
 						<div class="flex items-center gap-2 font-medium">
@@ -213,7 +213,7 @@
 						<span>Smart Cube Setup</span>
 					</div>
 				{/snippet}
-				<div class="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-3 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<p>
 						Smart cubes connect via Bluetooth and enable automatic move tracking for enhanced
 						training modes.
@@ -243,11 +243,11 @@
 					</div>
 
 					<div
-						class="mt-3 space-y-3 rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+						class="text-md mt-3 space-y-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1 text-blue-800 dark:border-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
 					>
 						<div>
 							<p class="font-semibold text-blue-900 dark:text-blue-200">Browser Support:</p>
-							<p class="text-xs">
+							<p class="text-sm">
 								Web Bluetooth works best in Chrome and Edge. Safari on iOS does not support Web
 								Bluetooth — download
 								<A
@@ -270,7 +270,7 @@
 						<span>Sessions & Statistics</span>
 					</div>
 				{/snippet}
-				<div class="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-3 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<div class="space-y-2">
 						<p class="font-medium">Sessions:</p>
 						<p>
@@ -320,7 +320,7 @@
 						<span>Tips & Troubleshooting</span>
 					</div>
 				{/snippet}
-				<div class="space-y-3 p-3 text-sm text-gray-700 dark:text-gray-300">
+				<div class="text-md space-y-3 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<div class="space-y-2">
 						<p class="font-medium">Practice Tips:</p>
 						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
@@ -362,7 +362,7 @@
 					</div>
 
 					<div
-						class="mt-3 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-900/30"
+						class="mt-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1 dark:border-blue-800 dark:bg-blue-900/30"
 					>
 						<p class="text-blue-800 dark:text-blue-200">
 							<strong>Need more help?</strong> Use the
