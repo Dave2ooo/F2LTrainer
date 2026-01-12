@@ -356,3 +356,5 @@
 		side={currentTrainCase.side}
 	/>
 {/if}
+
+<div class="h-20 w-full shrink-0"></div>

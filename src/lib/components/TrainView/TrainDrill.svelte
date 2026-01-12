@@ -605,6 +605,8 @@
 <Settings bind:this={settingsRef} />
 <BluetoothModal bind:open={bluetoothModalOpen} />
 
+<div class="h-20 w-full shrink-0"></div>
+
 <style>
 	@keyframes countdown {
 		to {
