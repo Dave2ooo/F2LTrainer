@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button } from 'flowbite-svelte';
-	import { Dropdown, DropdownItem, DropdownHeader } from 'flowbite-svelte';
+	import { Dropdown, DropdownItem, DropdownHeader, DropdownGroup } from 'flowbite-svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
@@ -61,78 +61,80 @@
 					class="border-b border-gray-200 bg-gray-50 text-xs font-semibold tracking-wider text-gray-500 uppercase dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400"
 					>Switch Session</DropdownHeader
 				>
-				{#each sessionState.sessions
-					.filter((s) => !s.archived)
-					.sort((a, b) => {
-						if (a.favorite && !b.favorite) return -1;
-						if (!a.favorite && b.favorite) return 1;
-						return (b.lastPlayedAt || 0) - (a.lastPlayedAt || 0);
-					}) as session (session.id)}
-					<DropdownItem
-						class="flex w-full items-center justify-between gap-3 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
-						onclick={() => sessionState.setActiveSession(session.id)}
-					>
-						<div class="flex min-w-0 flex-1 flex-col gap-0.5">
-							<div class="flex items-center gap-2">
-								{#if session.favorite}
-									<Star size={12} class="shrink-0 text-yellow-500" fill="currentColor" />
-								{/if}
-								<span class="max-w-[180px] truncate">{session.name || 'Unnamed Session'}</span>
+				<DropdownGroup class="max-h-[calc(100dvh-18rem)] overflow-y-auto">
+					{#each sessionState.sessions
+						.filter((s) => !s.archived)
+						.sort((a, b) => {
+							if (a.favorite && !b.favorite) return -1;
+							if (!a.favorite && b.favorite) return 1;
+							return (b.lastPlayedAt || 0) - (a.lastPlayedAt || 0);
+						}) as session (session.id)}
+						<DropdownItem
+							class="flex w-full items-center justify-between gap-3 font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-600"
+							onclick={() => sessionState.setActiveSession(session.id)}
+						>
+							<div class="flex min-w-0 flex-1 flex-col gap-0.5">
+								<div class="flex items-center gap-2">
+									{#if session.favorite}
+										<Star size={12} class="shrink-0 text-yellow-500" fill="currentColor" />
+									{/if}
+									<span class="max-w-[180px] truncate">{session.name || 'Unnamed Session'}</span>
+								</div>
+								<!-- Session config badges -->
+								<div class="flex flex-wrap items-center gap-0">
+									<!-- Case count -->
+									<span
+										class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+									>
+										{getNumberOfSelectedCases(session.settings)} cases
+									</span>
+									<!-- Training mode -->
+									{#if session.settings.trainMode === 'drill'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth size={10} />
+											{/if}
+											Drill
+										</span>
+									{:else}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+										>
+											{#if session.settings.smartCubeEnabled}
+												<Bluetooth size={10} />
+											{/if}
+											Practice
+										</span>
+									{/if}
+									<!-- Recap mode -->
+									{#if session.settings.frequencyMode === 'recap'}
+										<span
+											class="inline-flex items-center gap-1 rounded-md bg-cyan-100 px-1.5 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
+										>
+											Recap
+										</span>
+									{/if}
+									<!-- Solve count -->
+									<span
+										class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
+									>
+										{(() => {
+											const solveCount = solveCounts[session.id] || 0;
+											return `${solveCount} solve${solveCount === 1 ? '' : 's'}`;
+										})()}
+									</span>
+								</div>
 							</div>
-							<!-- Session config badges -->
-							<div class="flex flex-wrap items-center gap-0">
-								<!-- Case count -->
-								<span
-									class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-								>
-									{getNumberOfSelectedCases(session.settings)} cases
-								</span>
-								<!-- Training mode -->
-								{#if session.settings.trainMode === 'drill'}
-									<span
-										class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-									>
-										{#if session.settings.smartCubeEnabled}
-											<Bluetooth size={10} />
-										{/if}
-										Drill
-									</span>
-								{:else}
-									<span
-										class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-									>
-										{#if session.settings.smartCubeEnabled}
-											<Bluetooth size={10} />
-										{/if}
-										Practice
-									</span>
-								{/if}
-								<!-- Recap mode -->
-								{#if session.settings.frequencyMode === 'recap'}
-									<span
-										class="inline-flex items-center gap-1 rounded-md bg-cyan-100 px-1.5 py-0.5 text-xs font-medium text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-300"
-									>
-										Recap
-									</span>
-								{/if}
-								<!-- Solve count -->
-								<span
-									class="inline-flex items-center gap-1 rounded-md bg-gray-100 px-1.5 py-0.5 text-xs font-medium text-gray-700 dark:bg-gray-700 dark:text-gray-300"
-								>
-									{(() => {
-										const solveCount = solveCounts[session.id] || 0;
-										return `${solveCount} solve${solveCount === 1 ? '' : 's'}`;
-									})()}
-								</span>
-							</div>
-						</div>
-						{#if session.id === sessionState.activeSessionId}
-							<!-- Simple indicator for active session -->
-							<span class="h-2 w-2 flex-shrink-0 rounded-full bg-primary-600 dark:bg-primary-500"
-							></span>
-						{/if}
-					</DropdownItem>
-				{/each}
+							{#if session.id === sessionState.activeSessionId}
+								<!-- Simple indicator for active session -->
+								<span class="h-2 w-2 flex-shrink-0 rounded-full bg-primary-600 dark:bg-primary-500"
+								></span>
+							{/if}
+						</DropdownItem>
+					{/each}
+				</DropdownGroup>
 				<DropdownItem
 					class="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-600"
 					onclick={() => {
