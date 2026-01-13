@@ -1,5 +1,15 @@
 <script lang="ts">
-	import { Input, Label, Checkbox, Tabs, TabItem, Select, Range } from 'flowbite-svelte';
+	import {
+		Input,
+		Label,
+		Checkbox,
+		Tabs,
+		TabItem,
+		Select,
+		Range,
+		Tooltip,
+		Button
+	} from 'flowbite-svelte';
 	import Modal from '$lib/components/Modal.svelte';
 	import RadioDot from '$lib/components/RadioDot.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
@@ -460,15 +470,67 @@
 							<div class="card">
 								<Label class="mb-3 text-sm font-semibold">View Options</Label>
 								<div class="space-y-2">
-									<Checkbox
-										checked={settings.backView === 'floating'}
-										onchange={(e) => {
-											settings.backView = (e.target as HTMLInputElement).checked
-												? 'floating'
-												: 'none';
-										}}>Show Floating Stickers</Checkbox
-									>
-									<Checkbox bind:checked={settings.backViewEnabled}>Show Back View</Checkbox>
+									<div class="flex items-center gap-2">
+										<Checkbox
+											checked={settings.backView === 'floating'}
+											onchange={() => {
+												settings.backView = settings.backView === 'floating' ? 'none' : 'floating';
+											}}>Show Floating Stickers</Checkbox
+										>
+										<Button
+											id="btn-floating-stickers-help"
+											class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+											type="button"
+										>
+											<CircleQuestionMark class="text-primary-600" />
+										</Button>
+										<Tooltip
+											triggeredBy="#btn-floating-stickers-help"
+											trigger="click"
+											class="p-2"
+											placement="left"
+										>
+											<twisty-player
+												style="width: 120px; height: 120px;"
+												puzzle="3x3x3"
+												experimental-setup-alg="z2 y' R U R' U'"
+												hint-facelets="floating"
+												back-view="none"
+												control-panel="none"
+												background="none"
+												viewer-link="none"
+												experimental-drag-input="auto"
+											></twisty-player>
+										</Tooltip>
+									</div>
+									<div class="flex items-center gap-2">
+										<Checkbox bind:checked={settings.backViewEnabled}>Show Back View</Checkbox>
+										<Button
+											id="btn-back-view-help"
+											class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+											type="button"
+										>
+											<CircleQuestionMark class="text-primary-600" />
+										</Button>
+										<Tooltip
+											triggeredBy="#btn-back-view-help"
+											trigger="click"
+											class="p-2"
+											placement="left"
+										>
+											<twisty-player
+												style="width: 120px; height: 120px;"
+												puzzle="3x3x3"
+												experimental-setup-alg="z2 y' R U R' U'"
+												hint-facelets="none"
+												back-view="top-right"
+												control-panel="none"
+												background="none"
+												viewer-link="none"
+												experimental-drag-input="auto"
+											></twisty-player>
+										</Tooltip>
+									</div>
 								</div>
 							</div>
 						</div>
