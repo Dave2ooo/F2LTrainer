@@ -63,7 +63,12 @@
 	type DrillPhase = 'stopped' | 'countdown' | 'solving' | 'executing' | 'transitioning' | 'gave_up';
 
 	let drillTimerRef = $state<DrillTimer>();
-	let twistyPlayerRef = $state<any>();
+	interface TwistyPlayerRef {
+		reset: () => void;
+		addMove: (move: string, rawMove?: string) => Promise<void>;
+	}
+
+	let twistyPlayerRef = $state<TwistyPlayerRef>();
 	let settingsRef = $state<Settings>();
 
 	let transitionDuration = $derived(
@@ -352,6 +357,7 @@
 	 */
 	function onGiveUp() {
 		drillTimerRef?.stopExecution();
+		twistyPlayerRef?.reset();
 		drillPhase = 'gave_up';
 	}
 
