@@ -240,6 +240,16 @@
 							<li>GAN356 i carry S</li>
 							<li>GAN 12 ui</li>
 						</ul>
+						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+							Have a different smart cube? Let us know if it works using the
+							<button
+								type="button"
+								class="font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+								onclick={() => feedbackModal.openModal()}
+							>
+								Feedback form
+							</button>!
+						</p>
 					</div>
 
 					<div
