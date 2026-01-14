@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Badge, Button, Dropdown, Checkbox, Select } from 'flowbite-svelte';
 	import type { Solve, TrainMode } from '$lib/types/statisticsState';
-	import { Funnel } from '@lucide/svelte';
+	import { Funnel, Archive } from '@lucide/svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -384,7 +384,7 @@
 				</Button>
 				<Dropdown class="w-60 overflow-hidden rounded-xl shadow-xl" placement="bottom-end">
 					<div
-						class="bg-gray-50 px-4 py-2.5 text-xs font-semibold tracking-wide text-gray-500 uppercase dark:bg-gray-700 dark:text-gray-400"
+						class="bg-gray-50 px-4 py-2.5 text-sm font-semibold tracking-wide text-gray-500 uppercase dark:bg-gray-700 dark:text-gray-400"
 					>
 						Filter Sessions
 					</div>
@@ -397,7 +397,9 @@
 								onchange={() => (selectedSessionIds = [])}
 								class="me-2 cursor-pointer focus:ring-primary-500 dark:focus:ring-primary-600"
 							/>
-							<span class="text-sm font-medium text-gray-900 dark:text-gray-100">All Sessions</span>
+							<span class="text-base font-medium text-gray-900 dark:text-gray-100"
+								>All Sessions</span
+							>
 						</label>
 						<hr class="my-1 border-gray-200 dark:border-gray-600" />
 						{#each sessionsWithSolves as session}
@@ -409,9 +411,14 @@
 									onchange={() => toggleSessionFilter(session.id)}
 									class="me-2 cursor-pointer focus:ring-primary-500 dark:focus:ring-primary-600"
 								/>
-								<span class="truncate text-sm font-medium text-gray-900 dark:text-gray-100"
-									>{session.name}</span
+								<span
+									class="truncate text-base font-medium {session.archived
+										? 'text-gray-500 dark:text-gray-400'
+										: 'text-gray-900 dark:text-gray-100'}">{session.name}</span
 								>
+								{#if session.archived}
+									<Archive class="ml-2 size-4 shrink-0 text-gray-400" />
+								{/if}
 							</label>
 						{/each}
 					</div>
@@ -422,7 +429,7 @@
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
 			<div class="flex justify-center">
-				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-64" />
+				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}
 
@@ -442,16 +449,16 @@
 			<div class="flex min-w-[100px] flex-col gap-3 text-center">
 				{#if hasMixedSolves}
 					<div class="flex flex-col">
-						<span class="text-secondary md:text-base">#Timed</span>
+						<span class="text-secondary text-base">#Timed</span>
 						<span class="text-xl font-bold md:text-2xl">{timedCount}</span>
 					</div>
 					<div class="flex flex-col">
-						<span class="text-secondary md:text-base">#Untimed</span>
+						<span class="text-secondary text-base">#Untimed</span>
 						<span class="text-xl font-bold md:text-2xl">{untimedCount}</span>
 					</div>
 				{:else}
 					<div class="flex flex-col">
-						<span class="text-secondary md:text-base">#Solves</span>
+						<span class="text-secondary text-base">#Solves</span>
 						<span class="text-xl font-bold md:text-2xl">{solvesCount}</span>
 					</div>
 				{/if}
@@ -475,15 +482,15 @@
 						}
 					}}
 				>
-					<span class="text-secondary md:text-base">Best</span>
+					<span class="text-secondary text-base">Best</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(bestTime)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-secondary md:text-base">Ao5</span>
+					<span class="text-secondary text-base">Ao5</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(ao5)}</span>
 				</div>
 				<div class="flex flex-col">
-					<span class="text-secondary md:text-base">Ao12</span>
+					<span class="text-secondary text-base">Ao12</span>
 					<span class="text-xl font-bold md:text-2xl">{formatTime(ao12)}</span>
 				</div>
 			</div>
@@ -509,7 +516,7 @@
 							{@const realIndex = caseSolves.length - 1 - index}
 							{#if solve.time !== undefined}
 								<Badge
-									class="cursor-pointer text-sm md:text-base {hoveredIndex === realIndex ||
+									class="cursor-pointer text-sm {hoveredIndex === realIndex ||
 									selectedIndex === realIndex
 										? 'ring-2 ring-primary-500'
 										: ''}"
