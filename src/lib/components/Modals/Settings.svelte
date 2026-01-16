@@ -15,6 +15,7 @@
 	let open = $state(false);
 	let clearStorageModal: ClearStorageModal;
 	let twistyPlayerLoaded = $state(false);
+	let previewPlayer: HTMLElement | undefined = $state();
 
 	export function openModal() {
 		open = true;
@@ -39,6 +40,15 @@
 		await import('cubing/twisty');
 		twistyPlayerLoaded = true;
 	});
+
+	// Update camera position reactively without re-creating the player
+	$effect(() => {
+		if (previewPlayer) {
+			const player = previewPlayer as any;
+			player.cameraLatitude = globalState.cameraLatitude;
+			player.cameraLongitude = globalState.cameraLongitude;
+		}
+	});
 </script>
 
 <Modal bind:open title="Settings" size="sm" outsideclose={true}>
@@ -58,22 +68,21 @@
 			<!-- TwistyPlayer Preview -->
 			<div class="mb-4 flex justify-center">
 				{#if twistyPlayerLoaded}
-					{#key `${globalState.cameraLatitude}-${globalState.cameraLongitude}`}
-						<twisty-player
-							style="width: 150px; height: 150px;"
-							puzzle="3x3x3"
-							experimental-setup-alg="z2 y' R U R' U'"
-							camera-latitude={globalState.cameraLatitude}
-							camera-longitude={globalState.cameraLongitude}
-							hint-facelets="none"
-							back-view="none"
-							control-panel="none"
-							background="none"
-							viewer-link="none"
-							experimental-drag-input="none"
-							camera-distance="4.7"
-						></twisty-player>
-					{/key}
+					<twisty-player
+						bind:this={previewPlayer}
+						style="width: 150px; height: 150px;"
+						puzzle="3x3x3"
+						experimental-setup-alg="z2 y' R U R' U'"
+						camera-latitude={globalState.cameraLatitude}
+						camera-longitude={globalState.cameraLongitude}
+						hint-facelets="none"
+						back-view="none"
+						control-panel="none"
+						background="none"
+						viewer-link="none"
+						experimental-drag-input="none"
+						camera-distance="4.7"
+					></twisty-player>
 				{:else}
 					<div
 						class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700"
