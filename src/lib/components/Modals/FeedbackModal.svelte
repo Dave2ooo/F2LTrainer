@@ -5,12 +5,14 @@
 	import { onMount } from 'svelte';
 	import { loadFromLocalStorage, saveToLocalStorage } from '$lib/utils/localStorage';
 	import Send from './Buttons/Send.svelte';
-	import ToastNotification from '../Toast.svelte';
+	import FeedbackSuccessModal from './FeedbackSuccessModal.svelte';
 
 	const FEEDBACK_STORAGE_KEY = 'feedbackFormData';
 
 	let open = $state(false);
 	let isSubmitting = $state(false);
+	let errorMessage = $state('');
+	let successModalRef: FeedbackSuccessModal;
 
 	// Form state
 	let formData = $state({
@@ -19,12 +21,10 @@
 		message: ''
 	});
 
-	// Toast state
-	let toastMessage = $state('');
-	let toastType: 'success' | 'error' = $state('success');
-	let showToast = $state(false);
-
 	export function openModal(errorContext?: string) {
+		// Reset states when opening
+		errorMessage = '';
+
 		if (errorContext) {
 			// Remove any previously added error details to prevent accumulation
 			const cleanMessage = formData.message
@@ -42,10 +42,6 @@
 
 	export function closeModal() {
 		open = false;
-	}
-
-	function handleToastClose() {
-		showToast = false;
 	}
 
 	// Load form data from localStorage on mount
@@ -69,6 +65,7 @@
 	async function handleSubmit(e: Event) {
 		e.preventDefault();
 		isSubmitting = true;
+		errorMessage = '';
 
 		try {
 			const payload = {
@@ -94,23 +91,16 @@
 				// Success - clear form and localStorage
 				formData = { name: '', email: '', message: '' };
 				localStorage.removeItem(FEEDBACK_STORAGE_KEY);
-
-				toastMessage = result.message || 'Feedback sent successfully!';
-				toastType = 'success';
-				showToast = true;
 				open = false;
+				successModalRef.openModal();
 			} else {
 				// Error from API
 				console.error('Feedback submission error:', result);
-				toastMessage = result.message || 'Failed to send feedback.';
-				toastType = 'error';
-				showToast = true;
+				errorMessage = result.message || 'Failed to send feedback. Please try again.';
 			}
 		} catch (error) {
 			console.error('Feedback submission error:', error);
-			toastMessage = 'Something went wrong! Please try again.';
-			toastType = 'error';
-			showToast = true;
+			errorMessage = 'Something went wrong! Please try again.';
 		} finally {
 			isSubmitting = false;
 		}
@@ -120,6 +110,8 @@
 		open = false;
 	}
 </script>
+
+<FeedbackSuccessModal bind:this={successModalRef} />
 
 <Modal bind:open title="Send Feedback" size="md" outsideclose={true} autoclose={false}>
 	<form onsubmit={handleSubmit}>
@@ -184,6 +176,11 @@
 					class="w-full"
 					maxlength={10000}
 				/>
+				{#if errorMessage}
+					<p class="mt-2 text-sm text-red-600 dark:text-red-400">
+						{errorMessage}
+					</p>
+				{/if}
 			</div>
 		</div>
 		<Send
@@ -193,9 +190,3 @@
 		/>
 	</form>
 </Modal>
-
-{#if showToast}
-	<div class="fixed bottom-4 left-4 z-50">
-		<ToastNotification message={toastMessage} type={toastType} onClose={handleToastClose} />
-	</div>
-{/if}
