@@ -16,4 +16,6 @@ export interface GlobalState {
 	hasUsedTwistyPlayer: boolean;
 	hasClickedCaseCard: boolean;
 	rightPaneOpen: boolean;
+	cameraLatitude: number;
+	cameraLongitude: number;
 }

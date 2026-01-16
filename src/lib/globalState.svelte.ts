@@ -3,6 +3,8 @@ import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from './types/group';
 import { loadFromLocalStorage } from './utils/localStorage';
 
 export const GLOBAL_STATE_STORAGE_KEY = 'globalState';
+export const DEFAULT_CAMERA_LATITUDE = 25;
+export const DEFAULT_CAMERA_LONGITUDE = 30;
 
 // Helper to create collapsed categories (UI state)
 const createCollapsedCategories = (): Record<GroupId, boolean[]> =>
@@ -23,6 +25,8 @@ interface EphemeralState {
 	hasClickedCaseCard: boolean;
 	trainHideTwistyPlayer: boolean;
 	rightPaneOpen: boolean;
+	cameraLatitude: number;
+	cameraLongitude: number;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -35,7 +39,9 @@ const defaultEphemeralState: EphemeralState = {
 	hasUsedTimer: false,
 	hasUsedTwistyPlayer: false,
 	hasClickedCaseCard: false,
-	rightPaneOpen: true
+	rightPaneOpen: true,
+	cameraLatitude: DEFAULT_CAMERA_LATITUDE,
+	cameraLongitude: DEFAULT_CAMERA_LONGITUDE
 };
 
 const persistedEphemeralState =
@@ -122,5 +128,19 @@ export const globalState: GlobalState = {
 	},
 	set rightPaneOpen(v) {
 		ephemeralState.rightPaneOpen = v;
+	},
+
+	get cameraLatitude() {
+		return ephemeralState.cameraLatitude;
+	},
+	set cameraLatitude(v) {
+		ephemeralState.cameraLatitude = v;
+	},
+
+	get cameraLongitude() {
+		return ephemeralState.cameraLongitude;
+	},
+	set cameraLongitude(v) {
+		ephemeralState.cameraLongitude = v;
 	}
 };

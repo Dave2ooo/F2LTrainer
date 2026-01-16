@@ -17,6 +17,7 @@
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
+	import { globalState } from '$lib/globalState.svelte';
 
 	interface Props {
 		groupId?: GroupId;
@@ -169,9 +170,8 @@
 
 	const setupRotation = $derived(getRotationAlg(crossColor, frontColor));
 
-	const CAMERA_ANGLE = { right: 25, left: -25 };
-	let cameraLongitude = $derived(CAMERA_ANGLE[side]);
-	let cameraLatitude = $state(25);
+	let cameraLongitude = $derived((side === 'right' ? 1 : -1) * globalState.cameraLongitude);
+	let cameraLatitude = $derived(globalState.cameraLatitude);
 
 	// Constants for camera position tracking
 	const CAMERA_POSITION_TOLERANCE = 0.1; // Tolerance for comparing camera positions

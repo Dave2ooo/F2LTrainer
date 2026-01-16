@@ -1,13 +1,20 @@
 <script lang="ts">
-	import { Button } from 'flowbite-svelte';
+	import { Button, Range, Label } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
-	import { Trash2 } from '@lucide/svelte';
+	import { Trash2, RotateCcw } from '@lucide/svelte';
 	import ClearStorageModal from './ClearStorageModal.svelte';
 	import { clearAllLocalStorage } from '$lib/utils/localStorage';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
+	import {
+		globalState,
+		DEFAULT_CAMERA_LATITUDE,
+		DEFAULT_CAMERA_LONGITUDE
+	} from '$lib/globalState.svelte';
+	import { onMount } from 'svelte';
 
 	let open = $state(false);
 	let clearStorageModal: ClearStorageModal;
+	let twistyPlayerLoaded = $state(false);
 
 	export function openModal() {
 		open = true;
@@ -21,6 +28,17 @@
 			window.location.reload();
 		}
 	}
+
+	function resetCameraDefaults() {
+		globalState.cameraLatitude = DEFAULT_CAMERA_LATITUDE;
+		globalState.cameraLongitude = DEFAULT_CAMERA_LONGITUDE;
+	}
+
+	// Load twisty-player custom element on mount
+	onMount(async () => {
+		await import('cubing/twisty');
+		twistyPlayerLoaded = true;
+	});
 </script>
 
 <Modal bind:open title="Settings" size="sm" outsideclose={true}>
@@ -31,6 +49,80 @@
 				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Appearance</h3>
 				<ThemeSwitch />
 			</div>
+		</section>
+
+		<!-- Cube Visualization Section -->
+		<section class="rounded-lg border border-gray-300 p-4 dark:border-gray-600">
+			<h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Cube Visualization</h3>
+
+			<!-- TwistyPlayer Preview -->
+			<div class="mb-4 flex justify-center">
+				{#if twistyPlayerLoaded}
+					{#key `${globalState.cameraLatitude}-${globalState.cameraLongitude}`}
+						<twisty-player
+							style="width: 150px; height: 150px;"
+							puzzle="3x3x3"
+							experimental-setup-alg="z2 y' R U R' U'"
+							camera-latitude={globalState.cameraLatitude}
+							camera-longitude={globalState.cameraLongitude}
+							hint-facelets="none"
+							back-view="none"
+							control-panel="none"
+							background="none"
+							viewer-link="none"
+							experimental-drag-input="none"
+							camera-distance="4.7"
+						></twisty-player>
+					{/key}
+				{:else}
+					<div
+						class="flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-700"
+						style="width: 150px; height: 150px;"
+					>
+						<span class="text-sm text-gray-500 dark:text-gray-400">Loading...</span>
+					</div>
+				{/if}
+			</div>
+
+			<!-- Camera Latitude Slider -->
+			<div class="mb-4">
+				<div class="mb-2 flex items-center justify-between">
+					<Label class="text-sm font-medium text-gray-900 dark:text-white">Camera Latitude</Label>
+					<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
+						>{globalState.cameraLatitude}°</span
+					>
+				</div>
+				<Range
+					id="camera-latitude"
+					min={0}
+					max={35}
+					step={1}
+					bind:value={globalState.cameraLatitude}
+				/>
+			</div>
+
+			<!-- Camera Longitude Slider -->
+			<div class="mb-4">
+				<div class="mb-2 flex items-center justify-between">
+					<Label class="text-sm font-medium text-gray-900 dark:text-white">Camera Longitude</Label>
+					<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
+						>{globalState.cameraLongitude}°</span
+					>
+				</div>
+				<Range
+					id="camera-longitude"
+					min={0}
+					max={45}
+					step={1}
+					bind:value={globalState.cameraLongitude}
+				/>
+			</div>
+
+			<!-- Reset Button -->
+			<Button size="xs" color="alternative" onclick={resetCameraDefaults} class="gap-1.5">
+				<RotateCcw size={14} />
+				Reset to Default
+			</Button>
 		</section>
 
 		<!-- Danger Zone Section -->
