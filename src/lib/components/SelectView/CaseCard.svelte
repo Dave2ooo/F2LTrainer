@@ -153,13 +153,17 @@
 		{#if solveCount > 0}
 			<!-- Visible absolute positioned stats -->
 			<div
-				role="button"
-				tabindex="0"
-				class="absolute right-0 bottom-0 left-0 mb-1 flex cursor-pointer justify-center gap-2 text-sm font-normal whitespace-nowrap opacity-90 hover:underline hover:opacity-100"
-				onclick={handleStatsClick}
-				onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any)}
+				class="absolute right-0 bottom-0 left-0 mb-1 flex justify-center gap-2 text-sm font-normal whitespace-nowrap"
 			>
-				<span>Solves: {solveCount}</span>
+				<span
+					role="button"
+					tabindex="0"
+					class="cursor-pointer opacity-90 hover:underline hover:opacity-100"
+					onclick={handleStatsClick}
+					onkeydown={(e) => e.key === 'Enter' && handleStatsClick(e as any)}
+				>
+					Solves: {solveCount}
+				</span>
 			</div>
 		{/if}
 	</div>
