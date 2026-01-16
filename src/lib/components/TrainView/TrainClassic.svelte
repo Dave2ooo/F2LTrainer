@@ -198,10 +198,7 @@
 				return;
 			}
 
-			const [{ TwistyAlgViewer }] = await Promise.all([
-				import('cubing/twisty'),
-				import('cubing/alg')
-			]);
+			const { TwistyAlgViewer } = await import('cubing/twisty');
 
 			const twistyPlayerElement = twistyPlayerRef?.getElement();
 			if (twistyPlayerElement && algViewerContainer) {
