@@ -44,45 +44,47 @@
 		/>
 	</div>
 	<NavUl>
-		<li class="mx-1 my-2 sm:my-0">
+		<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 			<Button
 				class="btn-icon-transparent flex items-center justify-start"
 				onclick={() => settingsRef.openModal()}
 			>
 				<SettingsIcon class="size-8 text-primary-600 md:size-9" />
-				<span class="ml-4 text-lg font-medium text-gray-900 sm:hidden dark:text-white"
+				<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
 					>Settings</span
 				>
 			</Button>
 			<Tooltip placement="bottom">Settings</Tooltip>
 		</li>
-		<li class="mx-1 my-2 sm:my-0">
+		<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 			<Button
 				class="btn-icon-transparent flex items-center justify-start"
 				onclick={() => helpRef.openModal()}
 			>
 				<CircleQuestionMark class="size-8 text-primary-600 md:size-9" />
-				<span class="ml-4 text-lg font-medium text-gray-900 sm:hidden dark:text-white">Help</span>
+				<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
+					>Help</span
+				>
 			</Button>
 			<Tooltip placement="bottom">Help</Tooltip>
 		</li>
-		<li class="mx-1 my-2 sm:my-0">
+		<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 			<Button
 				class="btn-icon-transparent flex items-center justify-start"
 				onclick={() => feedbackRef.openModal()}
 			>
 				<MessageCircle class="size-8 text-primary-600 md:size-9" />
-				<span class="ml-4 text-lg font-medium text-gray-900 sm:hidden dark:text-white"
-					>Send Feedback</span
+				<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
+					>Feedback</span
 				>
 			</Button>
 			<Tooltip placement="bottom">Send Feedback</Tooltip>
 		</li>
-		<li class="mx-1 my-2 sm:my-0">
+		<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 			<Button class="btn-icon-transparent flex items-center justify-start" onclick={onExportURL}>
 				<Share2 class="size-8 text-primary-600 md:size-9" />
-				<span class="ml-4 text-lg font-medium text-gray-900 sm:hidden dark:text-white"
-					>Export to URL</span
+				<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
+					>Share</span
 				>
 			</Button>
 			<Tooltip placement="bottom">Export to URL</Tooltip>
