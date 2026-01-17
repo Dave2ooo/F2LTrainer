@@ -161,6 +161,9 @@
 						tempoScale={5}
 					/>
 				</div>
+				<p class="text-center text-sm text-gray-500 dark:text-gray-400">
+					Connection test only—no need to sync with your physical cube.
+				</p>
 				<Button color="light" size="sm" onclick={onSync}>Sync (Reset)</Button>
 			</div>
 		{:else}
