@@ -510,7 +510,12 @@
 	</div>
 
 	<!-- Drill Timer -->
-	<div class="mt-2">
+	<div
+		class="mt-2"
+		class:hidden={!(
+			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+		)}
+	>
 		<DrillTimer bind:this={drillTimerRef} />
 	</div>
 	<RecapProgress />
