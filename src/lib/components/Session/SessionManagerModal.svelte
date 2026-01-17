@@ -14,7 +14,7 @@
 		Check,
 		X,
 		GitMerge,
-		Settings,
+		Settings2,
 		Bluetooth,
 		ChartNoAxesColumn,
 		Pencil
@@ -340,7 +340,7 @@
 										title="Session settings"
 										onclick={() => handleOpenSettings(session.id)}
 									>
-										<Settings class="size-4" />
+										<Settings2 class="size-4" />
 									</Button>
 									<Button
 										color="alternative"

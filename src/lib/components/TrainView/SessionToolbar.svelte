@@ -5,7 +5,7 @@
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
 	import {
-		Settings as SettingsIcon,
+		Settings2 as SettingsIcon,
 		Plus,
 		ChevronDown,
 		FolderCog,
