@@ -436,6 +436,17 @@
 			globalState.hasUsedTwistyPlayer = true;
 		}}
 	>
+		<!-- Hide overlay for Drill Mode -->
+		{#if sessionState.activeSession?.settings.drillHideTwistyPlayer && (drillPhase === 'executing' || (drillPhase === 'solving' && alg && alg.trim().length > 0))}
+			<div
+				class="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800"
+			>
+				<P class="px-4 text-center text-xl font-semibold text-gray-400 dark:text-gray-500">
+					Solving...
+				</P>
+			</div>
+		{/if}
+
 		{#if drillPhase === 'transitioning'}
 			<div
 				class="absolute inset-0 z-50 flex items-center justify-center rounded-xl bg-green-500/10 backdrop-blur-[1px]"

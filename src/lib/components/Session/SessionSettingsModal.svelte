@@ -301,6 +301,15 @@
 									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
 										Time between solving a case and seeing the next one.
 									</p>
+									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<Checkbox bind:checked={settings.drillHideTwistyPlayer}>
+											Hide Cube After First Move
+										</Checkbox>
+										<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+											The virtual cube will disappear once you start solving, forcing you to rely on
+											memory.
+										</p>
+									</div>
 								</div>
 							{/if}
 						</div>

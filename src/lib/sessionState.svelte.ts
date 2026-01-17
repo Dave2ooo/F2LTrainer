@@ -28,7 +28,8 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	crossColor: ['white'],
 	frontColor: ['red'],
 	smartCubeEnabled: false,
-	drillTimeBetweenCases: 1.0
+	drillTimeBetweenCases: 1.0,
+	drillHideTwistyPlayer: false
 };
 
 class SessionState {
