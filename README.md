@@ -4,9 +4,9 @@
 ![Svelte](https://img.shields.io/badge/Svelte-5.0-orange.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)
 
-**A speedcubing training application for F2L (First 2 Layers), featuring 3D cube rendering, algorithmic training, and smart cube integration.**
+**A speedcubing training application for F2L, featuring 3D cube rendering, algorithmic training, and smart cube integration.**
 
-> 🚀 **[Live Demo](https://your-demo-link.com)** (Replace with your link or remove)
+> 🚀 **[Live Demo](https://f2l-trainer.top/)**
 
 ## ✨ Features
 
@@ -22,6 +22,8 @@
 - **Styling:** [TailwindCSS v4](https://tailwindcss.com) & [Flowbite](https://flowbite.com)
 - **Cube Logic:** [cubing.js](https://js.cubing.net/cubing/)
 - **Charts:** ApexCharts
+
+This F2L Trainer was inspired by JPerms [OLL Trainer](https://jperm.net/algs/oll) and Romans [OLL Trainer](https://bestsiteever.ru/oll/) / [PLL Trainer](https://bestsiteever.ru/pll/).
 
 ---
 
@@ -42,6 +44,17 @@
 |                                  Session Insights                                   |                                Case Analysis                                 |
 | :---------------------------------------------------------------------------------: | :--------------------------------------------------------------------------: |
 | <img src="static/images/readme/SesstionStats.png" alt="Session Stats" width="100%"> | <img src="static/images/readme/CaseStats.png" alt="Case Stats" width="100%"> |
+
+---
+
+## ❓ Further Help
+
+Feel free to create an [issue](https://github.com/Dave2ooo/F2LTrainer/issues) if you need any help, have ideas for improvement or find any bugs. I'm happy to help.
+
+
+## 🤝 Contributing
+
+Feel free to tackle any [Issue](https://github.com/Dave2ooo/F2LTrainer/issues) on your own. If you want to change something that is not covered in an issue, please create an issue first, to make sure the pull request will be approved.
 
 ---
 
