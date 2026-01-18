@@ -77,4 +77,10 @@ describe('simplifyAlg', () => {
 		// Should not merge U across (R)
 		expect(simplifyAlg("U (R) U'")).toBe("U (R) U'");
 	});
+	it('preserves bracketed moves with inversions', () => {
+		// Bug fix: previously R') was potentially simplified in a way that moved the ' outside
+		expect(simplifyAlg("(R U R')")).toBe("(R U R')");
+		expect(simplifyAlg("R')")).toBe("R')");
+		expect(simplifyAlg("(U'")).toBe("(U'");
+	});
 });

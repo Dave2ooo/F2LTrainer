@@ -13,6 +13,9 @@ function getAxis(move: string): Axis {
 	// Handle wide moves explicitly if they are not standard base letters (though u/d/l/r/f/b usually used)
 	// Lowercase letters are usually wide moves in this codebase context or standard notation.
 	// But let's look at the first character primarily.
+	// If move contains brackets, treat it as having no axis (prevents simplification)
+	if (move.includes('(') || move.includes(')')) return null;
+
 	const firstChar = move.charAt(0).toUpperCase();
 
 	if (['U', 'D', 'E', 'Y'].includes(firstChar)) return 'UD';
