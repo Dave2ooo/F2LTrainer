@@ -11,7 +11,7 @@
 ## ✨ Features
 
 - **🎯 Specialized Training:** Dedicated modes for learning and drilling F2L algorithms.
-- **🦷 Bluetooth Smart Cube Support:** Connect your smart cube directly to get real-time feedback and automatic timing.
+- **🛜 Bluetooth Smart Cube Support:** Connect your smart cube directly to get real-time feedback and automatic timing.
 - **🧊 3D Visualization:** Interactive 3D cube player powered by `cubing.js`.
 - **📊 Statistics:** Track your progress with detailed charts and session history.
 - **📱 Responsive Design:** Fully optimized for desktop and mobile devices.
