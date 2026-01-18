@@ -4,6 +4,7 @@
 const CACHE_NAME = 'f2l-trainer-cache';
 const urlsToCache = [
     './',
+    './index.html',
     './manifest.json',
 ];
 
@@ -21,19 +22,15 @@ self.addEventListener('fetch', event => {
 	const { request } = event;
 	const url = new URL(request.url);
 
-	// Ignore non-http requests (like chrome extensions)
+	// Ignore non-http requests
 	if (!url.protocol.startsWith('http')) return;
 
-	// For navigation requests (HTML) and app bundles, use network-first strategy
-	// This ensures we always get the latest version and avoid 404s for renamed chunks
-	if (request.mode === 'navigate' || 
-	    url.pathname.includes('/_app/') || 
-	    url.pathname.endsWith('.js') || 
-	    url.pathname.endsWith('.css')) {
+	// Navigation requests: Network first, fall back to cached App Shell (./)
+	if (request.mode === 'navigate') {
 		event.respondWith(
 			fetch(request)
 				.then(response => {
-					// Cache successful responses for offline use
+					// Optionally cache the fresh nav response if it's 200
 					if (response && response.status === 200) {
 						const responseToCache = response.clone();
 						caches.open(CACHE_NAME).then(cache => {
@@ -43,27 +40,49 @@ self.addEventListener('fetch', event => {
 					return response;
 				})
 				.catch(() => {
-					// Fallback to cache if network fails (offline support)
-					return caches.match(request);
+					// Fallback to cache (App Shell)
+					return caches.match('./') || caches.match('index.html');
 				})
 		);
-	} else {
-		// For other resources (images, fonts, etc.), use cache-first strategy
+		return;
+	}
+
+	// Build assets: Network first (to get latest updates), allow fallback to cache
+	if (url.pathname.includes('/_app/') || 
+	    url.pathname.endsWith('.js') || 
+	    url.pathname.endsWith('.css')) {
 		event.respondWith(
-			caches.match(request).then(response => {
-				return response || fetch(request).then(fetchResponse => {
-					// Cache the fetched resource
-					if (fetchResponse && fetchResponse.status === 200) {
-						const responseToCache = fetchResponse.clone();
+			fetch(request)
+				.then(response => {
+					if (response && response.status === 200) {
+						const responseToCache = response.clone();
 						caches.open(CACHE_NAME).then(cache => {
 							cache.put(request, responseToCache);
 						});
 					}
-					return fetchResponse;
-				});
-			})
+					return response;
+				})
+				.catch(() => {
+					return caches.match(request);
+				})
 		);
+		return;
 	}
+
+	// Cache-first for everything else (images, fonts)
+	event.respondWith(
+		caches.match(request).then(response => {
+			return response || fetch(request).then(fetchResponse => {
+				if (fetchResponse && fetchResponse.status === 200) {
+					const responseToCache = fetchResponse.clone();
+					caches.open(CACHE_NAME).then(cache => {
+						cache.put(request, responseToCache);
+					});
+				}
+				return fetchResponse;
+			});
+		})
+	);
 });
 
 self.addEventListener('activate', event => {
