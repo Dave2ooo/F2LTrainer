@@ -1,4 +1,4 @@
-# F2LTrainer-Svelte 🧩
+# F2LTrainer 🧩
 
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Svelte](https://img.shields.io/badge/Svelte-5.0-orange.svg)
@@ -51,7 +51,6 @@ This F2L Trainer was inspired by JPerms [OLL Trainer](https://jperm.net/algs/oll
 
 Feel free to create an [issue](https://github.com/Dave2ooo/F2LTrainer/issues) if you need any help, have ideas for improvement or find any bugs. I'm happy to help.
 
-
 ## 🤝 Contributing
 
 Feel free to tackle any [Issue](https://github.com/Dave2ooo/F2LTrainer/issues) on your own. If you want to change something that is not covered in an issue, please create an issue first, to make sure the pull request will be approved.
@@ -100,8 +99,8 @@ npm install -g pnpm
 Clone this project from GitHub and navigate into it:
 
 ```bash
-git clone https://github.com/Dave2ooo/F2LTrainer-Svelte.git
-cd F2LTrainer-Svelte
+git clone https://github.com/Dave2ooo/F2LTrainer.git
+cd F2LTrainer
 ```
 
 ---
