@@ -2,7 +2,7 @@
   "name": "F2L Trainer",
   "short_name": "F2L Trainer",
   "description": "Tool for learning and practicing F2L cases.",
-  "start_url": "./",
+  "start_url": "/",
   "icons": [
     {
       "src": "images/icon-192.png",

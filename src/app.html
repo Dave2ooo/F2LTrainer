@@ -2,6 +2,16 @@
 <html lang="en" class="background-theme-background dark text-theme-text">
 	<head>
 		<meta charset="utf-8" />
+		<script>
+			// Fix for PWA start_url pointing to /index.html which confuses SvelteKit router
+			if (window.location.pathname.endsWith('/index.html')) {
+				window.history.replaceState(
+					null,
+					'',
+					window.location.pathname.replace(/\/index.html$/, '/')
+				);
+			}
+		</script>
 		<link rel="icon" href="%sveltekit.assets%/full_cube.svg" />
 		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
 		<script src="%sveltekit.assets%/pwa-capture.js"></script>
