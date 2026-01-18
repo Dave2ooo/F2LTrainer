@@ -21,6 +21,9 @@ self.addEventListener('fetch', event => {
 	const { request } = event;
 	const url = new URL(request.url);
 
+	// Ignore non-http requests (like chrome extensions)
+	if (!url.protocol.startsWith('http')) return;
+
 	// For navigation requests (HTML) and app bundles, use network-first strategy
 	// This ensures we always get the latest version and avoid 404s for renamed chunks
 	if (request.mode === 'navigate' || 
