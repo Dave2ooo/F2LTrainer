@@ -25,7 +25,7 @@ export function startPwaManager() {
 
 	if (!('serviceWorker' in navigator)) return;
 
-	const swPath = `${base}/service-worker.js`;
+	const swPath = `${base}/sw.js`;
 
 	const doRegister = () => {
 		console.log('PWA Manager: registering service worker:', swPath);
