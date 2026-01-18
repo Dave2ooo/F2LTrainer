@@ -2,6 +2,7 @@
 <html lang="en" class="background-theme-background dark text-theme-text">
 	<head>
 		<meta charset="utf-8" />
+		<title>F2L Trainer</title>
 		<script>
 			// Fix for PWA start_url pointing to /index.html which confuses SvelteKit router
 			if (window.location.pathname.endsWith('/index.html')) {
@@ -16,6 +17,36 @@
 		<link rel="manifest" href="%sveltekit.assets%/manifest.json" />
 		<script src="%sveltekit.assets%/pwa-capture.js"></script>
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+		<!-- SEO & Social Sharing -->
+		<meta
+			name="description"
+			content="Master F2L algorithms for Rubik's Cube speedsolving. Features 3D visualization, smart cube support, and algorithm drills."
+		/>
+		<meta name="theme-color" content="#1f2937" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content="https://f2l-trainer.top/" />
+		<meta property="og:title" content="F2L Trainer" />
+		<meta
+			property="og:description"
+			content="Master F2L algorithms with interactive 3D training and smart cube support."
+		/>
+		<meta property="og:image" content="https://f2l-trainer.top/images/screenshot-wide.png" />
+
+		<!-- Twitter -->
+		<meta property="twitter:card" content="summary_large_image" />
+		<meta property="twitter:url" content="https://f2l-trainer.top/" />
+		<meta property="twitter:title" content="F2L Trainer" />
+		<meta
+			property="twitter:description"
+			content="Master F2L algorithms with interactive 3D training and smart cube support."
+		/>
+		<meta property="twitter:image" content="https://f2l-trainer.top/images/screenshot-wide.png" />
+
+		<link rel="apple-touch-icon" href="%sveltekit.assets%/images/icon-192.png" />
+
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
