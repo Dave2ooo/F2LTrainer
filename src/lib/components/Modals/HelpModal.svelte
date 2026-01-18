@@ -385,7 +385,7 @@
 							</button>
 							to report issues or suggest improvements. You can also visit our
 							<A
-								href="https://github.com/Dave2ooo/F2LTrainer-Svelte"
+								href="https://github.com/Dave2ooo/F2LTrainer"
 								target="_blank"
 								rel="noopener noreferrer"
 								class="text-blue-600 hover:underline dark:text-blue-400">GitHub page</A

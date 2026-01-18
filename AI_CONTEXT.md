@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-**Name:** F2LTrainer-Svelte
+**Name:** F2LTrainer
 **Description:** A speedcubing training application for F2L (First 2 Layers), featuring 3D cube rendering, algorithm management, and timing statistics.
 
 ## Technology Stack

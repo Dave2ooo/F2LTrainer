@@ -1,10 +1,12 @@
 # Antigravity AI Context & Project Rules
 
 ## Project Overview
-**Name:** F2LTrainer-Svelte
+
+**Name:** F2LTrainer
 **Description:** A speedcubing training application for F2L (First 2 Layers), featuring 3D cube rendering, algorithm management, and timing statistics.
 
 ## Technology Stack
+
 - **Framework:** Svelte 5 (Runes mode)
 - **Build Tool:** Vite
 - **Language:** TypeScript
@@ -15,14 +17,18 @@
 - **Package Manager:** pnpm
 
 ## Documentation Resources
+
 The following files contain detailed documentation. **Consult them if unsure about syntax or component usage:**
+
 - **Svelte 5 & SvelteKit:** `docs/svelte/small.txt` (Contains definitive guide on Runes, Snippets, and SvelteKit routing)
 - **Flowbite Svelte:** `docs/flowbite/llm/context-full.txt` (Contains full component API and customization guides)
 
 ## Coding Conventions
 
 ### 1. Svelte 5 Runes (Strict)
+
 **You MUST use Svelte 5 Runes syntax.** Do not use legacy Svelte 4 syntax (`export let`, `$:`, etc.).
+
 - **State:** `let count = $state(0);` (not `let count = 0;`)
 - **Derived:** `let double = $derived(count * 2);` (not `$: double = count * 2;`)
 - **Effect:** `$effect(() => console.log(count));` (not `$: console.log(count);`)
@@ -31,6 +37,7 @@ The following files contain detailed documentation. **Consult them if unsure abo
 - **Snippets:** Use `{#snippet name(arg)}...{/snippet}` and `{@render name(arg)}` instead of slots.
 
 ### 2. Flowbite Svelte Usage
+
 - **Importing:** Import components directly from `flowbite-svelte`.
   ```typescript
   import { Button, Modal } from 'flowbite-svelte';
@@ -43,12 +50,15 @@ The following files contain detailed documentation. **Consult them if unsure abo
 - **Dark Mode:** Ensure all components support dark mode (Flowbite handles this automatically, but custom styles need `dark:` variants).
 
 ### 3. Project Structure
+
 - **Components:** `src/lib/components/` (Functional, responsive, mobile-first).
 - **Stores/State:** Use `$state.raw` for large objects (like cube state) to avoid deep proxy overhead if deep reactivity isn't needed.
 - **Imports:** Use `$lib/` alias.
 
 ### 4. Code Formatting & Changes
+
 **CRITICAL:** When making changes:
+
 - **ONLY modify files directly related to the functional change**
 - **DO NOT reformat or refactor unrelated files**
 - **DO NOT run formatters on the entire codebase** - only format files you're actively changing
@@ -56,12 +66,14 @@ The following files contain detailed documentation. **Consult them if unsure abo
 - Format only the lines you are adding or modifying, not the entire file
 
 ## Key Features & Context
+
 - **TrainView:** The main training interface.
 - **TwistyPlayer:** Wrapper around `cubing.js` for 3D visualization.
 - **Algorithms:** Users can select, mirror, and manage algorithms for specific cases.
 - **Timer:** Integrated timer with inspection and stats (Ao5, Ao12).
 
 ## User Preferences
+
 - **IDE:** Antigravity (VS Code fork).
 - **Design:** Prioritize premium, "wow" aesthetics with smooth animations and modern UI patterns.
 - **Performance:** Low latency is critical for the timer and cube interactions.

@@ -1,8 +1,8 @@
-# GitHub Copilot Instructions for F2LTrainer-Svelte
+# GitHub Copilot Instructions for F2LTrainer
 
 ## Project Overview
 
-F2LTrainer-Svelte is a web-based training application for learning F2L (First Two Layers) algorithms for Rubik's cube solving. The application helps users practice and master various F2L cases through interactive training sessions.
+F2LTrainer is a web-based training application for learning F2L (First Two Layers) algorithms for Rubik's cube solving. The application helps users practice and master various F2L cases through interactive training sessions.
 
 ## Critical Rules
 
@@ -185,7 +185,7 @@ Always use Svelte 5 syntax and runes:
 
 The application is deployed to GitHub Pages with:
 
-- Base path: `/F2LTrainer-Svelte` (configured in `svelte.config.js`)
+- Base path: `/F2LTrainer` (configured in `svelte.config.js`)
 - Adapter: `@sveltejs/adapter-auto` with SPA fallback
 - Deployment: Automated via GitHub Actions on push to `main`
 

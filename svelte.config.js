@@ -19,7 +19,7 @@ const config = {
 		}),
 		paths: {
 			// IMPORTANT: use your repo name here
-			base: dev ? '' : '/F2LTrainer-Svelte'
+			base: dev ? '' : '/F2LTrainer'
 		}
 	},
 	extensions: ['.svelte', '.svx']

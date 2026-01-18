@@ -119,7 +119,7 @@
 			<div>
 				Send your feedback via this form or create an issue on
 				<A
-					href="https://github.com/Dave2ooo/F2LTrainer-Svelte"
+					href="https://github.com/Dave2ooo/F2LTrainer"
 					target="_blank"
 					rel="noopener noreferrer"
 					class="text-blue-600 hover:underline"
