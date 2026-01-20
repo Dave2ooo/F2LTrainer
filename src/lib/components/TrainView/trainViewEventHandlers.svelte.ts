@@ -10,7 +10,8 @@ import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 export function createKeyboardHandlers(
 	timerRef: () => Timer | undefined,
 	onNext: () => void,
-	onTimerStop?: (time: number) => void
+	onTimerStop?: (time: number) => void,
+	onShowHint?: () => void
 ) {
 	let spacebarPressed = $state(false);
 
@@ -57,6 +58,13 @@ export function createKeyboardHandlers(
 					// If timer is disabled, just advance to next case
 					onNext();
 				}
+			}
+		}
+
+		// ArrowRight reveals the algorithm hint (same as clicking the HintButton)
+		if (event.code === 'ArrowRight') {
+			if (onShowHint) {
+				onShowHint();
 			}
 		}
 	}

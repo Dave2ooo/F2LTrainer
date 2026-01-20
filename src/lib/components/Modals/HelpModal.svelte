@@ -91,6 +91,9 @@
 						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
 							<li>Press and hold <kbd class="kbd">Space</kbd> to prime the timer (optional)</li>
 							<li>Release to start timing, press again to stop</li>
+							<li>
+								Press <kbd class="kbd">→</kbd> to reveal the algorithm
+							</li>
 							<li>Use arrow buttons or click the cube to navigate cases</li>
 							<li>Timer can be disabled in session settings for pressure-free practice</li>
 						</ul>

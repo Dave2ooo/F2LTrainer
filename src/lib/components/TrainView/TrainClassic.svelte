@@ -184,7 +184,8 @@
 	const { handleKeydown, handleKeyup } = createKeyboardHandlers(
 		() => timerRef,
 		onNext,
-		handleTimerStop
+		handleTimerStop,
+		showHintAlg
 	);
 
 	async function loadTwistyAlgViewer() {
