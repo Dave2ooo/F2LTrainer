@@ -242,6 +242,7 @@
 							<li>GAN356 i3</li>
 							<li>GAN356 i carry S</li>
 							<li>GAN 12 ui</li>
+							<li>GAN Monster Go MG3 AI</li>
 						</ul>
 						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 							Have a different smart cube? Let us know if it works using the
