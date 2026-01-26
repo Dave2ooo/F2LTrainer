@@ -1,6 +1,7 @@
 <!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
 	import { globalState } from '$lib/globalState.svelte';
+	import { page } from '$app/stores';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';
@@ -36,16 +37,18 @@
 	});
 </script>
 
-<header>
-	<SignedOut>
-		<SignInButton mode="modal">
-			<Button class="auth-btn">Sign in to Sync</Button>
-		</SignInButton>
-	</SignedOut>
-	<SignedIn>
-		<UserButton />
-	</SignedIn>
-</header>
+{#if $page.url.searchParams.get('dev') === 'true'}
+	<header>
+		<SignedOut>
+			<SignInButton mode="modal">
+				<Button class="auth-btn">Sign in to Sync</Button>
+			</SignInButton>
+		</SignedOut>
+		<SignedIn>
+			<UserButton />
+		</SignedIn>
+	</header>
+{/if}
 
 <div
 	style="background-color: var(--color-theme-bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
