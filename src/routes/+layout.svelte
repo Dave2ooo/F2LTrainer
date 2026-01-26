@@ -10,6 +10,9 @@
 
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
+
+	import { ClerkProvider } from 'svelte-clerk';
+
 	let { children } = $props();
 
 	if (browser) {
@@ -33,6 +36,8 @@
 	}
 </script>
 
-{@render children()}
+<ClerkProvider>
+	{@render children()}
+</ClerkProvider>
 
 <ToastContainer />

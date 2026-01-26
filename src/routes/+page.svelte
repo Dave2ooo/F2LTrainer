@@ -14,6 +14,9 @@
 	import { onMount } from 'svelte';
 	import AppNavbar from '$lib/components/AppNavbar.svelte';
 
+	import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk';
+	import { Button } from 'flowbite-svelte';
+
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;
 	let helpRef: HelpModal;
@@ -32,6 +35,17 @@
 		return () => {};
 	});
 </script>
+
+<header>
+	<SignedOut>
+		<SignInButton mode="modal">
+			<Button class="auth-btn">Sign in to Sync</Button>
+		</SignInButton>
+	</SignedOut>
+	<SignedIn>
+		<UserButton />
+	</SignedIn>
+</header>
 
 <div
 	style="background-color: var(--color-theme-bg); height: 100vh; display: flex; flex-direction: column; overflow: hidden;"
