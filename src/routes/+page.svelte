@@ -17,6 +17,7 @@
 
 	import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk';
 	import { Button } from 'flowbite-svelte';
+	import ConvexTestButtons from '$lib/ConvexTestButtons.svelte';
 
 	let settingsRef: Settings;
 	let feedbackRef: FeedbackModal;
@@ -47,6 +48,7 @@
 		<SignedIn>
 			<UserButton />
 		</SignedIn>
+		<ConvexTestButtons />
 	</header>
 {/if}
 

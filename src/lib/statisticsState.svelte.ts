@@ -109,6 +109,7 @@ const persistedData = loadFromLocalStorage<any[]>(STATISTICS_STATE_STORAGE_KEY);
 let initialState: StatisticsState = [];
 
 if (persistedData && Array.isArray(persistedData)) {
+	console.log('Loading from localStorage');
 	initialState = persistedData
 		.filter((item) => {
 			const isValid = item !== null && typeof item === 'object';
@@ -133,6 +134,7 @@ if (persistedData && Array.isArray(persistedData)) {
 // Internal state holding ALL solves
 class StatisticsStateManager {
 	allSolves: StatisticsState = $state([]);
+	isAuthenticated = $state(false);
 
 	constructor(initialData: StatisticsState) {
 		this.allSolves = initialData;
