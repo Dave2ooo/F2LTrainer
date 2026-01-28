@@ -14,6 +14,7 @@
 	import { PUBLIC_CONVEX_URL } from '$env/static/public';
 	import { setupConvex } from 'convex-svelte';
 	import { ClerkProvider } from 'svelte-clerk';
+	import ConvexClerkSync from './ConvexClerkSync.svelte';
 
 	let { children } = $props();
 	setupConvex(PUBLIC_CONVEX_URL);
@@ -40,6 +41,7 @@
 </script>
 
 <ClerkProvider>
+	<ConvexClerkSync />
 	{@render children()}
 </ClerkProvider>
 
