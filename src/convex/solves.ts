@@ -58,3 +58,151 @@ export const addSolve = mutation({
 		});
 	}
 });
+
+export const updateSolve = mutation({
+	args: {
+		id: v.string(),
+		time: v.number()
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+
+		// Find the solve by custom id and user
+		const solve = await ctx.db
+			.query('solves')
+			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.filter((q) => q.eq(q.field('id'), args.id))
+			.unique();
+
+		if (!solve) {
+			throw new Error(`Solve with id ${args.id} not found`);
+		}
+
+		await ctx.db.patch(solve._id, { time: args.time });
+	}
+});
+
+export const deleteSolve = mutation({
+	args: {
+		id: v.string()
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+
+		const solve = await ctx.db
+			.query('solves')
+			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.filter((q) => q.eq(q.field('id'), args.id))
+			.unique();
+
+		if (solve) {
+			await ctx.db.delete(solve._id);
+		}
+	}
+});
+
+export const deleteSolvesBySession = mutation({
+	args: {
+		sessionId: v.string()
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+
+		const solves = await ctx.db
+			.query('solves')
+			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.filter((q) => q.eq(q.field('sessionId'), args.sessionId))
+			.collect();
+
+		for (const solve of solves) {
+			await ctx.db.delete(solve._id);
+		}
+
+		return solves.length;
+	}
+});
+
+// Solve object structure for bulk upsert
+const solveObjectValidator = v.object({
+	id: v.string(),
+	groupId: v.string(),
+	caseId: v.number(),
+	time: v.optional(v.number()),
+	timestamp: v.number(),
+	auf: v.string(),
+	side: v.optional(v.string()),
+	scrambleSelection: v.number(),
+	sessionId: v.optional(v.string()),
+	recognitionTime: v.optional(v.number()),
+	executionTime: v.optional(v.number()),
+	trainMode: v.string()
+});
+
+export const bulkUpsertSolves = mutation({
+	args: {
+		solves: v.array(solveObjectValidator)
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+
+		// Get all existing solves for this user
+		const existingSolves = await ctx.db
+			.query('solves')
+			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.collect();
+
+		// Create a map of existing solves by id for quick lookup
+		const existingMap = new Map(existingSolves.map((s) => [s.id, s]));
+
+		let inserted = 0;
+		let updated = 0;
+		let skipped = 0;
+
+		for (const solve of args.solves) {
+			const existing = existingMap.get(solve.id);
+
+			if (existing) {
+				// Solve exists - compare timestamps, keep newer
+				if (solve.timestamp > existing.timestamp) {
+					await ctx.db.patch(existing._id, {
+						groupId: solve.groupId,
+						caseId: solve.caseId,
+						time: solve.time,
+						timestamp: solve.timestamp,
+						auf: solve.auf,
+						side: solve.side,
+						scrambleSelection: solve.scrambleSelection,
+						sessionId: solve.sessionId,
+						recognitionTime: solve.recognitionTime,
+						executionTime: solve.executionTime,
+						trainMode: solve.trainMode
+					});
+					updated++;
+				} else {
+					skipped++;
+				}
+			} else {
+				// New solve - insert
+				await ctx.db.insert('solves', {
+					...solve,
+					tokenIdentifier: identity.tokenIdentifier
+				});
+				inserted++;
+			}
+		}
+
+		return { inserted, updated, skipped };
+	}
+});
