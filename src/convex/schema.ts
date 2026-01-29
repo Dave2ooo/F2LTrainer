@@ -20,5 +20,19 @@ export default defineSchema({
 
 		// To filter solves by user
 		tokenIdentifier: v.string()
+	}).index('by_tokenIdentifier', ['tokenIdentifier']),
+
+	sessions: defineTable({
+		id: v.string(), // Session UUID
+		name: v.string(),
+		settings: v.any(), // SessionSettings object - using v.any() for complex nested structure
+		createdAt: v.number(),
+		lastPlayedAt: v.number(),
+		lastModified: v.number(),
+		archived: v.boolean(),
+		favorite: v.optional(v.boolean()),
+
+		// To filter sessions by user
+		tokenIdentifier: v.string()
 	}).index('by_tokenIdentifier', ['tokenIdentifier'])
 });

@@ -2,6 +2,7 @@ import { browser } from '$app/environment';
 import type { Session, SessionSettings } from './types/session';
 import { GROUP_IDS, GROUP_DEFINITIONS } from './types/group';
 import { loadFromLocalStorage } from '$lib/utils/localStorage';
+import { sessionsSyncService } from '$lib/services/sessionsSyncService';
 
 const STORAGE_KEY = 'sessions';
 const ACTIVE_SESSION_KEY = 'activeSessionId';
@@ -108,6 +109,8 @@ class SessionState {
 		}
 		if (save) {
 			this.save();
+			// Sync to Convex if authenticated
+			sessionsSyncService.addSession(newSession);
 		}
 		return newSession;
 	}
@@ -124,6 +127,8 @@ class SessionState {
 
 			this.sessions.splice(index, 1);
 			this.save();
+			// Sync hard delete to Convex if authenticated
+			sessionsSyncService.hardDeleteSession(id);
 		}
 	}
 
@@ -132,6 +137,8 @@ class SessionState {
 		if (session) {
 			Object.assign(session, updates, { lastModified: Date.now() });
 			this.save();
+			// Sync to Convex if authenticated
+			sessionsSyncService.updateSession(id, { ...updates, lastModified: Date.now() });
 		}
 	}
 
@@ -157,6 +164,8 @@ class SessionState {
 			this.activeSessionId = nextSession?.id || null;
 		}
 		this.save();
+		// Sync to Convex if authenticated
+		sessionsSyncService.deleteSession(id);
 	}
 
 	restoreSession(id: string) {
@@ -164,6 +173,8 @@ class SessionState {
 		if (session) {
 			session.archived = false;
 			this.save();
+			// Sync to Convex if authenticated
+			sessionsSyncService.restoreSession(id);
 		}
 	}
 
@@ -183,6 +194,8 @@ class SessionState {
 		this.sessions.push(newSession);
 		this.activeSessionId = newSession.id;
 		this.save();
+		// Sync to Convex if authenticated
+		sessionsSyncService.addSession(newSession);
 		return newSession;
 	}
 
@@ -191,6 +204,11 @@ class SessionState {
 		if (session) {
 			session.favorite = !session.favorite;
 			this.save();
+			// Sync to Convex if authenticated
+			sessionsSyncService.updateSession(id, {
+				favorite: session.favorite,
+				lastModified: Date.now()
+			});
 		}
 	}
 
@@ -201,6 +219,34 @@ class SessionState {
 
 	get activeSession() {
 		return this.sessions.find((s) => s.id === this.activeSessionId);
+	}
+
+	/**
+	 * Handle login sync - merge localStorage sessions with Convex
+	 */
+	async handleLoginSync(): Promise<void> {
+		try {
+			const mergedSessions = await sessionsSyncService.syncOnLogin(this.sessions);
+			this.sessions = mergedSessions;
+
+			// Ensure we have an active session
+			if (
+				this.activeSessionId === null ||
+				!this.sessions.find((s) => s.id === this.activeSessionId)
+			) {
+				const firstActive = this.sessions.find((s) => !s.archived);
+				if (firstActive) {
+					this.activeSessionId = firstActive.id;
+				} else if (this.sessions.length > 0) {
+					this.activeSessionId = this.sessions[0].id;
+				}
+			}
+
+			this.save();
+			console.log('[SessionState] Login sync complete, now have', this.sessions.length, 'sessions');
+		} catch (error) {
+			console.error('[SessionState] Login sync failed:', error);
+		}
 	}
 }
 

@@ -2,7 +2,9 @@
 	import { useConvexClient } from 'convex-svelte';
 	import { useClerkContext } from 'svelte-clerk';
 	import { solvesSyncService } from '$lib/services/solvesSyncService';
+	import { sessionsSyncService } from '$lib/services/sessionsSyncService';
 	import { statisticsState } from '$lib/statisticsState.svelte';
+	import { sessionState } from '$lib/sessionState.svelte';
 
 	const client = useConvexClient();
 	const ctx = useClerkContext();
@@ -22,9 +24,11 @@
 	$effect(() => {
 		const isAuthenticated = !!ctx.session;
 
-		// Update sync service with client and auth state
+		// Update sync services with client and auth state
 		solvesSyncService.setClient(client);
 		solvesSyncService.setAuthenticated(isAuthenticated);
+		sessionsSyncService.setClient(client);
+		sessionsSyncService.setAuthenticated(isAuthenticated);
 
 		// Detect login (wasn't authenticated, now is)
 		if (isAuthenticated && !wasAuthenticated) {
@@ -32,6 +36,7 @@
 			// Give Convex a moment to establish auth before syncing
 			setTimeout(() => {
 				statisticsState.handleLoginSync();
+				sessionState.handleLoginSync();
 			}, 500);
 		}
 
