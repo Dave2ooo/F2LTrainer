@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk';
+	import { dark } from '@clerk/themes';
 	import {
 		CircleQuestionMark,
 		LogIn,
@@ -15,6 +16,7 @@
 	import type Settings from '$lib/components/Modals/Settings.svelte';
 	import type FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import type HelpModal from '$lib/components/Modals/HelpModal.svelte';
+	import { getTheme } from '$lib/theme.svelte';
 
 	interface Props {
 		settingsRef: Settings;
@@ -24,6 +26,8 @@
 	}
 
 	let { settingsRef, feedbackRef, helpRef, onExportURL }: Props = $props();
+
+	let currentTheme = $derived(getTheme());
 </script>
 
 <Navbar
@@ -46,6 +50,7 @@
 				<div class="sm:hidden">
 					<UserButton
 						appearance={{
+							baseTheme: currentTheme === 'dark' ? dark : undefined,
 							elements: {
 								userButtonAvatarBox: '!size-8 md:!size-9 !m-0',
 								userButtonTrigger: '!p-1'
@@ -125,6 +130,7 @@
 				<li class="mx-1 my-2 hidden sm:my-0 sm:block xl:mx-3">
 					<UserButton
 						appearance={{
+							baseTheme: currentTheme === 'dark' ? dark : undefined,
 							elements: {
 								userButtonAvatarBox: '!size-8 md:!size-9 !m-0',
 								userButtonTrigger: '!p-1'

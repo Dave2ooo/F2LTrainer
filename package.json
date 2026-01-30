@@ -97,6 +97,7 @@
 		"svelte5"
 	],
 	"dependencies": {
+		"@clerk/themes": "^2.4.51",
 		"@flowbite-svelte-plugins/chart": "^0.2.4",
 		"@lucide/svelte": "^0.552.0",
 		"apexcharts": "^5.3.6",
