@@ -40,7 +40,11 @@
 	}
 </script>
 
-<ClerkProvider>
+<ClerkProvider
+	appearance={{
+		cssLayerName: 'clerk'
+	}}
+>
 	<ConvexClerkSync />
 	{@render children()}
 </ClerkProvider>

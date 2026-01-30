@@ -41,6 +41,20 @@
 	</NavBrand>
 	<div class="ml-auto flex items-center gap-2">
 		<BluetoothButton />
+		{#if $page.url.searchParams.get('dev') === 'true'}
+			<SignedIn>
+				<div class="sm:hidden">
+					<UserButton
+						appearance={{
+							elements: {
+								userButtonAvatarBox: '!size-8 md:!size-9 !m-0',
+								userButtonTrigger: '!p-1'
+							}
+						}}
+					/>
+				</div>
+			</SignedIn>
+		{/if}
 		<div class="h-6 w-px bg-gray-300 dark:bg-gray-700"></div>
 		<NavHamburger
 			class="p-1 text-primary-600 hover:bg-transparent dark:text-primary-600 dark:hover:bg-transparent [&>svg]:size-8 md:[&>svg]:size-10"
@@ -93,8 +107,8 @@
 			<Tooltip placement="bottom">Export to URL</Tooltip>
 		</li>
 		{#if $page.url.searchParams.get('dev') === 'true'}
-			<li class="mx-1 my-2 sm:my-0 xl:mx-3">
-				<SignedOut>
+			<SignedOut>
+				<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 					<SignInButton mode="modal">
 						<Button class="btn-icon-transparent flex items-center justify-start">
 							<LogIn class="size-8 text-primary-600 md:size-9" />
@@ -105,11 +119,20 @@
 						</Button>
 					</SignInButton>
 					<Tooltip placement="bottom">Sign In</Tooltip>
-				</SignedOut>
-				<SignedIn>
-					<UserButton />
-				</SignedIn>
-			</li>
+				</li>
+			</SignedOut>
+			<SignedIn>
+				<li class="mx-1 my-2 hidden sm:my-0 sm:block xl:mx-3">
+					<UserButton
+						appearance={{
+							elements: {
+								userButtonAvatarBox: '!size-8 md:!size-9 !m-0',
+								userButtonTrigger: '!p-1'
+							}
+						}}
+					/>
+				</li>
+			</SignedIn>
 		{/if}
 		<li class="mx-1">
 			<PwaInstall />
