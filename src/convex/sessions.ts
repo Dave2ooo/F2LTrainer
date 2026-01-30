@@ -14,7 +14,8 @@ export const getSessionsForCurrentUser = query({
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.collect();
 
-		return sessions;
+		// Filter out soft-deleted sessions
+		return sessions.filter((s) => !s.deleted);
 	}
 });
 
@@ -28,6 +29,8 @@ export const addSession = mutation({
 			lastPlayedAt: v.number(),
 			lastModified: v.number(),
 			archived: v.boolean(),
+			deleted: v.optional(v.boolean()),
+			deletedAt: v.optional(v.number()),
 			favorite: v.optional(v.boolean())
 		})
 	},
@@ -44,6 +47,8 @@ export const addSession = mutation({
 			lastPlayedAt: args.session.lastPlayedAt,
 			lastModified: args.session.lastModified,
 			archived: args.session.archived,
+			deleted: args.session.deleted,
+			deletedAt: args.session.deletedAt,
 			favorite: args.session.favorite,
 			tokenIdentifier: identity.tokenIdentifier
 		});
@@ -59,6 +64,8 @@ export const updateSession = mutation({
 			lastPlayedAt: v.optional(v.number()),
 			lastModified: v.optional(v.number()),
 			archived: v.optional(v.boolean()),
+			deleted: v.optional(v.boolean()),
+			deletedAt: v.optional(v.number()),
 			favorite: v.optional(v.boolean())
 		})
 	},
@@ -99,6 +106,7 @@ export const deleteSession = mutation({
 			.unique();
 
 		if (session) {
+			// Archive session (user-visible soft delete)
 			await ctx.db.patch(session._id, { archived: true });
 		}
 	}
@@ -121,7 +129,10 @@ export const restoreSession = mutation({
 			.unique();
 
 		if (session) {
-			await ctx.db.patch(session._id, { archived: false });
+			await ctx.db.patch(session._id, {
+				archived: false,
+				lastModified: Date.now()
+			});
 		}
 	}
 });
@@ -143,7 +154,11 @@ export const hardDeleteSession = mutation({
 			.unique();
 
 		if (session) {
-			await ctx.db.delete(session._id);
+			// Soft delete: mark as deleted with timestamp
+			await ctx.db.patch(session._id, {
+				deleted: true,
+				deletedAt: Date.now()
+			});
 		}
 	}
 });
@@ -156,6 +171,8 @@ const sessionObjectValidator = v.object({
 	lastPlayedAt: v.number(),
 	lastModified: v.number(),
 	archived: v.boolean(),
+	deleted: v.optional(v.boolean()),
+	deletedAt: v.optional(v.number()),
 	favorite: v.optional(v.boolean())
 });
 
@@ -193,6 +210,8 @@ export const bulkUpsertSessions = mutation({
 						lastPlayedAt: session.lastPlayedAt,
 						lastModified: session.lastModified,
 						archived: session.archived,
+						deleted: session.deleted,
+						deletedAt: session.deletedAt,
 						favorite: session.favorite
 					});
 					updated++;

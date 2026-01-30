@@ -2,6 +2,24 @@ import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
 import type { Solve } from '$lib/types/statisticsState';
 
+// Validator for solve objects (used in addSolve and bulkUpsertSolves)
+const solveObjectValidator = v.object({
+	id: v.string(),
+	groupId: v.string(),
+	caseId: v.number(),
+	time: v.optional(v.number()),
+	timestamp: v.number(),
+	auf: v.string(),
+	side: v.optional(v.string()),
+	scrambleSelection: v.number(),
+	sessionId: v.optional(v.string()),
+	recognitionTime: v.optional(v.number()),
+	executionTime: v.optional(v.number()),
+	trainMode: v.string(),
+	deleted: v.optional(v.boolean()),
+	deletedAt: v.optional(v.number())
+});
+
 export const getSolvesForCurrentUser = query({
 	args: {},
 	handler: async (ctx) => {
@@ -15,26 +33,14 @@ export const getSolvesForCurrentUser = query({
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.collect();
 
-		return solves;
+		// Filter out soft-deleted solves
+		return solves.filter((s) => !s.deleted);
 	}
 });
 
 export const addSolve = mutation({
 	args: {
-		solve: v.object({
-			id: v.string(),
-			groupId: v.string(),
-			caseId: v.number(),
-			time: v.optional(v.number()),
-			timestamp: v.number(),
-			auf: v.string(),
-			side: v.optional(v.string()),
-			scrambleSelection: v.number(),
-			sessionId: v.optional(v.string()),
-			recognitionTime: v.optional(v.number()),
-			executionTime: v.optional(v.number()),
-			trainMode: v.string()
-		})
+		solve: solveObjectValidator
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
@@ -54,6 +60,8 @@ export const addSolve = mutation({
 			recognitionTime: args.solve.recognitionTime,
 			executionTime: args.solve.executionTime,
 			trainMode: args.solve.trainMode,
+			deleted: args.solve.deleted,
+			deletedAt: args.solve.deletedAt,
 			tokenIdentifier: identity.tokenIdentifier
 		});
 	}
@@ -102,7 +110,11 @@ export const deleteSolve = mutation({
 			.unique();
 
 		if (solve) {
-			await ctx.db.delete(solve._id);
+			// Soft delete: mark as deleted with timestamp
+			await ctx.db.patch(solve._id, {
+				deleted: true,
+				deletedAt: Date.now()
+			});
 		}
 	}
 });
@@ -124,27 +136,15 @@ export const deleteSolvesBySession = mutation({
 			.collect();
 
 		for (const solve of solves) {
-			await ctx.db.delete(solve._id);
+			// Soft delete all solves for this session
+			await ctx.db.patch(solve._id, {
+				deleted: true,
+				deletedAt: Date.now()
+			});
 		}
 
 		return solves.length;
 	}
-});
-
-// Solve object structure for bulk upsert
-const solveObjectValidator = v.object({
-	id: v.string(),
-	groupId: v.string(),
-	caseId: v.number(),
-	time: v.optional(v.number()),
-	timestamp: v.number(),
-	auf: v.string(),
-	side: v.optional(v.string()),
-	scrambleSelection: v.number(),
-	sessionId: v.optional(v.string()),
-	recognitionTime: v.optional(v.number()),
-	executionTime: v.optional(v.number()),
-	trainMode: v.string()
 });
 
 export const bulkUpsertSolves = mutation({
@@ -187,7 +187,9 @@ export const bulkUpsertSolves = mutation({
 						sessionId: solve.sessionId,
 						recognitionTime: solve.recognitionTime,
 						executionTime: solve.executionTime,
-						trainMode: solve.trainMode
+						trainMode: solve.trainMode,
+						deleted: solve.deleted,
+						deletedAt: solve.deletedAt
 					});
 					updated++;
 				} else {

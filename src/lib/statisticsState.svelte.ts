@@ -219,7 +219,7 @@ class StatisticsStateManager {
 	}
 
 	/**
-	 * Handle login sync - merge localStorage solves with Convex
+	 * Handle login sync - merge localStorage solves with Convex (first time)
 	 */
 	async handleLoginSync(): Promise<void> {
 		try {
@@ -233,6 +233,26 @@ class StatisticsStateManager {
 			);
 		} catch (error) {
 			console.error('[StatisticsState] Login sync failed:', error);
+		}
+	}
+
+	/**
+	 * Handle page load sync - pull from Convex (Convex is source of truth)
+	 */
+	async handlePageLoadSync(): Promise<void> {
+		try {
+			const convexSolves = await solvesSyncService.pullFromConvex();
+			if (convexSolves.length > 0) {
+				this.allSolves.length = 0;
+				this.allSolves.push(...convexSolves);
+				console.log(
+					'[StatisticsState] Page load sync complete, now have',
+					this.allSolves.length,
+					'solves'
+				);
+			}
+		} catch (error) {
+			console.error('[StatisticsState] Page load sync failed:', error);
 		}
 	}
 }

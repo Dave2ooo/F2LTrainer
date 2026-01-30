@@ -18,6 +18,9 @@ export default defineSchema({
 		executionTime: v.optional(v.number()),
 		trainMode: v.string(),
 
+		deleted: v.optional(v.boolean()), // Soft delete flag
+		deletedAt: v.optional(v.number()), // Timestamp of deletion
+
 		// To filter solves by user
 		tokenIdentifier: v.string()
 	}).index('by_tokenIdentifier', ['tokenIdentifier']),
@@ -30,6 +33,8 @@ export default defineSchema({
 		lastPlayedAt: v.number(),
 		lastModified: v.number(),
 		archived: v.boolean(),
+		deleted: v.optional(v.boolean()), // Soft delete flag
+		deletedAt: v.optional(v.number()), // Timestamp of deletion
 		favorite: v.optional(v.boolean()),
 
 		// To filter sessions by user

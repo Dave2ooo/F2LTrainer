@@ -114,7 +114,7 @@
 	const sessionsWithSolves = $derived.by(() => {
 		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
 		const sessionIds = new Set(solves.map((s) => s.sessionId));
-		return sessionState.sessions.filter((s) => sessionIds.has(s.id));
+		return sessionState.sessions.filter((s) => sessionIds.has(s.id) && !s.deleted);
 	});
 
 	// Find the index of the best time

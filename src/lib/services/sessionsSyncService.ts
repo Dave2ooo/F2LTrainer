@@ -92,7 +92,7 @@ class SessionsSyncService {
 	}
 
 	/**
-	 * Sync localStorage sessions with Convex on login.
+	 * Sync localStorage sessions with Convex on first login.
 	 * - Uploads local sessions to Convex (upsert with lastModified comparison)
 	 * - Fetches all Convex sessions and merges with local
 	 * Returns the merged session list to update localStorage
@@ -116,15 +116,21 @@ class SessionsSyncService {
 			// Then fetch all sessions from Convex (now includes our uploads)
 			const convexSessions = await this.client.query(api.sessions.getSessionsForCurrentUser, {});
 
+			// Import DEFAULT_SETTINGS for merging
+			const { DEFAULT_SETTINGS } = await import('$lib/sessionState.svelte');
+
 			// Convert Convex sessions to our Session type (strip Convex-specific fields)
+			// Merge with DEFAULT_SETTINGS to ensure new settings have default values
 			const mergedSessions: Session[] = convexSessions.map((s) => ({
 				id: s.id,
 				name: s.name,
-				settings: s.settings,
+				settings: { ...DEFAULT_SETTINGS, ...s.settings },
 				createdAt: s.createdAt,
 				lastPlayedAt: s.lastPlayedAt,
 				lastModified: s.lastModified,
 				archived: s.archived,
+				deleted: s.deleted,
+				deletedAt: s.deletedAt,
 				favorite: s.favorite
 			}));
 
@@ -134,6 +140,44 @@ class SessionsSyncService {
 			console.error('[SessionsSyncService] Sync on login failed:', error);
 			// Return local sessions as fallback
 			return localSessions;
+		}
+	}
+
+	/**
+	 * Pull sessions from Convex (page load sync - Convex is source of truth).
+	 * Does NOT upload local sessions - only fetches from Convex.
+	 * This ensures deletions on other devices propagate correctly.
+	 */
+	async pullFromConvex(): Promise<Session[]> {
+		if (!this._isAuthenticated || !this.client) {
+			return [];
+		}
+
+		try {
+			const convexSessions = await this.client.query(api.sessions.getSessionsForCurrentUser, {});
+
+			// Import DEFAULT_SETTINGS for merging
+			const { DEFAULT_SETTINGS } = await import('$lib/sessionState.svelte');
+
+			// Convert Convex sessions to our Session type
+			const sessions: Session[] = convexSessions.map((s) => ({
+				id: s.id,
+				name: s.name,
+				settings: { ...DEFAULT_SETTINGS, ...s.settings },
+				createdAt: s.createdAt,
+				lastPlayedAt: s.lastPlayedAt,
+				lastModified: s.lastModified,
+				archived: s.archived,
+				deleted: s.deleted,
+				deletedAt: s.deletedAt,
+				favorite: s.favorite
+			}));
+
+			console.log(`[SessionsSyncService] Pulled ${sessions.length} sessions from Convex`);
+			return sessions;
+		} catch (error) {
+			console.error('[SessionsSyncService] Pull from Convex failed:', error);
+			return [];
 		}
 	}
 }

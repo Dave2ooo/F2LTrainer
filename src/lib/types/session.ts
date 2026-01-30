@@ -52,6 +52,8 @@ export interface Session {
 	createdAt: number;
 	lastPlayedAt: number;
 	lastModified: number;
-	archived: boolean; // Soft deletion flag
+	archived: boolean; // Soft deletion flag (user can restore)
+	deleted?: boolean; // Hard deletion flag (sync helper, not visible to user)
+	deletedAt?: number; // Timestamp of hard deletion
 	favorite?: boolean; // Pin to top of dropdown
 }

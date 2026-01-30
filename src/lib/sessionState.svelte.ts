@@ -64,18 +64,25 @@ class SessionState {
 		// Handle active session selection
 		const storedActiveId = localStorage.getItem(ACTIVE_SESSION_KEY);
 
-		if (storedActiveId !== null && this.sessions.find((s) => s.id === storedActiveId)) {
+		if (
+			storedActiveId !== null &&
+			this.sessions.find((s) => s.id === storedActiveId && !s.deleted)
+		) {
 			this.activeSessionId = storedActiveId;
 		} else {
-			// Fallback to the first non-archived session
-			const firstActive = this.sessions.find((s) => !s.archived);
+			// Fallback to the first non-archived, non-deleted session
+			const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
 			if (firstActive) {
 				this.activeSessionId = firstActive.id;
-			} else if (this.sessions.length > 0) {
-				this.activeSessionId = this.sessions[0].id;
 			} else {
-				console.warn('No valid sessions found, creating default session');
-				this.createSession('Default Session', true);
+				// Fallback to first non-deleted session (even if archived)
+				const firstVisible = this.sessions.find((s) => !s.deleted);
+				if (firstVisible) {
+					this.activeSessionId = firstVisible.id;
+				} else {
+					console.warn('No valid sessions found, creating default session');
+					this.createSession('Default Session', true);
+				}
 			}
 		}
 	}
@@ -115,17 +122,21 @@ class SessionState {
 		return newSession;
 	}
 
-	// Completely remove a session from the list (used for cancelling creation)
+	// Hard delete a session (marks as deleted, syncs to Convex)
 	hardDeleteSession(id: string) {
-		const index = this.sessions.findIndex((s) => s.id === id);
-		if (index !== -1) {
+		const session = this.sessions.find((s) => s.id === id);
+		if (session) {
 			// If we are deleting the active session, switch to another one first
 			if (this.activeSessionId === id) {
-				const nextSession = this.sessions.find((s) => !s.archived && s.id !== id);
+				const nextSession = this.sessions.find((s) => !s.archived && !s.deleted && s.id !== id);
 				this.activeSessionId = nextSession?.id || null;
 			}
 
-			this.sessions.splice(index, 1);
+			// Mark as deleted instead of removing from array
+			// This allows offline deletions to sync when logging in
+			session.deleted = true;
+			session.deletedAt = Date.now();
+			session.lastModified = Date.now();
 			this.save();
 			// Sync hard delete to Convex if authenticated
 			sessionsSyncService.hardDeleteSession(id);
@@ -146,8 +157,8 @@ class SessionState {
 		const session = this.sessions.find((s) => s.id === id);
 		if (!session) return;
 
-		// Count active (non-archived) sessions
-		const activeCount = this.sessions.filter((s) => !s.archived).length;
+		// Count active (non-archived, non-deleted) sessions
+		const activeCount = this.sessions.filter((s) => !s.archived && !s.deleted).length;
 
 		// Prevent deleting the last reachable session
 		if (activeCount <= 1 && !session.archived) {
@@ -155,12 +166,13 @@ class SessionState {
 			return;
 		}
 
-		// Soft delete
+		// Soft delete (archive)
 		session.archived = true;
+		session.lastModified = Date.now();
 
 		// If we deleted the current active session, switch to another valid one
 		if (this.activeSessionId === id) {
-			const nextSession = this.sessions.find((s) => !s.archived && s.id !== id);
+			const nextSession = this.sessions.find((s) => !s.archived && !s.deleted && s.id !== id);
 			this.activeSessionId = nextSession?.id || null;
 		}
 		this.save();
@@ -172,6 +184,7 @@ class SessionState {
 		const session = this.sessions.find((s) => s.id === id);
 		if (session) {
 			session.archived = false;
+			session.lastModified = Date.now();
 			this.save();
 			// Sync to Convex if authenticated
 			sessionsSyncService.restoreSession(id);
@@ -221,24 +234,42 @@ class SessionState {
 		return this.sessions.find((s) => s.id === this.activeSessionId);
 	}
 
+	// Get all sessions that are not deleted (includes archived)
+	get visibleSessions() {
+		return this.sessions.filter((s) => !s.deleted);
+	}
+
+	// Get all non-deleted, non-archived sessions
+	get activeSessions() {
+		return this.sessions.filter((s) => !s.deleted && !s.archived);
+	}
+
 	/**
-	 * Handle login sync - merge localStorage sessions with Convex
+	 * Handle login sync - merge localStorage sessions with Convex (first time)
 	 */
 	async handleLoginSync(): Promise<void> {
 		try {
 			const mergedSessions = await sessionsSyncService.syncOnLogin(this.sessions);
 			this.sessions = mergedSessions;
 
-			// Ensure we have an active session
+			// Ensure we have a valid active session (not deleted, not archived)
+			const currentActive = this.sessions.find((s) => s.id === this.activeSessionId);
 			if (
 				this.activeSessionId === null ||
-				!this.sessions.find((s) => s.id === this.activeSessionId)
+				!currentActive ||
+				currentActive.deleted ||
+				currentActive.archived
 			) {
-				const firstActive = this.sessions.find((s) => !s.archived);
+				// Switch to first non-archived, non-deleted session
+				const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
 				if (firstActive) {
 					this.activeSessionId = firstActive.id;
-				} else if (this.sessions.length > 0) {
-					this.activeSessionId = this.sessions[0].id;
+				} else {
+					// Fallback to first non-deleted session (even if archived)
+					const firstVisible = this.sessions.find((s) => !s.deleted);
+					if (firstVisible) {
+						this.activeSessionId = firstVisible.id;
+					}
 				}
 			}
 
@@ -246,6 +277,48 @@ class SessionState {
 			console.log('[SessionState] Login sync complete, now have', this.sessions.length, 'sessions');
 		} catch (error) {
 			console.error('[SessionState] Login sync failed:', error);
+		}
+	}
+
+	/**
+	 * Handle page load sync - pull from Convex (Convex is source of truth)
+	 */
+	async handlePageLoadSync(): Promise<void> {
+		try {
+			const convexSessions = await sessionsSyncService.pullFromConvex();
+			if (convexSessions.length > 0) {
+				this.sessions = convexSessions;
+
+				// Ensure we have a valid active session (not deleted, not archived)
+				const currentActive = this.sessions.find((s) => s.id === this.activeSessionId);
+				if (
+					this.activeSessionId === null ||
+					!currentActive ||
+					currentActive.deleted ||
+					currentActive.archived
+				) {
+					// Switch to first non-archived, non-deleted session
+					const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
+					if (firstActive) {
+						this.activeSessionId = firstActive.id;
+					} else {
+						// Fallback to first non-deleted session (even if archived)
+						const firstVisible = this.sessions.find((s) => !s.deleted);
+						if (firstVisible) {
+							this.activeSessionId = firstVisible.id;
+						}
+					}
+				}
+
+				this.save();
+				console.log(
+					'[SessionState] Page load sync complete, now have',
+					this.sessions.length,
+					'sessions'
+				);
+			}
+		} catch (error) {
+			console.error('[SessionState] Page load sync failed:', error);
 		}
 	}
 }
