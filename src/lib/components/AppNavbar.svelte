@@ -1,8 +1,11 @@
 <script lang="ts">
 	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl } from 'flowbite-svelte';
 	import { resolve } from '$app/paths';
+	import { page } from '$app/stores';
+	import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk';
 	import {
 		CircleQuestionMark,
+		LogIn,
 		MessageCircle,
 		Settings as SettingsIcon,
 		Share2
@@ -89,6 +92,25 @@
 			</Button>
 			<Tooltip placement="bottom">Export to URL</Tooltip>
 		</li>
+		{#if $page.url.searchParams.get('dev') === 'true'}
+			<li class="mx-1 my-2 sm:my-0 xl:mx-3">
+				<SignedOut>
+					<SignInButton mode="modal">
+						<Button class="btn-icon-transparent flex items-center justify-start">
+							<LogIn class="size-8 text-primary-600 md:size-9" />
+							<span
+								class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
+								>Sign In</span
+							>
+						</Button>
+					</SignInButton>
+					<Tooltip placement="bottom">Sign In</Tooltip>
+				</SignedOut>
+				<SignedIn>
+					<UserButton />
+				</SignedIn>
+			</li>
+		{/if}
 		<li class="mx-1">
 			<PwaInstall />
 		</li>
