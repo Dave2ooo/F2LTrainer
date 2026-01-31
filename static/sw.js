@@ -25,6 +25,9 @@ self.addEventListener('fetch', event => {
 	// Ignore non-http requests
 	if (!url.protocol.startsWith('http')) return;
 
+	// Ignore external domains (Clerk, Convex, etc.) - let them go directly to network
+	if (url.origin !== self.location.origin) return;
+
 	// Navigation requests: Network first, fall back to cached App Shell (./)
 	if (request.mode === 'navigate') {
 		event.respondWith(
