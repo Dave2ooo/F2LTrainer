@@ -11,7 +11,7 @@
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 
-	import { PUBLIC_CONVEX_URL } from '$env/static/public';
+	import { PUBLIC_CONVEX_URL, PUBLIC_CLERK_PUBLISHABLE_KEY } from '$env/static/public';
 	import { setupConvex } from 'convex-svelte';
 	import { ClerkProvider } from 'svelte-clerk';
 	import ConvexClerkSync from './ConvexClerkSync.svelte';
@@ -41,6 +41,7 @@
 </script>
 
 <ClerkProvider
+	publishableKey={PUBLIC_CLERK_PUBLISHABLE_KEY}
 	appearance={{
 		cssLayerName: 'clerk'
 	}}
