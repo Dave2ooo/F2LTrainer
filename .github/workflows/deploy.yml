@@ -51,6 +51,9 @@ jobs:
         run: pnpm run format:check
 
       - name: Build
+        env:
+          PUBLIC_CONVEX_URL: ${{ secrets.PUBLIC_CONVEX_URL }}
+          PUBLIC_CLERK_PUBLISHABLE_KEY: ${{ secrets.PUBLIC_CLERK_PUBLISHABLE_KEY }}
         run: pnpm run build
 
       - name: Upload artifact
