@@ -8,3 +8,9 @@ bun.lockb
 # Miscellaneous
 /static/
 src/lib/bluetooth/
+
+# Convex generated files
+src/convex/_generated/
+src/convex/schema.d.ts
+src/convex/sessions.d.ts
+src/convex/solves.d.ts
