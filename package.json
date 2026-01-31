@@ -97,12 +97,16 @@
 		"svelte5"
 	],
 	"dependencies": {
+		"@clerk/themes": "^2.4.51",
 		"@flowbite-svelte-plugins/chart": "^0.2.4",
 		"@lucide/svelte": "^0.552.0",
 		"apexcharts": "^5.3.6",
+		"convex": "^1.31.6",
+		"convex-svelte": "^0.0.12",
 		"cubing": "^0.58.2",
 		"flowbite-svelte-blocks": "^2.1.0",
 		"lz-string": "^1.5.0",
+		"svelte-clerk": "^0.20.3",
 		"svelte-confetti": "^2.3.2",
 		"svelte-splitpanes": "^8.0.9"
 	}

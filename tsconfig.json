@@ -28,5 +28,12 @@
 		"strict": true,
 		"allowArbitraryExtensions": true
 	},
-	"include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte", "vite.config.ts"]
+	"include": [
+		".svelte-kit/ambient.d.ts",
+		".svelte-kit/types/**/*.ts",
+		"src/**/*.d.ts",
+		"src/**/*.ts",
+		"src/**/*.svelte",
+		"vite.config.ts"
+	]
 }

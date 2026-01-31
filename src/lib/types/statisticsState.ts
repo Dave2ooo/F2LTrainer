@@ -18,6 +18,9 @@ export type Solve = {
 	recognitionTime?: number; // Time from case display to first non-U move (centiseconds)
 	executionTime?: number; // Time from first non-U move to F2L solved (centiseconds)
 	trainMode: TrainMode;
+	// Soft delete fields
+	deleted?: boolean;
+	deletedAt?: number;
 };
 
 export type CompressedGroupId = 'b' | 'bb' | 'a' | 'e';

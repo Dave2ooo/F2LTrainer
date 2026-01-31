@@ -1,6 +1,7 @@
 <!-- Icons: ArrowLeft , ArrowRight , X, Check, SquarePen, MessageCircleMore, Info, SendHorizontal  -->
 <script lang="ts">
 	import { globalState } from '$lib/globalState.svelte';
+	import { page } from '$app/stores';
 	import SelectView from '$lib/components/SelectView/SelectView.svelte';
 	import ChangeViewButton from '$lib/components/ChangeViewButton.svelte';
 	import TrainView from '$lib/components/TrainView/TrainView.svelte';

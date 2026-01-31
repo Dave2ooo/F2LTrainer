@@ -67,6 +67,7 @@ const REVERSE_MODE_MAP: Record<
 };
 
 import { sessionState } from '$lib/sessionState.svelte';
+import { solvesSyncService } from '$lib/services/solvesSyncService';
 
 function compressSolve(solve: Solve): CompressedSolve {
 	return {
@@ -109,6 +110,7 @@ const persistedData = loadFromLocalStorage<any[]>(STATISTICS_STATE_STORAGE_KEY);
 let initialState: StatisticsState = [];
 
 if (persistedData && Array.isArray(persistedData)) {
+	console.log('Loading from localStorage');
 	initialState = persistedData
 		.filter((item) => {
 			const isValid = item !== null && typeof item === 'object';
@@ -129,8 +131,6 @@ if (persistedData && Array.isArray(persistedData)) {
 	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
 
-// Internal state holding ALL solves
-// Internal state holding ALL solves
 class StatisticsStateManager {
 	allSolves: StatisticsState = $state([]);
 
@@ -156,6 +156,9 @@ class StatisticsStateManager {
 		}
 		this.allSolves.push(solve);
 
+		// Sync to Convex if authenticated
+		solvesSyncService.addSolve(solve);
+
 		// Update the session's lastPlayedAt timestamp
 		if (solve.sessionId) {
 			sessionState.updateSession(solve.sessionId, { lastPlayedAt: Date.now() });
@@ -166,6 +169,8 @@ class StatisticsStateManager {
 		const solve = this.allSolves.find((s) => s.id === id);
 		if (solve) {
 			solve.time = time;
+			// Sync to Convex if authenticated
+			solvesSyncService.updateSolve(id, time);
 		}
 	}
 
@@ -173,6 +178,8 @@ class StatisticsStateManager {
 		const index = this.allSolves.findIndex((s) => s.id === id);
 		if (index !== -1) {
 			this.allSolves.splice(index, 1);
+			// Sync to Convex if authenticated
+			solvesSyncService.deleteSolve(id);
 		}
 	}
 
@@ -190,6 +197,9 @@ class StatisticsStateManager {
 			// Clear and repopulate to trigger reactivity correctly
 			this.allSolves.length = 0;
 			this.allSolves.push(...keptSolves);
+
+			// Sync to Convex if authenticated
+			solvesSyncService.deleteSolvesBySession(sessionId);
 		}
 	}
 
@@ -206,6 +216,44 @@ class StatisticsStateManager {
 			}
 		}
 		return movedCount;
+	}
+
+	/**
+	 * Handle login sync - merge localStorage solves with Convex (first time)
+	 */
+	async handleLoginSync(): Promise<void> {
+		try {
+			const mergedSolves = await solvesSyncService.syncOnLogin(this.allSolves);
+			this.allSolves.length = 0;
+			this.allSolves.push(...mergedSolves);
+			console.log(
+				'[StatisticsState] Login sync complete, now have',
+				this.allSolves.length,
+				'solves'
+			);
+		} catch (error) {
+			console.error('[StatisticsState] Login sync failed:', error);
+		}
+	}
+
+	/**
+	 * Handle page load sync - pull from Convex (Convex is source of truth)
+	 */
+	async handlePageLoadSync(): Promise<void> {
+		try {
+			const convexSolves = await solvesSyncService.pullFromConvex();
+			if (convexSolves.length > 0) {
+				this.allSolves.length = 0;
+				this.allSolves.push(...convexSolves);
+				console.log(
+					'[StatisticsState] Page load sync complete, now have',
+					this.allSolves.length,
+					'solves'
+				);
+			}
+		} catch (error) {
+			console.error('[StatisticsState] Page load sync failed:', error);
+		}
 	}
 }
 
