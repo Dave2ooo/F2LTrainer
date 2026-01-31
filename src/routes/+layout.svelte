@@ -11,13 +11,13 @@
 	import { saveToLocalStorage } from '$lib/utils/localStorage';
 	import ToastContainer from '$lib/components/ToastContainer.svelte';
 
-	import { env } from '$env/dynamic/public';
+	import { PUBLIC_CONVEX_URL } from '$env/static/public';
 	import { setupConvex } from 'convex-svelte';
 	import { ClerkProvider } from 'svelte-clerk';
 	import ConvexClerkSync from './ConvexClerkSync.svelte';
 
 	let { children } = $props();
-	setupConvex(env.PUBLIC_CONVEX_URL ?? '');
+	setupConvex(PUBLIC_CONVEX_URL);
 
 	if (browser) {
 		$effect(() => {
