@@ -111,6 +111,7 @@
 			</Button>
 			<Tooltip placement="bottom">Export to URL</Tooltip>
 		</li>
+		<PwaInstall />
 		{#if $page.url.searchParams.get('dev') === 'true'}
 			<SignedOut>
 				<li class="mx-1 my-2 sm:my-0 xl:mx-3">
@@ -140,8 +141,5 @@
 				</li>
 			</SignedIn>
 		{/if}
-		<li class="mx-1">
-			<PwaInstall />
-		</li>
 	</NavUl>
 </Navbar>

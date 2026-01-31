@@ -38,18 +38,19 @@
 </script>
 
 {#if pwaPrompt.installAvailable}
-	<div class="flex gap-2">
-		<Button
-			onclick={installPwa}
-			class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
-		>
-			<Download class="size-8 text-primary-600 md:size-9" />
-			<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
-				>Install</span
+	<li class="mx-1">
+		<div class="flex gap-2">
+			<Button
+				onclick={installPwa}
+				class="flex items-center justify-start bg-transparent p-1 hover:bg-transparent dark:bg-transparent dark:hover:bg-transparent"
 			>
-		</Button>
+				<Download class="size-8 text-primary-600 md:size-9" />
+				<span class="ml-2 text-lg font-medium text-gray-900 sm:hidden xl:inline dark:text-white"
+					>Install</span
+				>
+			</Button>
 
-		<!-- {#if pwaPrompt.deferredPrompt && !pwaPrompt.installAvailable}
+			<!-- {#if pwaPrompt.deferredPrompt && !pwaPrompt.installAvailable}
 		<Button color="gray" outline={true} onclick={tryActivateSw}>Retry activation</Button>
 	{/if}
 
@@ -59,9 +60,9 @@
 		>
 	{/if} -->
 
-		<Tooltip placement="bottom">Install App</Tooltip>
+			<Tooltip placement="bottom">Install App</Tooltip>
 
-		<!-- <Tooltip placement="bottom">
+			<!-- <Tooltip placement="bottom">
 		{#if pwaPrompt.installAvailable}
 			Install App
 		{:else if pwaPrompt.deferredPrompt}
@@ -70,5 +71,6 @@
 			{'Install App (not available yet — open PWA instructions)'}
 		{/if}
 	</Tooltip> -->
-	</div>
+		</div>
+	</li>
 {/if}
