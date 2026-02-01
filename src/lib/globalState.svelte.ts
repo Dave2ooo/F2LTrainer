@@ -27,6 +27,7 @@ interface EphemeralState {
 	rightPaneOpen: boolean;
 	cameraLatitude: number;
 	cameraLongitude: number;
+	isSyncing: boolean;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -41,7 +42,8 @@ const defaultEphemeralState: EphemeralState = {
 	hasClickedCaseCard: false,
 	rightPaneOpen: true,
 	cameraLatitude: DEFAULT_CAMERA_LATITUDE,
-	cameraLongitude: DEFAULT_CAMERA_LONGITUDE
+	cameraLongitude: DEFAULT_CAMERA_LONGITUDE,
+	isSyncing: false
 };
 
 const persistedEphemeralState =
@@ -142,5 +144,12 @@ export const globalState: GlobalState = {
 	},
 	set cameraLongitude(v) {
 		ephemeralState.cameraLongitude = v;
+	},
+
+	get isSyncing() {
+		return ephemeralState.isSyncing;
+	},
+	set isSyncing(v) {
+		ephemeralState.isSyncing = v;
 	}
 };

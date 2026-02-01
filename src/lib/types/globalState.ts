@@ -18,4 +18,5 @@ export interface GlobalState {
 	rightPaneOpen: boolean;
 	cameraLatitude: number;
 	cameraLongitude: number;
+	isSyncing: boolean;
 }

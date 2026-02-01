@@ -7,6 +7,7 @@
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { handleCaseStatesLoginSync, handleCaseStatesPageLoadSync } from '$lib/casesState.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 
 	const client = useConvexClient();
 	const ctx = useClerkContext();
@@ -43,20 +44,30 @@
 				hasSeenFirstAuth = true;
 				// Give Convex a moment to establish auth before syncing
 				setTimeout(async () => {
-					// First login: upload local data, then merge with Convex
-					await sessionState.handleLoginSync();
-					await statisticsState.handleLoginSync();
-					await handleCaseStatesLoginSync();
+					try {
+						globalState.isSyncing = true;
+						// First login: upload local data, then merge with Convex
+						await sessionState.handleLoginSync();
+						await statisticsState.handleLoginSync();
+						await handleCaseStatesLoginSync();
+					} finally {
+						globalState.isSyncing = false;
+					}
 				}, 500);
 			} else if (!wasAuthenticated) {
 				// Auth restored after page load (hasSeenFirstAuth is true from previous session)
 				console.log('[ConvexClerkSync] Page loaded with active session, pulling from Convex...');
 				// Give Convex a moment to establish auth before syncing
 				setTimeout(async () => {
-					// Page load: Convex is source of truth, just pull
-					await sessionState.handlePageLoadSync();
-					await statisticsState.handlePageLoadSync();
-					await handleCaseStatesPageLoadSync();
+					try {
+						globalState.isSyncing = true;
+						// Page load: Convex is source of truth, just pull
+						await sessionState.handlePageLoadSync();
+						await statisticsState.handlePageLoadSync();
+						await handleCaseStatesPageLoadSync();
+					} finally {
+						globalState.isSyncing = false;
+					}
 				}, 500);
 			}
 		}
