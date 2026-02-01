@@ -126,18 +126,18 @@ if (persistedCasesState && typeof persistedCasesState === 'object') {
  */
 export function updateCaseState(groupId: GroupId, caseId: CaseId, updates: Partial<CaseState>) {
 	const currentState = casesState[groupId][caseId];
-	const updatedState = { 
-		...currentState, 
-		...updates, 
-		lastModified: Date.now() 
+	const updatedState = {
+		...currentState,
+		...updates,
+		lastModified: Date.now()
 	};
-	
+
 	// Update local state
 	casesState[groupId][caseId] = updatedState;
-	
+
 	// Save to localStorage (this will be handled by the effect in +layout.svelte)
 	saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
-	
+
 	// Sync to Convex if authenticated
 	caseStatesSyncService.updateCaseState(groupId, caseId, updatedState);
 }
@@ -148,14 +148,14 @@ export function updateCaseState(groupId: GroupId, caseId: CaseId, updates: Parti
 export async function handleCaseStatesLoginSync(): Promise<void> {
 	try {
 		const mergedStates = await caseStatesSyncService.syncOnLogin(casesState);
-		
+
 		// Update the actual casesState object
 		for (const [groupId, groupCases] of Object.entries(mergedStates)) {
 			for (const [caseId, caseState] of Object.entries(groupCases)) {
 				casesState[groupId as GroupId][Number(caseId) as CaseId] = caseState;
 			}
 		}
-		
+
 		console.log('[CasesState] Login sync complete');
 	} catch (error) {
 		console.error('[CasesState] Login sync failed:', error);
@@ -168,7 +168,7 @@ export async function handleCaseStatesLoginSync(): Promise<void> {
 export async function handleCaseStatesPageLoadSync(): Promise<void> {
 	try {
 		const convexStates = await caseStatesSyncService.pullFromConvex();
-		
+
 		if (Object.keys(convexStates).length > 0) {
 			// Update the actual casesState object
 			for (const [groupId, groupCases] of Object.entries(convexStates)) {
@@ -176,7 +176,7 @@ export async function handleCaseStatesPageLoadSync(): Promise<void> {
 					casesState[groupId as GroupId][Number(caseId) as CaseId] = caseState;
 				}
 			}
-			
+
 			console.log('[CasesState] Page load sync complete');
 		}
 	} catch (error) {

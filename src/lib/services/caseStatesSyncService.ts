@@ -152,9 +152,7 @@ class CaseStatesSyncService {
 			// Convert back to nested format
 			const mergedStates = this.unflattenCaseStates(convexStates);
 
-			console.log(
-				`[CaseStatesSyncService] Synced ${convexStates.length} case states from Convex`
-			);
+			console.log(`[CaseStatesSyncService] Synced ${convexStates.length} case states from Convex`);
 			return mergedStates as Record<GroupId, Record<CaseId, CaseState>>;
 		} catch (error) {
 			console.error('[CaseStatesSyncService] Sync on login failed:', error);
