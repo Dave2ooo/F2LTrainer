@@ -39,5 +39,28 @@ export default defineSchema({
 
 		// To filter sessions by user
 		tokenIdentifier: v.string()
-	}).index('by_tokenIdentifier', ['tokenIdentifier'])
+	}).index('by_tokenIdentifier', ['tokenIdentifier']),
+
+	caseStates: defineTable({
+		groupId: v.string(),
+		caseId: v.number(),
+		trainState: v.string(), // 'unlearned' | 'learning' | 'finished'
+		
+		// Algorithm selection (null = use custom algorithm)
+		algorithmSelectionLeft: v.optional(v.number()),
+		algorithmSelectionRight: v.optional(v.number()),
+		
+		// Custom algorithms
+		customAlgorithmLeft: v.string(),
+		customAlgorithmRight: v.string(),
+		
+		identicalAlgorithm: v.boolean(),
+		lastModified: v.number(),
+		
+		// To filter case states by user
+		tokenIdentifier: v.string()
+	})
+	.index('by_user', ['tokenIdentifier'])
+	.index('by_user_group', ['tokenIdentifier', 'groupId'])
+	.index('by_user_case', ['tokenIdentifier', 'groupId', 'caseId'])
 });

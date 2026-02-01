@@ -8,6 +8,7 @@
  * @module
  */
 
+import type * as caseStates from "../caseStates.js";
 import type * as sessions from "../sessions.js";
 import type * as solves from "../solves.js";
 
@@ -18,6 +19,7 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  caseStates: typeof caseStates;
   sessions: typeof sessions;
   solves: typeof solves;
 }>;

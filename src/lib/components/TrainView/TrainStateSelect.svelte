@@ -3,7 +3,8 @@
 		casesState,
 		TrainStateColors,
 		TrainStateTextColors,
-		TrainStateLabels
+		TrainStateLabels,
+		updateCaseState
 	} from '$lib/casesState.svelte';
 	import { trainState } from '$lib/trainCaseQueue.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
@@ -74,7 +75,9 @@
 			{#each TRAIN_STATES as trainState}
 				<DropdownItem
 					onclick={() => {
-						casesState[currentTrainCase.groupId][currentTrainCase.caseId].trainState = trainState;
+						updateCaseState(currentTrainCase.groupId, currentTrainCase.caseId, {
+							trainState
+						});
 						dropdownOpen = false;
 					}}
 					class="w-full text-center {trainState === 'unlearned'

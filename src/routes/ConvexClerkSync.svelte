@@ -3,8 +3,10 @@
 	import { useClerkContext } from 'svelte-clerk';
 	import { solvesSyncService } from '$lib/services/solvesSyncService';
 	import { sessionsSyncService } from '$lib/services/sessionsSyncService';
+	import { caseStatesSyncService } from '$lib/services/caseStatesSyncService';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
+	import { handleCaseStatesLoginSync, handleCaseStatesPageLoadSync } from '$lib/casesState.svelte';
 
 	const client = useConvexClient();
 	const ctx = useClerkContext();
@@ -30,6 +32,8 @@
 		solvesSyncService.setAuthenticated(isAuthenticated);
 		sessionsSyncService.setClient(client);
 		sessionsSyncService.setAuthenticated(isAuthenticated);
+		caseStatesSyncService.setClient(client);
+		caseStatesSyncService.setAuthenticated(isAuthenticated);
 
 		// Trigger sync when authenticated
 		if (isAuthenticated) {
@@ -42,6 +46,7 @@
 					// First login: upload local data, then merge with Convex
 					await sessionState.handleLoginSync();
 					await statisticsState.handleLoginSync();
+					await handleCaseStatesLoginSync();
 				}, 500);
 			} else if (!wasAuthenticated) {
 				// Auth restored after page load (hasSeenFirstAuth is true from previous session)
@@ -51,6 +56,7 @@
 					// Page load: Convex is source of truth, just pull
 					await sessionState.handlePageLoadSync();
 					await statisticsState.handlePageLoadSync();
+					await handleCaseStatesPageLoadSync();
 				}, 500);
 			}
 		}

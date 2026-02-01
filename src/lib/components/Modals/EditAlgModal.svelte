@@ -4,7 +4,7 @@
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import ToggleSwitch from '../ToggleSwitch.svelte';
-	import { casesState } from '$lib/casesState.svelte';
+	import { casesState, updateCaseState } from '$lib/casesState.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
@@ -130,7 +130,7 @@
 		caseState.identicalAlgorithm = workingState.identicalAlgorithm;
 
 		// Trigger reactivity by reassigning the entire casesState object
-		casesState[groupId][caseId] = { ...caseState };
+		updateCaseState(groupId, caseId, caseState);
 
 		// console.log('Updated caseState:', $state.snapshot(caseState));
 		open = false;
