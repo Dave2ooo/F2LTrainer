@@ -45,22 +45,22 @@ export default defineSchema({
 		groupId: v.string(),
 		caseId: v.number(),
 		trainState: v.string(), // 'unlearned' | 'learning' | 'finished'
-		
+
 		// Algorithm selection (null = use custom algorithm)
-		algorithmSelectionLeft: v.optional(v.number()),
-		algorithmSelectionRight: v.optional(v.number()),
-		
+		algorithmSelectionLeft: v.union(v.number(), v.null()),
+		algorithmSelectionRight: v.union(v.number(), v.null()),
+
 		// Custom algorithms
 		customAlgorithmLeft: v.string(),
 		customAlgorithmRight: v.string(),
-		
+
 		identicalAlgorithm: v.boolean(),
 		lastModified: v.number(),
-		
+
 		// To filter case states by user
 		tokenIdentifier: v.string()
 	})
-	.index('by_user', ['tokenIdentifier'])
-	.index('by_user_group', ['tokenIdentifier', 'groupId'])
-	.index('by_user_case', ['tokenIdentifier', 'groupId', 'caseId'])
+		.index('by_user', ['tokenIdentifier'])
+		.index('by_user_group', ['tokenIdentifier', 'groupId'])
+		.index('by_user_case', ['tokenIdentifier', 'groupId', 'caseId'])
 });

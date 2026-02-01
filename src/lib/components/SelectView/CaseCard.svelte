@@ -6,7 +6,8 @@
 		getCaseBorderClass,
 		getCaseName,
 		getCaseTextClass,
-		TrainStateColors
+		TrainStateColors,
+		updateCaseState
 	} from '$lib/casesState.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
 	import { globalState } from '$lib/globalState.svelte';
@@ -38,7 +39,7 @@
 	let side = $state<Side>('right');
 
 	const staticData = casesStatic[groupId][caseId];
-	const caseState = casesState[groupId][caseId];
+	const caseState = $derived(casesState[groupId][caseId]);
 
 	const safeCrossColor = $derived(
 		Array.isArray(sessionState.activeSession?.settings.crossColor)
@@ -62,7 +63,9 @@
 		const currentIndex = TRAIN_STATES.indexOf(caseState.trainState);
 		// Move to next state, wrap to 0 if at end
 		const nextIndex = (currentIndex + 1) % TRAIN_STATES.length;
-		caseState.trainState = TRAIN_STATES[nextIndex];
+		updateCaseState(groupId, caseId, {
+			trainState: TRAIN_STATES[nextIndex]
+		});
 	}
 
 	function handleJumpToStart() {

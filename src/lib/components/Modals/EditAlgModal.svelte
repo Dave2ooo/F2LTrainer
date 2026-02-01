@@ -122,15 +122,18 @@
 	});
 
 	function onConfirm() {
-		// Copy workingState back to casesState
-		caseState.algorithmSelection.right = workingState.algorithmSelection.right;
-		caseState.algorithmSelection.left = workingState.algorithmSelection.left;
-		caseState.customAlgorithm.right = workingState.customAlgorithm.right;
-		caseState.customAlgorithm.left = workingState.customAlgorithm.left;
-		caseState.identicalAlgorithm = workingState.identicalAlgorithm;
-
-		// Trigger reactivity by reassigning the entire casesState object
-		updateCaseState(groupId, caseId, caseState);
+		// Update case state using the updateCaseState function
+		updateCaseState(groupId, caseId, {
+			algorithmSelection: {
+				right: workingState.algorithmSelection.right,
+				left: workingState.algorithmSelection.left
+			},
+			customAlgorithm: {
+				right: workingState.customAlgorithm.right,
+				left: workingState.customAlgorithm.left
+			},
+			identicalAlgorithm: workingState.identicalAlgorithm
+		});
 
 		// console.log('Updated caseState:', $state.snapshot(caseState));
 		open = false;

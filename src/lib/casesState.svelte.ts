@@ -135,9 +135,6 @@ export function updateCaseState(groupId: GroupId, caseId: CaseId, updates: Parti
 	// Update local state
 	casesState[groupId][caseId] = updatedState;
 
-	// Save to localStorage (this will be handled by the effect in +layout.svelte)
-	saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
-
 	// Sync to Convex if authenticated
 	caseStatesSyncService.updateCaseState(groupId, caseId, updatedState);
 }
