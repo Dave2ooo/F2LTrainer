@@ -115,7 +115,12 @@
 		{#if $page.url.searchParams.get('dev') === 'true'}
 			<SignedOut>
 				<li class="mx-1 my-2 sm:my-0 xl:mx-3">
-					<SignInButton mode="modal">
+					<SignInButton
+						mode="modal"
+						appearance={{
+							baseTheme: currentTheme === 'dark' ? dark : undefined
+						}}
+					>
 						<Button class="btn-icon-transparent flex items-center justify-start">
 							<LogIn class="size-8 text-primary-600 md:size-9" />
 							<span
