@@ -1,3 +1,9 @@
 {
-	"functions": "src/convex/"
+	"functions": "src/convex/",
+	"crons": [
+		{
+			"path": "cronDeleteSoftDeleted",
+			"schedule": "0 0 * * *"
+		}
+	]
 }
