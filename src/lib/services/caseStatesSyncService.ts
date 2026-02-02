@@ -2,18 +2,7 @@ import type { ConvexClient } from 'convex/browser';
 import type { CaseState } from '$lib/types/caseState';
 import type { GroupId, CaseId } from '$lib/types/group';
 import { api } from '../../convex/_generated/api';
-
-interface FlatCaseState {
-	groupId: string;
-	caseId: number;
-	trainState: string;
-	algorithmSelectionLeft: number | null;
-	algorithmSelectionRight: number | null;
-	customAlgorithmLeft: string;
-	customAlgorithmRight: string;
-	identicalAlgorithm: boolean;
-	lastModified: number;
-}
+import type { CaseStateData } from '../../convex/caseStates';
 
 /**
  * Service for syncing case states with Convex.
@@ -22,6 +11,10 @@ interface FlatCaseState {
 class CaseStatesSyncService {
 	private client: ConvexClient | null = null;
 	private _isAuthenticated = false;
+	private pendingUpdates: Map<string, { groupId: GroupId; caseId: CaseId; caseState: CaseState }> =
+		new Map();
+	private batchTimeout: ReturnType<typeof setTimeout> | null = null;
+	private readonly BATCH_DELAY_MS = 1000; // Batch updates for 1 second
 
 	/**
 	 * Called when auth state changes (from ConvexClerkSync)
@@ -32,10 +25,22 @@ class CaseStatesSyncService {
 
 	setAuthenticated(authenticated: boolean) {
 		this._isAuthenticated = authenticated;
+		// Clear pending updates if logged out
+		if (!authenticated) {
+			this.clearBatch();
+		}
 	}
 
 	get isAuthenticated() {
 		return this._isAuthenticated;
+	}
+
+	private clearBatch() {
+		if (this.batchTimeout) {
+			clearTimeout(this.batchTimeout);
+			this.batchTimeout = null;
+		}
+		this.pendingUpdates.clear();
 	}
 
 	/**
@@ -43,8 +48,8 @@ class CaseStatesSyncService {
 	 */
 	private flattenCaseStates(
 		nestedStates: Record<GroupId, Record<CaseId, CaseState>>
-	): FlatCaseState[] {
-		const flattened: FlatCaseState[] = [];
+	): CaseStateData[] {
+		const flattened: CaseStateData[] = [];
 
 		for (const [groupId, groupCases] of Object.entries(nestedStates)) {
 			for (const [caseIdStr, caseState] of Object.entries(groupCases)) {
@@ -69,7 +74,7 @@ class CaseStatesSyncService {
 	 * Convert flat case states from Convex to nested format
 	 */
 	private unflattenCaseStates(
-		flatStates: FlatCaseState[]
+		flatStates: CaseStateData[]
 	): Record<GroupId, Record<CaseId, CaseState>> {
 		const nested: Record<string, Record<number, CaseState>> = {};
 
@@ -79,7 +84,7 @@ class CaseStatesSyncService {
 			}
 
 			nested[flat.groupId][flat.caseId] = {
-				trainState: flat.trainState as CaseState['trainState'],
+				trainState: flat.trainState,
 				algorithmSelection: {
 					left: flat.algorithmSelectionLeft,
 					right: flat.algorithmSelectionRight
@@ -97,13 +102,35 @@ class CaseStatesSyncService {
 	}
 
 	/**
-	 * Update a single case state in Convex (if authenticated)
+	 * Update a single case state in Convex (if authenticated) - batched for efficiency
 	 */
 	async updateCaseState(groupId: GroupId, caseId: CaseId, caseState: CaseState): Promise<void> {
 		if (!this._isAuthenticated || !this.client) return;
 
+		// Add to batch
+		const key = `${groupId}:${caseId}`;
+		this.pendingUpdates.set(key, { groupId, caseId, caseState });
+
+		// Reset batch timeout
+		if (this.batchTimeout) {
+			clearTimeout(this.batchTimeout);
+		}
+
+		// Schedule batch processing
+		this.batchTimeout = setTimeout(() => this.processBatch(), this.BATCH_DELAY_MS);
+	}
+
+	/**
+	 * Process all pending case state updates as a batch
+	 */
+	private async processBatch(): Promise<void> {
+		if (!this._isAuthenticated || !this.client || this.pendingUpdates.size === 0) {
+			return;
+		}
+
 		try {
-			const flatState: FlatCaseState = {
+			const updates = Array.from(this.pendingUpdates.values());
+			const flatStates = updates.map(({ groupId, caseId, caseState }) => ({
 				groupId,
 				caseId,
 				trainState: caseState.trainState,
@@ -113,12 +140,35 @@ class CaseStatesSyncService {
 				customAlgorithmRight: caseState.customAlgorithm.right,
 				identicalAlgorithm: caseState.identicalAlgorithm,
 				lastModified: caseState.lastModified
-			};
+			}));
 
-			await this.client.mutation(api.caseStates.upsertCaseState, { caseState: flatState });
+			const result = await this.client.mutation(api.caseStates.bulkUpsertCaseStates, {
+				caseStates: flatStates
+			});
+
+			if (result.errors && result.errors.length > 0) {
+				console.warn('[CaseStatesSyncService] Batch update had errors:', result.errors);
+			}
+
+			console.log(
+				`[CaseStatesSyncService] Batch update complete: ${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped`
+			);
 		} catch (error) {
-			console.error('[CaseStatesSyncService] Failed to update case state in Convex:', error);
+			console.error('[CaseStatesSyncService] Failed to process batch update:', error);
+		} finally {
+			this.clearBatch();
 		}
+	}
+
+	/**
+	 * Force immediate processing of any pending updates
+	 */
+	async flushPendingUpdates(): Promise<void> {
+		if (this.batchTimeout) {
+			clearTimeout(this.batchTimeout);
+			this.batchTimeout = null;
+		}
+		await this.processBatch();
 	}
 
 	/**
@@ -141,6 +191,11 @@ class CaseStatesSyncService {
 				const result = await this.client.mutation(api.caseStates.bulkUpsertCaseStates, {
 					caseStates: flatLocalStates
 				});
+
+				if (result.errors && result.errors.length > 0) {
+					console.warn('[CaseStatesSyncService] Login sync had errors:', result.errors);
+				}
+
 				console.log(
 					`[CaseStatesSyncService] Bulk upsert complete: ${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped`
 				);

@@ -6,7 +6,7 @@ import type { Doc } from './_generated/dataModel';
 export interface CaseStateData {
 	groupId: string;
 	caseId: number;
-	trainState: string;
+	trainState: 'unlearned' | 'learning' | 'finished';
 	algorithmSelectionLeft: number | null;
 	algorithmSelectionRight: number | null;
 	customAlgorithmLeft: string;
@@ -50,7 +50,7 @@ export const upsertCaseState = mutation({
 		caseState: v.object({
 			groupId: v.string(),
 			caseId: v.number(),
-			trainState: v.string(),
+			trainState: v.union(v.literal('unlearned'), v.literal('learning'), v.literal('finished')),
 			algorithmSelectionLeft: v.union(v.number(), v.null()),
 			algorithmSelectionRight: v.union(v.number(), v.null()),
 			customAlgorithmLeft: v.string(),
@@ -62,6 +62,20 @@ export const upsertCaseState = mutation({
 	handler: async (ctx, { caseState }) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) throw new Error('Not authenticated');
+
+		// Validate algorithm selection indices are reasonable (0-99 should cover all cases)
+		if (
+			caseState.algorithmSelectionLeft !== null &&
+			(caseState.algorithmSelectionLeft < 0 || caseState.algorithmSelectionLeft > 99)
+		) {
+			throw new Error('Invalid algorithm selection index for left');
+		}
+		if (
+			caseState.algorithmSelectionRight !== null &&
+			(caseState.algorithmSelectionRight < 0 || caseState.algorithmSelectionRight > 99)
+		) {
+			throw new Error('Invalid algorithm selection index for right');
+		}
 
 		// Check if case state already exists
 		const existing = await ctx.db
@@ -110,7 +124,7 @@ export const bulkUpsertCaseStates = mutation({
 			v.object({
 				groupId: v.string(),
 				caseId: v.number(),
-				trainState: v.string(),
+				trainState: v.union(v.literal('unlearned'), v.literal('learning'), v.literal('finished')),
 				algorithmSelectionLeft: v.union(v.number(), v.null()),
 				algorithmSelectionRight: v.union(v.number(), v.null()),
 				customAlgorithmLeft: v.string(),
@@ -127,45 +141,70 @@ export const bulkUpsertCaseStates = mutation({
 		let inserted = 0;
 		let updated = 0;
 		let skipped = 0;
+		const errors: string[] = [];
 
 		for (const caseState of caseStates) {
-			// Check if case state already exists
-			const existing = await ctx.db
-				.query('caseStates')
-				.withIndex('by_user_case', (q) =>
-					q
-						.eq('tokenIdentifier', identity.tokenIdentifier)
-						.eq('groupId', caseState.groupId)
-						.eq('caseId', caseState.caseId)
-				)
-				.unique();
-
-			if (existing) {
-				// Update if incoming is newer
-				if (caseState.lastModified > existing.lastModified) {
-					await ctx.db.patch(existing._id, {
-						trainState: caseState.trainState,
-						algorithmSelectionLeft: caseState.algorithmSelectionLeft,
-						algorithmSelectionRight: caseState.algorithmSelectionRight,
-						customAlgorithmLeft: caseState.customAlgorithmLeft,
-						customAlgorithmRight: caseState.customAlgorithmRight,
-						identicalAlgorithm: caseState.identicalAlgorithm,
-						lastModified: caseState.lastModified
-					});
-					updated++;
-				} else {
-					skipped++;
+			try {
+				// Validate algorithm selection indices
+				if (
+					caseState.algorithmSelectionLeft !== null &&
+					(caseState.algorithmSelectionLeft < 0 || caseState.algorithmSelectionLeft > 99)
+				) {
+					errors.push(
+						`Invalid algorithm selection index for left: ${caseState.groupId}/${caseState.caseId}`
+					);
+					continue;
 				}
-			} else {
-				// Insert new
-				await ctx.db.insert('caseStates', {
-					...caseState,
-					tokenIdentifier: identity.tokenIdentifier
-				});
-				inserted++;
+				if (
+					caseState.algorithmSelectionRight !== null &&
+					(caseState.algorithmSelectionRight < 0 || caseState.algorithmSelectionRight > 99)
+				) {
+					errors.push(
+						`Invalid algorithm selection index for right: ${caseState.groupId}/${caseState.caseId}`
+					);
+					continue;
+				}
+
+				// Check if case state already exists
+				const existing = await ctx.db
+					.query('caseStates')
+					.withIndex('by_user_case', (q) =>
+						q
+							.eq('tokenIdentifier', identity.tokenIdentifier)
+							.eq('groupId', caseState.groupId)
+							.eq('caseId', caseState.caseId)
+					)
+					.unique();
+
+				if (existing) {
+					// Update if incoming is newer
+					if (caseState.lastModified > existing.lastModified) {
+						await ctx.db.patch(existing._id, {
+							trainState: caseState.trainState,
+							algorithmSelectionLeft: caseState.algorithmSelectionLeft,
+							algorithmSelectionRight: caseState.algorithmSelectionRight,
+							customAlgorithmLeft: caseState.customAlgorithmLeft,
+							customAlgorithmRight: caseState.customAlgorithmRight,
+							identicalAlgorithm: caseState.identicalAlgorithm,
+							lastModified: caseState.lastModified
+						});
+						updated++;
+					} else {
+						skipped++;
+					}
+				} else {
+					// Insert new
+					await ctx.db.insert('caseStates', {
+						...caseState,
+						tokenIdentifier: identity.tokenIdentifier
+					});
+					inserted++;
+				}
+			} catch (error) {
+				errors.push(`Error processing ${caseState.groupId}/${caseState.caseId}: ${error}`);
 			}
 		}
 
-		return { inserted, updated, skipped };
+		return { inserted, updated, skipped, errors };
 	}
 });

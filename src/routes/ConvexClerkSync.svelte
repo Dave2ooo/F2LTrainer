@@ -75,6 +75,8 @@
 		// Detect logout (was authenticated, now isn't)
 		if (!isAuthenticated && wasAuthenticated) {
 			console.log('[ConvexClerkSync] User logged out');
+			// Flush any pending case state updates before logout
+			caseStatesSyncService.flushPendingUpdates();
 			hasSeenFirstAuth = false; // Reset for next login
 		}
 

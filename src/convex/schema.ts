@@ -44,7 +44,7 @@ export default defineSchema({
 	caseStates: defineTable({
 		groupId: v.string(),
 		caseId: v.number(),
-		trainState: v.string(), // 'unlearned' | 'learning' | 'finished'
+		trainState: v.union(v.literal('unlearned'), v.literal('learning'), v.literal('finished')), // Validate train state values
 
 		// Algorithm selection (null = use custom algorithm)
 		algorithmSelectionLeft: v.union(v.number(), v.null()),
