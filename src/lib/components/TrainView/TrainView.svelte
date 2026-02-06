@@ -5,6 +5,7 @@
 	import { sessionState } from '$lib/sessionState.svelte';
 	import SessionSettingsModal from '$lib/components/Session/SessionSettingsModal.svelte';
 	import SessionManagerModal from '$lib/components/Session/SessionManagerModal.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 
 	import SessionToolbar from './SessionToolbar.svelte';
 	import TrainClassic from './TrainClassic.svelte';
@@ -66,17 +67,9 @@
 		{#if getNumberOfSelectedCases() > 0}
 			{#if activeSettings}
 				{#if activeSettings.trainMode === 'drill'}
-					{#if activeSettings.smartCubeEnabled}
-						<TrainDrill bind:isRunning={isDrillRunning} />
-					{:else}
-						<div class="flex flex-col items-center justify-center gap-4 p-8">
-							<P class="text-center text-lg">Drill mode requires a smart cube connection.</P>
-							<P class="text-center text-gray-500 dark:text-gray-400">
-								Enable "Smart Cube" in session settings to use drill mode.
-							</P>
-						</div>
-					{/if}
-				{:else if activeSettings.smartCubeEnabled}
+					<TrainDrill bind:isRunning={isDrillRunning} />
+				{:else if bluetoothState.isConnected}
+					<!-- Automatically use smart cube training when connected -->
 					<TrainClassicSmart />
 				{:else}
 					<!-- Default or Classic Mode -->

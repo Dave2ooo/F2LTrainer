@@ -4,6 +4,7 @@
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { getNumberOfSelectedCases } from '$lib/trainCaseQueue.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import {
 		Settings2 as SettingsIcon,
 		Plus,
@@ -93,18 +94,13 @@
 										<span
 											class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-1.5 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
 										>
-											{#if session.settings.smartCubeEnabled}
-												<Bluetooth size={10} />
-											{/if}
+											<Bluetooth size={10} />
 											Drill
 										</span>
 									{:else}
 										<span
 											class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-1.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
 										>
-											{#if session.settings.smartCubeEnabled}
-												<Bluetooth size={10} />
-											{/if}
 											Practice
 										</span>
 									{/if}

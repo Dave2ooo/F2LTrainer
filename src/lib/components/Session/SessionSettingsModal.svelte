@@ -95,14 +95,6 @@
 		}
 	});
 
-	// Auto-switch to Classic mode when Classic cube is selected (Drill mode requires Smart Cube)
-	$effect(() => {
-		if (!settings) return;
-		if (!settings.smartCubeEnabled && settings.trainMode === 'drill') {
-			settings.trainMode = 'classic';
-		}
-	});
-
 	// Resolved colors for TwistyPlayer in individual case selector
 	const [crossColor, frontColor] = $derived.by(() => {
 		if (!settings) return ['white', 'red'];
@@ -241,18 +233,10 @@
 										Practice cases at your own pace.
 									</p>
 
-									<div
-										class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700 {settings.trainMode !==
-										'classic'
-											? 'pointer-events-none opacity-50'
-											: ''}"
-									>
-										<Checkbox
-											bind:checked={settings.smartCubeEnabled}
-											onclick={(e) => e.stopPropagation()}
-										>
-											Use Smart Cube
-										</Checkbox>
+									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<p class="text-sm text-gray-600 dark:text-gray-400">
+											💡 Smart cube support activates automatically when connected.
+										</p>
 									</div>
 								</div>
 
@@ -265,7 +249,6 @@
 										: 'selectable-card-inactive'}"
 									onclick={() => {
 										settings.trainMode = 'drill';
-										settings.smartCubeEnabled = true;
 									}}
 								>
 									<div class="mb-2 flex items-center gap-2">

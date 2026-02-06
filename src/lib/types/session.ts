@@ -37,9 +37,6 @@ export interface SessionSettings {
 	crossColor: string[];
 	frontColor: string[];
 
-	// Smart Cube
-	smartCubeEnabled: boolean;
-
 	// Drill Mode
 	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 	drillHideTwistyPlayer: boolean; // Hide TwistyPlayer after first move in drill mode

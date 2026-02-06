@@ -4,6 +4,7 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
 	import {
 		Copy,
@@ -293,7 +294,7 @@
 											<span
 												class="inline-flex items-center gap-1 rounded-md bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
 											>
-												{#if session.settings.smartCubeEnabled}
+												{#if bluetoothState.isConnected}
 													<Bluetooth class="size-3" />
 												{/if}
 												Drill
@@ -302,7 +303,7 @@
 											<span
 												class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
 											>
-												{#if session.settings.smartCubeEnabled}
+												{#if bluetoothState.isConnected}
 													<Bluetooth class="size-3" />
 												{/if}
 												Practice
@@ -427,16 +428,16 @@
 										<span
 											class="inline-flex items-center gap-1 rounded-md bg-purple-100/50 px-2 py-0.5 text-xs font-medium text-purple-600 dark:bg-purple-900/20 dark:text-purple-400"
 										>
-											{#if session.settings.smartCubeEnabled}
+											{#if bluetoothState.isConnected}
 												<Bluetooth class="size-3" />
 											{/if}
 											Drill
 										</span>
 									{:else}
 										<span
-											class="inline-flex items-center gap-1 rounded-md bg-blue-100/50 px-2 py-0.5 text-xs font-medium text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+											class="inline-flex items-center gap-1 rounded-md bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
 										>
-											{#if session.settings.smartCubeEnabled}
+											{#if bluetoothState.isConnected}
 												<Bluetooth class="size-3" />
 											{/if}
 											Practice
