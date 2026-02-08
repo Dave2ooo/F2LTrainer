@@ -12,10 +12,10 @@ export const deleteUserDataByToken = internalMutation({
 export const deleteUserDataByClerkId = internalMutation({
 	args: { clerkUserId: v.string() },
 	handler: async (ctx, { clerkUserId }) => {
-		// Clerk's tokenIdentifier format: https://{domain}#${userId}
+		// Clerk's tokenIdentifier format: https://{domain}|${userId}
 		// We need to construct the tokenIdentifier from the Clerk user ID
 
-		// Get the issuer domain from environment
+		// Get the issuer domain from environment variable
 		const issuerDomain = process.env.CLERK_JWT_ISSUER_DOMAIN;
 
 		if (!issuerDomain) {
@@ -23,7 +23,8 @@ export const deleteUserDataByClerkId = internalMutation({
 			throw new Error('CLERK_JWT_ISSUER_DOMAIN environment variable is required');
 		}
 
-		const tokenIdentifier = `${issuerDomain}#${clerkUserId}`;
+		// Note: Clerk uses pipe (|) not hash (#) in tokenIdentifier
+		const tokenIdentifier = `${issuerDomain}|${clerkUserId}`;
 
 		console.log(
 			`[deleteUserDataByClerkId] Deleting user data for Clerk ID: ${clerkUserId}, tokenIdentifier: ${tokenIdentifier}`
@@ -31,5 +32,9 @@ export const deleteUserDataByClerkId = internalMutation({
 
 		// Delete all user data using the tokenIdentifier
 		await deleteAllUserData(ctx, tokenIdentifier);
+
+		console.log(
+			`[deleteUserDataByClerkId] Successfully deleted all data for tokenIdentifier: ${tokenIdentifier}`
+		);
 	}
 });
