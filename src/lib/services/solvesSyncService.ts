@@ -41,11 +41,11 @@ class SolvesSyncService {
 	/**
 	 * Update a solve's time in Convex (if authenticated)
 	 */
-	async updateSolve(id: string, time: number): Promise<void> {
+	async updateSolve(id: string, time: number, timestamp?: number): Promise<void> {
 		if (!this._isAuthenticated || !this.client) return;
 
 		try {
-			await this.client.mutation(api.solves.updateSolve, { id, time });
+			await this.client.mutation(api.solves.updateSolve, { id, time, timestamp });
 		} catch (error) {
 			console.error('[SolvesSyncService] Failed to update solve in Convex:', error);
 		}
@@ -75,6 +75,25 @@ class SolvesSyncService {
 			console.log(`[SolvesSyncService] Deleted ${count} solves for session ${sessionId}`);
 		} catch (error) {
 			console.error('[SolvesSyncService] Failed to delete session solves from Convex:', error);
+		}
+	}
+
+	/**
+	 * Move all solves from one session to another (if authenticated)
+	 */
+	async moveSolvesToSession(sourceSessionId: string, targetSessionId: string): Promise<void> {
+		if (!this._isAuthenticated || !this.client) return;
+
+		try {
+			const count = await this.client.mutation(api.solves.moveSolvesToSession, {
+				sourceSessionId,
+				targetSessionId
+			});
+			console.log(
+				`[SolvesSyncService] Moved ${count} solves from session ${sourceSessionId} to ${targetSessionId}`
+			);
+		} catch (error) {
+			console.error('[SolvesSyncService] Failed to move session solves in Convex:', error);
 		}
 	}
 

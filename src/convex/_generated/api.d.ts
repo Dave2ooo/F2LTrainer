@@ -8,8 +8,13 @@
  * @module
  */
 
+import type * as caseStates from "../caseStates.js";
+import type * as cronDeleteSoftDeleted from "../cronDeleteSoftDeleted.js";
+import type * as deleteUserData from "../deleteUserData.js";
+import type * as http from "../http.js";
 import type * as sessions from "../sessions.js";
 import type * as solves from "../solves.js";
+import type * as users from "../users.js";
 
 import type {
   ApiFromModules,
@@ -18,8 +23,13 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  caseStates: typeof caseStates;
+  cronDeleteSoftDeleted: typeof cronDeleteSoftDeleted;
+  deleteUserData: typeof deleteUserData;
+  http: typeof http;
   sessions: typeof sessions;
   solves: typeof solves;
+  users: typeof users;
 }>;
 
 /**

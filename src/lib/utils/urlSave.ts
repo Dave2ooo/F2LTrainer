@@ -1,6 +1,6 @@
 import type { TrainState } from '$lib/types/caseState';
 import type { GroupId } from '$lib/types/group';
-import { casesState, CASES_STATE_STORAGE_KEY } from '$lib/casesState.svelte';
+import { casesState, CASES_STATE_STORAGE_KEY, updateCaseState } from '$lib/casesState.svelte';
 import { casesStatic } from '$lib/casesStatic';
 import { GROUP_IDS } from '$lib/types/group';
 import { saveToLocalStorage } from './localStorage';
@@ -323,7 +323,7 @@ export async function importFromURL(confirmModal: {
 					)?.[0] as TrainState | undefined;
 
 					if (trainState) {
-						casesState[groupId][caseId].trainState = trainState;
+						updateCaseState(groupId, caseId, { trainState });
 					}
 				}
 			});
@@ -343,11 +343,13 @@ export async function importFromURL(confirmModal: {
 						const value = parts[1] === 'n' ? null : parseInt(parts[1]);
 
 						if (casesState[groupId][caseId]) {
-							casesState[groupId][caseId].algorithmSelection = {
-								left: value,
-								right: value
-							};
-							casesState[groupId][caseId].identicalAlgorithm = true;
+							updateCaseState(groupId, caseId, {
+								algorithmSelection: {
+									left: value,
+									right: value
+								},
+								identicalAlgorithm: true
+							});
 						}
 					} else if (parts.length === 3) {
 						// Format: caseId.left.right (different values)
@@ -357,11 +359,13 @@ export async function importFromURL(confirmModal: {
 						const right = parts[2] === 'n' ? null : parseInt(parts[2]);
 
 						if (casesState[groupId][caseId]) {
-							casesState[groupId][caseId].algorithmSelection = {
-								left: left,
-								right: right
-							};
-							casesState[groupId][caseId].identicalAlgorithm = left === right;
+							updateCaseState(groupId, caseId, {
+								algorithmSelection: {
+									left: left,
+									right: right
+								},
+								identicalAlgorithm: left === right
+							});
 						}
 					}
 				});
@@ -383,18 +387,22 @@ export async function importFromURL(confirmModal: {
 							if (parts.length === 2) {
 								// Format: caseId.encoded (both left and right are the same)
 								const decoded = decodeCustomAlgorithm(parts[1]);
-								casesState[groupId][caseId].customAlgorithm = {
-									left: decoded,
-									right: decoded
-								};
+								updateCaseState(groupId, caseId, {
+									customAlgorithm: {
+										left: decoded,
+										right: decoded
+									}
+								});
 							} else if (parts.length === 3) {
 								// Format: caseId.leftEncoded.rightEncoded
 								const leftDecoded = parts[1] ? decodeCustomAlgorithm(parts[1]) : '';
 								const rightDecoded = parts[2] ? decodeCustomAlgorithm(parts[2]) : '';
-								casesState[groupId][caseId].customAlgorithm = {
-									left: leftDecoded,
-									right: rightDecoded
-								};
+								updateCaseState(groupId, caseId, {
+									customAlgorithm: {
+										left: leftDecoded,
+										right: rightDecoded
+									}
+								});
 							}
 						}
 					}

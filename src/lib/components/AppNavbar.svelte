@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl } from 'flowbite-svelte';
+	import { Button, Tooltip, Navbar, NavBrand, NavHamburger, NavUl, Spinner } from 'flowbite-svelte';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/stores';
 	import { SignedIn, SignedOut, SignInButton, UserButton } from 'svelte-clerk';
@@ -17,6 +17,7 @@
 	import type FeedbackModal from '$lib/components/Modals/FeedbackModal.svelte';
 	import type HelpModal from '$lib/components/Modals/HelpModal.svelte';
 	import { getTheme } from '$lib/theme.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 
 	interface Props {
 		settingsRef: Settings;
@@ -28,6 +29,7 @@
 	let { settingsRef, feedbackRef, helpRef, onExportURL }: Props = $props();
 
 	let currentTheme = $derived(getTheme());
+	let isSyncing = $derived(globalState.isSyncing);
 </script>
 
 <Navbar
@@ -47,7 +49,7 @@
 		<BluetoothButton />
 		{#if $page.url.searchParams.get('dev') === 'true'}
 			<SignedIn>
-				<div class="sm:hidden">
+				<div class="relative sm:hidden">
 					<UserButton
 						appearance={{
 							baseTheme: currentTheme === 'dark' ? dark : undefined,
@@ -57,6 +59,11 @@
 							}
 						}}
 					/>
+					{#if isSyncing}
+						<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+							<Spinner color="primary" class="size-8 md:size-9" />
+						</div>
+					{/if}
 				</div>
 			</SignedIn>
 		{/if}
@@ -133,7 +140,7 @@
 				</li>
 			</SignedOut>
 			<SignedIn>
-				<li class="mx-1 my-2 hidden sm:my-0 sm:block xl:mx-3">
+				<li class="relative mx-1 my-2 hidden sm:my-0 sm:block xl:mx-3">
 					<UserButton
 						appearance={{
 							baseTheme: currentTheme === 'dark' ? dark : undefined,
@@ -143,6 +150,11 @@
 							}
 						}}
 					/>
+					{#if isSyncing}
+						<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+							<Spinner color="primary" class="size-8 md:size-9" />
+						</div>
+					{/if}
 				</li>
 			</SignedIn>
 		{/if}

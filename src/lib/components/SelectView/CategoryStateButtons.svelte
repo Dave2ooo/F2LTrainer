@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { GroupId, CaseId } from '$lib/types/group';
 	import type { TrainState } from '$lib/types/caseState';
-	import { casesState, TrainStateColors } from '$lib/casesState.svelte';
+	import { casesState, TrainStateColors, updateCaseState } from '$lib/casesState.svelte';
 
 	let {
 		groupId,
@@ -13,7 +13,9 @@
 
 	function setCategoryState(state: TrainState) {
 		for (const caseId of categoryCases) {
-			casesState[groupId][caseId].trainState = state;
+			updateCaseState(groupId, caseId, {
+				trainState: state
+			});
 		}
 	}
 

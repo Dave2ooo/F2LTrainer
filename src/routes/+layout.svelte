@@ -24,8 +24,11 @@
 			saveToLocalStorage(GLOBAL_STATE_STORAGE_KEY, globalState);
 		});
 
+		// Only persist case states to localStorage when not syncing to avoid conflicts
 		$effect(() => {
-			saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
+			if (!globalState.isSyncing) {
+				saveToLocalStorage(CASES_STATE_STORAGE_KEY, casesState);
+			}
 		});
 
 		// Initialize the PWA manager which centralizes service worker

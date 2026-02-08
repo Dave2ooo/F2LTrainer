@@ -3,8 +3,11 @@
 	import { useClerkContext } from 'svelte-clerk';
 	import { solvesSyncService } from '$lib/services/solvesSyncService';
 	import { sessionsSyncService } from '$lib/services/sessionsSyncService';
+	import { caseStatesSyncService } from '$lib/services/caseStatesSyncService';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
+	import { handleCaseStatesLoginSync, handleCaseStatesPageLoadSync } from '$lib/casesState.svelte';
+	import { globalState } from '$lib/globalState.svelte';
 
 	const client = useConvexClient();
 	const ctx = useClerkContext();
@@ -30,6 +33,8 @@
 		solvesSyncService.setAuthenticated(isAuthenticated);
 		sessionsSyncService.setClient(client);
 		sessionsSyncService.setAuthenticated(isAuthenticated);
+		caseStatesSyncService.setClient(client);
+		caseStatesSyncService.setAuthenticated(isAuthenticated);
 
 		// Trigger sync when authenticated
 		if (isAuthenticated) {
@@ -39,18 +44,30 @@
 				hasSeenFirstAuth = true;
 				// Give Convex a moment to establish auth before syncing
 				setTimeout(async () => {
-					// First login: upload local data, then merge with Convex
-					await sessionState.handleLoginSync();
-					await statisticsState.handleLoginSync();
+					try {
+						globalState.isSyncing = true;
+						// First login: upload local data, then merge with Convex
+						await sessionState.handleLoginSync();
+						await statisticsState.handleLoginSync();
+						await handleCaseStatesLoginSync();
+					} finally {
+						globalState.isSyncing = false;
+					}
 				}, 500);
 			} else if (!wasAuthenticated) {
 				// Auth restored after page load (hasSeenFirstAuth is true from previous session)
 				console.log('[ConvexClerkSync] Page loaded with active session, pulling from Convex...');
 				// Give Convex a moment to establish auth before syncing
 				setTimeout(async () => {
-					// Page load: Convex is source of truth, just pull
-					await sessionState.handlePageLoadSync();
-					await statisticsState.handlePageLoadSync();
+					try {
+						globalState.isSyncing = true;
+						// Page load: Convex is source of truth, just pull
+						await sessionState.handlePageLoadSync();
+						await statisticsState.handlePageLoadSync();
+						await handleCaseStatesPageLoadSync();
+					} finally {
+						globalState.isSyncing = false;
+					}
 				}, 500);
 			}
 		}
@@ -58,6 +75,8 @@
 		// Detect logout (was authenticated, now isn't)
 		if (!isAuthenticated && wasAuthenticated) {
 			console.log('[ConvexClerkSync] User logged out');
+			// Flush any pending case state updates before logout
+			caseStatesSyncService.flushPendingUpdates();
 			hasSeenFirstAuth = false; // Reset for next login
 		}
 

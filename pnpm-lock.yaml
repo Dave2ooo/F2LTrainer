@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@clerk/backend':
+        specifier: ^2.30.1
+        version: 2.30.1(react@19.2.4)
       '@clerk/themes':
         specifier: ^2.4.51
         version: 2.4.51(react@19.2.4)
@@ -44,6 +47,9 @@ importers:
       svelte-splitpanes:
         specifier: ^8.0.9
         version: 8.0.9(svelte@5.42.3)
+      svix:
+        specifier: ^1.84.1
+        version: 1.84.1
     devDependencies:
       '@eslint/compat':
         specifier: ^1.4.0
@@ -171,8 +177,8 @@ packages:
     resolution: {integrity: sha512-Q/N6JNWvIvPnLDvjlE1OUBLPQHH6l3CltCEsHIujp45zQUSSh8K+gHnaEX45yAT1nyngnINhvWtzN+Nb9D8RAQ==}
     engines: {node: '>=6.9.0'}
 
-  '@clerk/backend@2.29.7':
-    resolution: {integrity: sha512-OSfFQ85L0FV2wSzqlr0hRvluIu3Z5ClgLiBE6Qx7XjSGyJoqEvP5OP4fl5Nt5icgGvH0EwA1dljPGyQpaqbQEw==}
+  '@clerk/backend@2.30.1':
+    resolution: {integrity: sha512-GoxnJzVH0ycNPAGCDMfo3lPBFbo5nehpLSVFjgGEnzIRGGahBtAB8PQT7KM2zo58pD8apjb/+suhcB/WCiEasQ==}
     engines: {node: '>=18.17.0'}
 
   '@clerk/shared@3.44.0':
@@ -2107,6 +2113,9 @@ packages:
     resolution: {integrity: sha512-+8dUmdJGvKSWEfbAgIaUmpD97s1bBAGxEf6s7wQonk+HNdMmrBZtpStzRypRqrYBFUmmhaUgBHUjraE8gLqWAw==}
     engines: {node: '>=18'}
 
+  svix@1.84.1:
+    resolution: {integrity: sha512-K8DPPSZaW/XqXiz1kEyzSHYgmGLnhB43nQCMeKjWGCUpLIpAMMM8kx3rVVOSm6Bo6EHyK1RQLPT4R06skM/MlQ==}
+
   swr@2.3.4:
     resolution: {integrity: sha512-bYd2lrhc+VarcpkgWclcUi92wYCpOgMws9Sd1hG1ntAu0NEy+14CbotuFjshBU2kt9rYj9TSmDcybpxpeTU1fg==}
     peerDependencies:
@@ -2215,6 +2224,10 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  uuid@10.0.0:
+    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
+    hasBin: true
 
   vfile-message@2.0.4:
     resolution: {integrity: sha512-DjssxRGkMvifUOJre00juHoP9DPWuzjxKuMDrhNbk2TdaYYBNMStsNhEOt3idrtI12VQYM/1+iM0KOzXi4pxwQ==}
@@ -2357,7 +2370,7 @@ snapshots:
 
   '@babel/runtime@7.28.4': {}
 
-  '@clerk/backend@2.29.7(react@19.2.4)':
+  '@clerk/backend@2.30.1(react@19.2.4)':
     dependencies:
       '@clerk/shared': 3.44.0(react@19.2.4)
       '@clerk/types': 4.101.14(react@19.2.4)
@@ -4038,7 +4051,7 @@ snapshots:
 
   svelte-clerk@0.20.3(@sveltejs/kit@2.48.1(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(react@19.2.4)(svelte@5.42.3):
     dependencies:
-      '@clerk/backend': 2.29.7(react@19.2.4)
+      '@clerk/backend': 2.30.1(react@19.2.4)
       '@clerk/shared': 3.44.0(react@19.2.4)
       set-cookie-parser: 2.7.2
       svelte: 5.42.3
@@ -4091,6 +4104,11 @@ snapshots:
       locate-character: 3.0.0
       magic-string: 0.30.21
       zimmerframe: 1.1.4
+
+  svix@1.84.1:
+    dependencies:
+      standardwebhooks: 1.0.0
+      uuid: 10.0.0
 
   swr@2.3.4(react@19.2.4):
     dependencies:
@@ -4184,6 +4202,8 @@ snapshots:
       react: 19.2.4
 
   util-deprecate@1.0.2: {}
+
+  uuid@10.0.0: {}
 
   vfile-message@2.0.4:
     dependencies:
