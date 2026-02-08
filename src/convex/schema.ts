@@ -32,8 +32,7 @@ export default defineSchema({
 		lastPlayedAt: v.number(),
 		lastModified: v.number(),
 		archived: v.boolean(),
-		deleted: v.optional(v.boolean()), // Soft delete flag
-		deletedAt: v.optional(v.number()), // Timestamp of deletion
+		deletedAt: v.optional(v.number()), // Timestamp of deletion (if set, session is deleted)
 		favorite: v.optional(v.boolean()),
 
 		// To filter sessions by user

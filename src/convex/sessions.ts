@@ -14,8 +14,8 @@ export const getSessionsForCurrentUser = query({
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.collect();
 
-		// Filter out soft-deleted sessions
-		return sessions.filter((s) => !s.deleted);
+		// Filter out deleted sessions
+		return sessions.filter((s) => !s.deletedAt);
 	}
 });
 
@@ -47,7 +47,6 @@ export const addSession = mutation({
 			lastPlayedAt: args.session.lastPlayedAt,
 			lastModified: args.session.lastModified,
 			archived: args.session.archived,
-			deleted: args.session.deleted,
 			deletedAt: args.session.deletedAt,
 			favorite: args.session.favorite,
 			tokenIdentifier: identity.tokenIdentifier
@@ -64,7 +63,7 @@ export const updateSession = mutation({
 			lastPlayedAt: v.optional(v.number()),
 			lastModified: v.optional(v.number()),
 			archived: v.optional(v.boolean()),
-			deleted: v.optional(v.boolean()),
+
 			deletedAt: v.optional(v.number()),
 			favorite: v.optional(v.boolean())
 		})
@@ -154,9 +153,8 @@ export const hardDeleteSession = mutation({
 			.unique();
 
 		if (session) {
-			// Soft delete: mark as deleted with timestamp
+			// Hard delete: mark with deletion timestamp
 			await ctx.db.patch(session._id, {
-				deleted: true,
 				deletedAt: Date.now()
 			});
 		}
@@ -171,7 +169,6 @@ const sessionObjectValidator = v.object({
 	lastPlayedAt: v.number(),
 	lastModified: v.number(),
 	archived: v.boolean(),
-	deleted: v.optional(v.boolean()),
 	deletedAt: v.optional(v.number()),
 	favorite: v.optional(v.boolean())
 });
@@ -210,7 +207,7 @@ export const bulkUpsertSessions = mutation({
 						lastPlayedAt: session.lastPlayedAt,
 						lastModified: session.lastModified,
 						archived: session.archived,
-						deleted: session.deleted,
+
 						deletedAt: session.deletedAt,
 						favorite: session.favorite
 					});

@@ -18,7 +18,7 @@ export default mutation({
 		// Delete sessions
 		for await (const session of ctx.db
 			.query('sessions')
-			.filter((q: any) => q.eq('deleted', true).gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
 			await ctx.db.delete(session._id);
 		}
 	}

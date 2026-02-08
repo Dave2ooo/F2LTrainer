@@ -7,6 +7,10 @@ import { sessionsSyncService } from '$lib/services/sessionsSyncService';
 const STORAGE_KEY = 'sessions';
 const ACTIVE_SESSION_KEY = 'activeSessionId';
 
+// Keep deleted sessions for 7 days to allow offline deletions to sync
+const DELETED_SESSION_RETENTION_DAYS = 7;
+const DELETED_SESSION_RETENTION_MS = DELETED_SESSION_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
 export const DEFAULT_SETTINGS: SessionSettings = {
 	caseMode: 'group',
 	categorySelection: Object.fromEntries(
@@ -39,6 +43,31 @@ class SessionState {
 	constructor() {
 		if (browser) {
 			this.load();
+			
+			// Auto-save and cleanup old deleted sessions
+			$effect.root(() => {
+				$effect(() => {
+					// Filter out old deleted sessions to keep localStorage clean
+					// Keep recent deleted sessions (last 7 days) as a safety buffer for offline deletions
+					const now = Date.now();
+					const sessionsToSave = this.sessions.filter((session) => {
+						if (!session.deletedAt) return true; // Keep all active sessions
+						// Keep only deleted sessions from the last 7 days
+						return now - session.deletedAt < DELETED_SESSION_RETENTION_MS;
+					});
+
+					const removedCount = this.sessions.length - sessionsToSave.length;
+					if (removedCount > 0) {
+						console.log(
+							`[SessionState] Cleaned up ${removedCount} old deleted session(s) from localStorage`
+						);
+						// Update the sessions array if we removed any
+						this.sessions = sessionsToSave;
+					}
+
+					this.save();
+				});
+			});
 		}
 	}
 
@@ -65,17 +94,17 @@ class SessionState {
 
 		if (
 			storedActiveId !== null &&
-			this.sessions.find((s) => s.id === storedActiveId && !s.deleted)
+			this.sessions.find((s) => s.id === storedActiveId && !s.deletedAt)
 		) {
 			this.activeSessionId = storedActiveId;
 		} else {
 			// Fallback to the first non-archived, non-deleted session
-			const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
+			const firstActive = this.sessions.find((s) => !s.archived && !s.deletedAt);
 			if (firstActive) {
 				this.activeSessionId = firstActive.id;
 			} else {
 				// Fallback to first non-deleted session (even if archived)
-				const firstVisible = this.sessions.find((s) => !s.deleted);
+				const firstVisible = this.sessions.find((s) => !s.deletedAt);
 				if (firstVisible) {
 					this.activeSessionId = firstVisible.id;
 				} else {
@@ -127,13 +156,12 @@ class SessionState {
 		if (session) {
 			// If we are deleting the active session, switch to another one first
 			if (this.activeSessionId === id) {
-				const nextSession = this.sessions.find((s) => !s.archived && !s.deleted && s.id !== id);
-				this.activeSessionId = nextSession?.id || null;
-			}
+			const nextSession = this.sessions.find((s) => !s.archived && !s.deletedAt && s.id !== id);
+			this.activeSessionId = nextSession?.id || null;
+		}
 
-			// Mark as deleted instead of removing from array
-			// This allows offline deletions to sync when logging in
-			session.deleted = true;
+		// Mark as deleted instead of removing from array
+		// This allows offline deletions to sync when logging in
 			session.deletedAt = Date.now();
 			session.lastModified = Date.now();
 			this.save();
@@ -157,7 +185,7 @@ class SessionState {
 		if (!session) return;
 
 		// Count active (non-archived, non-deleted) sessions
-		const activeCount = this.sessions.filter((s) => !s.archived && !s.deleted).length;
+		const activeCount = this.sessions.filter((s) => !s.archived && !s.deletedAt).length;
 
 		// Prevent deleting the last reachable session
 		if (activeCount <= 1 && !session.archived) {
@@ -171,7 +199,7 @@ class SessionState {
 
 		// If we deleted the current active session, switch to another valid one
 		if (this.activeSessionId === id) {
-			const nextSession = this.sessions.find((s) => !s.archived && !s.deleted && s.id !== id);
+			const nextSession = this.sessions.find((s) => !s.archived && !s.deletedAt && s.id !== id);
 			this.activeSessionId = nextSession?.id || null;
 		}
 		this.save();
@@ -235,12 +263,12 @@ class SessionState {
 
 	// Get all sessions that are not deleted (includes archived)
 	get visibleSessions() {
-		return this.sessions.filter((s) => !s.deleted);
+		return this.sessions.filter((s) => !s.deletedAt);
 	}
 
 	// Get all non-deleted, non-archived sessions
 	get activeSessions() {
-		return this.sessions.filter((s) => !s.deleted && !s.archived);
+		return this.sessions.filter((s) => !s.deletedAt && !s.archived);
 	}
 
 	/**
@@ -256,16 +284,16 @@ class SessionState {
 			if (
 				this.activeSessionId === null ||
 				!currentActive ||
-				currentActive.deleted ||
+				currentActive.deletedAt ||
 				currentActive.archived
 			) {
 				// Switch to first non-archived, non-deleted session
-				const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
+				const firstActive = this.sessions.find((s) => !s.archived && !s.deletedAt);
 				if (firstActive) {
 					this.activeSessionId = firstActive.id;
 				} else {
 					// Fallback to first non-deleted session (even if archived)
-					const firstVisible = this.sessions.find((s) => !s.deleted);
+					const firstVisible = this.sessions.find((s) => !s.deletedAt);
 					if (firstVisible) {
 						this.activeSessionId = firstVisible.id;
 					}
@@ -274,6 +302,8 @@ class SessionState {
 
 			this.save();
 			console.log('[SessionState] Login sync complete, now have', this.sessions.length, 'sessions');
+			// Clean up old deleted sessions after successful sync
+			this.cleanupOldDeletedSessions();
 		} catch (error) {
 			console.error('[SessionState] Login sync failed:', error);
 		}
@@ -293,16 +323,16 @@ class SessionState {
 				if (
 					this.activeSessionId === null ||
 					!currentActive ||
-					currentActive.deleted ||
+					currentActive.deletedAt ||
 					currentActive.archived
 				) {
 					// Switch to first non-archived, non-deleted session
-					const firstActive = this.sessions.find((s) => !s.archived && !s.deleted);
+					const firstActive = this.sessions.find((s) => !s.archived && !s.deletedAt);
 					if (firstActive) {
 						this.activeSessionId = firstActive.id;
 					} else {
 						// Fallback to first non-deleted session (even if archived)
-						const firstVisible = this.sessions.find((s) => !s.deleted);
+						const firstVisible = this.sessions.find((s) => !s.deletedAt);
 						if (firstVisible) {
 							this.activeSessionId = firstVisible.id;
 						}
@@ -315,9 +345,34 @@ class SessionState {
 					this.sessions.length,
 					'sessions'
 				);
+				// Clean up old deleted sessions after successful sync
+				this.cleanupOldDeletedSessions();
 			}
 		} catch (error) {
 			console.error('[SessionState] Page load sync failed:', error);
+		}
+	}
+
+	/**
+	 * Remove deleted sessions older than the retention period from memory
+	 */
+	private cleanupOldDeletedSessions(): void {
+		const now = Date.now();
+		const initialCount = this.sessions.length;
+
+		// Filter out old deleted sessions
+		const filteredSessions = this.sessions.filter((session) => {
+			if (!session.deletedAt) return true; // Keep all active sessions
+			// Keep only deleted sessions from the last 7 days
+			return now - session.deletedAt < DELETED_SESSION_RETENTION_MS;
+		});
+
+		const removedCount = initialCount - filteredSessions.length;
+		if (removedCount > 0) {
+			this.sessions = filteredSessions;
+			console.log(
+				`[SessionState] Cleaned up ${removedCount} old deleted session(s) from memory`
+			);
 		}
 	}
 }

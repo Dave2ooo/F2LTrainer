@@ -129,7 +129,6 @@ class SessionsSyncService {
 				lastPlayedAt: s.lastPlayedAt,
 				lastModified: s.lastModified,
 				archived: s.archived,
-				deleted: s.deleted,
 				deletedAt: s.deletedAt,
 				favorite: s.favorite
 			}));
@@ -168,7 +167,6 @@ class SessionsSyncService {
 				lastPlayedAt: s.lastPlayedAt,
 				lastModified: s.lastModified,
 				archived: s.archived,
-				deleted: s.deleted,
 				deletedAt: s.deletedAt,
 				favorite: s.favorite
 			}));

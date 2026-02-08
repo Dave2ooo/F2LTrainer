@@ -56,10 +56,10 @@
 	// Derived lists - sorted by last played (most recent first) to match dropdown order
 	const activeSessions = $derived(
 		sessionState.sessions
-			.filter((s) => !s.archived && !s.deleted)
-			.sort((a, b) => (b.lastPlayedAt || 0) - (a.lastPlayedAt || 0))
+			.filter((s) => !s.archived && !s.deletedAt)
+			.sort((a, b) => b.lastPlayedAt - a.lastPlayedAt)
 	);
-	const archivedSessions = $derived(sessionState.sessions.filter((s) => s.archived && !s.deleted));
+	const archivedSessions = $derived(sessionState.sessions.filter((s) => s.archived && !s.deletedAt));
 
 	// Optimization: specific solve counts for each session mapped by ID
 	// This reduces complexity from O(Sessions * Solves) to O(Solves)
