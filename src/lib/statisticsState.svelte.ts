@@ -13,6 +13,10 @@ import type { Side } from './types/Side';
 
 export const STATISTICS_STATE_STORAGE_KEY = 'solves';
 
+// Keep deleted solves for 7 days to allow offline deletions to sync
+const DELETED_SOLVE_RETENTION_DAYS = 7;
+const DELETED_SOLVE_RETENTION_MS = DELETED_SOLVE_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+
 const GROUP_ID_MAP: Record<GroupId, CompressedGroupId> = {
 	basic: 'b',
 	basicBack: 'bb',
@@ -81,8 +85,9 @@ function compressSolve(solve: Solve): CompressedSolve {
 		sid: solve.sessionId,
 		rt: solve.recognitionTime,
 		et: solve.executionTime,
-
-		m: MODE_MAP[solve.trainMode]
+		m: MODE_MAP[solve.trainMode],
+		// Soft delete field
+		da: solve.deletedAt
 	};
 }
 
@@ -101,7 +106,9 @@ function decompressSolve(compressed: CompressedSolve): Solve {
 		// Drill mode timing (optional)
 		recognitionTime: compressed.rt,
 		executionTime: compressed.et,
-		trainMode: REVERSE_MODE_MAP[compressed.m]
+		trainMode: REVERSE_MODE_MAP[compressed.m],
+		// Soft delete field
+		deletedAt: compressed.da
 	};
 }
 
@@ -111,7 +118,7 @@ const persistedData = loadFromLocalStorage<any[]>(STATISTICS_STATE_STORAGE_KEY);
 let initialState: StatisticsState = [];
 
 if (persistedData && Array.isArray(persistedData)) {
-	console.log('Loading from localStorage');
+	console.log(`[StatisticsState] Loading ${persistedData.length} solves from localStorage`);
 	initialState = persistedData
 		.filter((item) => {
 			const isValid = item !== null && typeof item === 'object';
@@ -128,6 +135,12 @@ if (persistedData && Array.isArray(persistedData)) {
 			// Assume it's uncompressed (legacy from previous step)
 			return item as Solve;
 		});
+
+	const activeCount = initialState.filter((s) => !s.deletedAt).length;
+	const deletedCount = initialState.length - activeCount;
+	console.log(
+		`[StatisticsState] Loaded ${initialState.length} solves (${activeCount} active, ${deletedCount} deleted)`
+	);
 } else if (persistedData !== null && persistedData !== undefined) {
 	console.warn('[StatisticsState] Skipping invalid persisted data (not an array):', persistedData);
 }
@@ -140,17 +153,32 @@ class StatisticsStateManager {
 
 		$effect.root(() => {
 			$effect(() => {
-				// Filter out soft-deleted solves before saving to localStorage (optional optimization,
-				// but we might want to keep them to sync deletions if user clears cache.
-				// For now, save everything including deleted.)
-				saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
+				// Filter out old deleted solves to keep localStorage clean
+				// Keep recent deleted solves (last 7 days) as a safety buffer for offline deletions
+				const now = Date.now();
+				const solvesToSave = this.allSolves.filter((solve) => {
+					if (!solve.deletedAt) return true; // Keep all active solves
+					// Keep only deleted solves from the last 7 days
+					return now - solve.deletedAt < DELETED_SOLVE_RETENTION_MS;
+				});
+
+				const removedCount = this.allSolves.length - solvesToSave.length;
+				if (removedCount > 0) {
+					console.log(
+						`[StatisticsState] Cleaned up ${removedCount} old deleted solve(s) from localStorage`
+					);
+				}
+
+				saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(solvesToSave));
 			});
 		});
 	}
 
 	get statistics() {
 		if (sessionState.activeSessionId === null) return [];
-		return this.allSolves.filter((s) => s.sessionId === sessionState.activeSessionId && !s.deleted);
+		return this.allSolves.filter(
+			(s) => s.sessionId === sessionState.activeSessionId && !s.deletedAt
+		);
 	}
 
 	addSolve(solve: Solve) {
@@ -184,7 +212,6 @@ class StatisticsStateManager {
 		const index = this.allSolves.findIndex((s) => s.id === id);
 		if (index !== -1) {
 			const solve = this.allSolves[index];
-			solve.deleted = true;
 			solve.deletedAt = Date.now();
 			solve.timestamp = Date.now();
 
@@ -247,6 +274,8 @@ class StatisticsStateManager {
 				this.allSolves.length,
 				'solves'
 			);
+			// Clean up old deleted solves after successful sync
+			this.cleanupOldDeletedSolves();
 		} catch (error) {
 			console.error('[StatisticsState] Login sync failed:', error);
 		}
@@ -266,9 +295,33 @@ class StatisticsStateManager {
 					this.allSolves.length,
 					'solves'
 				);
+				// Clean up old deleted solves after successful sync
+				this.cleanupOldDeletedSolves();
 			}
 		} catch (error) {
 			console.error('[StatisticsState] Page load sync failed:', error);
+		}
+	}
+
+	/**
+	 * Remove deleted solves older than the retention period from memory
+	 */
+	private cleanupOldDeletedSolves(): void {
+		const now = Date.now();
+		const initialCount = this.allSolves.length;
+
+		// Filter out old deleted solves
+		const filteredSolves = this.allSolves.filter((solve) => {
+			if (!solve.deletedAt) return true; // Keep all active solves
+			// Keep only deleted solves from the last 7 days
+			return now - solve.deletedAt < DELETED_SOLVE_RETENTION_MS;
+		});
+
+		const removedCount = initialCount - filteredSolves.length;
+		if (removedCount > 0) {
+			this.allSolves.length = 0;
+			this.allSolves.push(...filteredSolves);
+			console.log(`[StatisticsState] Cleaned up ${removedCount} old deleted solve(s) from memory`);
 		}
 	}
 }

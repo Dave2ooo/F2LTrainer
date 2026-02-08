@@ -11,7 +11,7 @@ export default mutation({
 		// Delete solves
 		for await (const solve of ctx.db
 			.query('solves')
-			.filter((q: any) => q.eq('deleted', true).gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
 			await ctx.db.delete(solve._id);
 		}
 

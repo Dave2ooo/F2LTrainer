@@ -111,6 +111,12 @@ class SolvesSyncService {
 		try {
 			// First, upload local solves to Convex (handles conflicts via timestamp)
 			if (localSolves.length > 0) {
+				const activeLocal = localSolves.filter((s) => !s.deletedAt).length;
+				const deletedLocal = localSolves.length - activeLocal;
+				console.log(
+					`[SolvesSyncService] Uploading ${localSolves.length} local solves (${activeLocal} active, ${deletedLocal} deleted)`
+				);
+
 				const result = await this.client.mutation(api.solves.bulkUpsertSolves, {
 					solves: localSolves
 				});
@@ -120,7 +126,10 @@ class SolvesSyncService {
 			}
 
 			// Then fetch all solves from Convex (now includes our uploads)
-			const convexSolves = await this.client.query(api.solves.getSolvesForCurrentUser, {});
+			// Include deleted solves to preserve offline deletions
+			const convexSolves = await this.client.query(api.solves.getSolvesForCurrentUser, {
+				includeDeleted: true
+			});
 
 			// Convert Convex solves to our Solve type (strip Convex-specific fields)
 			const mergedSolves: Solve[] = convexSolves.map((s) => ({
@@ -136,11 +145,14 @@ class SolvesSyncService {
 				recognitionTime: s.recognitionTime,
 				executionTime: s.executionTime,
 				trainMode: s.trainMode as Solve['trainMode'],
-				deleted: s.deleted,
 				deletedAt: s.deletedAt
 			}));
 
-			console.log(`[SolvesSyncService] Synced ${mergedSolves.length} solves from Convex`);
+			const activeCount = mergedSolves.filter((s) => !s.deletedAt).length;
+			const deletedCount = mergedSolves.length - activeCount;
+			console.log(
+				`[SolvesSyncService] Synced ${mergedSolves.length} solves from Convex (${activeCount} active, ${deletedCount} deleted)`
+			);
 			return mergedSolves;
 		} catch (error) {
 			console.error('[SolvesSyncService] Sync on login failed:', error);
@@ -160,7 +172,10 @@ class SolvesSyncService {
 		}
 
 		try {
-			const convexSolves = await this.client.query(api.solves.getSolvesForCurrentUser, {});
+			// Include deleted solves to preserve offline deletions across syncs
+			const convexSolves = await this.client.query(api.solves.getSolvesForCurrentUser, {
+				includeDeleted: true
+			});
 
 			// Convert Convex solves to our Solve type
 			const solves: Solve[] = convexSolves.map((s) => ({
@@ -176,11 +191,14 @@ class SolvesSyncService {
 				recognitionTime: s.recognitionTime,
 				executionTime: s.executionTime,
 				trainMode: s.trainMode as Solve['trainMode'],
-				deleted: s.deleted,
 				deletedAt: s.deletedAt
 			}));
 
-			console.log(`[SolvesSyncService] Pulled ${solves.length} solves from Convex`);
+			const activeCount = solves.filter((s) => !s.deletedAt).length;
+			const deletedCount = solves.length - activeCount;
+			console.log(
+				`[SolvesSyncService] Pulled ${solves.length} solves from Convex (${activeCount} active, ${deletedCount} deleted)`
+			);
 			return solves;
 		} catch (error) {
 			console.error('[SolvesSyncService] Pull from Convex failed:', error);

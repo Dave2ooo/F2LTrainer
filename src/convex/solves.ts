@@ -16,13 +16,14 @@ const solveObjectValidator = v.object({
 	recognitionTime: v.optional(v.number()),
 	executionTime: v.optional(v.number()),
 	trainMode: v.string(),
-	deleted: v.optional(v.boolean()),
 	deletedAt: v.optional(v.number())
 });
 
 export const getSolvesForCurrentUser = query({
-	args: {},
-	handler: async (ctx) => {
+	args: {
+		includeDeleted: v.optional(v.boolean())
+	},
+	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
 		if (identity === null) {
 			throw new Error('Not authenticated');
@@ -33,8 +34,11 @@ export const getSolvesForCurrentUser = query({
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.collect();
 
-		// Filter out soft-deleted solves
-		return solves.filter((s) => !s.deleted);
+		// Filter out soft-deleted solves unless explicitly requested
+		if (args.includeDeleted) {
+			return solves;
+		}
+		return solves.filter((s) => !s.deletedAt);
 	}
 });
 
@@ -60,7 +64,6 @@ export const addSolve = mutation({
 			recognitionTime: args.solve.recognitionTime,
 			executionTime: args.solve.executionTime,
 			trainMode: args.solve.trainMode,
-			deleted: args.solve.deleted,
 			deletedAt: args.solve.deletedAt,
 			tokenIdentifier: identity.tokenIdentifier
 		});
@@ -91,7 +94,7 @@ export const updateSolve = mutation({
 		}
 
 		// Don't allow updating deleted solves
-		if (solve.deleted) {
+		if (solve.deletedAt) {
 			throw new Error(`Cannot update deleted solve with id ${args.id}`);
 		}
 
@@ -121,7 +124,6 @@ export const deleteSolve = mutation({
 		if (solve) {
 			// Soft delete: mark as deleted with timestamp
 			await ctx.db.patch(solve._id, {
-				deleted: true,
 				deletedAt: Date.now(),
 				timestamp: Date.now()
 			});
@@ -148,7 +150,6 @@ export const deleteSolvesBySession = mutation({
 		for (const solve of solves) {
 			// Soft delete all solves for this session
 			await ctx.db.patch(solve._id, {
-				deleted: true,
 				deletedAt: Date.now(),
 				timestamp: Date.now()
 			});
@@ -176,7 +177,7 @@ export const moveSolvesToSession = mutation({
 			.collect();
 
 		// Filter out deleted solves - only move active solves
-		const solves = allSolves.filter((s) => !s.deleted);
+		const solves = allSolves.filter((s) => !s.deletedAt);
 
 		for (const solve of solves) {
 			await ctx.db.patch(solve._id, {
@@ -230,7 +231,7 @@ export const bulkUpsertSolves = mutation({
 						recognitionTime: solve.recognitionTime,
 						executionTime: solve.executionTime,
 						trainMode: solve.trainMode,
-						deleted: solve.deleted,
+
 						deletedAt: solve.deletedAt
 					});
 					updated++;

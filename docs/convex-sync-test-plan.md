@@ -97,6 +97,28 @@ This plan consolidates related scenarios into integrated workflows for efficienc
 - ✅ Offline deletions sync correctly upon login (no "resurrection" of deleted sessions).
 - ✅ Associated solves are also soft-deleted in the backend.
 
+### Test 4a: Offline Session Deletion Persistence (NEW)
+
+**Scenario**: Verify that sessions deleted while offline remain deleted after page refresh (before login).
+
+**Steps**:
+
+1. **Device A (Logged Out)**:
+   - Create 3 sessions ("Test Session 1", "Test Session 2", "Test Session 3").
+   - Check localStorage: should show 3 sessions.
+2. **Delete Offline**: Hard-delete "Test Session 2" (while still logged out).
+3. **Refresh Page**: Press F5 to reload the page (still logged out).
+4. **Verify**: Check that only "Test Session 1" and "Test Session 3" are visible.
+5. **Login**: Log in to sync.
+6. **Device B**: Refresh and verify "Test Session 2" does not appear.
+
+**Expected**:
+
+- ✅ Deleted session stays deleted after refresh (no "reappearance").
+- ✅ Deleted session is marked with `deleted: true` and `deletedAt` timestamp in localStorage.
+- ✅ After login, deletion syncs to Convex correctly.
+- ✅ Device B never sees the deleted session.
+
 ---
 
 ## Part 3: Solve Management
@@ -134,6 +156,28 @@ This plan consolidates related scenarios into integrated workflows for efficienc
 
 - ✅ All 10 solves appear on Device B with correct timestamps.
 - ✅ No duplicate solves.
+
+### Test 6a: Offline Solve Deletion Persistence (NEW)
+
+**Scenario**: Verify that solves deleted while offline remain deleted after page refresh (before login).
+
+**Steps**:
+
+1. **Device A (Logged Out)**:
+   - Create a session with 5 solves (Solve #1 through #5).
+   - Check localStorage: should show 5 solves.
+2. **Delete Offline**: Delete Solve #2 and Solve #4 (while still logged out).
+3. **Refresh Page**: Press F5 to reload the page (still logged out).
+4. **Verify**: Check that only Solve #1, #3, and #5 are visible (count: 3 solves).
+5. **Login**: Log in to sync.
+6. **Device B**: Refresh and verify only 3 solves appear (deleted ones don't appear).
+
+**Expected**:
+
+- ✅ Deleted solves stay deleted after refresh (no "reappearance").
+- ✅ Deleted solves are marked with `deleted: true` and `deletedAt` timestamp in localStorage.
+- ✅ After login, deletions sync to Convex correctly.
+- ✅ Device B shows correct count (3 active solves, not 5).
 
 ---
 
@@ -195,6 +239,63 @@ This plan consolidates related scenarios into integrated workflows for efficienc
 3. **Large Data**: Create 50 sessions + 5000 solves. Sync on login. Verify performance (<5s).
 4. **Network Drop**: Disable network during sync. Re-enable. Sync retries and succeeds.
 
+### Test 10: Auto-Cleanup of Old Deleted Items (NEW)
+
+**Scenario**: Verify that deleted solves and sessions older than 7 days are automatically removed from localStorage to keep storage clean.
+
+**Steps**:
+
+1. **Setup (Requires Date Manipulation)**:
+   - Device A (logged in): Create "Cleanup Session" with 5 solves.
+   - Hard-delete 2 solves and mark them as deleted at timestamp = (Now - 8 days).
+   - Hard-delete 1 solve at timestamp = (Now - 2 days).
+   - Hard-delete "Cleanup Session" at timestamp = (Now - 10 days).
+   - Create "Recent Delete Session" and hard-delete at timestamp = (Now - 3 days).
+
+2. **Trigger Cleanup**:
+   - Option A: Perform a page refresh (triggers page load sync).
+   - Option B: Log out and log back in (triggers login sync).
+
+3. **Inspect localStorage**:
+   - Open DevTools → Application → Local Storage → `solves` key.
+   - Check compressed solves array for items with `d: true` (deleted flag).
+   - Open DevTools → Application → Local Storage → `sessions` key.
+   - Check sessions array for items with `deleted: true`.
+
+**Expected**:
+
+- ✅ **Old Deleted Solves (8+ days)**: Removed from localStorage (not in compressed array).
+- ✅ **Recent Deleted Solve (2 days)**: Still present in localStorage with `d: true` flag.
+- ✅ **Old Deleted Session (10 days)**: Removed from localStorage.
+- ✅ **Recent Deleted Session (3 days)**: Still present in localStorage with `deleted: true` flag.
+- ✅ Console logs show: `"Cleaned up X old deleted solve(s) from localStorage/memory"`.
+- ✅ Active (non-deleted) items are never affected by cleanup.
+
+**Rationale**: 7-day retention allows offline deletions to sync before cleanup, preventing data loss while keeping localStorage clean.
+
+### Test 11: Multi-Device Deletion Sync (NEW)
+
+**Scenario**: Verify that deletions made on one device propagate to other devices correctly, even with old deleted items.
+
+**Steps**:
+
+1. **Device A**: Create 10 solves in "Sync Test Session".
+2. **Device B**: Refresh → sees 10 solves.
+3. **Device A**: Delete 4 solves. Wait for sync.
+4. **Device B**: Refresh → sees 6 solves.
+5. **Device A**: Delete "Sync Test Session". Wait for sync.
+6. **Device B**: Refresh → session is gone.
+7. **Device A (Offline)**: Restore from localStorage backup that has deleted items (from 5 days ago).
+8. **Device A**: Login to sync.
+9. **Device B**: Refresh.
+
+**Expected**:
+
+- ✅ Device B correctly reflects deletions from Device A.
+- ✅ Old deleted items (from restored backup) do not "resurrect" on Device B.
+- ✅ Sync includes deleted items (`includeDeleted: true`) to preserve deletion history.
+- ✅ After 7 days, old deleted items are cleaned up automatically on both devices.
+
 ---
 
 ## Success Criteria
@@ -203,3 +304,5 @@ This plan consolidates related scenarios into integrated workflows for efficienc
 - ✅ **Consistency**: Devices converge to the same state.
 - ✅ **Resilience**: Offline operations and network interruptions are handled gracefully.
 - ✅ **Performance**: UI remains responsive during sync.
+- ✅ **Deletion Integrity**: Offline deletions persist across refreshes and sync correctly.
+- ✅ **Storage Efficiency**: Old deleted items (>7 days) are automatically cleaned up to conserve localStorage space.

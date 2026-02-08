@@ -18,8 +18,7 @@ export default defineSchema({
 		executionTime: v.optional(v.number()),
 		trainMode: v.string(),
 
-		deleted: v.optional(v.boolean()), // Soft delete flag
-		deletedAt: v.optional(v.number()), // Timestamp of deletion
+		deletedAt: v.optional(v.number()), // Timestamp of deletion (if set, solve is deleted)
 
 		// To filter solves by user
 		tokenIdentifier: v.string()
