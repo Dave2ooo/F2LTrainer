@@ -263,19 +263,18 @@ class StatisticsStateManager {
 
 	/**
 	 * Handle login sync - merge localStorage solves with Convex (first time)
+	 * Deleted solves are synced to Convex then removed from localStorage
 	 */
 	async handleLoginSync(): Promise<void> {
 		try {
-			const mergedSolves = await solvesSyncService.syncOnLogin(this.allSolves);
+			const activeSolves = await solvesSyncService.syncOnLogin(this.allSolves);
 			this.allSolves.length = 0;
-			this.allSolves.push(...mergedSolves);
+			this.allSolves.push(...activeSolves);
 			console.log(
 				'[StatisticsState] Login sync complete, now have',
 				this.allSolves.length,
-				'solves'
+				'active solves (deleted solves removed after sync to Convex)'
 			);
-			// Clean up old deleted solves after successful sync
-			this.cleanupOldDeletedSolves();
 		} catch (error) {
 			console.error('[StatisticsState] Login sync failed:', error);
 		}

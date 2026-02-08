@@ -99,9 +99,10 @@ class SolvesSyncService {
 
 	/**
 	 * Sync localStorage solves with Convex on login.
-	 * - Uploads local solves to Convex (upsert with timestamp comparison)
-	 * - Fetches all Convex solves and merges with local
-	 * Returns the merged solve list to update localStorage
+	 * - Uploads local solves (including deleted ones) to Convex (upsert with timestamp comparison)
+	 * - Fetches all Convex solves
+	 * - Filters out deleted solves (they're now in Convex, no need in localStorage)
+	 * Returns only active solves to update localStorage
 	 */
 	async syncOnLogin(localSolves: Solve[]): Promise<Solve[]> {
 		if (!this._isAuthenticated || !this.client) {
@@ -132,7 +133,7 @@ class SolvesSyncService {
 			});
 
 			// Convert Convex solves to our Solve type (strip Convex-specific fields)
-			const mergedSolves: Solve[] = convexSolves.map((s) => ({
+			const allSolves: Solve[] = convexSolves.map((s) => ({
 				id: s.id,
 				groupId: s.groupId as Solve['groupId'],
 				caseId: s.caseId,
@@ -148,12 +149,20 @@ class SolvesSyncService {
 				deletedAt: s.deletedAt
 			}));
 
-			const activeCount = mergedSolves.filter((s) => !s.deletedAt).length;
-			const deletedCount = mergedSolves.length - activeCount;
+			const activeCount = allSolves.filter((s) => !s.deletedAt).length;
+			const deletedCount = allSolves.length - activeCount;
 			console.log(
-				`[SolvesSyncService] Synced ${mergedSolves.length} solves from Convex (${activeCount} active, ${deletedCount} deleted)`
+				`[SolvesSyncService] Synced ${allSolves.length} solves from Convex (${activeCount} active, ${deletedCount} deleted)`
 			);
-			return mergedSolves;
+
+			// Filter out deleted solves - they're now in Convex, no need to keep in localStorage
+			const activeSolves = allSolves.filter((s) => !s.deletedAt);
+			if (deletedCount > 0) {
+				console.log(
+					`[SolvesSyncService] Removing ${deletedCount} deleted solve(s) from localStorage (now synced to Convex)`
+				);
+			}
+			return activeSolves;
 		} catch (error) {
 			console.error('[SolvesSyncService] Sync on login failed:', error);
 			// Return local solves as fallback

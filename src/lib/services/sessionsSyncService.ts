@@ -93,9 +93,9 @@ class SessionsSyncService {
 
 	/**
 	 * Sync localStorage sessions with Convex on first login.
-	 * - Uploads local sessions to Convex (upsert with lastModified comparison)
-	 * - Fetches all Convex sessions and merges with local
-	 * Returns the merged session list to update localStorage
+	 * - Uploads local sessions (including deleted ones) to Convex (upsert with lastModified comparison)
+	 * - Fetches active sessions from Convex (deleted ones are filtered by query)
+	 * Returns only active sessions to update localStorage
 	 */
 	async syncOnLogin(localSessions: Session[]): Promise<Session[]> {
 		if (!this._isAuthenticated || !this.client) {
@@ -105,15 +105,30 @@ class SessionsSyncService {
 		try {
 			// First, upload local sessions to Convex (handles conflicts via lastModified)
 			if (localSessions.length > 0) {
+				const activeLocal = localSessions.filter((s) => !s.deletedAt).length;
+				const deletedLocal = localSessions.length - activeLocal;
+				if (deletedLocal > 0) {
+					console.log(
+						`[SessionsSyncService] Uploading ${localSessions.length} local sessions (${activeLocal} active, ${deletedLocal} deleted)`
+					);
+				}
+
 				const result = await this.client.mutation(api.sessions.bulkUpsertSessions, {
 					sessions: localSessions
 				});
 				console.log(
 					`[SessionsSyncService] Bulk upsert complete: ${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped`
 				);
+
+				if (deletedLocal > 0) {
+					console.log(
+						`[SessionsSyncService] Removing ${deletedLocal} deleted session(s) from localStorage (now synced to Convex)`
+					);
+				}
 			}
 
 			// Then fetch all sessions from Convex (now includes our uploads)
+			// Note: getSessionsForCurrentUser filters out deleted sessions
 			const convexSessions = await this.client.query(api.sessions.getSessionsForCurrentUser, {});
 
 			// Import DEFAULT_SETTINGS for merging
@@ -133,7 +148,9 @@ class SessionsSyncService {
 				favorite: s.favorite
 			}));
 
-			console.log(`[SessionsSyncService] Synced ${mergedSessions.length} sessions from Convex`);
+			console.log(
+				`[SessionsSyncService] Synced ${mergedSessions.length} active sessions from Convex`
+			);
 			return mergedSessions;
 		} catch (error) {
 			console.error('[SessionsSyncService] Sync on login failed:', error);

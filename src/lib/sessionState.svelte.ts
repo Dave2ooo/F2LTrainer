@@ -273,11 +273,12 @@ class SessionState {
 
 	/**
 	 * Handle login sync - merge localStorage sessions with Convex (first time)
+	 * Deleted sessions are synced to Convex then removed from localStorage
 	 */
 	async handleLoginSync(): Promise<void> {
 		try {
-			const mergedSessions = await sessionsSyncService.syncOnLogin(this.sessions);
-			this.sessions = mergedSessions;
+			const activeSessions = await sessionsSyncService.syncOnLogin(this.sessions);
+			this.sessions = activeSessions;
 
 			// Ensure we have a valid active session (not deleted, not archived)
 			const currentActive = this.sessions.find((s) => s.id === this.activeSessionId);
@@ -301,9 +302,11 @@ class SessionState {
 			}
 
 			this.save();
-			console.log('[SessionState] Login sync complete, now have', this.sessions.length, 'sessions');
-			// Clean up old deleted sessions after successful sync
-			this.cleanupOldDeletedSessions();
+			console.log(
+				'[SessionState] Login sync complete, now have',
+				this.sessions.length,
+				'active sessions (deleted sessions removed after sync to Convex)'
+			);
 		} catch (error) {
 			console.error('[SessionState] Login sync failed:', error);
 		}
