@@ -64,7 +64,7 @@
 				>
 				<DropdownGroup class="max-h-[calc(100dvh-18rem)] overflow-y-auto">
 					{#each sessionState.sessions
-					.filter((s) => !s.archived && !s.deletedAt)
+						.filter((s) => !s.archived && !s.deletedAt)
 						.sort((a, b) => {
 							if (a.favorite && !b.favorite) return -1;
 							if (!a.favorite && b.favorite) return 1;

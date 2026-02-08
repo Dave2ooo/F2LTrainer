@@ -43,7 +43,7 @@ class SessionState {
 	constructor() {
 		if (browser) {
 			this.load();
-			
+
 			// Auto-save and cleanup old deleted sessions
 			$effect.root(() => {
 				$effect(() => {
@@ -156,12 +156,12 @@ class SessionState {
 		if (session) {
 			// If we are deleting the active session, switch to another one first
 			if (this.activeSessionId === id) {
-			const nextSession = this.sessions.find((s) => !s.archived && !s.deletedAt && s.id !== id);
-			this.activeSessionId = nextSession?.id || null;
-		}
+				const nextSession = this.sessions.find((s) => !s.archived && !s.deletedAt && s.id !== id);
+				this.activeSessionId = nextSession?.id || null;
+			}
 
-		// Mark as deleted instead of removing from array
-		// This allows offline deletions to sync when logging in
+			// Mark as deleted instead of removing from array
+			// This allows offline deletions to sync when logging in
 			session.deletedAt = Date.now();
 			session.lastModified = Date.now();
 			this.save();
@@ -370,9 +370,7 @@ class SessionState {
 		const removedCount = initialCount - filteredSessions.length;
 		if (removedCount > 0) {
 			this.sessions = filteredSessions;
-			console.log(
-				`[SessionState] Cleaned up ${removedCount} old deleted session(s) from memory`
-			);
+			console.log(`[SessionState] Cleaned up ${removedCount} old deleted session(s) from memory`);
 		}
 	}
 }

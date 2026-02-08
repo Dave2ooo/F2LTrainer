@@ -59,7 +59,9 @@
 			.filter((s) => !s.archived && !s.deletedAt)
 			.sort((a, b) => b.lastPlayedAt - a.lastPlayedAt)
 	);
-	const archivedSessions = $derived(sessionState.sessions.filter((s) => s.archived && !s.deletedAt));
+	const archivedSessions = $derived(
+		sessionState.sessions.filter((s) => s.archived && !s.deletedAt)
+	);
 
 	// Optimization: specific solve counts for each session mapped by ID
 	// This reduces complexity from O(Sessions * Solves) to O(Solves)
