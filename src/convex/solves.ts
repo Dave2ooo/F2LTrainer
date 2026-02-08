@@ -90,6 +90,11 @@ export const updateSolve = mutation({
 			throw new Error(`Solve with id ${args.id} not found`);
 		}
 
+		// Don't allow updating deleted solves
+		if (solve.deleted) {
+			throw new Error(`Cannot update deleted solve with id ${args.id}`);
+		}
+
 		await ctx.db.patch(solve._id, {
 			time: args.time,
 			timestamp: args.timestamp ?? Date.now()
@@ -164,11 +169,14 @@ export const moveSolvesToSession = mutation({
 			throw new Error('Not authenticated');
 		}
 
-		const solves = await ctx.db
+		const allSolves = await ctx.db
 			.query('solves')
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.filter((q) => q.eq(q.field('sessionId'), args.sourceSessionId))
 			.collect();
+
+		// Filter out deleted solves - only move active solves
+		const solves = allSolves.filter((s) => !s.deleted);
 
 		for (const solve of solves) {
 			await ctx.db.patch(solve._id, {
