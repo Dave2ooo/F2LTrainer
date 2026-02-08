@@ -244,6 +244,26 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 
 ---
 
+#### Test 3.6: Move Solves between Sessions
+
+**Scenario**: Move solves from one session to another
+
+**Steps**:
+
+1. Device A: Select "Session Source" with 5 solves
+2. Device A: Select "Session Target" (empty)
+3. Device A: Use "Move Solves" feature to move all solves from Source to Target
+4. Device B: Refresh page
+
+**Expected**:
+
+- ✅ "Session Source" is now empty on Device B
+- ✅ "Session Target" now has 5 solves on Device B
+- ✅ Solve timestamps updated to reflect move (for sync)
+- ✅ Console shows `moveSolvesToSession` mutation called
+
+---
+
 ### 4. Session Archiving (Soft Delete)
 
 #### Test 4.1: Archive Session While Online
@@ -428,6 +448,7 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 - ✅ Time updated on Device A
 - ✅ Device B sees new time
 - ✅ Statistics recalculate (avg, best)
+- ✅ `timestamp` field updated in Convex
 
 ---
 
@@ -445,6 +466,7 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 - ✅ Solve removed from Device A statistics
 - ✅ Solve removed from Device B after refresh
 - ✅ Solve soft-deleted in Convex (`deleted: true`)
+- ✅ `deletedAt` and `timestamp` updated
 
 ---
 
@@ -463,8 +485,6 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 - ✅ All 20 solves removed from Device A
 - ✅ Device B sees empty statistics after refresh
 - ✅ All solves soft-deleted in Convex
-
----
 
 ---
 
@@ -933,6 +953,45 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 
 ---
 
+#### Test 11.4: Concurrent Solve Updates (Timestamp Conflict)
+
+**Scenario**: Edit same solve on two devices simultaneously
+
+**Steps**:
+
+1. Device A: Load solve "abc-123".
+2. Device B: Load solve "abc-123".
+3. Device A: Update time to 5.00s at 12:00:00 (offline or paused).
+4. Device B: Update time to 6.00s at 12:00:05.
+5. Sync both devices.
+
+**Expected**:
+
+- ✅ Solve "abc-123" has time 6.00s (newer timestamp wins)
+- ✅ Device A updates to 6.00s after sync
+- ✅ `timestamp` field updated to Device B's modification time
+
+---
+
+#### Test 11.5: Solve Move vs Delete Conflict
+
+**Scenario**: Move solves on one device, delete them on another
+
+**Steps**:
+
+1. Device A: Move solves from "Session A" to "Session B" at 12:00:05.
+2. Device B: Delete "Session A" (and its solves) at 12:00:00.
+3. Sync both.
+
+**Expected**:
+
+- ✅ Move operation on Device A is newer (12:00:05 > 12:00:00)
+- ✅ Solves persist in "Session B"
+- ✅ Solves are NOT deleted (move timestamp > delete timestamp)
+- ✅ "Session A" is deleted
+
+---
+
 ### 12. Edge Cases
 
 #### Test 12.1: Login on Fresh Device After Hard Delete
@@ -1078,6 +1137,47 @@ Comprehensive test plan for testing sessions and solves sync functionality acros
 - ✅ Convex client reconnects automatically
 - ✅ No data loss
 - ✅ Sync continues working
+
+---
+
+#### Test 12.9: Clock Skew Handling
+
+**Scenario**: Device has incorrect system time
+
+**Steps**:
+
+1. Device A: Set system time to 1 year in future.
+2. Device A: Create a solve.
+3. Device A: Sync.
+4. Device B: (Correct time) Create a solve.
+5. Device B: Check sort order.
+
+**Expected**:
+
+- ✅ Device A's solve appears in future (or top of list if sorted DESC)
+- ✅ Sync still works (doesn't crash)
+- ✅ User might see "weird" ordering but data is safe
+- _Note: Conflict resolution relies on client time. Future time will always win conflicts._
+
+---
+
+#### Test 12.10: ID Collision on Offline Creation
+
+**Scenario**: Two devices create item with same UUID (Statistical impossibility test)
+
+**Steps**:
+
+1. Device A: Offline, create Session with specific UUID "collision-test-id".
+2. Device B: Offline, create Session with same UUID "collision-test-id".
+3. Device A: Log in (syncs first).
+4. Device B: Log in (syncs second).
+
+**Expected**:
+
+- ✅ Second sync detects existing ID
+- ✅ Treats as "update" (merges or overwrites based on timestamp)
+- ✅ NO duplicate entry in database
+- ✅ System stability maintained
 
 ---
 
