@@ -70,7 +70,8 @@ export const addSolve = mutation({
 export const updateSolve = mutation({
 	args: {
 		id: v.string(),
-		time: v.number()
+		time: v.number(),
+		timestamp: v.optional(v.number())
 	},
 	handler: async (ctx, args) => {
 		const identity = await ctx.auth.getUserIdentity();
@@ -89,7 +90,10 @@ export const updateSolve = mutation({
 			throw new Error(`Solve with id ${args.id} not found`);
 		}
 
-		await ctx.db.patch(solve._id, { time: args.time });
+		await ctx.db.patch(solve._id, {
+			time: args.time,
+			timestamp: args.timestamp ?? Date.now()
+		});
 	}
 });
 
@@ -113,7 +117,8 @@ export const deleteSolve = mutation({
 			// Soft delete: mark as deleted with timestamp
 			await ctx.db.patch(solve._id, {
 				deleted: true,
-				deletedAt: Date.now()
+				deletedAt: Date.now(),
+				timestamp: Date.now()
 			});
 		}
 	}
@@ -139,7 +144,36 @@ export const deleteSolvesBySession = mutation({
 			// Soft delete all solves for this session
 			await ctx.db.patch(solve._id, {
 				deleted: true,
-				deletedAt: Date.now()
+				deletedAt: Date.now(),
+				timestamp: Date.now()
+			});
+		}
+
+		return solves.length;
+	}
+});
+
+export const moveSolvesToSession = mutation({
+	args: {
+		sourceSessionId: v.string(),
+		targetSessionId: v.string()
+	},
+	handler: async (ctx, args) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+
+		const solves = await ctx.db
+			.query('solves')
+			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.filter((q) => q.eq(q.field('sessionId'), args.sourceSessionId))
+			.collect();
+
+		for (const solve of solves) {
+			await ctx.db.patch(solve._id, {
+				sessionId: args.targetSessionId,
+				timestamp: Date.now()
 			});
 		}
 

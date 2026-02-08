@@ -81,6 +81,7 @@ function compressSolve(solve: Solve): CompressedSolve {
 		sid: solve.sessionId,
 		rt: solve.recognitionTime,
 		et: solve.executionTime,
+
 		m: MODE_MAP[solve.trainMode]
 	};
 }
@@ -139,6 +140,9 @@ class StatisticsStateManager {
 
 		$effect.root(() => {
 			$effect(() => {
+				// Filter out soft-deleted solves before saving to localStorage (optional optimization,
+				// but we might want to keep them to sync deletions if user clears cache.
+				// For now, save everything including deleted.)
 				saveToLocalStorage(STATISTICS_STATE_STORAGE_KEY, compressStatistics(this.allSolves));
 			});
 		});
@@ -146,7 +150,7 @@ class StatisticsStateManager {
 
 	get statistics() {
 		if (sessionState.activeSessionId === null) return [];
-		return this.allSolves.filter((s) => s.sessionId === sessionState.activeSessionId);
+		return this.allSolves.filter((s) => s.sessionId === sessionState.activeSessionId && !s.deleted);
 	}
 
 	addSolve(solve: Solve) {
@@ -154,6 +158,7 @@ class StatisticsStateManager {
 		if (!solve.sessionId && sessionState.activeSessionId !== null) {
 			solve.sessionId = sessionState.activeSessionId;
 		}
+
 		this.allSolves.push(solve);
 
 		// Sync to Convex if authenticated
@@ -169,15 +174,20 @@ class StatisticsStateManager {
 		const solve = this.allSolves.find((s) => s.id === id);
 		if (solve) {
 			solve.time = time;
+			solve.timestamp = Date.now();
 			// Sync to Convex if authenticated
-			solvesSyncService.updateSolve(id, time);
+			solvesSyncService.updateSolve(id, time, solve.timestamp);
 		}
 	}
 
 	removeSolve(id: string) {
 		const index = this.allSolves.findIndex((s) => s.id === id);
 		if (index !== -1) {
-			this.allSolves.splice(index, 1);
+			const solve = this.allSolves[index];
+			solve.deleted = true;
+			solve.deletedAt = Date.now();
+			solve.timestamp = Date.now();
+
 			// Sync to Convex if authenticated
 			solvesSyncService.deleteSolve(id);
 		}
@@ -212,9 +222,15 @@ class StatisticsStateManager {
 		for (const solve of this.allSolves) {
 			if (solve.sessionId === sourceSessionId) {
 				solve.sessionId = targetSessionId;
+				solve.timestamp = Date.now();
 				movedCount++;
 			}
 		}
+
+		if (movedCount > 0) {
+			solvesSyncService.moveSolvesToSession(sourceSessionId, targetSessionId);
+		}
+
 		return movedCount;
 	}
 
