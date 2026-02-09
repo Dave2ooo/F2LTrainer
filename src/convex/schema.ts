@@ -22,7 +22,9 @@ export default defineSchema({
 
 		// To filter solves by user
 		tokenIdentifier: v.string()
-	}).index('by_tokenIdentifier', ['tokenIdentifier']),
+	})
+		.index('by_tokenIdentifier', ['tokenIdentifier'])
+		.index('by_deletedAt', ['deletedAt']),
 
 	sessions: defineTable({
 		id: v.string(), // Session UUID
@@ -37,7 +39,9 @@ export default defineSchema({
 
 		// To filter sessions by user
 		tokenIdentifier: v.string()
-	}).index('by_tokenIdentifier', ['tokenIdentifier']),
+	})
+		.index('by_tokenIdentifier', ['tokenIdentifier'])
+		.index('by_deletedAt', ['deletedAt']),
 
 	caseStates: defineTable({
 		groupId: v.string(),

@@ -1,308 +1,209 @@
-# Convex Sync Test Plan
+# Convex Sync Test Plan (Continuous Workflow)
 
-Comprehensive test plan for testing sessions and solves sync functionality across devices.
-This plan consolidates related scenarios into integrated workflows for efficiency.
+This test plan is designed as a **single continuous workflow**. Perform these steps in order. The state created in each step is required for the subsequent steps.
 
-## Test Setup
+## Prerequisites
 
-### Prerequisites
-
-- Two devices (or two browsers/incognito windows) labeled **Device A** and **Device B**
-- Clerk authentication configured
-- Clear understanding of localStorage keys: `sessions`, `solves`, `activeSessionId`, `casesState`
-
-### Test Data Preparation
-
-- Create 2-3 test sessions with different names
-- Add 5-10 solves to each session (mix of timed/untimed)
-- Modify case states: change train states, set custom algorithms
+1.  **Device A**: Primary browser (e.g., Chrome).
+2.  **Device B**: Secondary browser (e.g., Firefox, Edge, or Incognito window).
+3.  **Account**: A single Clerk account to log in to both devices.
+4.  **Preparation**:
+    - Open `localhost:5173` on both devices.
+    - **Clear Local Storage** on both devices (DevTools -> Application -> Local Storage -> Clear All) to ensure a fresh start.
 
 ---
 
-## Part 1: Initial Sync & Basics
+## Phase 1: The Fresh Start (Offline-First)
 
-### Test 1: Full Sync on Login (Online & Offline Data)
+**Goal**: Verify that data created while unauthenticated (offline mode) is persisted locally.
 
-**Scenario**: Verify that all locally created data (sessions, solves, case states) syncs upon login, and existing cloud data is pulled.
+1.  **Device A (Logged Out)**:
+    - Create a session named **"Session Alpha"**.
+    - Add **5 solves** to "Session Alpha" (Times: 10s, 11s, 12s, 13s, 14s).
+    - Create a second session named **"Session Beta"**.
+    - Add **3 solves** to "Session Beta".
+    - Go to **Train View**: Select "Basic" group, modify Case #3 (Right) to **"Learning"**.
+    - Set a Custom Algorithm for Case #3 (Right): `U R U' R'`.
 
-**Steps**:
-
-1. **Device A (Offline Preparation)**:
-   - Clear all data (fresh start).
-   - Create 2 sessions ("Offline Session 1", "Offline Session 2").
-   - Add 3 solves to each.
-   - Modify 3 case states (change train state, set custom algs).
-2. **Device A**: Log in. Wait for sync.
-3. **Device B**: Log in with same account (fresh state).
-
-**Expected**:
-
-- ✅ Device B shows all sessions, solves, and case states created on Device A.
-- ✅ Console logs show "Bulk upsert complete" on Device A.
-- ✅ Console logs show "Login sync complete" on Device B.
-
-### Test 2: Sync on Refresh & Remote Changes
-
-**Scenario**: Verify that changes made on one device appear on another after a page refresh.
-
-**Steps**:
-
-1. **Device B**: Create "Session C", add 5 solves, change 2 case states.
-2. **Device A**: Refresh page (F5).
-
-**Expected**:
-
-- ✅ Device A sees "Session C", its solves, and the case state changes.
-- ✅ Active session remains selected (if valid).
+2.  **Verification (Device A)**:
+    - Refresh the page.
+    - ✅ **"Session Alpha"** exists with 5 solves.
+    - ✅ **"Session Beta"** exists with 3 solves.
+    - ✅ Case #3 is still "Learning" with custom alg `U R U' R'`.
 
 ---
 
-## Part 2: Session Management (CRUD)
+## Phase 2: Going Cloud (First Sync)
 
-### Test 3: Session Lifecycle (Create, Edit, Duplicate)
+**Goal**: Verify that local data is pushed to the cloud upon first login.
 
-**Scenario**: Test creation, modification, and duplication of sessions in various states.
+3.  **Device A**:
+    - Click **Log In** and authenticate.
+    - Wait for the "Syncing..." indicator to finish.
 
-**Steps**:
+4.  **Verification (Device A Console)**:
+    - Check console for: `[ConvexClerkSync] User authenticated, starting sync...`
+    - Check console for: `[SessionsSyncService] Bulk upsert complete...`
 
-1. **Create (Online)**: Device A creates "Online Session". Device B refreshes -> Sees it.
-2. **Edit**: Device A renames "Online Session" to "Renamed Session" and toggles "Favorite". Device B refreshes -> Sees changes.
-3. **Duplicate**: Device A duplicates "Renamed Session". Device B refreshes -> Sees both original and copy (with deep-copied settings).
-4. **Offline Creation**: Device A goes offline, creates "Offline Session 3", logs back in. Device B refreshes -> Sees "Offline Session 3".
+5.  **Device B (The Sentinel)**:
+    - Open App (Logged Out). Verify it is empty (default state).
+    - Click **Log In** and authenticate with the **same account**.
 
-**Expected**:
-
-- ✅ All changes sync correctly to Device B.
-- ✅ Settings are preserved across all operations.
-- ✅ UUIDs are unique for duplicated sessions.
-
-### Test 4: Session Deletion & Archiving (Soft vs Hard)
-
-**Scenario**: Verify archiving (user-reversible) and hard deletion (permanent from UI, soft-delete in DB).
-
-**Steps**:
-
-1. **Archive**: Device A archives "Session A". Device B refreshes -> Sees "Session A" in archive list.
-2. **Restore**: Device A restores "Session A". Device B refreshes -> Sees "Session A" in active list.
-3. **Hard Delete (Online)**: Device A hard-deletes "Session A". Device B refreshes -> "Session A" disappears.
-4. **Hard Delete (Offline - Critical)**:
-   - Device A logs out.
-   - Device A hard-deletes "Offline Session 1".
-   - Device A logs in.
-   - Device B refreshes.
-
-**Expected**:
-
-- ✅ Hard-deleted sessions disappear from UI on both devices.
-- ✅ Offline deletions sync correctly upon login (no "resurrection" of deleted sessions).
-- ✅ Associated solves are also soft-deleted in the backend.
-
-### Test 4a: Offline Session Deletion Persistence (NEW)
-
-**Scenario**: Verify that sessions deleted while offline remain deleted after page refresh (before login).
-
-**Steps**:
-
-1. **Device A (Logged Out)**:
-   - Create 3 sessions ("Test Session 1", "Test Session 2", "Test Session 3").
-   - Check localStorage: should show 3 sessions.
-2. **Delete Offline**: Hard-delete "Test Session 2" (while still logged out).
-3. **Refresh Page**: Press F5 to reload the page (still logged out).
-4. **Verify**: Check that only "Test Session 1" and "Test Session 3" are visible.
-5. **Login**: Log in to sync.
-6. **Device B**: Refresh and verify "Test Session 2" does not appear.
-
-**Expected**:
-
-- ✅ Deleted session stays deleted after refresh (no "reappearance").
-- ✅ Deleted session is marked with `deleted: true` and `deletedAt` timestamp in localStorage.
-- ✅ After login, deletion syncs to Convex correctly.
-- ✅ Device B never sees the deleted session.
+6.  **Verification (Device B)**:
+    - ✅ **"Session Alpha"** appears with 5 solves.
+    - ✅ **"Session Beta"** appears with 3 solves.
+    - ✅ **Case #3** shows "Learning" status and custom alg `U R U' R'`.
 
 ---
 
-## Part 3: Solve Management
+## Phase 3: Cross-Device Collaboration
 
-### Test 5: Solve Lifecycle (Add, Edit, Delete, Move)
+**Goal**: Verify that changes made on one device propagate to the other.
 
-**Scenario**: Test the full lifecycle of a solve, including editing times, deleting, and moving between sessions.
+7.  **Device B (Active)**:
+    - Rename **"Session Alpha"** to **"Session Alpha Updated"**.
+    - **Delete "Session Beta"** (Soft delete).
+    - Create a new session **"Session Gamma"**.
+    - Add **1 solve** to "Session Gamma" (Time: 5s).
+    - Change Case #3 to **"Finished"**.
 
-**Steps**:
+8.  **Device A (Passive)**:
+    - Refresh the page.
 
-1. **Add**: Device A completes a solve (5.00s). Device B refreshes -> Sees solve.
-2. **Edit**: Device A updates time to 4.50s. Device B refreshes -> Sees 4.50s.
-3. **Move**: Device A moves all solves from "Session B" to "Renamed Session". Device B refreshes -> Sees solves in new session.
-4. **Delete**: Device A deletes the solve. Device B refreshes -> Solve disappears.
-5. **Clear Session**: Device A clears all solves in "Renamed Session". Device B refreshes -> Session is empty.
-
-**Expected**:
-
-- ✅ All operations sync correctly.
-- ✅ Timestamps update on edit/move to ensure proper sync.
-- ✅ Moved solves retain their data but change session ID.
-
-### Test 6: Offline Solve Sync
-
-**Scenario**: Accumulate solves offline and sync them in bulk.
-
-**Steps**:
-
-1. **Device A**: Log out.
-2. **Device A**: Do 10 solves.
-3. **Device A**: Log in.
-4. **Device B**: Refresh.
-
-**Expected**:
-
-- ✅ All 10 solves appear on Device B with correct timestamps.
-- ✅ No duplicate solves.
-
-### Test 6a: Offline Solve Deletion Persistence (NEW)
-
-**Scenario**: Verify that solves deleted while offline remain deleted after page refresh (before login).
-
-**Steps**:
-
-1. **Device A (Logged Out)**:
-   - Create a session with 5 solves (Solve #1 through #5).
-   - Check localStorage: should show 5 solves.
-2. **Delete Offline**: Delete Solve #2 and Solve #4 (while still logged out).
-3. **Refresh Page**: Press F5 to reload the page (still logged out).
-4. **Verify**: Check that only Solve #1, #3, and #5 are visible (count: 3 solves).
-5. **Login**: Log in to sync.
-6. **Device B**: Refresh and verify only 3 solves appear (deleted ones don't appear).
-
-**Expected**:
-
-- ✅ Deleted solves stay deleted after refresh (no "reappearance").
-- ✅ Deleted solves are marked with `deleted: true` and `deletedAt` timestamp in localStorage.
-- ✅ After login, deletions sync to Convex correctly.
-- ✅ Device B shows correct count (3 active solves, not 5).
+9.  **Verification (Device A)**:
+    - ✅ **"Session Alpha Updated"** is visible (name changed).
+    - ✅ **"Session Beta"** is **GONE** (deleted).
+    - ✅ **"Session Gamma"** is visible with 1 solve.
+    - ✅ **Case #3** is "Finished".
 
 ---
 
-## Part 4: Case State Management (Learning Progress)
+## Phase 4: Offline Divergence & Persistence
 
-### Test 7: Case State Workflows (Batching & Consistency)
+**Goal**: Verify that deletions and creations made while offline/logged-out are persisted and synced correctly later.
 
-**Scenario**: Test modifying learning states and custom algorithms, including batching behavior.
+10. **Device A (Going Dark)**:
+    - **Log Out**. (This simulates being offline/unauthenticated).
+    - **Delete "Session Gamma"** locally.
+    - Go to **"Session Alpha Updated"**:
+      - Delete the solve with time **10s**.
+      - Add a new solve with time **99s**.
 
-**Steps**:
+11. **Persistence Check (Device A)**:
+    - **Refresh the page** (Stay logged out).
+    - ✅ **"Session Gamma"** should NOT reappear.
+    - ✅ **"Session Alpha Updated"** count should be 5 (4 original + 1 new). Start count was 5, delete 1, add 1.
 
-1. **Train State**: Device A changes Case #1 to "Learning". Device B refreshes -> Sees "Learning".
-2. **Custom Algorithm**: Device A sets custom alg for Case #2 (Left: "R U R'", Right: "L' U' L"). Device B refreshes -> Sees algs.
-3. **Identical Toggle**: Device A enables "Identical Algorithm" for Case #3. Device B refreshes -> Sees flag true, right alg matches left.
-4. **Selection Change**: Device A changes selected algorithm index for Case #4. Device B refreshes -> Sees new index.
-5. **Rapid Batching**: Device A changes 5 case states within 1 second. Device B refreshes -> Sees all 5 changes.
+12. **Reconnection (Device A)**:
+    - **Log In**.
+    - Wait for sync.
 
-**Expected**:
-
-- ✅ All changes sync accurately.
-- ✅ Rapid changes are batched into fewer API calls.
-- ✅ Complex algorithm strings (special chars) are preserved exactly.
-
----
-
-## Part 5: Conflict Resolution & Edge Cases
-
-### Test 8: Conflict Resolution (Timestamp Wins)
-
-**Scenario**: Verify that the latest change (based on client timestamp) wins in conflict scenarios.
-
-**Steps**:
-
-1. **Concurrent Solve Edit**:
-   - Device A loads Solve X (time 5.00s). Device B loads Solve X.
-   - Device A changes time to 4.00s at 12:00:00 (freeze time/offline).
-   - Device B changes time to 6.00s at 12:00:05.
-   - Both sync.
-   - **Result**: Solve X time is 6.00s (Device B wins).
-2. **Concurrent Case Edit**:
-   - Device A sets Case #1 to "Finished" at 12:00:00.
-   - Device B sets Case #1 alg to "R U R'" at 12:00:05.
-   - Both sync.
-   - **Result**: Case #1 has alg "R U R'" (Device B wins).
-3. **Move vs Delete**:
-   - Device A moves solves from Session Y to Z at 12:00:05.
-   - Device B deletes Session Y at 12:00:00.
-   - Both sync.
-   - **Result**: Solves are safetly in Session Z. Session Y is deleted.
-
-### Test 9: Integrity & Edge Cases
-
-**Scenario**: Test system limits and unusual conditions.
-
-**Steps**:
-
-1. **Clock Skew**: Set Device A time to +1 year. Create solve. Sync. Solve should exist (future timestamp wins).
-2. **ID Collision**: (Theoretical) Two offline devices create same UUID. Sync handles it as an update (no crash).
-3. **Large Data**: Create 50 sessions + 5000 solves. Sync on login. Verify performance (<5s).
-4. **Network Drop**: Disable network during sync. Re-enable. Sync retries and succeeds.
-
-### Test 10: Auto-Cleanup of Old Deleted Items (NEW)
-
-**Scenario**: Verify that deleted solves and sessions older than 7 days are automatically removed from localStorage to keep storage clean.
-
-**Steps**:
-
-1. **Setup (Requires Date Manipulation)**:
-   - Device A (logged in): Create "Cleanup Session" with 5 solves.
-   - Hard-delete 2 solves and mark them as deleted at timestamp = (Now - 8 days).
-   - Hard-delete 1 solve at timestamp = (Now - 2 days).
-   - Hard-delete "Cleanup Session" at timestamp = (Now - 10 days).
-   - Create "Recent Delete Session" and hard-delete at timestamp = (Now - 3 days).
-
-2. **Trigger Cleanup**:
-   - Option A: Perform a page refresh (triggers page load sync).
-   - Option B: Log out and log back in (triggers login sync).
-
-3. **Inspect localStorage**:
-   - Open DevTools → Application → Local Storage → `solves` key.
-   - Check compressed solves array for items with `d: true` (deleted flag).
-   - Open DevTools → Application → Local Storage → `sessions` key.
-   - Check sessions array for items with `deleted: true`.
-
-**Expected**:
-
-- ✅ **Old Deleted Solves (8+ days)**: Removed from localStorage (not in compressed array).
-- ✅ **Recent Deleted Solve (2 days)**: Still present in localStorage with `d: true` flag.
-- ✅ **Old Deleted Session (10 days)**: Removed from localStorage.
-- ✅ **Recent Deleted Session (3 days)**: Still present in localStorage with `deleted: true` flag.
-- ✅ Console logs show: `"Cleaned up X old deleted solve(s) from localStorage/memory"`.
-- ✅ Active (non-deleted) items are never affected by cleanup.
-
-**Rationale**: 7-day retention allows offline deletions to sync before cleanup, preventing data loss while keeping localStorage clean.
-
-### Test 11: Multi-Device Deletion Sync (NEW)
-
-**Scenario**: Verify that deletions made on one device propagate to other devices correctly, even with old deleted items.
-
-**Steps**:
-
-1. **Device A**: Create 10 solves in "Sync Test Session".
-2. **Device B**: Refresh → sees 10 solves.
-3. **Device A**: Delete 4 solves. Wait for sync.
-4. **Device B**: Refresh → sees 6 solves.
-5. **Device A**: Delete "Sync Test Session". Wait for sync.
-6. **Device B**: Refresh → session is gone.
-7. **Device A (Offline)**: Restore from localStorage backup that has deleted items (from 5 days ago).
-8. **Device A**: Login to sync.
-9. **Device B**: Refresh.
-
-**Expected**:
-
-- ✅ Device B correctly reflects deletions from Device A.
-- ✅ Old deleted items (from restored backup) do not "resurrect" on Device B.
-- ✅ Sync includes deleted items (`includeDeleted: true`) to preserve deletion history.
-- ✅ After 7 days, old deleted items are cleaned up automatically on both devices.
+13. **Verification (Device B)**:
+    - Refresh Page.
+    - ✅ **"Session Gamma"** is **GONE**.
+    - ✅ **"Session Alpha Updated"** shows the **99s** solve.
+    - ✅ The **10s** solve is **GONE**.
 
 ---
 
-## Success Criteria
+## Phase 5: Conflict Resolution (Last Write Wins)
 
-- ✅ **No Data Loss**: All created data eventually reaches all devices.
-- ✅ **Consistency**: Devices converge to the same state.
-- ✅ **Resilience**: Offline operations and network interruptions are handled gracefully.
-- ✅ **Performance**: UI remains responsive during sync.
-- ✅ **Deletion Integrity**: Offline deletions persist across refreshes and sync correctly.
-- ✅ **Storage Efficiency**: Old deleted items (>7 days) are automatically cleaned up to conserve localStorage space.
+**Goal**: Verify that concurrent edits are resolved by timestamp.
+
+14. **Setup**:
+    - Ensure both devices are looking at **"Session Alpha Updated"**.
+    - Identify the solve with time **14s**.
+
+15. **The Race**:
+    - **Device A (Logged In)**: Edit the 14s solve -> Change time to **14.11s**. (Do not refresh B yet).
+    - **Device B (Logged In)**: Edit the same 14s solve -> Change time to **14.99s**. (Perform this action 1-2 seconds _after_ Device A).
+
+16. **Sync**:
+    - Refresh Device A.
+    - Refresh Device B.
+
+17. **Verification**:
+    - ✅ Both devices should show **14.99s** (The later edit wins).
+
+---
+
+## Phase 6: Solve Lifecycle & Cleanup
+
+**Goal**: Verify detailed solve operations and local storage hygiene.
+
+18. **Device A**:
+    - Move all solves from **"Session Alpha Updated"** to a new session **"Archive Session"**.
+
+19. **Device B**:
+    - Refresh.
+    - ✅ **"Session Alpha Updated"** is empty (0 solves).
+    - ✅ **"Archive Session"** contains ~5 solves.
+
+20. **Device A (Cleanup)**:
+    - Delete **"Archive Session"**.
+    - Delete **"Session Alpha Updated"**.
+
+21. **Final Verification (Device B)**:
+    - Refresh.
+    - ✅ Session list is empty (or shows default empty session).
+    - ✅ No stray solves remain.
+
+---
+
+## Phase 7: Storage Hygiene (Automated)
+
+**Goal**: Verify old deleted items don't clog up storage.
+
+22. **Device A**:
+    - Open DevTools -> Console.
+    - **Simulate old deleted SESSION**:
+      ```javascript
+      const oldSession = {
+      	id: 'old-deleted-session',
+      	name: 'Old',
+      	deletedAt: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+      	settings: {}
+      };
+      const sessions = JSON.parse(localStorage.getItem('sessions') || '[]');
+      sessions.push(oldSession);
+      localStorage.setItem('sessions', JSON.stringify(sessions));
+      ```
+    - **Simulate old deleted SOLVE**:
+      ```javascript
+      // Solves are stored in compressed format ('da' = deletedAt)
+      const oldSolve = {
+      	id: 'old-deleted-solve',
+      	gId: 'b', // basic
+      	cId: 1,
+      	t: 5000,
+      	ts: Math.floor((Date.now() - 8 * 24 * 60 * 60 * 1000) / 1000),
+      	da: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+      	m: 'c'
+      };
+      const solves = JSON.parse(localStorage.getItem('solves') || '[]');
+      solves.push(oldSolve);
+      localStorage.setItem('solves', JSON.stringify(solves));
+      ```
+    - Refresh Page.
+
+23. **Verification**:
+    - Check Console logs.
+    - ✅ Should see message: `[SessionState] Cleaned up 1 old deleted session(s)...`
+    - ✅ Should see message: `[StatisticsState] Cleaned up 1 old deleted solve(s)...`
+    - Check localStorage `sessions`.
+    - ✅ The 'old-deleted-session' should be removed.
+    - Check localStorage `solves`.
+    - ✅ The 'old-deleted-solve' should be removed.
+
+---
+
+## Summary of Success
+
+If you reached this point:
+
+1.  **Offline Creation** works.
+2.  **Cloud Sync** works.
+3.  **Cross-Device** updates work.
+4.  **Offline Deletions** persist and sync.
+5.  **Conflict Resolution** favors the latest change.
+6.  **Cleanup** logic is functional.

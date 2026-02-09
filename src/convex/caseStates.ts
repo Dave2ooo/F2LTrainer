@@ -138,6 +138,18 @@ export const bulkUpsertCaseStates = mutation({
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) throw new Error('Not authenticated');
 
+		// 1. Fetch ALL existing case states for this user in one query
+		const existingStates = await ctx.db
+			.query('caseStates')
+			.withIndex('by_user', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
+			.collect();
+
+		// 2. Create a lookup map: "groupId-caseId" -> Document
+		const existingMap = new Map<string, (typeof existingStates)[0]>();
+		for (const state of existingStates) {
+			existingMap.set(`${state.groupId}-${state.caseId}`, state);
+		}
+
 		let inserted = 0;
 		let updated = 0;
 		let skipped = 0;
@@ -165,16 +177,8 @@ export const bulkUpsertCaseStates = mutation({
 					continue;
 				}
 
-				// Check if case state already exists
-				const existing = await ctx.db
-					.query('caseStates')
-					.withIndex('by_user_case', (q) =>
-						q
-							.eq('tokenIdentifier', identity.tokenIdentifier)
-							.eq('groupId', caseState.groupId)
-							.eq('caseId', caseState.caseId)
-					)
-					.unique();
+				const key = `${caseState.groupId}-${caseState.caseId}`;
+				const existing = existingMap.get(key);
 
 				if (existing) {
 					// Update if incoming is newer
