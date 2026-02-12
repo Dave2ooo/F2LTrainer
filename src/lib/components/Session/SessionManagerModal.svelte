@@ -548,6 +548,7 @@
 			<div>
 				<Label for="merge-source" class="mb-2">Source Session (will be deleted)</Label>
 				<Select
+					placeholder=""
 					id="merge-source"
 					bind:value={mergeSourceId}
 					items={activeSessions.map((s) => ({
@@ -560,6 +561,7 @@
 			<div>
 				<Label for="merge-target" class="mb-2">Target Session (will receive solves)</Label>
 				<Select
+					placeholder=""
 					id="merge-target"
 					bind:value={mergeTargetId}
 					items={activeSessions.map((s) => ({
