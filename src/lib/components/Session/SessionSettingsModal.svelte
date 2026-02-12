@@ -55,18 +55,6 @@
 	let settings = $derived(workingSession.settings);
 	let session = $derived(workingSession);
 
-	// Options for selects
-	const hintAlgoOptions = [
-		{ value: 'step', name: 'Reveal step-by-step' },
-		{ value: 'allAtOnce', name: 'Reveal all at once' },
-		{ value: 'always', name: 'Show all time' }
-	];
-
-	const hintStickerOptions = [
-		{ value: 'f2l', name: 'F2L Stickering' },
-		{ value: 'fully', name: 'Fully stickered' }
-	];
-
 	// Color options for checkboxes (using imported STICKER_COLORS)
 
 	// Auto-unselect invalid front colors or clear if multiple cross colors selected
@@ -375,12 +363,45 @@
 								<div class="card h-full space-y-4">
 									{#if settings.trainMode !== 'drill'}
 										<div>
-											<Label class="section-label mb-1.5">Algorithm Hint</Label>
-											<Select
-												items={hintAlgoOptions}
-												bind:value={settings.trainHintAlgorithm}
-												placeholder=""
-											/>
+											<Label class="section-label mb-3">Algorithm Hint</Label>
+											<div class="grid grid-cols-3 gap-2">
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'step'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.trainHintAlgorithm = 'step')}
+												>
+													<RadioDot selected={settings.trainHintAlgorithm === 'step'} />
+													<span class="text-sm text-gray-900 dark:text-white">Step-by-step</span>
+												</div>
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'allAtOnce'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.trainHintAlgorithm = 'allAtOnce')}
+												>
+													<RadioDot selected={settings.trainHintAlgorithm === 'allAtOnce'} />
+													<span class="text-sm text-gray-900 dark:text-white">All at once</span>
+												</div>
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'always'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.trainHintAlgorithm = 'always')}
+												>
+													<RadioDot selected={settings.trainHintAlgorithm === 'always'} />
+													<span class="text-sm text-gray-900 dark:text-white">Always show</span>
+												</div>
+											</div>
 										</div>
 									{/if}
 
@@ -448,80 +469,100 @@
 								<!-- Sticker Style -->
 								<div class="card">
 									<Label class="section-label mb-3">Stickering Style</Label>
-									<Select
-										items={hintStickerOptions}
-										bind:value={settings.trainHintStickering}
-										placeholder=""
-									/>
-								</div>
-							</div>
-						</div>
-
-						<!-- Interface Section -->
-						<div class="flex flex-col gap-4">
-							<div class="card">
-								<Label class="mb-3 text-sm font-semibold">View Options</Label>
-								<div class="space-y-2">
-									<div class="flex items-center gap-2">
-										<Checkbox
-											checked={settings.backView === 'floating'}
-											onchange={() => {
-												settings.backView = settings.backView === 'floating' ? 'none' : 'floating';
-											}}>Show Floating Stickers</Checkbox
+									<div class="grid grid-cols-2 gap-2">
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
+											class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+												{settings.trainHintStickering === 'f2l'
+												? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+												: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+											onclick={() => (settings.trainHintStickering = 'f2l')}
 										>
-										<Button
-											id="btn-floating-stickers-help"
-											class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
-											type="button"
+											<RadioDot selected={settings.trainHintStickering === 'f2l'} />
+											<span class="text-sm text-gray-900 dark:text-white">F2L Stickering</span>
+										</div>
+										<!-- svelte-ignore a11y_click_events_have_key_events -->
+										<!-- svelte-ignore a11y_no_static_element_interactions -->
+										<div
+											class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+												{settings.trainHintStickering === 'fully'
+												? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+												: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+											onclick={() => (settings.trainHintStickering = 'fully')}
 										>
-											<CircleQuestionMark class="text-primary-600" />
-										</Button>
-										<Tooltip
-											triggeredBy="#btn-floating-stickers-help"
-											trigger="click"
-											class="p-2"
-											placement="left"
-										>
-											<twisty-player
-												style="width: 120px; height: 120px;"
-												puzzle="3x3x3"
-												experimental-setup-alg="z2 y' R U R' U'"
-												hint-facelets="floating"
-												back-view="none"
-												control-panel="none"
-												background="none"
-												viewer-link="none"
-												experimental-drag-input="auto"
-											></twisty-player>
-										</Tooltip>
+											<RadioDot selected={settings.trainHintStickering === 'fully'} />
+											<span class="text-sm text-gray-900 dark:text-white">Fully Stickered</span>
+										</div>
 									</div>
-									<div class="flex items-center gap-2">
-										<Checkbox bind:checked={settings.backViewEnabled}>Show Back View</Checkbox>
-										<Button
-											id="btn-back-view-help"
-											class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
-											type="button"
-										>
-											<CircleQuestionMark class="text-primary-600" />
-										</Button>
-										<Tooltip
-											triggeredBy="#btn-back-view-help"
-											trigger="click"
-											class="p-2"
-											placement="left"
-										>
-											<twisty-player
-												style="width: 120px; height: 120px;"
-												puzzle="3x3x3"
-												experimental-setup-alg="z2 y' R U R' U'"
-												hint-facelets="none"
-												back-view="top-right"
-												control-panel="none"
-												background="none"
-												viewer-link="none"
-												experimental-drag-input="auto"
-											></twisty-player>
-										</Tooltip>
+								</div>
+
+								<!-- View Options -->
+								<div class="card">
+									<Label class="mb-3 text-sm font-semibold">View Options</Label>
+									<div class="space-y-2">
+										<div class="flex items-center gap-2">
+											<Checkbox
+												checked={settings.backView === 'floating'}
+												onchange={() => {
+													settings.backView =
+														settings.backView === 'floating' ? 'none' : 'floating';
+												}}>Show Floating Stickers</Checkbox
+											>
+											<Button
+												id="btn-floating-stickers-help"
+												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+												type="button"
+											>
+												<CircleQuestionMark class="text-primary-600" />
+											</Button>
+											<Tooltip
+												triggeredBy="#btn-floating-stickers-help"
+												trigger="click"
+												class="p-2"
+												placement="left"
+											>
+												<twisty-player
+													style="width: 120px; height: 120px;"
+													puzzle="3x3x3"
+													experimental-setup-alg="z2 y' R U R' U'"
+													hint-facelets="floating"
+													back-view="none"
+													control-panel="none"
+													background="none"
+													viewer-link="none"
+													experimental-drag-input="auto"
+												></twisty-player>
+											</Tooltip>
+										</div>
+										<div class="flex items-center gap-2">
+											<Checkbox bind:checked={settings.backViewEnabled}>Show Back View</Checkbox>
+											<Button
+												id="btn-back-view-help"
+												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+												type="button"
+											>
+												<CircleQuestionMark class="text-primary-600" />
+											</Button>
+											<Tooltip
+												triggeredBy="#btn-back-view-help"
+												trigger="click"
+												class="p-2"
+												placement="left"
+											>
+												<twisty-player
+													style="width: 120px; height: 120px;"
+													puzzle="3x3x3"
+													experimental-setup-alg="z2 y' R U R' U'"
+													hint-facelets="none"
+													back-view="top-right"
+													control-panel="none"
+													background="none"
+													viewer-link="none"
+													experimental-drag-input="auto"
+												></twisty-player>
+											</Tooltip>
+										</div>
 									</div>
 								</div>
 							</div>
