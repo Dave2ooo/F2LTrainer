@@ -48,6 +48,22 @@
 	appearance={{
 		cssLayerName: 'clerk'
 	}}
+	localization={{
+		signIn: {
+			start: {
+				title: 'Welcome to F2L Trainer',
+				subtitle:
+					'Sign in to sync your progress across devices, track your solve history, and never lose your training data.'
+			}
+		},
+		signUp: {
+			start: {
+				title: 'Join F2L Trainer',
+				subtitle:
+					'Create an account to unlock cloud sync, cross-device progress tracking, and detailed solve statistics.'
+			}
+		}
+	}}
 >
 	<ConvexClerkSync />
 	{@render children()}
