@@ -18,6 +18,7 @@ export default defineSchema({
 		executionTime: v.optional(v.number()),
 		trainMode: v.string(),
 
+		deleted: v.optional(v.boolean()), // DEPRECATED: to be removed after migration
 		deletedAt: v.optional(v.number()), // Timestamp of deletion (if set, solve is deleted)
 
 		// To filter solves by user
@@ -34,6 +35,7 @@ export default defineSchema({
 		lastPlayedAt: v.number(),
 		lastModified: v.number(),
 		archived: v.boolean(),
+		deleted: v.optional(v.boolean()), // DEPRECATED: to be removed after migration
 		deletedAt: v.optional(v.number()), // Timestamp of deletion (if set, session is deleted)
 		favorite: v.optional(v.boolean()),
 

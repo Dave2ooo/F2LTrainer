@@ -12,6 +12,7 @@ import type * as caseStates from "../caseStates.js";
 import type * as cronDeleteSoftDeleted from "../cronDeleteSoftDeleted.js";
 import type * as deleteUserData from "../deleteUserData.js";
 import type * as http from "../http.js";
+import type * as migrateRemoveDeletedField from "../migrateRemoveDeletedField.js";
 import type * as sessions from "../sessions.js";
 import type * as solves from "../solves.js";
 import type * as users from "../users.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   cronDeleteSoftDeleted: typeof cronDeleteSoftDeleted;
   deleteUserData: typeof deleteUserData;
   http: typeof http;
+  migrateRemoveDeletedField: typeof migrateRemoveDeletedField;
   sessions: typeof sessions;
   solves: typeof solves;
   users: typeof users;
