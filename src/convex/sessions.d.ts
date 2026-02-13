@@ -1,7 +1,6 @@
 export declare const getSessionsForCurrentUser: import("convex/server").RegisteredQuery<"public", {}, Promise<{
     _id: import("convex/values").GenericId<"sessions">;
     _creationTime: number;
-    deleted?: boolean | undefined;
     deletedAt?: number | undefined;
     favorite?: boolean | undefined;
     id: string;
@@ -15,7 +14,6 @@ export declare const getSessionsForCurrentUser: import("convex/server").Register
 }[]>>;
 export declare const addSession: import("convex/server").RegisteredMutation<"public", {
     session: {
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         favorite?: boolean | undefined;
         id: string;
@@ -30,7 +28,6 @@ export declare const addSession: import("convex/server").RegisteredMutation<"pub
 export declare const updateSession: import("convex/server").RegisteredMutation<"public", {
     id: string;
     updates: {
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         name?: string | undefined;
         settings?: any;
@@ -51,7 +48,6 @@ export declare const hardDeleteSession: import("convex/server").RegisteredMutati
 }, Promise<void>>;
 export declare const bulkUpsertSessions: import("convex/server").RegisteredMutation<"public", {
     sessions: {
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         favorite?: boolean | undefined;
         id: string;

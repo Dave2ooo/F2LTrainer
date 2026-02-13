@@ -29,7 +29,6 @@ export const addSession = mutation({
 			lastPlayedAt: v.number(),
 			lastModified: v.number(),
 			archived: v.boolean(),
-			deleted: v.optional(v.boolean()),
 			deletedAt: v.optional(v.number()),
 			favorite: v.optional(v.boolean())
 		})

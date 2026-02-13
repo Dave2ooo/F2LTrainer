@@ -5,7 +5,6 @@ declare const _default: import("convex/server").SchemaDefinition<{
         sessionId?: string | undefined;
         recognitionTime?: number | undefined;
         executionTime?: number | undefined;
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         id: string;
         groupId: string;
@@ -28,14 +27,12 @@ declare const _default: import("convex/server").SchemaDefinition<{
         recognitionTime: import("convex/values").VFloat64<number | undefined, "optional">;
         executionTime: import("convex/values").VFloat64<number | undefined, "optional">;
         trainMode: import("convex/values").VString<string, "required">;
-        deleted: import("convex/values").VBoolean<boolean | undefined, "optional">;
         deletedAt: import("convex/values").VFloat64<number | undefined, "optional">;
         tokenIdentifier: import("convex/values").VString<string, "required">;
-    }, "required", "id" | "groupId" | "caseId" | "time" | "timestamp" | "auf" | "side" | "scrambleSelection" | "sessionId" | "recognitionTime" | "executionTime" | "trainMode" | "deleted" | "deletedAt" | "tokenIdentifier">, {
+    }, "required", "id" | "groupId" | "caseId" | "time" | "timestamp" | "auf" | "side" | "scrambleSelection" | "sessionId" | "recognitionTime" | "executionTime" | "trainMode" | "deletedAt" | "tokenIdentifier">, {
         by_tokenIdentifier: ["tokenIdentifier", "_creationTime"];
     }, {}, {}>;
     sessions: import("convex/server").TableDefinition<import("convex/values").VObject<{
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         favorite?: boolean | undefined;
         id: string;
@@ -54,11 +51,10 @@ declare const _default: import("convex/server").SchemaDefinition<{
         lastPlayedAt: import("convex/values").VFloat64<number, "required">;
         lastModified: import("convex/values").VFloat64<number, "required">;
         archived: import("convex/values").VBoolean<boolean, "required">;
-        deleted: import("convex/values").VBoolean<boolean | undefined, "optional">;
         deletedAt: import("convex/values").VFloat64<number | undefined, "optional">;
         favorite: import("convex/values").VBoolean<boolean | undefined, "optional">;
         tokenIdentifier: import("convex/values").VString<string, "required">;
-    }, "required", "id" | "deleted" | "deletedAt" | "tokenIdentifier" | "name" | "settings" | "createdAt" | "lastPlayedAt" | "lastModified" | "archived" | "favorite" | `settings.${string}`>, {
+    }, "required", "id" | "deletedAt" | "tokenIdentifier" | "name" | "settings" | "createdAt" | "lastPlayedAt" | "lastModified" | "archived" | "favorite" | `settings.${string}`>, {
         by_tokenIdentifier: ["tokenIdentifier", "_creationTime"];
     }, {}, {}>;
 }, true>;

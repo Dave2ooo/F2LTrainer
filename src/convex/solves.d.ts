@@ -6,7 +6,6 @@ export declare const getSolvesForCurrentUser: import("convex/server").Registered
     sessionId?: string | undefined;
     recognitionTime?: number | undefined;
     executionTime?: number | undefined;
-    deleted?: boolean | undefined;
     deletedAt?: number | undefined;
     id: string;
     groupId: string;
@@ -24,7 +23,6 @@ export declare const addSolve: import("convex/server").RegisteredMutation<"publi
         sessionId?: string | undefined;
         recognitionTime?: number | undefined;
         executionTime?: number | undefined;
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         id: string;
         groupId: string;
@@ -52,7 +50,6 @@ export declare const bulkUpsertSolves: import("convex/server").RegisteredMutatio
         sessionId?: string | undefined;
         recognitionTime?: number | undefined;
         executionTime?: number | undefined;
-        deleted?: boolean | undefined;
         deletedAt?: number | undefined;
         id: string;
         groupId: string;
