@@ -14,12 +14,15 @@
 	import { SignedIn, SignedOut, SignInButton, useClerkContext } from 'svelte-clerk';
 	import { dark } from '@clerk/themes';
 	import {
+		ChartNoAxesCombined,
 		CircleQuestionMark,
+		CloudUpload,
 		LogIn,
 		LogOut,
 		MessageCircle,
 		Settings as SettingsIcon,
 		Share2,
+		ShieldCheck,
 		UserRound
 	} from '@lucide/svelte';
 	import BluetoothButton from '$lib/components/BluetoothButton.svelte';
@@ -58,7 +61,7 @@
 	<NavBrand>
 		<img src={resolve(`/logo.svg`, {})} class="me-3 h-9 md:h-12" alt="F2L Trainer Logo" />
 		<span
-			class="hidden self-center text-xl font-semibold whitespace-nowrap sm:block md:text-3xl dark:text-white"
+			class="hidden self-center text-xl font-semibold whitespace-nowrap md:text-3xl xl:block dark:text-white"
 			>F2L Trainer</span
 		>
 	</NavBrand>
@@ -126,8 +129,13 @@
 				<li class="mx-1 my-2 block sm:hidden">
 					<SignInButton mode="modal" {appearance}>
 						<Button class="btn-icon-transparent flex items-center justify-start">
-							<LogIn class="size-8 text-primary-600 md:size-9" />
-							<span class="ml-2 text-lg font-medium text-gray-900 dark:text-white">Sign In</span>
+							<LogIn class="size-8 shrink-0 text-primary-600 md:size-9" />
+							<div class="ml-2 flex flex-col items-start">
+								<span class="text-lg font-medium text-gray-900 dark:text-white">Sign In</span>
+								<span class="text-left text-xs text-gray-500 dark:text-gray-400"
+									>Sync progress, track stats, never lose your data</span
+								>
+							</div>
 						</Button>
 					</SignInButton>
 				</li>
@@ -137,7 +145,21 @@
 						<UserRound class="size-8 text-primary-600 md:size-9" />
 					</Button>
 					<Popover triggeredBy="#user-menu-out" trigger="click" placement="bottom">
-						<div class="p-2">
+						<div class="flex min-w-[200px] flex-col gap-3 p-3">
+							<ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
+								<li class="flex items-center gap-2">
+									<CloudUpload class="size-4 text-primary-600" />
+									Sync across devices
+								</li>
+								<li class="flex items-center gap-2">
+									<ChartNoAxesCombined class="size-4 text-primary-600" />
+									Track solve statistics
+								</li>
+								<li class="flex items-center gap-2">
+									<ShieldCheck class="size-4 text-primary-600" />
+									Never lose your data
+								</li>
+							</ul>
 							<SignInButton mode="modal" {appearance}>
 								<Button class="flex w-full items-center justify-center gap-2 text-base">
 									<LogIn class="size-5" />
