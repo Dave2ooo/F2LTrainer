@@ -168,20 +168,36 @@ This test plan is designed as a **single continuous workflow**. Perform these st
       sessions.push(oldSession);
       localStorage.setItem('sessions', JSON.stringify(sessions));
       ```
-    - **Simulate old deleted SOLVE**:
+    - **Simulate old deleted SOLVE linked to the session**:
       ```javascript
-      // Solves are stored in compressed format ('da' = deletedAt)
-      const oldSolve = {
-      	id: 'old-deleted-solve',
+      // Solves are stored in compressed format ('da' = deletedAt, 'sid' = sessionId)
+      const linkedSolve = {
+      	id: 'linked-solve',
       	gId: 'b', // basic
       	cId: 1,
       	t: 5000,
-      	ts: Math.floor((Date.now() - 8 * 24 * 60 * 60 * 1000) / 1000),
-      	da: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+      	ts: Math.floor(Date.now() / 1000),
+      	sid: 'old-deleted-session', // Linked to the deleted session
+      	da: Date.now(),
       	m: 'c'
       };
       const solves = JSON.parse(localStorage.getItem('solves') || '[]');
-      solves.push(oldSolve);
+      solves.push(linkedSolve);
+      localStorage.setItem('solves', JSON.stringify(solves));
+      ```
+    - **Simulate standalone old deleted SOLVE**:
+      ```javascript
+      const standaloneSolve = {
+      	id: 'standalone-deleted-solve',
+      	gId: 'b',
+      	cId: 2,
+      	t: 6000,
+      	ts: Math.floor((Date.now() - 8 * 24 * 60 * 60 * 1000) / 1000),
+      	da: Date.now() - 8 * 24 * 60 * 60 * 1000, // 8 days ago
+      	m: 'c'
+      	// No 'sid' - standalone solve
+      };
+      solves.push(standaloneSolve);
       localStorage.setItem('solves', JSON.stringify(solves));
       ```
     - Refresh Page.
@@ -189,11 +205,11 @@ This test plan is designed as a **single continuous workflow**. Perform these st
 23. **Verification**:
     - Check Console logs.
     - ✅ Should see message: `[SessionState] Cleaned up 1 old deleted session(s)...`
-    - ✅ Should see message: `[StatisticsState] Cleaned up 1 old deleted solve(s)...`
+    - ✅ Should see message: `[StatisticsState] Cleaned up 2 old deleted solve(s)...`
     - Check localStorage `sessions`.
     - ✅ The 'old-deleted-session' should be removed.
     - Check localStorage `solves`.
-    - ✅ The 'old-deleted-solve' should be removed.
+    - ✅ Both 'linked-solve' and 'standalone-deleted-solve' should be removed.
 
 ---
 

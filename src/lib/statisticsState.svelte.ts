@@ -156,8 +156,26 @@ class StatisticsStateManager {
 				// Filter out old deleted solves to keep localStorage clean
 				// Keep recent deleted solves (last 7 days) as a safety buffer for offline deletions
 				const now = Date.now();
+
+				// Get session IDs that are being kept (not cleaned up)
+				const validSessionIds = new Set(
+					sessionState.sessions
+						.filter((session) => {
+							if (!session.deletedAt) return true;
+							return now - session.deletedAt < DELETED_SOLVE_RETENTION_MS;
+						})
+						.map((session) => session.id)
+				);
+
 				const solvesToSave = this.allSolves.filter((solve) => {
-					if (!solve.deletedAt) return true; // Keep all active solves
+					// Keep all active solves
+					if (!solve.deletedAt) return true;
+
+					// Remove solves linked to sessions that are being cleaned up
+					if (solve.sessionId && !validSessionIds.has(solve.sessionId)) {
+						return false;
+					}
+
 					// Keep only deleted solves from the last 7 days
 					return now - solve.deletedAt < DELETED_SOLVE_RETENTION_MS;
 				});
@@ -309,9 +327,26 @@ class StatisticsStateManager {
 		const now = Date.now();
 		const initialCount = this.allSolves.length;
 
-		// Filter out old deleted solves
+		// Get session IDs that are being kept (not cleaned up)
+		const validSessionIds = new Set(
+			sessionState.sessions
+				.filter((session) => {
+					if (!session.deletedAt) return true;
+					return now - session.deletedAt < DELETED_SOLVE_RETENTION_MS;
+				})
+				.map((session) => session.id)
+		);
+
+		// Filter out old deleted solves and solves linked to deleted sessions
 		const filteredSolves = this.allSolves.filter((solve) => {
-			if (!solve.deletedAt) return true; // Keep all active solves
+			// Keep all active solves
+			if (!solve.deletedAt) return true;
+
+			// Remove solves linked to sessions that are being cleaned up
+			if (solve.sessionId && !validSessionIds.has(solve.sessionId)) {
+				return false;
+			}
+
 			// Keep only deleted solves from the last 7 days
 			return now - solve.deletedAt < DELETED_SOLVE_RETENTION_MS;
 		});
