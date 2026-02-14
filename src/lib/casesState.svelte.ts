@@ -17,7 +17,7 @@ export const createCaseState = (): CaseState => ({
 	algorithmSelection: { left: 0, right: 0 },
 	customAlgorithm: { left: '', right: '' },
 	identicalAlgorithm: true,
-	lastModified: Date.now()
+	lastModified: 0 // 0 = unmodified default, won't sync to Convex
 });
 
 const createGroupCasesState = (groupId: GroupId): Record<CaseId, CaseState> => {
