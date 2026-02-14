@@ -249,9 +249,19 @@
 			const allRotations = cumulativeRotation
 				? [cumulativeRotation, ...rotationsToApply]
 				: rotationsToApply;
+			const previousRotation = cumulativeRotation;
 			cumulativeRotation = combineRotations(allRotations);
 			caseHasRotation = true;
-			console.log('Cumulative rotation now:', cumulativeRotation);
+			console.log(
+				'%c[ROTATION UPDATE]',
+				'color: #ff6b6b; font-weight: bold',
+				'Previous:',
+				previousRotation || 'none',
+				'→ Applied:',
+				rotationsToApply.join(' '),
+				'→ New:',
+				cumulativeRotation || 'none'
+			);
 
 			// Advance index past all rotations
 			currentMoveIndex = rotationIndex;
@@ -294,8 +304,19 @@
 					// Also flag that a rotation occurred for post-case warning
 					caseHasRotation = true;
 
+					const previousRotation = cumulativeRotation;
 					const rotationsToUpdate = [implicitRotation, cumulativeRotation].filter((r) => r !== '');
 					cumulativeRotation = combineRotations(rotationsToUpdate);
+					console.log(
+						'%c[ROTATION UPDATE - Wide Move]',
+						'color: #ff6b6b; font-weight: bold',
+						'Previous:',
+						previousRotation || 'none',
+						'→ Applied:',
+						implicitRotation,
+						'→ New:',
+						cumulativeRotation || 'none'
+					);
 
 					// Advance past the wide move
 					currentMoveIndex++;
@@ -353,9 +374,19 @@
 						// Also flag that a rotation occurred for post-case warning
 						caseHasRotation = true;
 
+						const previousRotation = cumulativeRotation;
 						const rotationsToUpdate = [implicitRot, cumulativeRotation].filter((r) => r !== '');
 						cumulativeRotation = combineRotations(rotationsToUpdate);
-						console.log('Cumulative rotation now:', cumulativeRotation);
+						console.log(
+							'%c[ROTATION UPDATE - Slice Move]',
+							'color: #ff6b6b; font-weight: bold',
+							'Previous:',
+							previousRotation || 'none',
+							'→ Applied:',
+							implicitRot,
+							'→ New:',
+							cumulativeRotation || 'none'
+						);
 					}
 				}
 			}
@@ -582,13 +613,34 @@
 			}
 		}
 
+		console.log(
+			'%c[CASE FINISHED]',
+			'color: #00ff00; font-weight: bold; font-size: 14px',
+			'Final cumulativeRotation:',
+			cumulativeRotation || 'none',
+			'caseHasRotation:',
+			caseHasRotation
+		);
+
+		// Capture rotation state BEFORE advancing to next case
+		// (advancing will reset cumulativeRotation when new algorithm loads)
+		const shouldShowWarning = cumulativeRotation !== '';
+		console.log(
+			'%c[SHOW ROTATION WARNING?]',
+			'color: #ffaa00; font-weight: bold',
+			'Show warning:',
+			shouldShowWarning,
+			'(cumulativeRotation:',
+			cumulativeRotation || 'none',
+			')'
+		);
+
 		markAsSolved();
 		advanceToNextTrainCase();
 		// Wait for next tick to ensure DOM is updated
 		await tick();
 
-		// Show rotation warning if the previous case involved rotations
-		if (caseHasRotation) {
+		if (shouldShowWarning) {
 			showRotationWarning = true;
 			// Auto-dismiss after 1.5 seconds (slightly longer to be readable, fade handles smoothness)
 			setTimeout(() => {
@@ -606,6 +658,11 @@
 		caseHasRotation = false;
 		undoMoves = [];
 		isTransitioning = false;
+		console.log(
+			'%c[NEW CASE STARTED]',
+			'color: #4dabf7; font-weight: bold; font-size: 14px',
+			'Reset all tracking, cumulativeRotation cleared'
+		);
 
 		// Reset timer for new case
 		// smartTimerRef?.resetTimer();
