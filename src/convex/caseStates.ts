@@ -63,6 +63,12 @@ export const upsertCaseState = mutation({
 		const identity = await ctx.auth.getUserIdentity();
 		if (!identity) throw new Error('Not authenticated');
 
+		// Skip syncing default/unmodified states (lastModified = 0)
+		// This prevents overwriting real user data with defaults from fresh devices
+		if (caseState.lastModified === 0) {
+			return { action: 'skipped', reason: 'default_state' };
+		}
+
 		// Validate algorithm selection indices are reasonable (0-99 should cover all cases)
 		if (
 			caseState.algorithmSelectionLeft !== null &&
@@ -157,6 +163,13 @@ export const bulkUpsertCaseStates = mutation({
 
 		for (const caseState of caseStates) {
 			try {
+				// Skip default/unmodified states (lastModified = 0)
+				// This prevents overwriting real user data with defaults from fresh devices
+				if (caseState.lastModified === 0) {
+					skipped++;
+					continue;
+				}
+
 				// Validate algorithm selection indices
 				if (
 					caseState.algorithmSelectionLeft !== null &&
