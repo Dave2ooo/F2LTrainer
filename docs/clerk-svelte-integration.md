@@ -116,3 +116,8 @@ These services:
 1.  **Soft Deletes**: We use `deletedAt` fields to sync deletions across devices.
 2.  **Batching**: `caseStatesSyncService` batches updates to prevent flooding the backend when dragging sliders/clicking rapidly.
 3.  **Token Identifiers**: Convex uses `tokenIdentifier` (`issuer|subject`) to uniquely identify users, ensuring distinct data silos.
+4.  **Cascading Cleanup**: When a session is deleted from storage (after 7+ days retention), all solves linked to that session are also automatically deleted. This behavior is implemented in both:
+    - **Local Storage**: `statisticsState.svelte.ts` filters out solves linked to sessions being cleaned up
+    - **Convex Database**: `cronDeleteSoftDeleted.ts` cron job deletes all solves with matching `sessionId` when removing old sessions
+
+    This ensures data consistency and prevents orphaned solves from accumulating in storage.
