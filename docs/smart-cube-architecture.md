@@ -371,3 +371,5 @@ Console logs by prefix:
 - `[Undo Guidance]` - Wrong move detected, adding undo moves
 - `[Undo Validation]` - Validating correction moves
 - `[F2L Check]` - F2L checking (in checkF2LState.ts)
+
+change
