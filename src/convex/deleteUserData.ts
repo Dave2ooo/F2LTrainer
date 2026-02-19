@@ -37,3 +37,18 @@ export default mutation({
 		await deleteAllUserData(ctx, tokenIdentifier);
 	}
 });
+
+/**
+ * Public mutation for users to delete their own data
+ * Gets tokenIdentifier from authenticated session
+ */
+export const deleteMyData = mutation({
+	args: {},
+	handler: async (ctx) => {
+		const identity = await ctx.auth.getUserIdentity();
+		if (!identity) {
+			throw new Error('Not authenticated');
+		}
+		await deleteAllUserData(ctx, identity.tokenIdentifier);
+	}
+});

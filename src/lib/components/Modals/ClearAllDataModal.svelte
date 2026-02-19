@@ -32,13 +32,22 @@
 
 <Modal bind:open title="Clear All Data?" size="sm" outsideclose={false} autoclose={false}>
 	<div class="space-y-4">
-		<p>
-			Are you sure you want to clear all data? This will delete all your saved settings, case
-			states, and progress. This action cannot be undone.
+		<p class="font-semibold text-red-700 dark:text-red-500">⚠️ This will delete EVERYTHING</p>
+
+		<p>Are you sure you want to clear all data everywhere? This will permanently delete:</p>
+
+		<ul class="list-inside list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
+			<li>All local data on this device</li>
+			<li>All cloud data (case states, sessions, solves)</li>
+			<li>All your saved settings and progress</li>
+		</ul>
+
+		<p class="text-sm font-semibold text-red-600 dark:text-red-400">
+			This action cannot be undone!
 		</p>
 
 		<div class="mt-6 flex w-full justify-center gap-3">
-			<Button color="red" onclick={onConfirm} class="gap-2"><Check />Clear All Data</Button>
+			<Button color="red" onclick={onConfirm} class="gap-2"><Check />Delete Everything</Button>
 			<Button type="button" color="gray" outline onclick={onCancel} class="gap-2"
 				>Cancel<X /></Button
 			>
