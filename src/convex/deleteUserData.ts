@@ -5,23 +5,32 @@ import { v } from 'convex/values';
 // Shared helper function to delete all user data
 export async function deleteAllUserData(ctx: MutationCtx, tokenIdentifier: string) {
 	// Delete solves
-	for await (const solve of ctx.db
+	const solves = await ctx.db
 		.query('solves')
-		.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', tokenIdentifier))) {
+		.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', tokenIdentifier))
+		.collect();
+
+	for (const solve of solves) {
 		await ctx.db.delete(solve._id);
 	}
 
 	// Delete sessions
-	for await (const session of ctx.db
+	const sessions = await ctx.db
 		.query('sessions')
-		.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', tokenIdentifier))) {
+		.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', tokenIdentifier))
+		.collect();
+
+	for (const session of sessions) {
 		await ctx.db.delete(session._id);
 	}
 
 	// Delete caseStates
-	for await (const caseState of ctx.db
+	const caseStates = await ctx.db
 		.query('caseStates')
-		.withIndex('by_user', (q) => q.eq('tokenIdentifier', tokenIdentifier))) {
+		.withIndex('by_user', (q) => q.eq('tokenIdentifier', tokenIdentifier))
+		.collect();
+
+	for (const caseState of caseStates) {
 		await ctx.db.delete(caseState._id);
 	}
 
