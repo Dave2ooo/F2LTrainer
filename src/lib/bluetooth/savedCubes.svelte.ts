@@ -3,15 +3,17 @@
  * Persists cube information to localStorage for quick reconnection
  */
 
+import { savedCubesSyncService } from '$lib/services/savedCubesSyncService';
+
 export interface SavedCube {
 	uuid: string; // Globally unique ID for sync (crypto.randomUUID())
 	id: string; // Bluetooth device ID (browser-specific, not synced)
 	customName: string; // User-provided name
-	deviceName: string; // Original Bluetooth device name
 	macAddress?: string; // MAC address if available
 	dateAdded: number; // Timestamp when added
 	lastConnected: number; // Timestamp of last connection
 	lastModified: number; // For sync conflict resolution
+	deletedAt?: number; // Soft delete timestamp
 }
 
 const STORAGE_KEY = 'savedBluetoothCubes';
@@ -42,7 +44,7 @@ let cubes = $state<SavedCube[]>(loadSavedCubes());
 
 export const savedCubesState = {
 	get cubes() {
-		return cubes;
+		return cubes.filter((c) => !c.deletedAt);
 	},
 
 	addCube(deviceId: string, deviceName: string, customName?: string, macAddress?: string) {
@@ -67,7 +69,6 @@ export const savedCubesState = {
 			}
 
 			if (existingMacIndex >= 0) {
-				// Update existing cube with new deviceId (it may have changed)
 				cubes[existingMacIndex] = {
 					...cubes[existingMacIndex],
 					id: deviceId, // Update deviceId in case it changed
@@ -77,9 +78,16 @@ export const savedCubesState = {
 					lastModified: now
 				};
 				cubes = [...cubes]; // Trigger reactivity
+				
+				// Sync update
+				savedCubesSyncService.updateCube(cubes[existingMacIndex].uuid, {
+					customName: cubes[existingMacIndex].customName,
+					macAddress: cubes[existingMacIndex].macAddress,
+					lastConnected: now,
+					lastModified: now
+				});
 			}
 		} else if (existingIdIndex >= 0) {
-			// No MAC match but found by deviceId - update that entry
 			cubes[existingIdIndex] = {
 				...cubes[existingIdIndex],
 				customName: customName || cubes[existingIdIndex].customName,
@@ -88,27 +96,45 @@ export const savedCubesState = {
 				lastModified: now
 			};
 			cubes = [...cubes]; // Trigger reactivity
+
+			// Sync update
+			savedCubesSyncService.updateCube(cubes[existingIdIndex].uuid, {
+				customName: cubes[existingIdIndex].customName,
+				macAddress: cubes[existingIdIndex].macAddress,
+				lastConnected: now,
+				lastModified: now
+			});
 		} else {
 			// Add new cube
 			const newCube: SavedCube = {
 				uuid: crypto.randomUUID(),
 				id: deviceId,
 				customName: customName || deviceName,
-				deviceName: deviceName,
 				macAddress: macAddress,
 				dateAdded: now,
 				lastConnected: now,
 				lastModified: now
 			};
 			cubes = [...cubes, newCube];
+			
+			// Sync add
+			savedCubesSyncService.addCube(newCube);
 		}
 
 		saveCubesToStorage(cubes);
 	},
 
 	removeCube(deviceId: string) {
-		cubes = cubes.filter((c) => c.id !== deviceId);
-		saveCubesToStorage(cubes);
+		const cube = cubes.find((c) => c.id === deviceId);
+		if (cube) {
+			const now = Date.now();
+			cube.deletedAt = now;
+			cube.lastModified = now;
+			cubes = [...cubes];
+			saveCubesToStorage(cubes);
+
+			savedCubesSyncService.deleteCube(cube.uuid);
+		}
 	},
 
 	renameCube(deviceId: string, newName: string) {
@@ -118,6 +144,11 @@ export const savedCubesState = {
 			cube.lastModified = Date.now();
 			cubes = [...cubes]; // Trigger reactivity
 			saveCubesToStorage(cubes);
+
+			savedCubesSyncService.updateCube(cube.uuid, {
+				customName: newName,
+				lastModified: cube.lastModified
+			});
 		}
 	},
 
@@ -125,8 +156,14 @@ export const savedCubesState = {
 		const cube = cubes.find((c) => c.id === deviceId);
 		if (cube) {
 			cube.lastConnected = Date.now();
+			cube.lastModified = Date.now(); // Also update lastModified for sync
 			cubes = [...cubes]; // Trigger reactivity
 			saveCubesToStorage(cubes);
+
+			savedCubesSyncService.updateCube(cube.uuid, {
+				lastConnected: cube.lastConnected,
+				lastModified: cube.lastModified
+			});
 		}
 	},
 
@@ -136,5 +173,33 @@ export const savedCubesState = {
 
 	getCubeByMac(macAddress: string): SavedCube | undefined {
 		return cubes.find((c) => c.macAddress === macAddress);
+	},
+
+	/**
+	 * Handle login sync - merge with Convex
+	 */
+	async handleLoginSync(): Promise<void> {
+		try {
+			const activeCubes = await savedCubesSyncService.syncOnLogin(cubes);
+			cubes = activeCubes;
+			saveCubesToStorage(cubes);
+		} catch (error) {
+			console.error('Failed to handle login sync for saved cubes:', error);
+		}
+	},
+
+	/**
+	 * Handle page load sync - pull from Convex
+	 */
+	async handlePageLoadSync(): Promise<void> {
+		try {
+			const remoteCubes = await savedCubesSyncService.pullFromConvex();
+			if (remoteCubes.length > 0) {
+				cubes = remoteCubes;
+				saveCubesToStorage(cubes);
+			}
+		} catch (error) {
+			console.error('Failed to handle page load sync for saved cubes:', error);
+		}
 	}
 };

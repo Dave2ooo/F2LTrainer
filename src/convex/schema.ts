@@ -64,5 +64,20 @@ export default defineSchema({
 	})
 		.index('by_user', ['tokenIdentifier'])
 		.index('by_user_group', ['tokenIdentifier', 'groupId'])
-		.index('by_user_case', ['tokenIdentifier', 'groupId', 'caseId'])
+		.index('by_user_case', ['tokenIdentifier', 'groupId', 'caseId']),
+
+	savedCubes: defineTable({
+		uuid: v.string(), // Globally unique ID
+		name: v.string(), // Custom name
+		macAddress: v.optional(v.string()),
+		dateAdded: v.number(),
+		lastConnected: v.number(),
+		lastModified: v.number(),
+		deletedAt: v.optional(v.number()), // For soft deletion
+
+		// To filter by user
+		tokenIdentifier: v.string()
+	})
+		.index('by_tokenIdentifier', ['tokenIdentifier'])
+		.index('by_deletedAt', ['deletedAt'])
 });

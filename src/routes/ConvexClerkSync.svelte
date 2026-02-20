@@ -7,6 +7,8 @@
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
 	import { handleCaseStatesLoginSync, handleCaseStatesPageLoadSync } from '$lib/casesState.svelte';
+	import { savedCubesSyncService } from '$lib/services/savedCubesSyncService';
+	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 
 	const client = useConvexClient();
@@ -33,6 +35,8 @@
 		sessionsSyncService.setAuthenticated(isAuthenticated);
 		caseStatesSyncService.setClient(client);
 		caseStatesSyncService.setAuthenticated(isAuthenticated);
+		savedCubesSyncService.setClient(client);
+		savedCubesSyncService.setAuthenticated(isAuthenticated);
 
 		// Trigger sync only once when auth becomes true
 		if (isAuthenticated && !hasSynced) {
@@ -47,6 +51,7 @@
 					await sessionState.handleLoginSync();
 					await statisticsState.handleLoginSync();
 					await handleCaseStatesLoginSync();
+					await savedCubesState.handleLoginSync();
 					console.log('[ConvexClerkSync] Sync complete');
 				} catch (error) {
 					console.error('[ConvexClerkSync] Sync error:', error);

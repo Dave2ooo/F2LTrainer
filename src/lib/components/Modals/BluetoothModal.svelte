@@ -207,8 +207,6 @@
 									<div
 										class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-gray-500 dark:text-gray-400"
 									>
-										<span class="whitespace-nowrap">{cube.deviceName}</span>
-										<span>•</span>
 										<span class="whitespace-nowrap">{formatDate(cube.lastConnected)}</span>
 										{#if cube.macAddress}
 											<span>•</span>

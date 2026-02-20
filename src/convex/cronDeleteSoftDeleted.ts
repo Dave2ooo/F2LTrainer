@@ -32,5 +32,12 @@ export default mutation({
 			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
 			await ctx.db.delete(solve._id);
 		}
+
+		// Delete soft-deleted saved cubes
+		for await (const cube of ctx.db
+			.query('savedCubes')
+			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			await ctx.db.delete(cube._id);
+		}
 	}
 });
