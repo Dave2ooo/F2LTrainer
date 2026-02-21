@@ -34,7 +34,7 @@
 	<div class="space-y-4">
 		<p>
 			Are you sure you want to delete all your cloud data? This will permanently delete all your
-			synced case states, sessions, and solves from the cloud.
+			synced case states, sessions, solves, and saved Bluetooth cubes from the cloud.
 		</p>
 
 		<p class="text-sm text-gray-600 dark:text-gray-400">

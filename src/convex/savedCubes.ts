@@ -63,7 +63,8 @@ export const updateCube = mutation({
 			name: v.optional(v.string()),
 			macAddress: v.optional(v.string()),
 			lastConnected: v.optional(v.number()),
-			lastModified: v.number()
+			lastModified: v.number(),
+			deletedAt: v.optional(v.union(v.number(), v.null())) // Support undeletion
 		})
 	},
 	handler: async (ctx, args) => {
@@ -82,7 +83,14 @@ export const updateCube = mutation({
 			throw new Error(`Saved cube with uuid ${args.uuid} not found`);
 		}
 
-		await ctx.db.patch(cube._id, args.updates);
+		// Build patch, converting deletedAt: null to undefined to remove the field (undelete)
+		const { deletedAt, ...rest } = args.updates;
+		const patch: any = { ...rest };
+		if ('deletedAt' in args.updates) {
+			patch.deletedAt = deletedAt === null ? undefined : deletedAt;
+		}
+
+		await ctx.db.patch(cube._id, patch);
 	}
 });
 
@@ -121,49 +129,114 @@ export const bulkUpsertCubes = mutation({
 			throw new Error('Not authenticated');
 		}
 
-		// Get all existing cubes for this user
-		const existingCubes = await ctx.db
+		// 1. Load all existing cubes for this user
+		const dbCubes = await ctx.db
 			.query('savedCubes')
 			.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', identity.tokenIdentifier))
 			.collect();
 
-		const existingMap = new Map(existingCubes.map((c) => [c.uuid, c]));
+		// Create maps for efficient access
+		const dbMap = new Map(dbCubes.map((c) => [c.uuid, c]));
+		const workingState = new Map<string, any>(); // uuid -> cube data
 
+		// Initialize working state with DB data
+		for (const c of dbCubes) {
+			workingState.set(c.uuid, { ...c });
+		}
+
+		// 2. Apply inputs to working state
+		const inputUuids = new Set<string>();
+		for (const input of args.cubes) {
+			inputUuids.add(input.uuid);
+			const existing = workingState.get(input.uuid);
+
+			// Standard sync logic: update if input is newer (or new)
+			if (!existing || input.lastModified > existing.lastModified) {
+				workingState.set(input.uuid, {
+					...input,
+					tokenIdentifier: identity.tokenIdentifier,
+					// Ensure deletedAt is carried over from input
+					deletedAt: input.deletedAt
+				});
+			}
+		}
+
+		// 3. Resolve MAC conflicts
+		// Group by MAC address
+		const byMac = new Map<string, string[]>(); // mac -> uuid[]
+		for (const [uuid, cube] of workingState.entries()) {
+			if (cube.macAddress) {
+				const list = byMac.get(cube.macAddress) || [];
+				list.push(uuid);
+				byMac.set(cube.macAddress, list);
+			}
+		}
+
+		const now = Date.now();
+
+		for (const [_, uuids] of byMac.entries()) {
+			if (uuids.length <= 1) continue;
+
+			// Get cube objects
+			const cubes = uuids.map((id) => workingState.get(id));
+
+			// Sort by lastModified descending
+			cubes.sort((a, b) => b.lastModified - a.lastModified);
+
+			const winner = cubes[0];
+			const losers = cubes.slice(1);
+
+			let dominanceNeeded = false;
+
+			for (const loser of losers) {
+				// If loser is not already deleted, delete it
+				if (!loser.deletedAt) {
+					loser.deletedAt = now;
+					loser.lastModified = now;
+					workingState.set(loser.uuid, loser);
+					dominanceNeeded = true;
+				}
+				// If already deleted, it stays eliminated
+			}
+
+			if (dominanceNeeded) {
+				// Ensure winner is strictly newer than the modification we just made to losers
+				// This prevents a loop where a deleted cube becomes "newer" than the winner
+				if (winner.lastModified <= now) {
+					winner.lastModified = now + 1;
+					workingState.set(winner.uuid, winner);
+				}
+			}
+		}
+
+		// 4. Commit changes and calculate stats
 		let inserted = 0;
 		let updated = 0;
 		let skipped = 0;
 
-		for (const cube of args.cubes) {
-			const existing = existingMap.get(cube.uuid);
+		for (const [uuid, finalCube] of workingState.entries()) {
+			const original = dbMap.get(uuid);
+			const isInput = inputUuids.has(uuid);
 
-			if (existing) {
-				// Cube exists - compare timestamps, keep newer
-				if (cube.lastModified > existing.lastModified) {
-					await ctx.db.patch(existing._id, {
-						name: cube.name,
-						macAddress: cube.macAddress,
-						dateAdded: cube.dateAdded,
-						lastConnected: cube.lastConnected,
-						lastModified: cube.lastModified,
-						deletedAt: cube.deletedAt
+			if (original) {
+				// Update if changed (using lastModified as proxy for change)
+				if (finalCube.lastModified > original.lastModified) {
+					await ctx.db.patch(original._id, {
+						name: finalCube.name,
+						macAddress: finalCube.macAddress,
+						dateAdded: finalCube.dateAdded,
+						lastConnected: finalCube.lastConnected,
+						lastModified: finalCube.lastModified,
+						deletedAt: finalCube.deletedAt
 					});
-					updated++;
+					if (isInput) updated++;
 				} else {
-					skipped++;
+					if (isInput) skipped++;
 				}
 			} else {
-				// New cube - insert
-				await ctx.db.insert('savedCubes', {
-					uuid: cube.uuid,
-					name: cube.name,
-					macAddress: cube.macAddress,
-					dateAdded: cube.dateAdded,
-					lastConnected: cube.lastConnected,
-					lastModified: cube.lastModified,
-					deletedAt: cube.deletedAt,
-					tokenIdentifier: identity.tokenIdentifier
-				});
-				inserted++;
+				// Insert new
+				await ctx.db.insert('savedCubes', finalCube);
+				if (isInput) inserted++;
 			}
 		}
 

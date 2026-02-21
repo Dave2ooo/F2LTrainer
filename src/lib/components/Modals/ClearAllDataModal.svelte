@@ -38,7 +38,7 @@
 
 		<ul class="list-inside list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
 			<li>All local data on this device</li>
-			<li>All cloud data (case states, sessions, solves)</li>
+			<li>All cloud data (case states, sessions, solves, saved Bluetooth cubes)</li>
 			<li>All your saved settings and progress</li>
 		</ul>
 

@@ -50,9 +50,12 @@ export const savedCubesState = {
 	addCube(deviceId: string, deviceName: string, customName?: string, macAddress?: string) {
 		const now = Date.now();
 
+		// Normalize MAC address to lowercase for case-insensitive comparison
+		const normalizedMac = macAddress?.toLowerCase();
+
 		// First, check if a cube with the same MAC address already exists
 		// This handles the case where deviceId changes between connections
-		let existingMacIndex = macAddress ? cubes.findIndex((c) => c.macAddress === macAddress) : -1;
+		let existingMacIndex = normalizedMac ? cubes.findIndex((c) => c.macAddress?.toLowerCase() === normalizedMac) : -1;
 
 		// Also check for deviceId match (might be a stale entry)
 		const existingIdIndex = cubes.findIndex((c) => c.id === deviceId);
@@ -65,7 +68,7 @@ export const savedCubesState = {
 			if (existingIdIndex >= 0 && existingIdIndex !== existingMacIndex) {
 				cubes = cubes.filter((_, i) => i !== existingIdIndex);
 				// Recalculate the MAC index after removal
-				existingMacIndex = cubes.findIndex((c) => c.macAddress === macAddress);
+				existingMacIndex = cubes.findIndex((c) => c.macAddress?.toLowerCase() === normalizedMac);
 			}
 
 			if (existingMacIndex >= 0) {
@@ -73,9 +76,10 @@ export const savedCubesState = {
 					...cubes[existingMacIndex],
 					id: deviceId, // Update deviceId in case it changed
 					customName: customName || cubes[existingMacIndex].customName,
-					macAddress: macAddress || cubes[existingMacIndex].macAddress,
+					macAddress: normalizedMac || cubes[existingMacIndex].macAddress,
 					lastConnected: now,
-					lastModified: now
+					lastModified: now,
+					deletedAt: undefined // Undelete if it was soft-deleted
 				};
 				cubes = [...cubes]; // Trigger reactivity
 				
@@ -84,16 +88,18 @@ export const savedCubesState = {
 					customName: cubes[existingMacIndex].customName,
 					macAddress: cubes[existingMacIndex].macAddress,
 					lastConnected: now,
-					lastModified: now
+					lastModified: now,
+					deletedAt: undefined // Undelete in cloud
 				});
 			}
 		} else if (existingIdIndex >= 0) {
 			cubes[existingIdIndex] = {
 				...cubes[existingIdIndex],
 				customName: customName || cubes[existingIdIndex].customName,
-				macAddress: macAddress || cubes[existingIdIndex].macAddress,
+				macAddress: normalizedMac || cubes[existingIdIndex].macAddress,
 				lastConnected: now,
-				lastModified: now
+				lastModified: now,
+				deletedAt: undefined // Undelete if it was soft-deleted
 			};
 			cubes = [...cubes]; // Trigger reactivity
 
@@ -102,7 +108,8 @@ export const savedCubesState = {
 				customName: cubes[existingIdIndex].customName,
 				macAddress: cubes[existingIdIndex].macAddress,
 				lastConnected: now,
-				lastModified: now
+				lastModified: now,
+				deletedAt: undefined // Undelete in cloud
 			});
 		} else {
 			// Add new cube
@@ -110,7 +117,7 @@ export const savedCubesState = {
 				uuid: crypto.randomUUID(),
 				id: deviceId,
 				customName: customName || deviceName,
-				macAddress: macAddress,
+				macAddress: normalizedMac,
 				dateAdded: now,
 				lastConnected: now,
 				lastModified: now
@@ -172,7 +179,8 @@ export const savedCubesState = {
 	},
 
 	getCubeByMac(macAddress: string): SavedCube | undefined {
-		return cubes.find((c) => c.macAddress === macAddress);
+		const normalizedMac = macAddress.toLowerCase();
+		return cubes.find((c) => c.macAddress?.toLowerCase() === normalizedMac);
 	},
 
 	/**

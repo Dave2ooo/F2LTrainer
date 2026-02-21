@@ -11,7 +11,7 @@ export default mutation({
 		// Delete sessions and their associated solves
 		for await (const session of ctx.db
 			.query('sessions')
-			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			.filter((q) => q.and(q.gt(q.field('deletedAt'), 0), q.lt(q.field('deletedAt'), cutoff)))) {
 			// Delete all solves connected to this session
 			const sessionSolves = await ctx.db
 				.query('solves')
@@ -29,14 +29,14 @@ export default mutation({
 		// Delete standalone soft-deleted solves (not connected to sessions or already handled above)
 		for await (const solve of ctx.db
 			.query('solves')
-			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			.filter((q) => q.and(q.gt(q.field('deletedAt'), 0), q.lt(q.field('deletedAt'), cutoff)))) {
 			await ctx.db.delete(solve._id);
 		}
 
 		// Delete soft-deleted saved cubes
 		for await (const cube of ctx.db
 			.query('savedCubes')
-			.filter((q: any) => q.gt('deletedAt', 0).lt('deletedAt', cutoff))) {
+			.filter((q) => q.and(q.gt(q.field('deletedAt'), 0), q.lt(q.field('deletedAt'), cutoff)))) {
 			await ctx.db.delete(cube._id);
 		}
 	}

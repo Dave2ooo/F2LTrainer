@@ -60,6 +60,11 @@ class SavedCubesSyncService {
 			if (updates.macAddress) convexUpdates.macAddress = updates.macAddress;
 			if (updates.lastConnected) convexUpdates.lastConnected = updates.lastConnected;
 
+			// Handle deletedAt for undeletion (undefined means undelete)
+			if ('deletedAt' in updates) {
+				convexUpdates.deletedAt = updates.deletedAt ?? null;
+			}
+
 			// Always update lastModified
 			convexUpdates.lastModified = updates.lastModified || Date.now();
 

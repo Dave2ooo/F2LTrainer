@@ -34,6 +34,16 @@ export async function deleteAllUserData(ctx: MutationCtx, tokenIdentifier: strin
 		await ctx.db.delete(caseState._id);
 	}
 
+	// Delete savedCubes
+	const savedCubes = await ctx.db
+		.query('savedCubes')
+		.withIndex('by_tokenIdentifier', (q) => q.eq('tokenIdentifier', tokenIdentifier))
+		.collect();
+
+	for (const savedCube of savedCubes) {
+		await ctx.db.delete(savedCube._id);
+	}
+
 	// Add more tables here if needed
 }
 

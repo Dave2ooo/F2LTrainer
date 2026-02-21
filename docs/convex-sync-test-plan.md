@@ -223,3 +223,102 @@ If you reached this point:
 4.  **Offline Deletions** persist and sync.
 5.  **Conflict Resolution** favors the latest change.
 6.  **Cleanup** logic is functional.
+
+---
+
+## Phase 8: Saved Cubes Sync
+
+**Goal**: Verify that saved Bluetooth cubes are synced across devices and conflicts are resolved correctly.
+
+24. **Device A (Add Cube)**:
+    - Open the **Bluetooth Modal**.
+    - Click **"Connect New Cube"**.
+    - Select a cube (real or mock).
+    - Upon connection, verify it appears in "Saved Cubes" list.
+    - Rename the cube to **"Cube Alpha"**.
+
+25. **Verification (Device B)**:
+    - Open the **Bluetooth Modal**.
+    - ✅ **"Cube Alpha"** should appear in the "Saved Cubes" list.
+
+26. **Device A (Offline Addition)**:
+    - **Log Out**.
+    - Connect another cube.
+    - Rename it to **"Cube Beta"**.
+    - **Log In**.
+
+27. **Verification (Device B)**:
+    - Refresh.
+    - Open **Bluetooth Modal**.
+    - ✅ **"Cube Beta"** should appear.
+
+28. **Device B (Renaming)**:
+    - Rename **"Cube Alpha"** to **"Cube Alpha Modified"**.
+
+29. **Verification (Device A)**:
+    - Refresh.
+    - Open **Bluetooth Modal**.
+    - ✅ **"Cube Alpha Modified"** should appear.
+
+30. **Device A (Deletion)**:
+    - Remove **"Cube Beta"**.
+
+31. **Verification (Device B)**:
+    - Refresh.
+    - Open **Bluetooth Modal**.
+    - ✅ **"Cube Beta"** should be **GONE**.
+
+32. **MAC Address Conflict Resolution**:
+    - **Device A**: Add a cube with MAC `AA:BB:CC:DD:EE:FF` (mock or real). Name it **"Cube Conflict A"**.
+    - **Device B**: Add a _different_ cube (different UUID) but same MAC `AA:BB:CC:DD:EE:FF`. Name it **"Cube Conflict B"**.
+    - **Sync**: Refresh both devices.
+    - ✅ Both devices should show **only one** cube.
+    - ✅ The cube shown should be **"Cube Conflict B"** (since it was added/modified last).
+
+---
+
+## Phase 9: Saved Cubes Cron Cleanup
+
+**Goal**: Verify that the cron job permanently deletes soft-deleted saved cubes older than 30 days.
+
+The cron job runs on a schedule and hard-deletes any `savedCubes` record whose `deletedAt` timestamp is older than 30 days. This test injects a fake aged soft-deleted cube into localStorage, syncs it to Convex, then manually triggers the cron mutation to verify the record is permanently removed.
+
+33. **Device A**:
+    - Open DevTools -> Console.
+    - **Inject an old soft-deleted saved cube into localStorage**:
+      ```javascript
+      const oldDeletedCube = {
+      	uuid: 'cron-test-cube-uuid',
+      	id: 'cron-test-cube-id',
+      	customName: 'Cron Test Cube',
+      	macAddress: 'ff:ee:dd:cc:bb:aa',
+      	dateAdded: Date.now() - 32 * 24 * 60 * 60 * 1000,
+      	lastConnected: Date.now() - 32 * 24 * 60 * 60 * 1000,
+      	lastModified: Date.now() - 31 * 24 * 60 * 60 * 1000,
+      	deletedAt: Date.now() - 31 * 24 * 60 * 60 * 1000 // 31 days ago
+      };
+      const cubes = JSON.parse(localStorage.getItem('savedBluetoothCubes') || '[]');
+      cubes.push(oldDeletedCube);
+      localStorage.setItem('savedBluetoothCubes', JSON.stringify(cubes));
+      ```
+    - Refresh the page and **Log In** (or re-login if already authenticated).
+    - Wait for sync to complete.
+    - ✅ **"Cron Test Cube"** should **not** appear in the Bluetooth Modal saved cubes list (it is soft-deleted).
+
+34. **Verify the Cube Reached Convex**:
+    - Open the **Convex Dashboard** -> **Data** -> `savedCubes` table.
+    - ✅ A record with `uuid: 'cron-test-cube-uuid'` should exist with `deletedAt` set to ~31 days ago.
+
+35. **Trigger the Cron Mutation Manually**:
+    - In the Convex Dashboard, go to **Functions** and find `cronDeleteSoftDeleted`.
+    - Run it with no arguments `{}`.
+    - ✅ The function should execute without errors.
+
+36. **Verification**:
+    - Go back to **Data** -> `savedCubes` table.
+    - ✅ The `cron-test-cube-uuid` record should be **completely gone** (hard deleted).
+    - ✅ Any cube with a _recent_ `deletedAt` (less than 30 days old) should still be present.
+
+37. **Cross-Device Verification**:
+    - **Device B**: Refresh the page and open the **Bluetooth Modal**.
+    - ✅ **"Cron Test Cube"** does **not** appear — it has been permanently removed from the cloud.
