@@ -20,6 +20,7 @@
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
+	import { globalState } from '$lib/globalState.svelte';
 
 	let {
 		open = $bindable(),
@@ -473,26 +474,87 @@
 										<!-- svelte-ignore a11y_click_events_have_key_events -->
 										<!-- svelte-ignore a11y_no_static_element_interactions -->
 										<div
-											class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+											class="flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 transition-colors
 												{settings.trainHintStickering === 'f2l'
 												? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
 												: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
 											onclick={() => (settings.trainHintStickering = 'f2l')}
 										>
-											<RadioDot selected={settings.trainHintStickering === 'f2l'} />
-											<span class="text-sm text-gray-900 dark:text-white">F2L Stickering</span>
+											<div class="flex items-center gap-2">
+												<RadioDot selected={settings.trainHintStickering === 'f2l'} />
+												<span class="text-sm text-gray-900 dark:text-white">F2L Stickering</span>
+											</div>
+											<Button
+												id="btn-f2l-stickering-help"
+												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+												type="button"
+												onclick={(e: MouseEvent) => e.stopPropagation()}
+											>
+												<CircleQuestionMark class="text-primary-600" />
+											</Button>
+											<Tooltip
+												triggeredBy="#btn-f2l-stickering-help"
+												trigger="click"
+												class="p-2"
+												placement="left"
+											>
+												<twisty-player
+													style="width: 120px; height: 120px;"
+													puzzle="3x3x3"
+													experimental-setup-alg="z2 y' R U R' U'"
+													experimental-stickering-mask-orbits={'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------'}
+													hint-facelets="none"
+													back-view="none"
+													control-panel="none"
+													background="none"
+													viewer-link="none"
+													experimental-drag-input="auto"
+													camera-longitude={globalState.cameraLongitude}
+													camera-latitude={globalState.cameraLatitude}
+												></twisty-player>
+											</Tooltip>
 										</div>
 										<!-- svelte-ignore a11y_click_events_have_key_events -->
 										<!-- svelte-ignore a11y_no_static_element_interactions -->
 										<div
-											class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+											class="flex cursor-pointer items-center justify-between gap-2 rounded-lg border p-3 transition-colors
 												{settings.trainHintStickering === 'fully'
 												? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
 												: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
 											onclick={() => (settings.trainHintStickering = 'fully')}
 										>
-											<RadioDot selected={settings.trainHintStickering === 'fully'} />
-											<span class="text-sm text-gray-900 dark:text-white">Fully Stickered</span>
+											<div class="flex items-center gap-2">
+												<RadioDot selected={settings.trainHintStickering === 'fully'} />
+												<span class="text-sm text-gray-900 dark:text-white">Fully Stickered</span>
+											</div>
+											<Button
+												id="btn-fully-stickered-help"
+												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+												type="button"
+												onclick={(e: MouseEvent) => e.stopPropagation()}
+											>
+												<CircleQuestionMark class="text-primary-600" />
+											</Button>
+											<Tooltip
+												triggeredBy="#btn-fully-stickered-help"
+												trigger="click"
+												class="p-2"
+												placement="left"
+											>
+												<twisty-player
+													style="width: 120px; height: 120px;"
+													puzzle="3x3x3"
+													experimental-setup-alg="z2 y' R U R' U'"
+													hint-facelets="none"
+													back-view="none"
+													control-panel="none"
+													background="none"
+													viewer-link="none"
+													experimental-drag-input="auto"
+													camera-longitude={globalState.cameraLongitude}
+													camera-latitude={globalState.cameraLatitude}
+												></twisty-player>
+											</Tooltip>
 										</div>
 									</div>
 								</div>
@@ -526,12 +588,15 @@
 													style="width: 120px; height: 120px;"
 													puzzle="3x3x3"
 													experimental-setup-alg="z2 y' R U R' U'"
+													experimental-stickering-mask-orbits={'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------'}
 													hint-facelets="floating"
 													back-view="none"
 													control-panel="none"
 													background="none"
 													viewer-link="none"
 													experimental-drag-input="auto"
+													camera-longitude={globalState.cameraLongitude}
+													camera-latitude={globalState.cameraLatitude}
 												></twisty-player>
 											</Tooltip>
 										</div>
@@ -554,12 +619,15 @@
 													style="width: 120px; height: 120px;"
 													puzzle="3x3x3"
 													experimental-setup-alg="z2 y' R U R' U'"
+													experimental-stickering-mask-orbits={'EDGES:----IIII----,CORNERS:----IIII,CENTERS:------'}
 													hint-facelets="none"
 													back-view="top-right"
 													control-panel="none"
 													background="none"
 													viewer-link="none"
 													experimental-drag-input="auto"
+													camera-longitude={globalState.cameraLongitude}
+													camera-latitude={globalState.cameraLatitude}
 												></twisty-player>
 											</Tooltip>
 										</div>
