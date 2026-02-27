@@ -58,7 +58,9 @@
 	}
 
 	const solvesInSession = $derived.by(() => {
-		let solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
+		let solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
+			(s) => !s.deletedAt
+		);
 		// Filter by session
 		if (selectedSessionIds.length > 0) {
 			solves = solves.filter(
@@ -120,7 +122,9 @@
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
 
 	const sessionsWithSolves = $derived.by(() => {
-		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
+		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
+			(s) => !s.deletedAt
+		);
 		const sessionIds = new Set(solves.map((s) => s.sessionId));
 		return sessionState.sessions.filter((s) => sessionIds.has(s.id) && !s.deletedAt);
 	});
