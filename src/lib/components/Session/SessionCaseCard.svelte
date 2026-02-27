@@ -1,5 +1,5 @@
 <script lang="ts">
-	import TwistyPlayer from '$lib/components/TwistyPlayer.svelte';
+	import TwistyPlayerStatic from '$lib/components/TwistyPlayerStatic.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { getCaseName } from '$lib/casesState.svelte';
 	import type { CaseId, GroupId } from '$lib/types/group';
@@ -48,8 +48,7 @@
 
 	<!-- TwistyPlayer -->
 	<div class="size-20">
-		<TwistyPlayer
-			bind:this={twistyPlayerRef}
+		<TwistyPlayerStatic
 			bind:scramble
 			bind:alg
 			{groupId}
