@@ -82,9 +82,17 @@
 
 	$effect(() => {
 		const validValues = trainTypeOptions.map((o) => o.value);
-		if (validValues.length > 0 && !validValues.includes(trainTypeFilter)) {
-			trainTypeFilter = validValues[0] as TrainMode;
+		if (validValues.length === 0) return;
+		// Pick the train type with the most solves
+		const counts = new Map<TrainMode, number>();
+		for (const solve of solvesInSession) {
+			const mode = getSolveType(solve);
+			counts.set(mode, (counts.get(mode) ?? 0) + 1);
 		}
+		const best = validValues.reduce((a, b) =>
+			(counts.get(b as TrainMode) ?? 0) > (counts.get(a as TrainMode) ?? 0) ? b : a
+		);
+		trainTypeFilter = best as TrainMode;
 	});
 
 	const caseSolves = $derived.by(() => {
