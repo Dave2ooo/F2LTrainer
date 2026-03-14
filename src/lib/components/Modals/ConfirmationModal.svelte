@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Modal } from 'flowbite-svelte';
-	import { TriangleAlert } from '@lucide/svelte';
+	import { TriangleAlert, Trash2, X } from '@lucide/svelte';
 	import type { ComponentProps } from 'svelte';
 
 	let {
@@ -34,7 +34,7 @@
 				{message}
 			</div>
 		</h3>
-		<Button color={confirmColor} class="me-2" onclick={handleConfirm}>{confirmText}</Button>
-		<Button color="alternative" onclick={() => (open = false)}>Cancel</Button>
+		<Button color={confirmColor} class="me-2 gap-2" onclick={handleConfirm}><Trash2 class="size-4" />{confirmText}</Button>
+		<Button color="alternative" class="gap-2" onclick={() => (open = false)}>Cancel<X class="size-4" /></Button>
 	</div>
 </Modal>
