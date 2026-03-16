@@ -55,9 +55,8 @@ const SERVICE_UUID_V4DATA = '00000010-0000-fff7-fff6-fff5fff4fff0';
 const CHRCT_UUID_V4READ = '0000fff6-0000-1000-8000-00805f9b34fb';
 const CHRCT_UUID_V4WRITE = '0000fff5-0000-1000-8000-00805f9b34fb';
 
-// List of Company Identifier Codes used by GAN cubes
-// Only including the most common ones to avoid overwhelming the browser
-const GAN_CIC_LIST = [0x0001, 0x0101, 0x0201];
+// List of Company Identifier Codes, fill with all values range [0x0001, 0xFF01] possible for GAN cubes
+const GAN_CIC_LIST = Array.from({ length: 256 }, (_, i) => (i << 8) | 0x01);
 
 interface Decoder {
 	encrypt: (data: number[]) => number[];
@@ -1264,6 +1263,19 @@ function clear(): Promise<void> {
 	deviceMac = null;
 	decoder = null;
 	badPacketCount = 0;
+	prevMoves = [];
+	timeOffs = [];
+	moveBuffer.length = 0;
+	prevCubie = new mathlib.CubieCube();
+	curCubie = new mathlib.CubieCube();
+	latestFacelet = mathlib.SOLVED_FACELET;
+	deviceTime = 0;
+	deviceTimeOffset = 0;
+	moveCnt = -1;
+	prevMoveCnt = -1;
+	prevMoveLocTime = null;
+	movesFromLastCheck = 1000;
+	batteryLevel = 0;
 	return result;
 }
 
