@@ -474,7 +474,17 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 				}
 			}
 		)
-		.then(function () {
+		.then(async function () {
+            // Eagerly request MAC address if we don't have it yet, 
+            // BEFORE establishing the GATT connection to prevent timeouts on macOS
+            if (!deviceMac && deviceName && (deviceName.startsWith('GAN') || deviceName.startsWith('MG') || deviceName.startsWith('AiCube'))) {
+                giikerutil.log('[gancube] no MAC found yet, eagerly requesting...');
+                const mac = await giikerutil.reqMacAddr(true, false, null, null);
+                if (!mac) {
+                    throw new Error("MAC address required to connect to this cube.");
+                }
+                deviceMac = mac;
+            }
 			return device.gatt!.connect();
 		})
 		.then(function (gatt: BluetoothRemoteGATTServer) {
