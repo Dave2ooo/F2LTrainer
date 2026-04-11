@@ -257,7 +257,7 @@
 
 		<!-- Error messages -->
 		{#if bluetoothState.errorMessage}
-			{#if bluetoothState.errorMessage === "Web Bluetooth API is not available in this browser"}
+			{#if bluetoothState.errorMessage === 'Web Bluetooth API is not available in this browser'}
 				<div class="text-center text-sm">
 					<p class="mb-1 text-red-500">{bluetoothState.errorMessage}</p>
 					<p class="text-gray-500 dark:text-gray-400">
