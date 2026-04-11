@@ -133,6 +133,15 @@ export function createBluetoothManager(): BluetoothCube {
 						giikerutil.log('[bluetooth]', 'Device already saved, using known MAC: ' + savedCube.macAddress);
 						expectedMac = savedCube.macAddress;
 					}
+				} else {
+					// User clicked "Connect" on a specific cube, so expectedMac was provided.
+					// BUT they might have selected a DIFFERENT cube in the pairing dialog!
+					// If the device they actually selected is already known, use its MAC instead.
+					const actualSavedCube = savedCubesState.getCube(device.id);
+					if (actualSavedCube && actualSavedCube.macAddress && actualSavedCube.macAddress !== expectedMac) {
+						giikerutil.log('[bluetooth]', 'Warning: User selected a different known device. Changing expected MAC to: ' + actualSavedCube.macAddress);
+						expectedMac = actualSavedCube.macAddress;
+					}
 				}
 
 				return cube.init(device, expectedMac);

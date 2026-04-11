@@ -58,7 +58,7 @@ export const savedCubesState = {
 		let existingMacIndex = normalizedMac ? cubes.findIndex((c) => c.macAddress?.toLowerCase() === normalizedMac) : -1;
 
 		// Also check for deviceId match (might be a stale entry)
-		const existingIdIndex = cubes.findIndex((c) => c.id === deviceId);
+		const existingIdIndex = cubes.findIndex((c) => c.id === deviceId && !c.deletedAt);
 
 		if (existingMacIndex >= 0) {
 			// Found a cube with matching MAC - update it
@@ -132,7 +132,7 @@ export const savedCubesState = {
 	},
 
 	removeCube(deviceId: string) {
-		const cube = cubes.find((c) => c.id === deviceId);
+		const cube = cubes.find((c) => c.id === deviceId && !c.deletedAt);
 		if (cube) {
 			const now = Date.now();
 			cube.deletedAt = now;
@@ -145,7 +145,7 @@ export const savedCubesState = {
 	},
 
 	renameCube(deviceId: string, newName: string) {
-		const cube = cubes.find((c) => c.id === deviceId);
+		const cube = cubes.find((c) => c.id === deviceId && !c.deletedAt);
 		if (cube) {
 			cube.customName = newName;
 			cube.lastModified = Date.now();
@@ -160,7 +160,7 @@ export const savedCubesState = {
 	},
 
 	updateLastConnected(deviceId: string) {
-		const cube = cubes.find((c) => c.id === deviceId);
+		const cube = cubes.find((c) => c.id === deviceId && !c.deletedAt);
 		if (cube) {
 			cube.lastConnected = Date.now();
 			cube.lastModified = Date.now(); // Also update lastModified for sync
@@ -175,12 +175,12 @@ export const savedCubesState = {
 	},
 
 	getCube(deviceId: string): SavedCube | undefined {
-		return cubes.find((c) => c.id === deviceId);
+		return cubes.find((c) => c.id === deviceId && !c.deletedAt);
 	},
 
 	getCubeByMac(macAddress: string): SavedCube | undefined {
 		const normalizedMac = macAddress.toLowerCase();
-		return cubes.find((c) => c.macAddress?.toLowerCase() === normalizedMac);
+		return cubes.find((c) => c.macAddress?.toLowerCase() === normalizedMac && !c.deletedAt);
 	},
 
 	/**
