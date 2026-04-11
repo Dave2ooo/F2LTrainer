@@ -257,16 +257,25 @@
 
 		<!-- Error messages -->
 		{#if bluetoothState.errorMessage}
-			<p class="text-center text-sm text-red-500">
-				{bluetoothState.errorMessage}
-				<button
-					type="button"
-					class="ml-1 font-semibold underline hover:text-red-700"
-					onclick={() => feedbackModal.openModal(bluetoothState.errorMessage ?? undefined)}
-				>
-					Report this issue
-				</button>
-			</p>
+			{#if bluetoothState.errorMessage === "Web Bluetooth API is not available in this browser"}
+				<div class="text-center text-sm">
+					<p class="mb-1 text-red-500">{bluetoothState.errorMessage}</p>
+					<p class="text-gray-500 dark:text-gray-400">
+						Please use Google Chrome or Microsoft Edge as an alternative browser.
+					</p>
+				</div>
+			{:else}
+				<p class="text-center text-sm text-red-500">
+					{bluetoothState.errorMessage}
+					<button
+						type="button"
+						class="ml-1 font-semibold underline hover:text-red-700"
+						onclick={() => feedbackModal.openModal(bluetoothState.errorMessage ?? undefined)}
+					>
+						Report this issue
+					</button>
+				</p>
+			{/if}
 		{/if}
 
 		<!-- Connect new cube button -->

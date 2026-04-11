@@ -29,11 +29,21 @@
 			// Remove any previously added error details to prevent accumulation
 			const cleanMessage = formData.message
 				.split('\n')
-				.filter((line) => !line.trim().startsWith('Error details:'))
+				.filter((line) => {
+					const l = line.trim();
+					return (
+						!l.startsWith('Error details:') &&
+						!l.startsWith('Please add the following info:') &&
+						!l.startsWith('- Device') &&
+						!l.startsWith('- Operating system') &&
+						!l.startsWith('- Browser') &&
+						!l.startsWith('- Smart cube')
+					);
+				})
 				.join('\n')
 				.trim();
 
-			const textToAdd = `Error details: ${errorContext}`;
+			const textToAdd = `Please add the following info:\n- Device (PC, Mac, Smartphone, Tablet): \n- Operating system: \n- Browser: \n- Smart cube: \n\nError details: ${errorContext}`;
 
 			formData.message = cleanMessage ? `${cleanMessage}\n\n${textToAdd}` : textToAdd;
 		}
