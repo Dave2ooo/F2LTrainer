@@ -446,34 +446,37 @@ function init(device: BluetoothDevice, expectedMac?: string) {
 	clear();
 	deviceName = device.name || null;
 	giikerutil.log('[gancube] init gan cube start');
-	return GiikerCube.waitForAdvs()
-		.then(function (mfData: BluetoothManufacturerData) {
-			const dataView = getManufacturerDataBytes(mfData);
-			if (dataView && dataView.byteLength >= 6) {
-				const mac: string[] = [];
-				for (let i = 0; i < 6; i++) {
-					mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
-				}
-				return Promise.resolve(mac.join(':'));
-			}
-			return Promise.reject(-3);
-		})
-		.then(
-			function (mac: string) {
-				giikerutil.log('[gancube] init, found cube bluetooth hardware MAC = ' + mac);
-				deviceMac = mac;
-			},
-			function (err: any) {
-				giikerutil.log(
-					'[gancube] init, unable to automaticly determine cube MAC, error code = ' + err
+
+	const waitForMac = expectedMac
+		? Promise.resolve().then(() => {
+				giikerutil.log('[gancube] init, using expected MAC = ' + expectedMac);
+				deviceMac = expectedMac;
+			})
+		: GiikerCube.waitForAdvs()
+				.then(function (mfData: BluetoothManufacturerData) {
+					const dataView = getManufacturerDataBytes(mfData);
+					if (dataView && dataView.byteLength >= 6) {
+						const mac: string[] = [];
+						for (let i = 0; i < 6; i++) {
+							mac.push((dataView.getUint8(dataView.byteLength - i - 1) + 0x100).toString(16).slice(1));
+						}
+						return Promise.resolve(mac.join(':'));
+					}
+					return Promise.reject(-3);
+				})
+				.then(
+					function (mac: string) {
+						giikerutil.log('[gancube] init, found cube bluetooth hardware MAC = ' + mac);
+						deviceMac = mac;
+					},
+					function (err: any) {
+						giikerutil.log(
+							'[gancube] init, unable to automaticly determine cube MAC, error code = ' + err
+						);
+					}
 				);
-				// Fallback to expectedMac if available
-				if (expectedMac) {
-					giikerutil.log('[gancube] init, using expected MAC = ' + expectedMac);
-					deviceMac = expectedMac;
-				}
-			}
-		)
+
+	return waitForMac
 		.then(async function () {
             // Eagerly request MAC address if we don't have it yet, 
             // BEFORE establishing the GATT connection to prevent timeouts on macOS

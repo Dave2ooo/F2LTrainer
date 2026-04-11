@@ -6,6 +6,7 @@
 import type { BluetoothCube, CubeModel, CubeCallback, EventCallback } from './types';
 import { giikerutil, $, DEBUG, DEBUGBL } from './utils';
 import { bluetoothState } from '../store.svelte';
+import { savedCubesState } from '../savedCubes.svelte';
 
 export function createBluetoothManager(): BluetoothCube {
 	/* { prefix: cubeModel } */
@@ -125,6 +126,15 @@ export function createBluetoothManager(): BluetoothCube {
 				if (!cube) {
 					return Promise.reject('Cannot detect device type');
 				}
+
+				if (!expectedMac) {
+					const savedCube = savedCubesState.getCube(device.id);
+					if (savedCube && savedCube.macAddress) {
+						giikerutil.log('[bluetooth]', 'Device already saved, using known MAC: ' + savedCube.macAddress);
+						expectedMac = savedCube.macAddress;
+					}
+				}
+
 				return cube.init(device, expectedMac);
 			})
 			.then(async () => {
