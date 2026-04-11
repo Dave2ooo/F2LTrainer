@@ -151,14 +151,10 @@
 
 		if (hasTrainCase) {
 			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleSmartCubeMove, SUBSCRIBER_PRIORITY);
-		} else {
-			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			return () => {
+				bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			};
 		}
-	});
-
-	// Cleanup on destroy
-	onDestroy(() => {
-		bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
 	});
 
 	// Parse algorithm and reset progress tracking when algorithm changes

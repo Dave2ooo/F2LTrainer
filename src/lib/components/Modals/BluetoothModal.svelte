@@ -43,10 +43,11 @@
 
 	// Subscribe when modal opens, unsubscribe when it closes
 	$effect(() => {
-		if (open && bluetoothState.isConnected) {
+		if (open) {
 			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleMove, SUBSCRIBER_PRIORITY);
-		} else {
-			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			return () => {
+				bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			};
 		}
 	});
 

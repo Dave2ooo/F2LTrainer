@@ -166,14 +166,10 @@
 
 		if (hasTrainCase && isDrillRunning) {
 			bluetoothState.subscribeToMoves(SUBSCRIBER_ID, handleSmartCubeMove, SUBSCRIBER_PRIORITY);
-		} else {
-			bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			return () => {
+				bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
+			};
 		}
-	});
-
-	// Cleanup on destroy
-	onDestroy(() => {
-		bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
 	});
 
 	// local reactive mirror of the global state.current
