@@ -7,7 +7,7 @@
 		Rocket,
 		Dumbbell,
 		Bluetooth,
-		BarChart3,
+		ChartColumn,
 		Lightbulb,
 		BookOpen,
 		Zap,
@@ -280,7 +280,7 @@
 			<AccordionItem>
 				{#snippet header()}
 					<div class="flex items-center gap-2">
-						<BarChart3 class="size-4 text-primary-600 dark:text-primary-400" />
+						<ChartColumn class="size-4 text-primary-600 dark:text-primary-400" />
 						<span>Sessions & Statistics</span>
 					</div>
 				{/snippet}
@@ -363,7 +363,7 @@
 
 					<div class="space-y-2">
 						<p class="font-medium">Common Issues:</p>
-						<ul class="list-inside list-disc space-y-1 pl-2">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
 							<li>
 								<strong>Moves not tracking properly:</strong> Ensure you are using a supported cube.
 								Calibrate your cube in its native app if moves are missing.
@@ -371,6 +371,16 @@
 							<li>
 								<strong>High Latency:</strong> Close other Bluetooth devices or browser tabs that might
 								be interfering with the connection.
+							</li>
+							<li>
+								<strong>Smart cube moves not tracking properly:</strong>
+								<ul
+									class="mt-2 list-inside list-disc space-y-1 pl-4 text-gray-600 dark:text-gray-400"
+								>
+									<li>Hold your cube with white on top and green in front at all times.</li>
+									<li>Only rotate the cube when the algorithm tells you to.</li>
+									<li>After each case, reset the cube to white top / green front.</li>
+								</ul>
 							</li>
 						</ul>
 					</div>
