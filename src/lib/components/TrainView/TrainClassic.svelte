@@ -295,7 +295,7 @@
 		/>
 		{#if !globalState.hasUsedTwistyPlayer}
 			<Pointer
-				class="pointer-events-none absolute top-1/2 left-1/2 z-50 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+				class="pointer-events-none absolute top-1/2 left-1/2 z-10 size-15 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
 			/>
 		{/if}
 	{:else}

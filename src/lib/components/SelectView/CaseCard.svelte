@@ -140,7 +140,7 @@
 		/>
 		{#if !globalState.hasClickedCaseCard && groupId === 'basic' && caseId === 4}
 			<Pointer
-				class="pointer-events-none absolute top-3/4 left-1/2 z-50 size-8 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
+				class="pointer-events-none absolute top-3/4 left-1/2 z-10 size-8 -translate-x-1/2 -translate-y-1/2 animate-bounce text-primary-600"
 			/>
 		{/if}
 	</div>
