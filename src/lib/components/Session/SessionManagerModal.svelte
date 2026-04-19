@@ -39,6 +39,10 @@
 	let editingSessionId = $state<string | null>(null);
 	let editingSessionName = $state('');
 
+	// For pending copy (not yet persisted)
+	let pendingCopySourceId = $state<string | null>(null);
+	let pendingCopyName = $state('');
+
 	// For merging sessions
 	let showMergeModal = $state(false);
 	let mergeSourceId = $state<string>('');
@@ -77,16 +81,52 @@
 	);
 
 	async function handleDuplicate(sessionId: string) {
-		const newSession = sessionState.duplicateSession(sessionId);
-		if (newSession) {
-			startEditingSession(newSession.id, newSession.name);
-			await tick();
-			activeSessionsList?.firstElementChild?.scrollIntoView({
-				behavior: 'smooth',
-				block: 'nearest'
-			});
-		}
+		const sourceSession = sessionState.sessions.find((s) => s.id === sessionId);
+		if (!sourceSession) return;
+
+		// Cancel any existing pending copy before starting a new one
+		pendingCopySourceId = sessionId;
+		pendingCopyName = `${sourceSession.name} (Copy)`;
+
+		await tick();
+		activeSessionsList?.firstElementChild?.scrollIntoView({
+			behavior: 'smooth',
+			block: 'nearest'
+		});
 	}
+
+	function confirmPendingCopy() {
+		if (!pendingCopySourceId) return;
+
+		const trimmedName = pendingCopyName.trim();
+		const sourceSession = sessionState.sessions.find((s) => s.id === pendingCopySourceId);
+		if (!sourceSession) {
+			cancelPendingCopy();
+			return;
+		}
+
+		// Create the real session now
+		const newSession = sessionState.duplicateSession(pendingCopySourceId);
+		if (newSession && trimmedName && trimmedName !== newSession.name) {
+			sessionState.updateSession(newSession.id, { name: trimmedName });
+		}
+
+		pendingCopySourceId = null;
+		pendingCopyName = '';
+	}
+
+	function cancelPendingCopy() {
+		pendingCopySourceId = null;
+		pendingCopyName = '';
+	}
+
+	// Discard any pending copy when the modal is closed
+	$effect(() => {
+		if (!open) {
+			pendingCopySourceId = null;
+			pendingCopyName = '';
+		}
+	});
 
 	function handleArchive(sessionId: string) {
 		// Check if it's the last active session
@@ -247,9 +287,25 @@
 	>
 		<TabItem open title="Active ({activeSessions.length})">
 			<div class="mt-4 flex flex-col gap-2" bind:this={activeSessionsList}>
-				{#if activeSessions.length === 0}
+				{#if pendingCopySourceId !== null}
+					<!-- Pending copy entry at the top -->
+					<div
+						class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
+					>
+						<Input type="text" bind:value={pendingCopyName} class="flex-1" maxlength={60} />
+						<div class="flex shrink-0 items-center gap-1">
+							<Button size="xs" color="green" onclick={confirmPendingCopy}>
+								<Check class="size-4" />
+							</Button>
+							<Button size="xs" color="alternative" onclick={cancelPendingCopy}>
+								<X class="size-4" />
+							</Button>
+						</div>
+					</div>
+				{/if}
+				{#if activeSessions.length === 0 && pendingCopySourceId === null}
 					<p class="py-8 text-center text-gray-500 dark:text-gray-400">No active sessions</p>
-				{:else}
+				{:else if activeSessions.length > 0}
 					{#each activeSessions as session (session.id)}
 						<div
 							class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-700 dark:bg-gray-800"
