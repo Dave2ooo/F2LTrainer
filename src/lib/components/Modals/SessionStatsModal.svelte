@@ -84,9 +84,7 @@
 	);
 
 	const currentSession = $derived(
-		sessionId
-			? sessionState.sessions.find((s) => s.id === sessionId)
-			: sessionState.activeSession
+		sessionId ? sessionState.sessions.find((s) => s.id === sessionId) : sessionState.activeSession
 	);
 
 	const sessionName = $derived(currentSession?.name ?? 'Session');
