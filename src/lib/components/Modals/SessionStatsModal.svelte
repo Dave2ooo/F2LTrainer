@@ -6,6 +6,7 @@
 	import { ArrowUp, ArrowDown, ChartNoAxesColumn } from '@lucide/svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
 	import { sessionState } from '$lib/sessionState.svelte';
+	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import CaseStatsModal from './CaseStatsModal.svelte';
 	import {
 		formatTime,
@@ -81,14 +82,33 @@
 			? statisticsState.allSolves.filter((s) => s.sessionId === sessionId)
 			: statisticsState.statistics
 	);
-	const sessionName = $derived(
+
+	const currentSession = $derived(
 		sessionId
-			? (sessionState.sessions.find((s) => s.id === sessionId)?.name ?? 'Session')
-			: (sessionState.activeSession?.name ?? 'Session')
+			? sessionState.sessions.find((s) => s.id === sessionId)
+			: sessionState.activeSession
 	);
+
+	const sessionName = $derived(currentSession?.name ?? 'Session');
 
 	// Train type filter
 	let trainTypeFilter = $state<TrainMode>('classic');
+
+	let wasOpen = $state(false);
+
+	$effect(() => {
+		if (open && !wasOpen) {
+			if (currentSession) {
+				let targetFilter: TrainMode =
+					currentSession.settings.trainMode === 'drill' ? 'drill' : 'classic';
+				if (targetFilter === 'classic' && bluetoothState.isConnected) {
+					targetFilter = 'smart';
+				}
+				trainTypeFilter = targetFilter;
+			}
+		}
+		wasOpen = open;
+	});
 
 	// Detect solve type based on recorded fields
 	function getSolveType(solve: Solve): TrainMode {
