@@ -37,6 +37,9 @@ export interface SessionSettings {
 	crossColor: string[];
 	frontColor: string[];
 
+	// Edge Orientation
+	trainLearnEO: boolean;
+
 	// Drill Mode
 	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 	drillHideTwistyPlayer: boolean; // Hide TwistyPlayer after first move in drill mode

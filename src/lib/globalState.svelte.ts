@@ -5,6 +5,8 @@ import { loadFromLocalStorage } from './utils/localStorage';
 export const GLOBAL_STATE_STORAGE_KEY = 'globalState';
 export const DEFAULT_CAMERA_LATITUDE = 25;
 export const DEFAULT_CAMERA_LONGITUDE = 30;
+export const DEFAULT_EO_ORIENTED_COLOR = '#96F7E4';
+export const DEFAULT_EO_UNORIENTED_COLOR = '#FFC9C9';
 
 // Helper to create collapsed categories (UI state)
 const createCollapsedCategories = (): Record<GroupId, boolean[]> =>
@@ -28,6 +30,8 @@ interface EphemeralState {
 	cameraLatitude: number;
 	cameraLongitude: number;
 	isSyncing: boolean;
+	eoOrientedColor: string;
+	eoUnorientedColor: string;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -43,7 +47,9 @@ const defaultEphemeralState: EphemeralState = {
 	rightPaneOpen: true,
 	cameraLatitude: DEFAULT_CAMERA_LATITUDE,
 	cameraLongitude: DEFAULT_CAMERA_LONGITUDE,
-	isSyncing: false
+	isSyncing: false,
+	eoOrientedColor: DEFAULT_EO_ORIENTED_COLOR,
+	eoUnorientedColor: DEFAULT_EO_UNORIENTED_COLOR
 };
 
 const persistedEphemeralState =
@@ -151,5 +157,19 @@ export const globalState: GlobalState = {
 	},
 	set isSyncing(v) {
 		ephemeralState.isSyncing = v;
+	},
+
+	get eoOrientedColor() {
+		return ephemeralState.eoOrientedColor;
+	},
+	set eoOrientedColor(v) {
+		ephemeralState.eoOrientedColor = v;
+	},
+
+	get eoUnorientedColor() {
+		return ephemeralState.eoUnorientedColor;
+	},
+	set eoUnorientedColor(v) {
+		ephemeralState.eoUnorientedColor = v;
 	}
 };

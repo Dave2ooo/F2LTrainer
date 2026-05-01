@@ -13,14 +13,15 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import RadioDot from '$lib/components/RadioDot.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
+	import { globalState, DEFAULT_EO_ORIENTED_COLOR, DEFAULT_EO_UNORIENTED_COLOR } from '$lib/globalState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
-	import { CircleQuestionMark, Plus } from '@lucide/svelte';
+	import { CircleQuestionMark, Plus, RotateCcw } from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
-	import { globalState } from '$lib/globalState.svelte';
+
 
 	let {
 		open = $bindable(),
@@ -631,6 +632,50 @@
 												></twisty-player>
 											</Tooltip>
 										</div>
+									</div>
+								</div>
+
+								<!-- Edge Orientation -->
+								<div class="card">
+									<Label class="mb-3 text-sm font-semibold">Edge Orientation</Label>
+									<div class="space-y-4">
+										<Checkbox bind:checked={settings.trainLearnEO}>Learn Edge Orientation</Checkbox>
+										{#if settings.trainLearnEO}
+											<div
+												class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3 dark:border-gray-700"
+											>
+												<div>
+													<Label class="mb-2 text-xs">Oriented Color</Label>
+													<input
+														type="color"
+														bind:value={globalState.eoOrientedColor}
+														class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
+													/>
+												</div>
+												<div>
+													<Label class="mb-2 text-xs">Unoriented Color</Label>
+													<input
+														type="color"
+														bind:value={globalState.eoUnorientedColor}
+														class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
+													/>
+												</div>
+											</div>
+											<div class="mt-4 flex justify-end">
+												<Button
+													size="xs"
+													color="alternative"
+													onclick={() => {
+														globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
+														globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;
+													}}
+													class="gap-1.5"
+												>
+													<RotateCcw size={14} />
+													Reset to Default
+												</Button>
+											</div>
+										{/if}
 									</div>
 								</div>
 							</div>

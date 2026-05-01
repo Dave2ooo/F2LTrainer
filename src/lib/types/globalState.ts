@@ -19,4 +19,6 @@ export interface GlobalState {
 	cameraLatitude: number;
 	cameraLongitude: number;
 	isSyncing: boolean;
+	eoOrientedColor: string;
+	eoUnorientedColor: string;
 }

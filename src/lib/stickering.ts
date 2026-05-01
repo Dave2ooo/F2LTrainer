@@ -87,3 +87,53 @@ function getStickeringString(
 }
 
 export default getStickeringString;
+
+export function getF2LEdgeIndex(
+	stickering: StickerHidden,
+	side?: Side,
+	crossColor?: StickerColor,
+	frontColor?: StickerColor
+): number | undefined {
+	if (stickering === undefined) return undefined;
+	if (side === undefined) side = 'right';
+	if (crossColor === undefined) crossColor = 'white';
+	if (frontColor === undefined) frontColor = 'red';
+
+	let sideSticker: Side;
+	let facing: 'front' | 'back';
+	if (stickering === 'fr') {
+		facing = 'front';
+		sideSticker = 'right';
+	} else if (stickering === 'fl') {
+		facing = 'front';
+		sideSticker = 'left';
+	} else if (stickering === 'br') {
+		facing = 'back';
+		sideSticker = 'right';
+	} else if (stickering === 'bl') {
+		facing = 'back';
+		sideSticker = 'left';
+	} else return undefined;
+
+	if (side === 'left') {
+		sideSticker = OPPOSITE_SIDE[sideSticker];
+	}
+
+	const backColor = OPPOSITE_COLOR[frontColor];
+
+	let f2lFace: StickerColor = 'red';
+	let f2lSideColor: StickerColor | undefined = undefined;
+	if (facing === 'front') {
+		f2lFace = frontColor;
+		const entry = SIDE_COLOR[crossColor][frontColor];
+		f2lSideColor = entry?.[sideSticker];
+	} else if (facing === 'back') {
+		f2lFace = backColor;
+		const entry = SIDE_COLOR[crossColor][backColor];
+		f2lSideColor = entry?.[OPPOSITE_SIDE[sideSticker]];
+	}
+
+	if (f2lSideColor === undefined) return undefined;
+
+	return STICKERING.edges[f2lFace][f2lSideColor];
+}

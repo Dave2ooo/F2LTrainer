@@ -32,6 +32,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	backViewEnabled: false,
 	crossColor: ['white'],
 	frontColor: ['red'],
+	trainLearnEO: false,
 	drillTimeBetweenCases: 1.0,
 	drillHideTwistyPlayer: false
 };

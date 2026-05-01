@@ -29,6 +29,7 @@ export interface GroupDefinition {
 	readonly ignoreAUF?: readonly CaseId[];
 	readonly caseNumberMapping?: Readonly<Record<CaseId, string>>;
 	readonly piecesToHide?: Readonly<Record<number, StickerHidden>>;
+	readonly edgeState?: Readonly<Record<CaseId, { slot: StickerHidden; oriented: boolean }>>;
 }
 
 const BASIC_DEFINITION: GroupDefinition = {
@@ -49,7 +50,50 @@ const BASIC_DEFINITION: GroupDefinition = {
 		{ name: 'Corner on Bottom / Edge on Top / Edge oriented', cases: [27, 30, 25] },
 		{ name: 'Corner on Bottom / Edge on Top / Edge unoriented', cases: [29, 28, 26] }
 	],
-	ignoreAUF: [37, 38, 39, 40, 41]
+	ignoreAUF: [37, 38, 39, 40, 41],
+	edgeState: {
+		1: { slot: 'fr', oriented: true },
+		2: { slot: 'fr', oriented: false },
+		3: { slot: 'fr', oriented: false },
+		4: { slot: 'fr', oriented: true },
+		5: { slot: 'fr', oriented: true },
+		6: { slot: 'fr', oriented: true },
+		7: { slot: 'fr', oriented: true },
+		8: { slot: 'fr', oriented: true },
+		9: { slot: 'fr', oriented: true },
+		10: { slot: 'fr', oriented: true },
+		11: { slot: 'fr', oriented: true },
+		12: { slot: 'fr', oriented: true },
+		13: { slot: 'fr', oriented: true },
+		14: { slot: 'fr', oriented: true },
+		15: { slot: 'fr', oriented: true },
+		16: { slot: 'fr', oriented: true },
+		17: { slot: 'fr', oriented: true },
+		18: { slot: 'fr', oriented: true },
+		19: { slot: 'fr', oriented: true },
+		20: { slot: 'fr', oriented: true },
+		21: { slot: 'fr', oriented: true },
+		22: { slot: 'fr', oriented: true },
+		23: { slot: 'fr', oriented: true },
+		24: { slot: 'fr', oriented: true },
+		25: { slot: 'fr', oriented: true },
+		26: { slot: 'fr', oriented: true },
+		27: { slot: 'fr', oriented: true },
+		28: { slot: 'fr', oriented: true },
+		29: { slot: 'fr', oriented: true },
+		30: { slot: 'fr', oriented: true },
+		31: { slot: 'fr', oriented: true },
+		32: { slot: 'fr', oriented: true },
+		33: { slot: 'fr', oriented: true },
+		34: { slot: 'fr', oriented: true },
+		35: { slot: 'fr', oriented: true },
+		36: { slot: 'fr', oriented: true },
+		37: { slot: 'fr', oriented: true },
+		38: { slot: 'fr', oriented: true },
+		39: { slot: 'fr', oriented: true },
+		40: { slot: 'fr', oriented: true },
+		41: { slot: 'fr', oriented: true }
+	}
 } as const;
 
 const BASIC_BACK_DEFINITION: GroupDefinition = {
@@ -70,7 +114,50 @@ const BASIC_BACK_DEFINITION: GroupDefinition = {
 		{ name: 'Corner on Bottom / Edge on Top / Edge oriented', cases: [28, 29, 26] },
 		{ name: 'Corner on Bottom / Edge on Top / Edge unoriented', cases: [30, 27, 25] }
 	],
-	ignoreAUF: [37, 38, 39, 40, 41]
+	ignoreAUF: [37, 38, 39, 40, 41],
+	edgeState: {
+		1: { slot: 'fr', oriented: true },
+		2: { slot: 'fr', oriented: true },
+		3: { slot: 'fr', oriented: true },
+		4: { slot: 'fr', oriented: true },
+		5: { slot: 'fr', oriented: true },
+		6: { slot: 'fr', oriented: true },
+		7: { slot: 'fr', oriented: true },
+		8: { slot: 'fr', oriented: true },
+		9: { slot: 'fr', oriented: true },
+		10: { slot: 'fr', oriented: true },
+		11: { slot: 'fr', oriented: true },
+		12: { slot: 'fr', oriented: true },
+		13: { slot: 'fr', oriented: true },
+		14: { slot: 'fr', oriented: true },
+		15: { slot: 'fr', oriented: true },
+		16: { slot: 'fr', oriented: true },
+		17: { slot: 'fr', oriented: true },
+		18: { slot: 'fr', oriented: true },
+		19: { slot: 'fr', oriented: true },
+		20: { slot: 'fr', oriented: true },
+		21: { slot: 'fr', oriented: true },
+		22: { slot: 'fr', oriented: true },
+		23: { slot: 'fr', oriented: true },
+		24: { slot: 'fr', oriented: true },
+		25: { slot: 'fr', oriented: true },
+		26: { slot: 'fr', oriented: true },
+		27: { slot: 'fr', oriented: true },
+		28: { slot: 'fr', oriented: true },
+		29: { slot: 'fr', oriented: true },
+		30: { slot: 'fr', oriented: true },
+		31: { slot: 'fr', oriented: true },
+		32: { slot: 'fr', oriented: true },
+		33: { slot: 'fr', oriented: true },
+		34: { slot: 'fr', oriented: true },
+		35: { slot: 'fr', oriented: true },
+		36: { slot: 'fr', oriented: true },
+		37: { slot: 'fr', oriented: true },
+		38: { slot: 'fr', oriented: true },
+		39: { slot: 'fr', oriented: true },
+		40: { slot: 'fr', oriented: true },
+		41: { slot: 'fr', oriented: true }
+	}
 } as const;
 
 const ADVANCED_DEFINITION: GroupDefinition = {
@@ -175,7 +262,69 @@ const ADVANCED_DEFINITION: GroupDefinition = {
 		60: 'fl'
 	},
 	// fr: front-right, fl: front-left, br: back-right, bl: back-left
-	ignoreAUF: [55, 56, 57, 58, 59, 60]
+	ignoreAUF: [55, 56, 57, 58, 59, 60],
+	edgeState: {
+		1: { slot: 'br', oriented: true },
+		2: { slot: 'br', oriented: true },
+		3: { slot: 'fl', oriented: true },
+		4: { slot: 'fl', oriented: true },
+		5: { slot: 'fr', oriented: true },
+		6: { slot: 'fr', oriented: true },
+		7: { slot: 'br', oriented: true },
+		8: { slot: 'br', oriented: true },
+		9: { slot: 'fl', oriented: true },
+		10: { slot: 'fl', oriented: true },
+		11: { slot: 'fl', oriented: true },
+		12: { slot: 'fl', oriented: true },
+		13: { slot: 'br', oriented: true },
+		14: { slot: 'br', oriented: true },
+		15: { slot: 'fr', oriented: true },
+		16: { slot: 'fr', oriented: true },
+		17: { slot: 'fr', oriented: true },
+		18: { slot: 'fr', oriented: true },
+		19: { slot: 'fr', oriented: true },
+		20: { slot: 'fr', oriented: true },
+		21: { slot: 'fr', oriented: true },
+		22: { slot: 'fr', oriented: true },
+		23: { slot: 'fr', oriented: true },
+		24: { slot: 'fr', oriented: true },
+		25: { slot: 'fr', oriented: true },
+		26: { slot: 'fr', oriented: true },
+		27: { slot: 'fr', oriented: true },
+		28: { slot: 'fr', oriented: true },
+		29: { slot: 'fr', oriented: true },
+		30: { slot: 'fr', oriented: true },
+		31: { slot: 'fr', oriented: true },
+		32: { slot: 'fr', oriented: true },
+		33: { slot: 'fr', oriented: true },
+		34: { slot: 'fr', oriented: true },
+		35: { slot: 'fr', oriented: true },
+		36: { slot: 'fr', oriented: true },
+		37: { slot: 'fr', oriented: true },
+		38: { slot: 'fr', oriented: true },
+		39: { slot: 'fr', oriented: true },
+		40: { slot: 'fr', oriented: true },
+		41: { slot: 'fr', oriented: true },
+		42: { slot: 'fr', oriented: true },
+		43: { slot: 'br', oriented: true },
+		44: { slot: 'br', oriented: true },
+		45: { slot: 'br', oriented: true },
+		46: { slot: 'fl', oriented: true },
+		47: { slot: 'br', oriented: true },
+		48: { slot: 'fl', oriented: true },
+		49: { slot: 'br', oriented: true },
+		50: { slot: 'fl', oriented: true },
+		51: { slot: 'br', oriented: true },
+		52: { slot: 'fl', oriented: true },
+		53: { slot: 'br', oriented: true },
+		54: { slot: 'fl', oriented: true },
+		55: { slot: 'br', oriented: true },
+		56: { slot: 'fl', oriented: true },
+		57: { slot: 'br', oriented: true },
+		58: { slot: 'fl', oriented: true },
+		59: { slot: 'br', oriented: true },
+		60: { slot: 'fl', oriented: true }
+	}
 } as const;
 
 const EXPERT_DEFINITION: GroupDefinition = {
@@ -209,7 +358,26 @@ const EXPERT_DEFINITION: GroupDefinition = {
 		17: 'br'
 	},
 	// fr: front-right, fl: front-left, br: back-right, bl: back-left
-	ignoreAUF: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17]
+	ignoreAUF: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+	edgeState: {
+		1: { slot: 'br', oriented: true },
+		2: { slot: 'br', oriented: true },
+		3: { slot: 'fl', oriented: true },
+		4: { slot: 'fl', oriented: true },
+		5: { slot: 'fl', oriented: true },
+		6: { slot: 'fl', oriented: true },
+		7: { slot: 'fl', oriented: true },
+		8: { slot: 'br', oriented: true },
+		9: { slot: 'fr', oriented: true },
+		10: { slot: 'fl', oriented: true },
+		11: { slot: 'br', oriented: true },
+		12: { slot: 'fl', oriented: true },
+		13: { slot: 'br', oriented: true },
+		14: { slot: 'fl', oriented: true },
+		15: { slot: 'br', oriented: true },
+		16: { slot: 'fl', oriented: true },
+		17: { slot: 'br', oriented: true }
+	}
 } as const;
 
 export const GROUP_DEFINITIONS: Record<GroupId, GroupDefinition> = {

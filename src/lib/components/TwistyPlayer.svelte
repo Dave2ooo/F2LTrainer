@@ -18,6 +18,12 @@
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
 	import { globalState } from '$lib/globalState.svelte';
+	import {
+		applyEOMaskToStickeringString,
+		getEODisplayColor,
+		recolorMysteryEdge
+	} from '$lib/utils/edgeOrientationDisplay';
+	import { sessionState } from '$lib/sessionState.svelte';
 
 	interface Props {
 		groupId?: GroupId;
@@ -86,7 +92,7 @@
 	// Allow parent components to grab the raw <twisty-player> element if needed
 	let el: HTMLElement;
 	let isPlayerInitialized = $state(false);
-	let kpuzzle: any = null;
+	let kpuzzle: any = $state(null);
 
 	// When the parent supplies a CSS class, the wrapper should let CSS handle sizing
 	// (use classes like `w-[20vw] md:w-[30vw] aspect-[5/6]`). Otherwise use numeric
@@ -177,11 +183,57 @@
 	const CAMERA_POSITION_TOLERANCE = 0.1; // Tolerance for comparing camera positions
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
-	let stickeringString = $derived(
-		stickering === 'f2l' && staticData
-			? getStickeringString(staticData.pieceToHide, side, crossColor, frontColor)
-			: undefined
-	);
+	let stickeringString = $derived.by(() => {
+		if (stickering !== 'f2l' || !staticData) return undefined;
+
+		let baseStr = getStickeringString(staticData.pieceToHide, side, crossColor, frontColor);
+
+		if (sessionState.activeSession?.settings?.trainLearnEO && groupId && caseId && baseStr) {
+			baseStr = applyEOMaskToStickeringString(
+				baseStr,
+				groupId,
+				caseId,
+				side,
+				crossColor,
+				frontColor
+			);
+		}
+
+		return baseStr;
+	});
+
+	// Effect to dynamically recolor the "Mystery" edge piece (M) based on EO state
+	$effect(() => {
+		const currentStickeringString = stickeringString;
+		const learnEO = sessionState.activeSession?.settings?.trainLearnEO;
+		const orientedColor = globalState.eoOrientedColor;
+		const unorientedColor = globalState.eoUnorientedColor;
+
+		if (
+			learnEO &&
+			currentStickeringString &&
+			el &&
+			groupId &&
+			caseId &&
+			orientedColor &&
+			unorientedColor
+		) {
+			const transformedColor = getEODisplayColor(groupId, caseId, orientedColor, unorientedColor);
+
+			if (transformedColor !== undefined) {
+				// Since cubing.js rebuilds the 3D meshes asynchronously when the mask string changes,
+				// we poll every 50ms for 1.5 seconds. This ensures we catch the NEW meshes once they are added,
+				// even if we already recolored the OLD meshes right before they were destroyed.
+				const intervalId = setInterval(() => recolorMysteryEdge(el!, transformedColor), 50);
+				const timeoutId = setTimeout(() => clearInterval(intervalId), 1500);
+
+				return () => {
+					clearInterval(intervalId);
+					clearTimeout(timeoutId);
+				};
+			}
+		}
+	});
 
 	// Track whether the reset button should be visible
 	let showResetButton = $state(false);
