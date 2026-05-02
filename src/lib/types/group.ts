@@ -306,7 +306,6 @@ const ADVANCED_DEFINITION: GroupDefinition = {
 		40: { slot: 'br', oriented: false },
 		41: { slot: 'br', oriented: false },
 		42: { slot: 'br', oriented: false },
-
 		44: { slot: 'fr', oriented: true },
 		43: { slot: 'fr', oriented: true },
 		45: { slot: 'fr', oriented: true },
