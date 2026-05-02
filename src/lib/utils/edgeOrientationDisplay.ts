@@ -81,40 +81,54 @@ export async function recolorMysteryEdge(
 	const player = playerElement as any;
 	if (!player || typeof player.experimentalCurrentVantages !== 'function') return;
 
-	try {
-		const vantages = await player.experimentalCurrentVantages();
-		for (const vantage of vantages) {
-			if (!vantage.scene) continue;
-			const scene = await vantage.scene.scene();
+	const deadline = performance.now() + 1500;
 
-			let modified = false;
-			scene.traverse((child: any) => {
-				if (child.isMesh && child.material && child.material.color) {
-					if (child.material.color.getHex() === MYSTERY_COLOR_HEX) {
-						// We MUST clone the material! Otherwise, we mutate the global shared material
-						child.material = child.material.clone();
-						child.material.color.setHex(colorHex);
-						child.material.needsUpdate = true;
+	const recolorOnce = async (): Promise<void> => {
+		try {
+			const vantages = await player.experimentalCurrentVantages();
+			for (const vantage of vantages) {
+				if (!vantage.scene) continue;
+				const scene = await vantage.scene.scene();
 
-						// Tag the material so we can update it again later if the user changes settings
-						if (!child.material.userData) child.material.userData = {};
-						child.material.userData.isEOMysteryMaterial = true;
+				let modified = false;
+				scene.traverse((child: any) => {
+					if (child.isMesh && child.material && child.material.color) {
+						if (child.material.color.getHex() === MYSTERY_COLOR_HEX) {
+							// We MUST clone the material! Otherwise, we mutate the global shared material
+							child.material = child.material.clone();
+							child.material.color.setHex(colorHex);
+							child.material.needsUpdate = true;
 
-						modified = true;
-					} else if (child.material.userData?.isEOMysteryMaterial) {
-						// Already our custom material — just update its color
-						child.material.color.setHex(colorHex);
-						child.material.needsUpdate = true;
-						modified = true;
+							// Tag the material so we can update it again later if the user changes settings
+							if (!child.material.userData) child.material.userData = {};
+							child.material.userData.isEOMysteryMaterial = true;
+
+							modified = true;
+						} else if (child.material.userData?.isEOMysteryMaterial) {
+							// Already our custom material — just update its color
+							child.material.color.setHex(colorHex);
+							child.material.needsUpdate = true;
+							modified = true;
+						}
 					}
-				}
-			});
+				});
 
-			if (modified) {
-				vantage.scheduleRender();
+				if (modified) {
+					vantage.scheduleRender();
+				}
 			}
+		} catch (e) {
+			console.warn('Could not recolor Mystery edge:', e);
 		}
-	} catch (e) {
-		console.warn('Could not recolor Mystery edge:', e);
-	}
+	};
+
+	const loop = () => {
+		void recolorOnce().finally(() => {
+			if (performance.now() < deadline) {
+				requestAnimationFrame(loop);
+			}
+		});
+	};
+
+	loop();
 }

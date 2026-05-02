@@ -138,6 +138,19 @@
 		}
 	});
 
+	$effect(() => {
+		void stickeringString;
+		void isPlayerInitialized;
+
+		if (!el || !isPlayerInitialized || !stickeringString) {
+			return;
+		}
+
+		const player = el as any;
+		player.experimentalStickeringMaskOrbits = stickeringString;
+		applyEOColorIfNeeded();
+	});
+
 	// Auto-reset animation when key props change
 	// In Svelte 5, referencing reactive values inside $effect automatically tracks them as dependencies
 	// Note: When multiple props change in the same tick, Svelte batches updates and runs the effect once
@@ -204,36 +217,33 @@
 	});
 
 	// Effect to dynamically recolor the "Mystery" edge piece (M) based on EO state
-	$effect(() => {
+	function applyEOColorIfNeeded(): void {
 		const currentStickeringString = stickeringString;
 		const learnEO = enableEOColoring;
 		const orientedColor = globalState.eoOrientedColor;
 		const unorientedColor = globalState.eoUnorientedColor;
 
 		if (
-			learnEO &&
-			currentStickeringString &&
-			el &&
-			groupId &&
-			caseId &&
-			orientedColor &&
-			unorientedColor
+			!learnEO ||
+			!currentStickeringString ||
+			!el ||
+			!groupId ||
+			!caseId ||
+			!orientedColor ||
+			!unorientedColor
 		) {
-			const transformedColor = getEODisplayColor(groupId, caseId, orientedColor, unorientedColor);
-
-			if (transformedColor !== undefined) {
-				// Since cubing.js rebuilds the 3D meshes asynchronously when the mask string changes,
-				// we poll every 50ms for 1.5 seconds. This ensures we catch the NEW meshes once they are added,
-				// even if we already recolored the OLD meshes right before they were destroyed.
-				const intervalId = setInterval(() => recolorMysteryEdge(el!, transformedColor), 50);
-				const timeoutId = setTimeout(() => clearInterval(intervalId), 1500);
-
-				return () => {
-					clearInterval(intervalId);
-					clearTimeout(timeoutId);
-				};
-			}
+			return;
 		}
+
+		const transformedColor = getEODisplayColor(groupId, caseId, orientedColor, unorientedColor);
+		if (transformedColor !== undefined) {
+			void recolorMysteryEdge(el, transformedColor);
+		}
+	}
+
+	$effect(() => {
+		void movesAdded;
+		applyEOColorIfNeeded();
 	});
 
 	// Track whether the reset button should be visible
@@ -382,11 +392,6 @@
 					if (actualRawMove !== '') {
 						rawMovesAdded += (rawMovesAdded ? ' ' : '') + actualRawMove;
 					}
-				}
-
-				// Re-apply stickering if needed
-				if (stickeringString) {
-					player.experimentalStickeringMaskOrbits = stickeringString;
 				}
 
 				if (enableF2LCheck && kpuzzle && staticData) {
