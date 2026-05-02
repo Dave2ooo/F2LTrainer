@@ -13,15 +13,19 @@
 	import Modal from '$lib/components/Modal.svelte';
 	import RadioDot from '$lib/components/RadioDot.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
-	import { globalState, DEFAULT_EO_ORIENTED_COLOR, DEFAULT_EO_UNORIENTED_COLOR } from '$lib/globalState.svelte';
+	import {
+		globalState,
+		DEFAULT_EO_ORIENTED_COLOR,
+		DEFAULT_EO_UNORIENTED_COLOR
+	} from '$lib/globalState.svelte';
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
 	import { CircleQuestionMark, Plus, RotateCcw } from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
+	import EdgeOrientationTooltipPreview from '$lib/components/Session/EdgeOrientationTooltipPreview.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
-
 
 	let {
 		open = $bindable(),
@@ -90,6 +94,12 @@
 		if (!settings) return ['white', 'red'];
 		return resolveStickerColors(settings.crossColor as any, settings.frontColor as any);
 	});
+
+	// Check if EO colors have been changed from defaults
+	const hasChangedEOColors = $derived(
+		globalState.eoOrientedColor !== DEFAULT_EO_ORIENTED_COLOR ||
+			globalState.eoUnorientedColor !== DEFAULT_EO_UNORIENTED_COLOR
+	);
 </script>
 
 {#if session && settings}
@@ -639,7 +649,43 @@
 								<div class="card">
 									<Label class="mb-3 text-sm font-semibold">Edge Orientation</Label>
 									<div class="space-y-4">
-										<Checkbox bind:checked={settings.trainLearnEO}>Learn Edge Orientation</Checkbox>
+										<div class="flex items-center gap-2">
+											<Checkbox bind:checked={settings.trainLearnEO}
+												>Learn Edge Orientation</Checkbox
+											>
+											<Button
+												id="btn-edge-orientation-help"
+												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+												type="button"
+												onclick={(e: MouseEvent) => e.stopPropagation()}
+											>
+												<CircleQuestionMark class="text-primary-600" />
+											</Button>
+											<Tooltip
+												triggeredBy="#btn-edge-orientation-help"
+												trigger="click"
+												class="p-3"
+												placement="left"
+											>
+												<div class="space-y-3">
+													<p class="max-w-xs text-xs text-gray-600 dark:text-gray-300">
+														When enabled, highlight F2L edges by orientation
+													</p>
+													<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+														<EdgeOrientationTooltipPreview
+															caseId={1}
+															description="Oriented edge"
+															class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
+														/>
+														<EdgeOrientationTooltipPreview
+															caseId={11}
+															description="Unoriented edge"
+															class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
+														/>
+													</div>
+												</div>
+											</Tooltip>
+										</div>
 										{#if settings.trainLearnEO}
 											<div
 												class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3 dark:border-gray-700"
@@ -661,20 +707,22 @@
 													/>
 												</div>
 											</div>
-											<div class="mt-4 flex justify-end">
-												<Button
-													size="xs"
-													color="alternative"
-													onclick={() => {
-														globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
-														globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;
-													}}
-													class="gap-1.5"
-												>
-													<RotateCcw size={14} />
-													Reset to Default
-												</Button>
-											</div>
+											{#if hasChangedEOColors}
+												<div class="mt-4 flex justify-end">
+													<Button
+														size="xs"
+														color="alternative"
+														onclick={() => {
+															globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
+															globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;
+														}}
+														class="gap-1.5"
+													>
+														<RotateCcw size={14} />
+														Reset to Default
+													</Button>
+												</div>
+											{/if}
 										{/if}
 									</div>
 								</div>

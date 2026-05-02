@@ -491,6 +491,8 @@
 				side={currentTrainCase.side}
 				crossColor={currentTrainCase.crossColor}
 				frontColor={currentTrainCase.frontColor}
+				enableEOColoring={sessionState.activeSession?.settings.trainLearnEO ??
+					DEFAULT_SETTINGS.trainLearnEO}
 				scrambleSelection={currentTrainCase.scramble}
 				stickering={sessionState.activeSession?.settings.trainHintStickering ??
 					DEFAULT_SETTINGS.trainHintStickering}

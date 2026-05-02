@@ -23,7 +23,6 @@
 		getEODisplayColor,
 		recolorMysteryEdge
 	} from '$lib/utils/edgeOrientationDisplay';
-	import { sessionState } from '$lib/sessionState.svelte';
 
 	interface Props {
 		groupId?: GroupId;
@@ -53,6 +52,7 @@
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
 		movesAdded?: string; // Transformed moves for display
+		enableEOColoring?: boolean;
 	}
 
 	let {
@@ -80,7 +80,8 @@
 		onCubeSolved,
 		backView = 'none',
 		backViewEnabled = false,
-		movesAdded = $bindable('')
+		movesAdded = $bindable(''),
+		enableEOColoring = false
 	}: Props = $props();
 
 	// Raw moves tracked internally for F2L checking (not exposed to parent)
@@ -188,7 +189,7 @@
 
 		let baseStr = getStickeringString(staticData.pieceToHide, side, crossColor, frontColor);
 
-		if (sessionState.activeSession?.settings?.trainLearnEO && groupId && caseId && baseStr) {
+		if (enableEOColoring && groupId && caseId && baseStr) {
 			baseStr = applyEOMaskToStickeringString(
 				baseStr,
 				groupId,
@@ -205,7 +206,7 @@
 	// Effect to dynamically recolor the "Mystery" edge piece (M) based on EO state
 	$effect(() => {
 		const currentStickeringString = stickeringString;
-		const learnEO = sessionState.activeSession?.settings?.trainLearnEO;
+		const learnEO = enableEOColoring;
 		const orientedColor = globalState.eoOrientedColor;
 		const unorientedColor = globalState.eoUnorientedColor;
 

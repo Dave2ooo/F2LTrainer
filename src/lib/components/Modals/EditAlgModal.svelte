@@ -180,6 +180,7 @@
 				side="left"
 				{crossColor}
 				{frontColor}
+				enableEOColoring={false}
 				{controlPanel}
 				{experimentalDragInput}
 				class="size-50 md:size-70"
@@ -194,6 +195,7 @@
 				side="right"
 				{crossColor}
 				{frontColor}
+				enableEOColoring={false}
 				{controlPanel}
 				{experimentalDragInput}
 				class="size-50 md:size-70"
