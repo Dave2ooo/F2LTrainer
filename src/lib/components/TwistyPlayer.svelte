@@ -183,8 +183,10 @@
 					player.experimentalSetupAlg = [setupRotation, scramble].join(' ');
 					jumpToStart();
 					resetView();
+					// Recolor after reset completes to ensure scene is stable
+					applyEOColorIfNeeded();
 				}
-			}, 10);
+			}, 50);
 		}
 	});
 
@@ -317,6 +319,10 @@
 			player.alg = alg || '';
 			jumpToStart();
 			resetView();
+			// Recolor after reset completes to ensure scene is stable
+			setTimeout(() => {
+				applyEOColorIfNeeded();
+			}, 50);
 		}
 		movesAdded = '';
 		rawMovesAdded = '';

@@ -73,7 +73,16 @@ export function getEODisplayColor(
  * Clones materials on first encounter to avoid mutating cubing.js's
  * shared global materials. Tags cloned materials so subsequent updates
  * can find and recolor them without needing the original Mystery hex.
+ *
+ * Retries via requestAnimationFrame since cubing.js rebuilds the 3D meshes
+ * asynchronously (especially on case/stickering changes). Cancels previous
+ * animation frames to prevent accumulation and performance degradation.
+ *
+ * Uses more retries initially if no material is found, since a fresh case
+ * load can take longer for the scene to rebuild.
  */
+let activeRecolorFrameId: number | null = null;
+
 export async function recolorMysteryEdge(
 	playerElement: HTMLElement,
 	colorHex: number
@@ -81,11 +90,22 @@ export async function recolorMysteryEdge(
 	const player = playerElement as any;
 	if (!player || typeof player.experimentalCurrentVantages !== 'function') return;
 
-	const deadline = performance.now() + 1500;
+	// Cancel any previous animation frame to avoid accumulating loops
+	if (activeRecolorFrameId !== null) {
+		cancelAnimationFrame(activeRecolorFrameId);
+		activeRecolorFrameId = null;
+	}
 
-	const recolorOnce = async (): Promise<void> => {
+	let retryCount = 0;
+	let foundEverything = false;
+	const maxRetriesOnMiss = 15; // More retries if we haven't found anything yet
+	const maxRetriesOnHit = 10; // More retries after first hit to catch all material instances
+
+	const recolorOnce = async (): Promise<boolean> => {
 		try {
 			const vantages = await player.experimentalCurrentVantages();
+			let foundAny = false;
+
 			for (const vantage of vantages) {
 				if (!vantage.scene) continue;
 				const scene = await vantage.scene.scene();
@@ -104,11 +124,14 @@ export async function recolorMysteryEdge(
 							child.material.userData.isEOMysteryMaterial = true;
 
 							modified = true;
+							foundAny = true;
+							foundEverything = true;
 						} else if (child.material.userData?.isEOMysteryMaterial) {
 							// Already our custom material — just update its color
 							child.material.color.setHex(colorHex);
 							child.material.needsUpdate = true;
 							modified = true;
+							foundAny = true;
 						}
 					}
 				});
@@ -117,18 +140,44 @@ export async function recolorMysteryEdge(
 					vantage.scheduleRender();
 				}
 			}
+
+			return foundAny;
 		} catch (e) {
 			console.warn('Could not recolor Mystery edge:', e);
+			return false;
 		}
 	};
 
-	const loop = () => {
-		void recolorOnce().finally(() => {
-			if (performance.now() < deadline) {
-				requestAnimationFrame(loop);
-			}
-		});
-	};
+	return new Promise<void>((resolve) => {
+		let consecutiveNothingFound = 0;
 
-	loop();
+		const loop = async () => {
+			const found = await recolorOnce();
+			retryCount++;
+
+			if (!found) {
+				consecutiveNothingFound++;
+			} else {
+				// Found something, reset the counter to look for more
+				consecutiveNothingFound = 0;
+			}
+
+			// Decide max retries based on whether we've ever found the material
+			const maxRetries = foundEverything ? maxRetriesOnHit : maxRetriesOnMiss;
+
+			// Stop retrying if:
+			// 1. We've had 2 consecutive passes with no new materials (everything is stable)
+			// 2. We hit max retries
+			if (consecutiveNothingFound >= 2 || retryCount >= maxRetries) {
+				activeRecolorFrameId = null;
+				resolve();
+				return;
+			}
+
+			// Schedule next retry
+			activeRecolorFrameId = requestAnimationFrame(loop);
+		};
+
+		void loop();
+	});
 }
