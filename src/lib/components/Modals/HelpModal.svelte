@@ -238,6 +238,7 @@
 						<p class="font-medium">Tested & Supported Cubes:</p>
 						<ul class="list-inside list-disc space-y-1 pl-2">
 							<li>QiYi Smart Cube</li>
+							<li>MoYu Super WeiLong V2 AI</li>
 							<li>MoYu WeiLong V10 AI</li>
 							<li>GAN356 i3</li>
 							<li>GAN356 i carry S</li>
