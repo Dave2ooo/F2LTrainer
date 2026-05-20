@@ -124,8 +124,7 @@ These services:
 
 ## Session Persistence & Lifetime Note
 
-User session durations and "Remember me" persistence are managed globally via the **Clerk Dashboard** under **Configure > Sessions** (using *Inactivity Timeout* and *Maximum Lifetime* settings).
+User session durations and "Remember me" persistence are managed globally via the **Clerk Dashboard** under **Configure > Sessions** (using _Inactivity Timeout_ and _Maximum Lifetime_ settings).
 
 > [!NOTE]
 > **Free Tier Limitation**: On Clerk's Free Plan, the session's **Maximum Lifetime** is hard-capped at **7 days**. Users will be automatically logged out weekly regardless of inactivity. Increasing this limit (e.g., to 30 days) requires upgrading to a paid Clerk Pro plan.
-
