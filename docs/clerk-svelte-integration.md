@@ -121,3 +121,11 @@ These services:
     - **Convex Database**: `cronDeleteSoftDeleted.ts` cron job deletes all solves with matching `sessionId` when removing old sessions
 
     This ensures data consistency and prevents orphaned solves from accumulating in storage.
+
+## Session Persistence & Lifetime Note
+
+User session durations and "Remember me" persistence are managed globally via the **Clerk Dashboard** under **Configure > Sessions** (using *Inactivity Timeout* and *Maximum Lifetime* settings).
+
+> [!NOTE]
+> **Free Tier Limitation**: On Clerk's Free Plan, the session's **Maximum Lifetime** is hard-capped at **7 days**. Users will be automatically logged out weekly regardless of inactivity. Increasing this limit (e.g., to 30 days) requires upgrading to a paid Clerk Pro plan.
+
