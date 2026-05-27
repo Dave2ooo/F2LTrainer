@@ -80,7 +80,7 @@ export function createBluetoothManager(): BluetoothCube {
 
 	const onDisconnect = onHardwareEvent.bind(null, 'disconnect');
 
-	function init(reconnect?: boolean, expectedMac?: string): Promise<void> {
+	function init(reconnect?: boolean, expectedMac?: string, originalDeviceId?: string): Promise<void> {
 		return giikerutil
 			.chkAvail()
 			.then(function () {
@@ -141,6 +141,9 @@ export function createBluetoothManager(): BluetoothCube {
 					if (actualSavedCube && actualSavedCube.macAddress && actualSavedCube.macAddress !== expectedMac) {
 						giikerutil.log('[bluetooth]', 'Warning: User selected a different known device. Changing expected MAC to: ' + actualSavedCube.macAddress);
 						expectedMac = actualSavedCube.macAddress;
+					} else if (!actualSavedCube && originalDeviceId && device.id !== originalDeviceId) {
+						giikerutil.log('[bluetooth]', 'Warning: User selected a different UNKNOWN device. Dropping expected MAC.');
+						expectedMac = undefined;
 					}
 				}
 
