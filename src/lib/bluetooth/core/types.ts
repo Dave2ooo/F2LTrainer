@@ -29,7 +29,7 @@ export interface BluetoothCube {
 	/** Check if cube is connected */
 	isConnected(): boolean;
 	/** Initialize connection (with optional reconnect) */
-	init(reconnect?: boolean, expectedMac?: string, originalDeviceId?: string): Promise<void>;
+	init(reconnect?: boolean, expectedMac?: string): Promise<void>;
 	/** Stop/disconnect */
 	stop(): Promise<void>;
 	/** Get the connected cube instance */

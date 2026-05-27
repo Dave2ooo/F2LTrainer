@@ -53,7 +53,7 @@ export async function connectSavedCube(deviceId: string) {
 	bluetoothState.setErrorMessage(null);
 
 	try {
-		await GiikerCube.init(true, saved.macAddress, deviceId);
+		await GiikerCube.init(true, saved.macAddress);
 		if (bluetoothState.deviceId && bluetoothState.deviceName) {
 			// Check if the connected cube matches any existing cube by MAC
 			const existingByMac = bluetoothState.deviceMac

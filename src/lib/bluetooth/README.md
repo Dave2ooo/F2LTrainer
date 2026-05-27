@@ -314,7 +314,7 @@ Two types of cubes exist:
 
 ### `GiikerCube` (Controller)
 
-- `init(reconnect?, expectedMac?, originalDeviceId?)`: Start connection flow. If `originalDeviceId` is provided and the user selects a different, unknown device in the pairing dialog, the `expectedMac` will be ignored to prevent cross-cube MAC address corruption.
+- `init()`: Start connection flow.
 - `stop()`: Disconnect.
 
 ## 9. Future Work
