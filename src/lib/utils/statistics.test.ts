@@ -1,6 +1,51 @@
 import { describe, it, expect } from 'vitest';
-import { calculateRollingAo5, calculateRollingAo12 } from './statistics';
+import { calculateRollingAo5, calculateRollingAo12, getSolvesForCase } from './statistics';
 import type { Solve } from '$lib/types/statisticsState';
+
+describe('getSolvesForCase', () => {
+	it('should filter out soft-deleted solves', () => {
+		const solves: Solve[] = [
+			{
+				id: '1',
+				time: 500,
+				groupId: 'basic',
+				caseId: 1,
+				timestamp: 1,
+				auf: '' as const,
+				side: 'right',
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
+			},
+			{
+				id: '2',
+				time: 600,
+				groupId: 'basic',
+				caseId: 1,
+				timestamp: 2,
+				auf: '' as const,
+				side: 'right',
+				scrambleSelection: 0,
+				trainMode: 'classic' as const,
+				deletedAt: 123
+			},
+			{
+				id: '3',
+				time: 700,
+				groupId: 'basic',
+				caseId: 2,
+				timestamp: 3,
+				auf: '' as const,
+				side: 'right',
+				scrambleSelection: 0,
+				trainMode: 'classic' as const
+			}
+		];
+
+		const result = getSolvesForCase(solves, 'basic', 1);
+		expect(result).toHaveLength(1);
+		expect(result[0].id).toBe('1');
+	});
+});
 
 describe('calculateRollingAo5', () => {
 	it('should return null for first 4 solves', () => {

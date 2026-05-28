@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Badge, Button, Dropdown, Checkbox, Select } from 'flowbite-svelte';
 	import type { Solve, TrainMode } from '$lib/types/statisticsState';
-	import { Funnel, Archive } from '@lucide/svelte';
+	import { Funnel, Archive, Check } from '@lucide/svelte';
 	import Modal from '../Modal.svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import { statisticsState } from '$lib/statisticsState.svelte';
@@ -58,9 +58,7 @@
 	}
 
 	const solvesInSession = $derived.by(() => {
-		let solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
-			(s) => !s.deletedAt
-		);
+		let solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
 		// Filter by session
 		if (selectedSessionIds.length > 0) {
 			solves = solves.filter(
@@ -122,9 +120,7 @@
 	const hasMixedSolves = $derived(timedCount > 0 && untimedCount > 0);
 
 	const sessionsWithSolves = $derived.by(() => {
-		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId).filter(
-			(s) => !s.deletedAt
-		);
+		const solves = getSolvesForCase(statisticsState.allSolves, groupId, caseId);
 		const sessionIds = new Set(solves.map((s) => s.sessionId));
 		return sessionState.sessions.filter((s) => sessionIds.has(s.id) && !s.deletedAt);
 	});
@@ -543,6 +539,27 @@
 										selectedIndex = null;
 									}}>{formatTime(solve.time)}</Badge
 								>
+							{:else}
+								<Badge
+									color="light"
+									rounded
+									class="cursor-pointer !bg-transparent text-sm {hoveredIndex === realIndex ||
+									selectedIndex === realIndex
+										? 'ring-2 ring-primary-500'
+										: ''}"
+									border
+									dismissable={selectedIndex === realIndex}
+									onclick={() => (selectedIndex = selectedIndex === realIndex ? null : realIndex)}
+									onmouseenter={() => (hoveredIndex = realIndex)}
+									onmouseleave={() => (hoveredIndex = null)}
+									onclose={(e: any) => {
+										e?.preventDefault?.();
+										removeTime(realIndex);
+										selectedIndex = null;
+									}}
+								>
+									<Check class="size-4" />
+								</Badge>
 							{/if}
 						{/each}
 					</div>

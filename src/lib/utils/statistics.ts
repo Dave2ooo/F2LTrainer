@@ -2,7 +2,7 @@ import type { Solve } from '$lib/types/statisticsState';
 import type { CaseId, GroupId } from '$lib/types/group';
 
 export function getSolvesForCase(solves: Solve[], groupId: GroupId, caseId: CaseId): Solve[] {
-	return solves.filter((s) => s.groupId === groupId && s.caseId === caseId);
+	return solves.filter((s) => s.groupId === groupId && s.caseId === caseId && !s.deletedAt);
 }
 
 /**
