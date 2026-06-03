@@ -615,8 +615,9 @@
 				enableEOColoring={sessionState.activeSession?.settings.trainLearnEO ??
 					DEFAULT_SETTINGS.trainLearnEO}
 				scrambleSelection={currentTrainCase.scramble}
-				stickering={sessionState.activeSession?.settings.trainHintStickering ??
-					DEFAULT_SETTINGS.trainHintStickering}
+				stickering={phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true)
+					? 'centers-only'
+					: (sessionState.activeSession?.settings.trainHintStickering ?? DEFAULT_SETTINGS.trainHintStickering)}
 				backView={sessionState.activeSession?.settings.backView || 'none'}
 				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 				experimentalDragInput="auto"
@@ -626,9 +627,7 @@
 				tempoScale={5}
 				showAlg={false}
 				disableAutoScramble={phase === 'scrambling'}
-				hidePlayer={phase === 'countdown' ||
-					(phase === 'scrambling' &&
-						!(sessionState.activeSession?.settings.scrambleShowCube ?? true))}
+				hidePlayer={phase === 'countdown'}
 				onF2LSolved={() => {
 					if (phase === 'solving' || phase === 'executing') {
 						const executionTime = drillTimerRef?.stopExecution() ?? 0;

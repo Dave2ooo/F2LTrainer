@@ -3,7 +3,7 @@ import type { GroupId } from './group';
 export type View = 'select' | 'train';
 
 export type HintAlgorithm = 'step' | 'allAtOnce' | 'always';
-export type HintStickering = 'f2l' | 'fully';
+export type HintStickering = 'f2l' | 'fully' | 'centers-only';
 
 export interface GlobalState {
 	categoriesOpenedObj: Record<GroupId, boolean[]>;

@@ -206,6 +206,10 @@
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
 	let stickeringString = $derived.by(() => {
+		if (stickering === 'centers-only') {
+			// 24 hyphens for edges and 24 hyphens for corners to hide all their stickers
+			return 'EDGES:IIIIIIIIIIII,CORNERS:IIIIIIII,CENTERS:------';
+		}
 		if (stickering !== 'f2l' || !staticData) return undefined;
 
 		let baseStr = getStickeringString(staticData.pieceToHide, side, crossColor, frontColor);
