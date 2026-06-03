@@ -70,7 +70,9 @@
 		'text-center',
 		'text-xl md:text-2xl',
 		'shadow-sm',
-		'transition-colors'
+		'transition-colors',
+		'relative',
+		'overflow-hidden'
 	].join(' ');
 
 	const className = hintBase;
@@ -170,6 +172,22 @@
 			{:else}
 				<span class="text-xl text-theme-text md:text-2xl">No algorithm available</span>
 			{/if}
+
+			{#if hasUndoMoves}
+				<div
+					class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-amber-50/95 p-2 backdrop-blur-[2px] dark:bg-amber-950/95"
+				>
+					<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+						<Undo2 class="size-4 md:size-5" strokeWidth={2.5} />
+						<span class="text-xs font-semibold tracking-wide uppercase md:text-sm">Undo Required</span>
+					</div>
+					<div class="flex flex-wrap items-center justify-center gap-1">
+						{#each undoMoves as move}
+							<span class={undoChipClass}>{move}</span>
+						{/each}
+					</div>
+				</div>
+			{/if}
 		</div>
 
 		{#if showEditButton}
@@ -190,22 +208,6 @@
 			</button>
 		{/if}
 	</div>
-
-	{#if hasUndoMoves}
-		<div
-			class="mt-3 flex flex-col items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 dark:border-amber-600 dark:bg-amber-950/30"
-		>
-			<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-				<Undo2 class="size-5" strokeWidth={2.5} />
-				<span class="text-sm font-semibold tracking-wide uppercase">Undo Required</span>
-			</div>
-			<div class="flex flex-wrap items-center justify-center gap-1">
-				{#each undoMoves as move}
-					<span class={undoChipClass}>{move}</span>
-				{/each}
-			</div>
-		</div>
-	{/if}
 
 	<!-- <div class="mt-2 flex flex-col items-center gap-1">
 		<span class="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400"

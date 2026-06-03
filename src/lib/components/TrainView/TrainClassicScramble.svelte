@@ -440,7 +440,7 @@
 			<!-- Scramble guide (maintains layout space when hidden) -->
 			<div class="flex flex-col items-center transition-opacity duration-200 {phase !== 'scrambling' ? 'opacity-0 pointer-events-none' : 'opacity-100'}">
 				<div
-					class="flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
+					class="relative overflow-hidden flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
 						validationFeedback
 					)}"
 				>
@@ -463,23 +463,23 @@
 							<span class={completedChipClass}>{move}</span>
 						{/each}
 					{/if}
-				</div>
 
-				{#if undoMoves.length > 0 && phase === 'scrambling'}
-					<div
-						class="mt-3 flex flex-col items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 dark:border-amber-600 dark:bg-amber-950/30"
-					>
-						<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-							<Undo2 class="size-5" strokeWidth={2.5} />
-							<span class="text-sm font-semibold tracking-wide uppercase">Undo Required</span>
+					{#if undoMoves.length > 0 && phase === 'scrambling'}
+						<div
+							class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-amber-50/95 p-2 backdrop-blur-[2px] dark:bg-amber-950/95"
+						>
+							<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+								<Undo2 class="size-4 md:size-5" strokeWidth={2.5} />
+								<span class="text-xs font-semibold tracking-wide uppercase md:text-sm">Undo Required</span>
+							</div>
+							<div class="flex flex-wrap items-center justify-center gap-1">
+								{#each undoMoves as move}
+									<span class={undoChipClass}>{move}</span>
+								{/each}
+							</div>
 						</div>
-						<div class="flex flex-wrap items-center justify-center gap-1">
-							{#each undoMoves as move}
-								<span class={undoChipClass}>{move}</span>
-							{/each}
-						</div>
-					</div>
-				{/if}
+					{/if}
+				</div>
 			</div>
 		</div>
 
@@ -543,9 +543,6 @@
 						/>
 					</svg>
 				</div>
-				<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
-					Hold Green Front, White Up
-				</span>
 			</div>
 		{/if}
 
@@ -619,24 +616,16 @@
 		{/if}
 	</div>
 
-	{#if undoMoves.length >= 2 && phase !== 'countdown'}
-		<div class="mt-2 flex justify-center">
-			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
-				Hold Green Front, White Up
-			</span>
-		</div>
-	{/if}
 
-	{#if phase !== 'scrambling' && phase !== 'countdown'}
-		<div
-			class="mt-2"
-			class:hidden={!(
-				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-			)}
-		>
-			<DrillTimer bind:this={drillTimerRef} />
-		</div>
-	{/if}
+
+	<div
+		class="mt-2"
+		class:hidden={!(
+			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+		)}
+	>
+		<DrillTimer bind:this={drillTimerRef} />
+	</div>
 
 	<HintButtonSmart
 		alg={displayAlg}
