@@ -2,7 +2,7 @@ import type { Auf } from './trainCase';
 import type { Side } from '$lib/types/Side';
 import type { CaseId, GroupId } from './group';
 
-export type TrainMode = 'classic' | 'smart' | 'drill';
+export type TrainMode = 'classic' | 'smart' | 'drill' | 'smartScramble';
 
 export type Solve = {
 	id: string;
@@ -38,7 +38,7 @@ export type CompressedSolve = {
 	// Drill mode timing (optional)
 	rt?: number; // recognitionTime compressed
 	et?: number; // executionTime compressed
-	m: 'c' | 's' | 'd'; // trainMode compressed
+	m: 'c' | 's' | 'd' | 'ss'; // trainMode compressed
 	// Soft delete field
 	da?: number; // deletedAt
 };

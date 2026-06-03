@@ -661,9 +661,7 @@
 <div class="flex flex-row items-center justify-center gap-2">
 	<TrainStateSelect
 		onremove={async () => {
-			advanceToNextTrainCase();
-			await tick();
-			phase = 'scrambling';
+			onNext();
 		}}
 	/>
 	<span class="text-sm text-gray-500 dark:text-gray-400"

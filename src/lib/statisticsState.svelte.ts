@@ -58,7 +58,8 @@ const REVERSE_AUF_MAP: Record<CompressedAuf, Auf> = {
 const MODE_MAP: Record<NonNullable<Solve['trainMode']>, NonNullable<CompressedSolve['m']>> = {
 	classic: 'c',
 	smart: 's',
-	drill: 'd'
+	drill: 'd',
+	smartScramble: 'ss'
 };
 
 const REVERSE_MODE_MAP: Record<
@@ -67,7 +68,8 @@ const REVERSE_MODE_MAP: Record<
 > = {
 	c: 'classic',
 	s: 'smart',
-	d: 'drill'
+	d: 'drill',
+	ss: 'smartScramble'
 };
 
 import { sessionState } from '$lib/sessionState.svelte';
