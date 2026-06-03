@@ -78,7 +78,7 @@
 		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
 		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
 		if (types.has('smartScramble'))
-			options.push({ value: 'smartScramble', name: 'Smart Practice (scramble yourself' });
+			options.push({ value: 'smartScramble', name: 'Smart Practice (scramble yourself)' });
 		return options;
 	});
 

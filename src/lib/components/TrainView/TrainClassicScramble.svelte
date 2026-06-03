@@ -3,6 +3,7 @@
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
+		advanceToPreviousTrainCase,
 		getNumberOfSelectedCases,
 		trainState
 	} from '$lib/trainCaseQueue.svelte';
@@ -17,7 +18,7 @@
 	import HintButtonSmart from './HintButtonSmart.svelte';
 	import DrillTimer from './DrillTimer.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical, Undo2 } from '@lucide/svelte';
+	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical, Undo2, ArrowLeft, ArrowRight } from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import RecapProgress from './RecapProgress.svelte';
@@ -419,54 +420,73 @@
 		twistyPlayerRef?.reset();
 		movesAdded = '';
 	}
+
+	function onPrevious() {
+		drillTimerRef?.reset();
+		advanceToPreviousTrainCase();
+		phase = 'scrambling';
+		twistyPlayerRef?.reset();
+		movesAdded = '';
+	}
 </script>
 
 {#if bluetoothState.isConnected}
-	<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4"></div>
-
-	<!-- Scramble guide (always visible in scramble phase) -->
-	{#if phase === 'scrambling'}
-		<div class="my-2 flex w-full flex-col items-center md:my-4">
-			<div class="mb-2 text-center text-sm font-bold uppercase tracking-widest text-primary-600">
-				Scramble
-			</div>
-			<div
-				class="flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
-					validationFeedback
-				)}"
-			>
-				{#each completedMoves as move}
-					<span class={completedChipClass}>{move}</span>
-				{/each}
-
-				{#if currentMoves.length > 0}
-					{#each currentMoves as move}
-						<span class={currentChipClass}>{move}</span>
-					{/each}
-				{/if}
-
-				{#each futureMoves as move}
-					<span class={futureChipVisible}>{move}</span>
-				{/each}
-			</div>
-
-			{#if undoMoves.length > 0}
+	<div class="my-2 flex items-center justify-center gap-0 sm:gap-2 md:my-4 md:gap-4">
+		<Button class="btn-icon-transparent shrink-0" type="button" onclick={onPrevious}>
+			<ArrowLeft class="size-8 text-primary-600 md:size-12" />
+		</Button>
+		
+		<div class="flex flex-col items-center">
+			<!-- Scramble guide (maintains layout space when hidden) -->
+			<div class="flex flex-col items-center transition-opacity duration-200 {phase !== 'scrambling' ? 'opacity-0 pointer-events-none' : 'opacity-100'}">
 				<div
-					class="mt-3 flex flex-col items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 dark:border-amber-600 dark:bg-amber-950/30"
+					class="flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
+						validationFeedback
+					)}"
 				>
-					<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
-						<Undo2 class="size-5" strokeWidth={2.5} />
-						<span class="text-sm font-semibold tracking-wide uppercase">Undo Required</span>
-					</div>
-					<div class="flex flex-wrap items-center justify-center gap-1">
-						{#each undoMoves as move}
-							<span class={undoChipClass}>{move}</span>
+					{#if phase === 'scrambling'}
+						{#each completedMoves as move}
+							<span class={completedChipClass}>{move}</span>
 						{/each}
-					</div>
+
+						{#if currentMoves.length > 0}
+							{#each currentMoves as move}
+								<span class={currentChipClass}>{move}</span>
+							{/each}
+						{/if}
+
+						{#each futureMoves as move}
+							<span class={futureChipVisible}>{move}</span>
+						{/each}
+					{:else}
+						{#each displayScramble.replace(/[()]/g, '').split(' ').filter((m) => m.trim() !== '') as move}
+							<span class={completedChipClass}>{move}</span>
+						{/each}
+					{/if}
 				</div>
-			{/if}
+
+				{#if undoMoves.length > 0 && phase === 'scrambling'}
+					<div
+						class="mt-3 flex flex-col items-center gap-2 rounded-lg border-2 border-amber-400 bg-amber-50 p-3 dark:border-amber-600 dark:bg-amber-950/30"
+					>
+						<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+							<Undo2 class="size-5" strokeWidth={2.5} />
+							<span class="text-sm font-semibold tracking-wide uppercase">Undo Required</span>
+						</div>
+						<div class="flex flex-wrap items-center justify-center gap-1">
+							{#each undoMoves as move}
+								<span class={undoChipClass}>{move}</span>
+							{/each}
+						</div>
+					</div>
+				{/if}
+			</div>
 		</div>
-	{/if}
+
+		<Button class="btn-icon-transparent shrink-0" type="button" onclick={onNext}>
+			<ArrowRight class="size-8 text-primary-600 md:size-12" />
+		</Button>
+	</div>
 
 	<div
 		class="relative mx-auto size-50 md:size-60"
