@@ -18,7 +18,16 @@
 	import HintButtonSmart from './HintButtonSmart.svelte';
 	import DrillTimer from './DrillTimer.svelte';
 	import { globalState } from '$lib/globalState.svelte';
-	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical, Undo2, ArrowLeft, ArrowRight } from '@lucide/svelte';
+	import {
+		Pointer,
+		Check,
+		RotateCcw,
+		Bluetooth,
+		EllipsisVertical,
+		Undo2,
+		ArrowLeft,
+		ArrowRight
+	} from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
 	import RecapProgress from './RecapProgress.svelte';
@@ -40,10 +49,12 @@
 		getSliceImplicitRotation,
 		getSliceFirstMoves,
 		inverseMove,
-		isUMove
+		isUMove,
+		invertRotationsWithoutReversing
 	} from '$lib/utils/moveValidator';
 	import { fade } from 'svelte/transition';
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
+	import getRotationAlg from '$lib/rotation';
 
 	type Phase = 'scrambling' | 'countdown' | 'solving' | 'executing' | 'transitioning';
 	let phase = $state<Phase>('scrambling');
@@ -98,6 +109,15 @@
 			: undefined
 	);
 
+	// Calculate the rotation needed to map from hardware standard (White Up/Green Front) to the user's target orientation
+	let hardwareOffset = $derived.by(() => {
+		if (!currentTrainCase) return '';
+		const setupRot = getRotationAlg(currentTrainCase.crossColor, currentTrainCase.frontColor);
+		// To map from Hardware (OLD) to Target (NEW) via applyRotationToMove (which processes left-to-right),
+		// we must invert each individual rotation in the setup sequence while keeping the original order.
+		return invertRotationsWithoutReversing(setupRot);
+	});
+
 	$effect(() => {
 		if (currentTrainCase) {
 			const { groupId, caseId, auf, side, scramble: scrambleSelection } = currentTrainCase;
@@ -146,8 +166,11 @@
 	});
 
 	function handleSmartCubeMove(move: string) {
-		const m = move.trim();
-		if (!m) return;
+		const rawM = move.trim();
+		if (!rawM) return;
+
+		// Convert hardware move to user's intended base move based on their preferred colors
+		const m = applyRotationToMove(rawM, hardwareOffset);
 
 		if (phase === 'transitioning' || phase === 'countdown') return;
 
@@ -163,7 +186,10 @@
 			moveBuffer = [...moveBuffer, m];
 
 			let lookAheadIndex = currentMoveIndex;
-			while (lookAheadIndex < algMovesParsed.length && isRotationMove(algMovesParsed[lookAheadIndex])) {
+			while (
+				lookAheadIndex < algMovesParsed.length &&
+				isRotationMove(algMovesParsed[lookAheadIndex])
+			) {
 				lookAheadIndex++;
 			}
 			const nextNonRotationMove = algMovesParsed[lookAheadIndex];
@@ -180,7 +206,6 @@
 			}
 
 			validateMoveProgress();
-
 		} catch (e) {
 			console.warn('Failed to apply move:', m, e);
 		}
@@ -211,7 +236,9 @@
 			if (incomingInAlgFrame === expectedUndo) {
 				undoMoves = undoMoves.slice(1);
 				validationFeedback = 'correct';
-				setTimeout(() => { validationFeedback = 'neutral'; }, 300);
+				setTimeout(() => {
+					validationFeedback = 'neutral';
+				}, 300);
 			} else {
 				const inverseRaw = inverseMove(rawMove);
 				const undoInAlgFrame = applyRotationToMove(inverseRaw, inverseRot);
@@ -222,7 +249,9 @@
 		moveBuffer = [];
 		if (undoMoves.length === 0) {
 			validationFeedback = 'correct';
-			setTimeout(() => { validationFeedback = 'neutral'; }, 500);
+			setTimeout(() => {
+				validationFeedback = 'neutral';
+			}, 500);
 		}
 	}
 
@@ -240,7 +269,10 @@
 		if (twistyPlayerRef && isRotationMove(algMovesParsed[currentMoveIndex])) {
 			const rotationsToApply: string[] = [];
 			let rotationIndex = currentMoveIndex;
-			while (rotationIndex < algMovesParsed.length && isRotationMove(algMovesParsed[rotationIndex])) {
+			while (
+				rotationIndex < algMovesParsed.length &&
+				isRotationMove(algMovesParsed[rotationIndex])
+			) {
 				rotationsToApply.push(algMovesParsed[rotationIndex]);
 				rotationIndex++;
 			}
@@ -249,7 +281,9 @@
 				twistyPlayerRef.addMove(rotation, '');
 			}
 
-			const allRotations = cumulativeRotation ? [cumulativeRotation, ...rotationsToApply] : rotationsToApply;
+			const allRotations = cumulativeRotation
+				? [cumulativeRotation, ...rotationsToApply]
+				: rotationsToApply;
 			cumulativeRotation = combineRotations(allRotations);
 			caseHasRotation = true;
 			currentMoveIndex = rotationIndex;
@@ -274,7 +308,9 @@
 					currentMoveIndex++;
 					moveBuffer = [];
 					validationFeedback = 'correct';
-					setTimeout(() => { validationFeedback = 'neutral'; }, 500);
+					setTimeout(() => {
+						validationFeedback = 'neutral';
+					}, 500);
 					checkPhaseCompletion();
 					return;
 				}
@@ -304,14 +340,20 @@
 
 			currentMoveIndex += consumedCount;
 			moveBuffer = [];
-			setTimeout(() => { validationFeedback = 'neutral'; }, 500);
+			setTimeout(() => {
+				validationFeedback = 'neutral';
+			}, 500);
 			checkPhaseCompletion();
 		} else if (normalized.length >= 1) {
 			const expectedMove = expectedMoves[0];
 			const isExpectedDoubleMove = expectedMove && expectedMove.includes('2');
 			const expectedBaseFace = expectedMove ? expectedMove.replace(/['2]/g, '') : '';
-			const couldBeDoubleMove = isExpectedDoubleMove && moveBuffer.length === 1 && normalized.length === 1 && normalized[0].replace(/['2]/g, '') === expectedBaseFace;
-			
+			const couldBeDoubleMove =
+				isExpectedDoubleMove &&
+				moveBuffer.length === 1 &&
+				normalized.length === 1 &&
+				normalized[0].replace(/['2]/g, '') === expectedBaseFace;
+
 			let couldBeSliceMove = false;
 			if (isSliceMove(expectedMove) && moveBuffer.length === 1 && normalized.length === 1) {
 				const validFirstMoves = getSliceFirstMoves(expectedMove);
@@ -329,7 +371,7 @@
 		if (currentMoveIndex >= algMovesParsed.length) {
 			if (phase === 'scrambling') {
 				phase = 'countdown';
-				
+
 				// Clear the accumulated scramble moves from TwistyPlayer
 				twistyPlayerRef?.reset();
 
@@ -342,13 +384,13 @@
 				movesAdded = '';
 				caseHasRotation = false;
 				showRotationWarning = false;
-				
+
 				// Ensure UI has updated
 				await tick();
-				
+
 				// Wait for countdown duration
 				await new Promise((resolve) => setTimeout(resolve, countdownDuration * 1000));
-				
+
 				// Ensure phase hasn't changed (e.g. skipped)
 				if (phase === 'countdown') {
 					phase = 'solving';
@@ -370,7 +412,9 @@
 
 	let connectButtonLabel = $derived.by(() => {
 		if (bluetoothState.isConnected) {
-			const saved = bluetoothState.deviceId ? savedCubesState.getCube(bluetoothState.deviceId) : null;
+			const saved = bluetoothState.deviceId
+				? savedCubesState.getCube(bluetoothState.deviceId)
+				: null;
 			return saved?.customName || bluetoothState.deviceName || 'Connected';
 		}
 		if (latestSavedCube) return latestSavedCube.customName;
@@ -388,7 +432,7 @@
 			await connectNewCube();
 		}
 	}
-	
+
 	let completedMoves = $derived(algMovesParsed.slice(0, currentMoveIndex));
 	let currentMoves = $derived(
 		currentMoveIndex < algMovesParsed.length ? [algMovesParsed[currentMoveIndex]] : []
@@ -409,7 +453,8 @@
 
 	const getContainerFeedbackClass = (feedback: 'correct' | 'incorrect' | 'neutral') => {
 		if (feedback === 'correct') return 'border-green-500 bg-green-50 dark:bg-green-950/20';
-		if (feedback === 'incorrect') return 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-shake';
+		if (feedback === 'incorrect')
+			return 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-shake';
 		return 'border-transparent';
 	};
 
@@ -435,12 +480,16 @@
 		<Button class="btn-icon-transparent shrink-0" type="button" onclick={onPrevious}>
 			<ArrowLeft class="size-8 text-primary-600 md:size-12" />
 		</Button>
-		
+
 		<div class="flex flex-col items-center">
 			<!-- Scramble guide (maintains layout space when hidden) -->
-			<div class="flex flex-col items-center transition-opacity duration-200 {phase !== 'scrambling' ? 'opacity-0 pointer-events-none' : 'opacity-100'}">
+			<div
+				class="flex flex-col items-center transition-opacity duration-200 {phase !== 'scrambling'
+					? 'pointer-events-none opacity-0'
+					: 'opacity-100'}"
+			>
 				<div
-					class="relative overflow-hidden flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
+					class="relative flex min-w-48 flex-wrap items-center justify-center gap-1 overflow-hidden rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
 						validationFeedback
 					)}"
 				>
@@ -459,7 +508,10 @@
 							<span class={futureChipVisible}>{move}</span>
 						{/each}
 					{:else}
-						{#each displayScramble.replace(/[()]/g, '').split(' ').filter((m) => m.trim() !== '') as move}
+						{#each displayScramble
+							.replace(/[()]/g, '')
+							.split(' ')
+							.filter((m) => m.trim() !== '') as move}
 							<span class={completedChipClass}>{move}</span>
 						{/each}
 					{/if}
@@ -470,7 +522,9 @@
 						>
 							<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
 								<Undo2 class="size-4 md:size-5" strokeWidth={2.5} />
-								<span class="text-xs font-semibold tracking-wide uppercase md:text-sm">Undo Required</span>
+								<span class="text-xs font-semibold tracking-wide uppercase md:text-sm"
+									>Undo Required</span
+								>
 							</div>
 							<div class="flex flex-wrap items-center justify-center gap-1">
 								{#each undoMoves as move}
@@ -508,7 +562,9 @@
 				class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-2 rounded-xl bg-yellow-500/20 backdrop-blur-[1px]"
 			>
 				<RotateCcw size={60} class="text-yellow-600 drop-shadow-lg dark:text-yellow-400" />
-				<div class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400">
+				<div
+					class="text-center text-3xl font-bold text-yellow-600 drop-shadow-sm dark:text-yellow-400"
+				>
 					Rotate to<br />Home Position
 				</div>
 			</div>
@@ -556,9 +612,11 @@
 				side={currentTrainCase.side}
 				crossColor={currentTrainCase.crossColor}
 				frontColor={currentTrainCase.frontColor}
-				enableEOColoring={sessionState.activeSession?.settings.trainLearnEO ?? DEFAULT_SETTINGS.trainLearnEO}
+				enableEOColoring={sessionState.activeSession?.settings.trainLearnEO ??
+					DEFAULT_SETTINGS.trainLearnEO}
 				scrambleSelection={currentTrainCase.scramble}
-				stickering={sessionState.activeSession?.settings.trainHintStickering ?? DEFAULT_SETTINGS.trainHintStickering}
+				stickering={sessionState.activeSession?.settings.trainHintStickering ??
+					DEFAULT_SETTINGS.trainHintStickering}
 				backView={sessionState.activeSession?.settings.backView || 'none'}
 				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 				experimentalDragInput="auto"
@@ -568,7 +626,9 @@
 				tempoScale={5}
 				showAlg={false}
 				disableAutoScramble={phase === 'scrambling'}
-				hidePlayer={phase === 'countdown' || (phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true))}
+				hidePlayer={phase === 'countdown' ||
+					(phase === 'scrambling' &&
+						!(sessionState.activeSession?.settings.scrambleShowCube ?? true))}
 				onF2LSolved={() => {
 					if (phase === 'solving' || phase === 'executing') {
 						const executionTime = drillTimerRef?.stopExecution() ?? 0;
@@ -616,8 +676,6 @@
 		{/if}
 	</div>
 
-
-
 	<div
 		class="mt-2"
 		class:hidden={!(
@@ -631,7 +689,9 @@
 		alg={displayAlg}
 		movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
 		currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
-		validationFeedback={phase === 'scrambling' || phase === 'countdown' ? 'neutral' : validationFeedback}
+		validationFeedback={phase === 'scrambling' || phase === 'countdown'
+			? 'neutral'
+			: validationFeedback}
 		undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
 		editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
 		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??

@@ -637,6 +637,23 @@ function inverseSingleRotation(rotation: string): string {
 }
 
 /**
+ * Get the inverse of each individual rotation in a compound rotation without reversing the order.
+ * This is used for mapping moves from an Old frame to a New frame via applyRotationToMove.
+ * For example: inverse of "y' z" is "y z'"
+ */
+export function invertRotationsWithoutReversing(rotation: string): string {
+	if (!rotation || rotation === '') return '';
+
+	// Handle compound rotations
+	const rotations = rotation.split(' ').filter((r) => r.trim() !== '');
+	if (rotations.length === 0) return '';
+
+	// Invert each rotation without reversing order
+	const inverted = rotations.map((r) => inverseSingleRotation(r));
+	return inverted.join(' ');
+}
+
+/**
  * Get the inverse of a rotation (handles compound rotations like "y' z")
  * For compound rotations, reverses the order and inverts each
  * For example: inverse of "y' z" is "z' y"
