@@ -9,11 +9,13 @@
 	import { tick, untrack, onDestroy } from 'svelte';
 	import { casesState, getCaseAlg, getCaseScramble } from '$lib/casesState.svelte';
 	import { sessionState, DEFAULT_SETTINGS } from '$lib/sessionState.svelte';
+	import { statisticsState } from '$lib/statisticsState.svelte';
 	import Settings from '$lib/components/Modals/Settings.svelte';
 	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
+	import DrillTimer from './DrillTimer.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical, Undo2 } from '@lucide/svelte';
 	import Details from './Details.svelte';
@@ -47,6 +49,7 @@
 
 	let editAlgRef = $state<EditAlg>();
 	let twistyPlayerRef = $state<any>();
+	let drillTimerRef = $state<DrillTimer>();
 
 	let displayScramble = $state('');
 	let displayAlg = $state('');
@@ -136,6 +139,7 @@
 				movesAdded = '';
 				caseHasRotation = false;
 				showRotationWarning = false;
+				drillTimerRef?.reset();
 			});
 		}
 	});
@@ -148,6 +152,7 @@
 
 		if (phase === 'solving' && !isUMove(m)) {
 			phase = 'executing';
+			drillTimerRef?.endRecognition();
 		}
 
 		if (!twistyPlayerRef) return;
@@ -346,6 +351,9 @@
 				// Ensure phase hasn't changed (e.g. skipped)
 				if (phase === 'countdown') {
 					phase = 'solving';
+					await tick();
+					drillTimerRef?.reset();
+					drillTimerRef?.startRecognition();
 				}
 			}
 		}
@@ -405,6 +413,7 @@
 	};
 
 	function onNext() {
+		drillTimerRef?.reset();
 		advanceToNextTrainCase();
 		phase = 'scrambling';
 		twistyPlayerRef?.reset();
@@ -545,6 +554,32 @@
 				hidePlayer={phase === 'countdown' || (phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true))}
 				onF2LSolved={() => {
 					if (phase === 'solving' || phase === 'executing') {
+						const executionTime = drillTimerRef?.stopExecution() ?? 0;
+						const recognitionTime = drillTimerRef?.getRecognitionTime() ?? 0;
+
+						if (currentTrainCase) {
+							const totalTime = recognitionTime + executionTime;
+							currentTrainCase.time = totalTime;
+							currentTrainCase.solveId = crypto.randomUUID();
+							trainState.lastDisplayedTime = totalTime;
+
+							statisticsState.addSolve({
+								id: currentTrainCase.solveId,
+								groupId: currentTrainCase.groupId,
+								caseId: currentTrainCase.caseId,
+								time: totalTime,
+								timestamp: Date.now(),
+								auf: currentTrainCase.auf,
+								side: currentTrainCase.side,
+								scrambleSelection: currentTrainCase.scramble,
+								sessionId: sessionState.activeSessionId || undefined,
+								recognitionTime,
+								executionTime,
+								trainMode: 'smartScramble'
+							});
+							currentTrainCase.solved = true;
+						}
+
 						phase = 'transitioning';
 						setTimeout(() => {
 							onNext();
@@ -569,6 +604,17 @@
 			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
 				Hold Green Front, White Up
 			</span>
+		</div>
+	{/if}
+
+	{#if phase !== 'scrambling' && phase !== 'countdown'}
+		<div
+			class="mt-2"
+			class:hidden={!(
+				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+			)}
+		>
+			<DrillTimer bind:this={drillTimerRef} />
 		</div>
 	{/if}
 
