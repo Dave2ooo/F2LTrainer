@@ -53,6 +53,7 @@
 		backViewEnabled?: boolean;
 		movesAdded?: string; // Transformed moves for display
 		enableEOColoring?: boolean;
+		disableAutoScramble?: boolean; // if true, scramble from groupid/caseid will not be applied
 	}
 
 	let {
@@ -81,7 +82,8 @@
 		backView = 'none',
 		backViewEnabled = false,
 		movesAdded = $bindable(''),
-		enableEOColoring = false
+		enableEOColoring = false,
+		disableAutoScramble = false
 	}: Props = $props();
 
 	// Raw moves tracked internally for F2L checking (not exposed to parent)
@@ -129,7 +131,9 @@
 	$effect(() => {
 		if (scrambleWithoutAUF !== undefined && algWithoutAUF !== undefined) {
 			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
-			scramble = newScramble;
+			if (!disableAutoScramble) {
+				scramble = newScramble;
+			}
 			if (showAlg) {
 				alg = simplifyAlg(newAlg);
 			} else {

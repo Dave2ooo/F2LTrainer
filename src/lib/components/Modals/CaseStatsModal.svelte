@@ -541,7 +541,7 @@
 								>
 							{:else}
 								<Badge
-									color="light"
+									color="amber"
 									rounded
 									class="cursor-pointer !bg-transparent text-sm {hoveredIndex === realIndex ||
 									selectedIndex === realIndex

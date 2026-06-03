@@ -23,8 +23,14 @@ const createMockSettings = (): SessionSettings => ({
 	crossColor: ['white'],
 	frontColor: ['red'],
 
+	trainLearnEO: false,
+
 	drillTimeBetweenCases: 1000,
-	drillHideTwistyPlayer: false
+	drillHideTwistyPlayer: false,
+
+	scrambleYourself: false,
+	scrambleCountdownDuration: 1.0,
+	scrambleShowCube: true
 });
 
 let mockSettings = createMockSettings();
