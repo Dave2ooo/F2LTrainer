@@ -36,7 +36,8 @@
 		isSliceMove,
 		getSliceImplicitRotation,
 		getSliceFirstMoves,
-		inverseMove
+		inverseMove,
+		isUMove
 	} from '$lib/utils/moveValidator';
 	import { fade } from 'svelte/transition';
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
@@ -50,7 +51,13 @@
 	let displayScramble = $state('');
 	let displayAlg = $state('');
 
-	let algMovesParsed = $state<string[]>([]);
+	let algMovesParsed = $derived.by(() => {
+		const algToParse = phase === 'scrambling' ? displayScramble : displayAlg;
+		if (!algToParse) return [];
+		const cleanAlg = algToParse.replace(/[()]/g, '');
+		return cleanAlg.split(' ').filter((m) => m.trim() !== '');
+	});
+
 	let currentMoveIndex = $state(0);
 	let moveBuffer = $state<string[]>([]);
 	let validationFeedback = $state<'correct' | 'incorrect' | 'neutral'>('neutral');
@@ -117,29 +124,18 @@
 		}
 	});
 
+	// Reset state when case changes
 	$effect(() => {
-		// When phase changes to scrambling or displayScramble changes
-		if (phase === 'scrambling' && displayScramble) {
+		if (currentTrainCase) {
 			untrack(() => {
-				const cleanAlg = displayScramble.replace(/[()]/g, '');
-				algMovesParsed = cleanAlg.split(' ').filter((m) => m.trim() !== '');
 				currentMoveIndex = 0;
 				moveBuffer = [];
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
 				undoMoves = [];
 				movesAdded = '';
-			});
-		} else if (phase !== 'scrambling') {
-			untrack(() => {
-				const cleanAlg = displayAlg.replace(/[()]/g, '');
-				algMovesParsed = cleanAlg.split(' ').filter((m) => m.trim() !== '');
-				currentMoveIndex = 0;
-				moveBuffer = [];
-				validationFeedback = 'neutral';
-				cumulativeRotation = '';
-				undoMoves = [];
-				movesAdded = '';
+				caseHasRotation = false;
+				showRotationWarning = false;
 			});
 		}
 	});
@@ -149,6 +145,10 @@
 		if (!m) return;
 
 		if (phase === 'transitioning' || phase === 'countdown') return;
+
+		if (phase === 'solving' && !isUMove(m)) {
+			phase = 'executing';
+		}
 
 		if (!twistyPlayerRef) return;
 		if (showRotationWarning) showRotationWarning = false;
@@ -324,6 +324,19 @@
 			if (phase === 'scrambling') {
 				phase = 'countdown';
 				
+				// Clear the accumulated scramble moves from TwistyPlayer
+				twistyPlayerRef?.reset();
+
+				// Reset move tracking state for the solve phase
+				currentMoveIndex = 0;
+				moveBuffer = [];
+				validationFeedback = 'neutral';
+				cumulativeRotation = '';
+				undoMoves = [];
+				movesAdded = '';
+				caseHasRotation = false;
+				showRotationWarning = false;
+				
 				// Ensure UI has updated
 				await tick();
 				
@@ -391,10 +404,8 @@
 		return 'border-transparent';
 	};
 
-	async function onNext() {
-		// Just for testing step 2 - advance immediately
+	function onNext() {
 		advanceToNextTrainCase();
-		await tick();
 		phase = 'scrambling';
 		twistyPlayerRef?.reset();
 		movesAdded = '';
@@ -563,14 +574,17 @@
 
 	<HintButtonSmart
 		alg={displayAlg}
-		movesAdded={phase === 'scrambling' ? '' : movesAdded}
-		currentMoveIndex={phase === 'scrambling' ? 0 : currentMoveIndex}
-		validationFeedback={phase === 'scrambling' ? 'neutral' : validationFeedback}
-		undoMoves={phase === 'scrambling' ? [] : undoMoves}
-		editDisabled={true}
-		hintMode={'always'}
-		hasMadeFirstMove={phase !== 'scrambling'}
-		onEditAlg={() => {}}
+		movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
+		currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
+		validationFeedback={phase === 'scrambling' || phase === 'countdown' ? 'neutral' : validationFeedback}
+		undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
+		editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
+		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm}
+		hasMadeFirstMove={phase === 'executing' || phase === 'transitioning'}
+		onEditAlg={() => {
+			editAlgRef?.openModal();
+		}}
 	/>
 
 	<RecapProgress />

@@ -133,6 +133,8 @@
 			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
 			if (!disableAutoScramble) {
 				scramble = newScramble;
+			} else {
+				scramble = '';
 			}
 			if (showAlg) {
 				alg = simplifyAlg(newAlg);
