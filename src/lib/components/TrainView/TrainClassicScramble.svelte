@@ -60,6 +60,12 @@
 	let movesAdded = $state('');
 	let caseHasRotation = $state(false);
 
+	let countdownDuration = $derived(
+		sessionState.activeSession?.settings.scrambleCountdownDuration ??
+			DEFAULT_SETTINGS.scrambleCountdownDuration ??
+			1.0
+	);
+
 	const SUBSCRIBER_ID = 'train-classic-scramble';
 	const SUBSCRIBER_PRIORITY = 50;
 
@@ -313,12 +319,21 @@
 		}
 	}
 
-	function checkPhaseCompletion() {
+	async function checkPhaseCompletion() {
 		if (currentMoveIndex >= algMovesParsed.length) {
 			if (phase === 'scrambling') {
-				console.log('Scramble finished! Advancing to countdown (TODO)');
-				// Switch to solving for testing step 2
-				phase = 'solving';
+				phase = 'countdown';
+				
+				// Ensure UI has updated
+				await tick();
+				
+				// Wait for countdown duration
+				await new Promise((resolve) => setTimeout(resolve, countdownDuration * 1000));
+				
+				// Ensure phase hasn't changed (e.g. skipped)
+				if (phase === 'countdown') {
+					phase = 'solving';
+				}
 			}
 		}
 	}
@@ -459,6 +474,41 @@
 			</div>
 		{/if}
 
+		{#if phase === 'countdown'}
+			<div
+				class="absolute inset-0 z-50 flex flex-col items-center justify-center gap-4 rounded-xl bg-gray-100 dark:bg-gray-800"
+			>
+				<div class="relative flex items-center justify-center">
+					<svg class="size-32 -rotate-90 transform overflow-visible">
+						<circle
+							cx="64"
+							cy="64"
+							r="56"
+							stroke="currentColor"
+							stroke-width="8"
+							fill="transparent"
+							class="text-primary-200 dark:text-primary-900"
+						/>
+						<circle
+							cx="64"
+							cy="64"
+							r="56"
+							stroke="currentColor"
+							stroke-width="8"
+							fill="transparent"
+							class="radial-countdown text-primary-500"
+							stroke-dasharray="352"
+							stroke-dashoffset="0"
+							style="--duration: {countdownDuration}s"
+						/>
+					</svg>
+				</div>
+				<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
+					Hold Green Front, White Up
+				</span>
+			</div>
+		{/if}
+
 		{#if currentTrainCase}
 			<TwistyPlayer
 				bind:this={twistyPlayerRef}
@@ -481,7 +531,7 @@
 				tempoScale={5}
 				showAlg={false}
 				disableAutoScramble={phase === 'scrambling'}
-				hidePlayer={phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true)}
+				hidePlayer={phase === 'countdown' || (phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true))}
 				onF2LSolved={() => {
 					if (phase === 'solving' || phase === 'executing') {
 						phase = 'transitioning';
@@ -503,7 +553,7 @@
 		{/if}
 	</div>
 
-	{#if undoMoves.length >= 2}
+	{#if undoMoves.length >= 2 && phase !== 'countdown'}
 		<div class="mt-2 flex justify-center">
 			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
 				Hold Green Front, White Up
@@ -576,3 +626,15 @@
 {/if}
 
 <div class="h-20 w-full shrink-0"></div>
+
+<style>
+	@keyframes countdown {
+		to {
+			stroke-dashoffset: 352;
+		}
+	}
+
+	.radial-countdown {
+		animation: countdown var(--duration) linear forwards;
+	}
+</style>
