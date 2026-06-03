@@ -122,6 +122,8 @@
 		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
 		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
 		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		if (types.has('smartScramble'))
+			options.push({ value: 'smartScramble', name: 'Smart Practice (scramble yourself)' });
 		return options;
 	});
 
@@ -139,7 +141,7 @@
 			.map((s) => {
 				let time = s.time;
 				if (trainTypeFilter === 'smart') time = s.executionTime;
-				if (trainTypeFilter === 'drill')
+				if (trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble')
 					time =
 						s.recognitionTime !== undefined && s.executionTime !== undefined
 							? s.recognitionTime + s.executionTime
@@ -168,12 +170,12 @@
 	const meanTime = $derived(calculateMean(displaySolves));
 	// Drill specific means
 	const meanRec = $derived(
-		trainTypeFilter === 'drill'
+		trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'
 			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.recognitionTime }) as Solve))
 			: undefined
 	);
 	const meanExec = $derived(
-		trainTypeFilter === 'drill'
+		trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'
 			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.executionTime }) as Solve))
 			: undefined
 	);
@@ -373,7 +375,8 @@
 
 		<!-- Summary Stats Grid -->
 		<div
-			class="grid gap-3 text-center {trainTypeFilter === 'drill'
+			class="grid gap-3 text-center {trainTypeFilter === 'drill' ||
+			trainTypeFilter === 'smartScramble'
 				? 'grid-cols-3 sm:grid-cols-7'
 				: 'grid-cols-3 sm:grid-cols-5'}"
 		>
@@ -422,7 +425,7 @@
 			</div>
 
 			<!-- Drill Split Stats -->
-			{#if trainTypeFilter === 'drill'}
+			{#if trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'}
 				<div class="stat-card">
 					<span class="text-secondary sm:text-base">Mean Rec</span>
 					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"

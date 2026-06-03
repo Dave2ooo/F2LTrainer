@@ -77,6 +77,8 @@
 		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
 		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
 		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		if (types.has('smartScramble'))
+			options.push({ value: 'smartScramble', name: 'Smart Practice (scramble yourself' });
 		return options;
 	});
 
@@ -102,7 +104,7 @@
 			.map((s) => {
 				let time = s.time;
 				if (trainTypeFilter === 'smart') time = s.executionTime;
-				if (trainTypeFilter === 'drill')
+				if (trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble')
 					time =
 						s.recognitionTime !== undefined && s.executionTime !== undefined
 							? s.recognitionTime + s.executionTime
