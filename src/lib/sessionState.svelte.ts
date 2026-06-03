@@ -34,7 +34,10 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	frontColor: ['red'],
 	trainLearnEO: false,
 	drillTimeBetweenCases: 1.0,
-	drillHideTwistyPlayer: false
+	drillHideTwistyPlayer: false,
+	scrambleYourself: false,
+	scrambleCountdownDuration: 1.0,
+	scrambleShowCube: true
 };
 
 class SessionState {

@@ -234,6 +234,12 @@
 									</p>
 
 									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<Checkbox bind:checked={settings.scrambleYourself}>
+											Scramble Yourself
+										</Checkbox>
+										<p class="mt-1 ml-6 mb-3 text-xs text-gray-500 dark:text-gray-400">
+											Scramble your smart cube yourself. Requires Smart Cube.
+										</p>
 										<p class="text-sm text-gray-600 dark:text-gray-400">
 											💡 Smart cube support activates automatically when connected.
 										</p>
@@ -291,6 +297,34 @@
 										<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
 											The virtual cube will disappear once you start solving, forcing you to rely on
 											memory.
+										</p>
+									</div>
+								</div>
+							{/if}
+							{#if settings.trainMode === 'classic' && settings.scrambleYourself}
+								<div class="card">
+									<div class="mb-4 flex items-center justify-between">
+										<Label class="section-label">Scramble Flow</Label>
+										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
+											>{settings.scrambleCountdownDuration}s delay</span
+										>
+									</div>
+									<Range
+										id="scramble-delay"
+										min={0}
+										max={5}
+										step={0.25}
+										bind:value={settings.scrambleCountdownDuration}
+									/>
+									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+										Time between completing scramble and seeing the case.
+									</p>
+									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<Checkbox bind:checked={settings.scrambleShowCube}>
+											Show Cube While Scrambling
+										</Checkbox>
+										<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+											Display the virtual cube updating as you scramble. When off, the cube is hidden until you start solving.
 										</p>
 									</div>
 								</div>

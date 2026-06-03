@@ -43,6 +43,11 @@ export interface SessionSettings {
 	// Drill Mode
 	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 	drillHideTwistyPlayer: boolean; // Hide TwistyPlayer after first move in drill mode
+
+	// Scramble Yourself Mode
+	scrambleYourself: boolean; // Enable "Scramble Yourself" mode
+	scrambleCountdownDuration: number; // Seconds before solving starts
+	scrambleShowCube: boolean; // Show virtual cube while scrambling
 }
 
 export interface Session {

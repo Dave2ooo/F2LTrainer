@@ -11,6 +11,7 @@
 	import TrainClassic from './TrainClassic.svelte';
 	import TrainClassicSmart from './TrainClassicSmart.svelte';
 	import TrainDrill from './TrainDrill.svelte';
+	import TrainClassicScramble from './TrainClassicScramble.svelte';
 	import ResponsiveLayout from './ResponsiveLayout.svelte';
 
 	let showSessionSettings = $state(false);
@@ -68,6 +69,9 @@
 			{#if activeSettings}
 				{#if activeSettings.trainMode === 'drill'}
 					<TrainDrill bind:isRunning={isDrillRunning} />
+				{:else if bluetoothState.isConnected && activeSettings.scrambleYourself}
+					<!-- Scramble Yourself mode (requires classic + connected smart cube) -->
+					<TrainClassicScramble />
 				{:else if bluetoothState.isConnected}
 					<!-- Automatically use smart cube training when connected -->
 					<TrainClassicSmart />
