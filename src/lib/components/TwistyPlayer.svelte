@@ -47,7 +47,7 @@
 		showVisibilityToggle?: boolean;
 		tempoScale?: number;
 		showAlg?: boolean;
-		onF2LSolved?: () => void;
+		onF2LSolved?: (entireF2LSolved: boolean) => void;
 		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;

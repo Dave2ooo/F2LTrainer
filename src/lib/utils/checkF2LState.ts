@@ -128,6 +128,7 @@ function isCubeSolved(normalizedPattern: NormalizedPattern): boolean {
 
 export interface F2LState {
 	f2lSolved: boolean;
+	entireF2LSolved: boolean;
 	cubeSolved: boolean;
 }
 
@@ -148,7 +149,7 @@ export async function checkF2LState(
 	alg: string,
 	piecesToHide?: StickerHidden,
 	side: Side = 'right',
-	onF2LSolved?: () => void,
+	onF2LSolved?: (entireF2LSolved: boolean) => void,
 	onCubeSolved?: () => void
 ): Promise<F2LState> {
 	try {
@@ -164,6 +165,16 @@ export async function checkF2LState(
 			side
 		);
 
+		// Check if the entire F2L is solved (all 4 slots)
+		const entireF2LSolved = piecesToHide 
+			? isF2LSolved(
+					normalizedPattern.patternData.CORNERS,
+					normalizedPattern.patternData.EDGES,
+					undefined,
+					side
+			  )
+			: f2lSolved;
+
 		// Check if cube is fully solved
 		const cubeSolved = isCubeSolved(normalizedPattern);
 
@@ -173,7 +184,7 @@ export async function checkF2LState(
 				'%c\u2713 F2L SOLVED!',
 				'color: #fff; background: #27ae60; font-size:1.2rem; font-weight: bold; padding: 4px 12px; border-radius: 4px;'
 			);
-			onF2LSolved?.();
+			onF2LSolved?.(entireF2LSolved);
 		}
 
 		if (cubeSolved) {
@@ -184,9 +195,9 @@ export async function checkF2LState(
 			onCubeSolved?.();
 		}
 
-		return { f2lSolved, cubeSolved };
+		return { f2lSolved, entireF2LSolved, cubeSolved };
 	} catch (e) {
 		console.error('%c[F2L Check Error]', 'color: #e74c3c; font-weight: bold', e);
-		return { f2lSolved: false, cubeSolved: false };
+		return { f2lSolved: false, entireF2LSolved: false, cubeSolved: false };
 	}
 }

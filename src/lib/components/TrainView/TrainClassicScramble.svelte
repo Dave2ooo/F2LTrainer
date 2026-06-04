@@ -56,8 +56,17 @@
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 	import getRotationAlg from '$lib/rotation';
 
-	type Phase = 'scrambling' | 'countdown' | 'solving' | 'executing' | 'transitioning';
+	type Phase =
+		| 'scrambling'
+		| 'countdown'
+		| 'solving'
+		| 'executing'
+		| 'finishing_f2l'
+		| 'transitioning';
 	let phase = $state<Phase>('scrambling');
+
+	let showTargetSolvedCheck = $state(false);
+	let checkTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
 	let editAlgRef = $state<EditAlg>();
 	let twistyPlayerRef = $state<any>();
@@ -160,6 +169,8 @@
 				movesAdded = '';
 				caseHasRotation = false;
 				showRotationWarning = false;
+				showTargetSolvedCheck = false;
+				if (checkTimeoutId) clearTimeout(checkTimeoutId);
 				drillTimerRef?.reset();
 			});
 		}
@@ -548,9 +559,10 @@
 			globalState.hasUsedTwistyPlayer = true;
 		}}
 	>
-		{#if phase === 'transitioning'}
+		{#if showTargetSolvedCheck}
 			<div
-				class="absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px] transition-all duration-300"
+				transition:fade={{ duration: 300 }}
+				class="pointer-events-none absolute inset-0 z-50 flex animate-pulse items-center justify-center rounded-xl bg-green-500/20 backdrop-blur-[1px]"
 			>
 				<Check size={80} class="text-green-600 drop-shadow-lg dark:text-green-400" />
 			</div>
@@ -602,6 +614,18 @@
 			</div>
 		{/if}
 
+		{#if phase === 'finishing_f2l'}
+			<div
+				class="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 transition-all duration-300"
+			>
+				<div
+					class="scale-100 transform rounded-2xl bg-gray-900/80 px-8 py-6 text-center shadow-2xl ring-1 ring-white/20 transition-all duration-300"
+				>
+					<p class="mb-2 text-xl font-bold text-white drop-shadow-md">Solve the rest of F2L</p>
+				</div>
+			</div>
+		{/if}
+
 		{#if currentTrainCase}
 			<TwistyPlayer
 				bind:this={twistyPlayerRef}
@@ -615,9 +639,11 @@
 				enableEOColoring={sessionState.activeSession?.settings.trainLearnEO ??
 					DEFAULT_SETTINGS.trainLearnEO}
 				scrambleSelection={currentTrainCase.scramble}
-				stickering={phase === 'scrambling' && !(sessionState.activeSession?.settings.scrambleShowCube ?? true)
+				stickering={phase === 'scrambling' &&
+				!(sessionState.activeSession?.settings.scrambleShowCube ?? true)
 					? 'centers-only'
-					: (sessionState.activeSession?.settings.trainHintStickering ?? DEFAULT_SETTINGS.trainHintStickering)}
+					: (sessionState.activeSession?.settings.trainHintStickering ??
+						DEFAULT_SETTINGS.trainHintStickering)}
 				backView={sessionState.activeSession?.settings.backView || 'none'}
 				backViewEnabled={sessionState.activeSession?.settings.backViewEnabled || false}
 				experimentalDragInput="auto"
@@ -628,7 +654,7 @@
 				showAlg={false}
 				disableAutoScramble={phase === 'scrambling'}
 				hidePlayer={phase === 'countdown'}
-				onF2LSolved={() => {
+				onF2LSolved={(entireF2LSolved) => {
 					if (phase === 'solving' || phase === 'executing') {
 						const executionTime = drillTimerRef?.stopExecution() ?? 0;
 						const recognitionTime = drillTimerRef?.getRecognitionTime() ?? 0;
@@ -637,6 +663,7 @@
 							const totalTime = recognitionTime + executionTime;
 							currentTrainCase.time = totalTime;
 							currentTrainCase.solveId = crypto.randomUUID();
+
 							trainState.lastDisplayedTime = totalTime;
 
 							statisticsState.addSolve({
@@ -653,9 +680,19 @@
 								executionTime,
 								trainMode: 'smartScramble'
 							});
+
 							currentTrainCase.solved = true;
 						}
 
+						phase = 'finishing_f2l';
+						showTargetSolvedCheck = true;
+						if (checkTimeoutId) clearTimeout(checkTimeoutId);
+						checkTimeoutId = setTimeout(() => {
+							showTargetSolvedCheck = false;
+						}, 1000);
+					}
+
+					if (entireF2LSolved && phase === 'finishing_f2l') {
 						phase = 'transitioning';
 						setTimeout(() => {
 							onNext();
