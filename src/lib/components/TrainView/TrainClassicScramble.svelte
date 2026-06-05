@@ -463,7 +463,6 @@
 		'rounded bg-amber-500 dark:bg-amber-600 px-2 py-1 font-mono font-semibold text-white shadow-md';
 
 	const getContainerFeedbackClass = (feedback: 'correct' | 'incorrect' | 'neutral') => {
-		if (feedback === 'correct') return 'border-green-500 bg-green-50 dark:bg-green-950/20';
 		if (feedback === 'incorrect')
 			return 'border-red-500 bg-red-50 dark:bg-red-950/20 animate-shake';
 		return 'border-transparent';
@@ -616,10 +615,10 @@
 
 		{#if phase === 'finishing_f2l'}
 			<div
-				class="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 transition-all duration-300"
+				class="pointer-events-none absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-sm transition-all duration-300"
 			>
 				<div
-					class="scale-100 transform rounded-2xl bg-gray-900/80 px-8 py-6 text-center shadow-2xl ring-1 ring-white/20 transition-all duration-300"
+					class="scale-100 transform rounded-2xl bg-gray-900/80 px-8 py-6 text-center shadow-2xl ring-1 ring-white/20 backdrop-blur-md transition-all duration-300"
 				>
 					<p class="mb-2 text-xl font-bold text-white drop-shadow-md">Solve the rest of F2L</p>
 				</div>
