@@ -267,6 +267,11 @@
 	}
 
 	function validateMoveProgress() {
+		// Disable algorithm validation and auto-rotation if the hint is hidden
+		if ((sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
+			return;
+		}
+
 		if (undoMoves.length > 0) {
 			validateUndoProgress();
 			return;

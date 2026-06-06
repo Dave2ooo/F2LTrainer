@@ -198,6 +198,11 @@
 	);
 
 	function validateMoveProgress() {
+		// Disable algorithm validation and auto-rotation if the hint is hidden
+		if ((sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
+			return;
+		}
+
 		// Check if user is in undo mode (has pending undo moves)
 		if (undoMoves.length > 0) {
 			validateUndoProgress();
@@ -862,7 +867,7 @@
 		{/if}
 	</div>
 
-	{#if undoMoves.length >= 2}
+	{#if undoMoves.length >= 2 && (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
 		<div class="mt-2 flex justify-center">
 			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
 				Hold Green Front, White Up
