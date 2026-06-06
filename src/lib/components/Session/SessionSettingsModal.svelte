@@ -234,10 +234,9 @@
 									</p>
 
 									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<Checkbox bind:checked={settings.scrambleYourself}>
-											Scramble Yourself
-										</Checkbox>
-										<p class="mt-1 ml-6 mb-3 text-xs text-gray-500 dark:text-gray-400">
+										<Checkbox bind:checked={settings.scrambleYourself}>Scramble Smart Cube</Checkbox
+										>
+										<p class="mt-1 mb-3 ml-6 text-xs text-gray-500 dark:text-gray-400">
 											Scramble your smart cube yourself. Requires Smart Cube.
 										</p>
 										<p class="text-sm text-gray-600 dark:text-gray-400">
@@ -274,22 +273,28 @@
 							</div>
 							{#if settings.trainMode === 'drill'}
 								<div class="card">
-									<div class="mb-4 flex items-center justify-between">
-										<Label class="section-label">Drill Flow</Label>
-										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
-											>{settings.drillTimeBetweenCases}s delay</span
-										>
+									<Label class="section-label mb-4">Drill Settings</Label>
+
+									<div>
+										<div class="mb-2 flex items-center justify-between">
+											<Label class="text-sm font-semibold">Transition Delay</Label>
+											<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+												{settings.drillTimeBetweenCases}s
+											</span>
+										</div>
+
+										<Range
+											id="drill-delay"
+											min={0}
+											max={5}
+											step={0.25}
+											bind:value={settings.drillTimeBetweenCases}
+										/>
+
+										<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+											Time between solving a case and seeing the next one.
+										</p>
 									</div>
-									<Range
-										id="drill-delay"
-										min={0}
-										max={5}
-										step={0.25}
-										bind:value={settings.drillTimeBetweenCases}
-									/>
-									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-										Time between solving a case and seeing the next one.
-									</p>
 									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
 										<Checkbox bind:checked={settings.drillHideTwistyPlayer}>
 											Hide Cube After First Move
@@ -303,28 +308,34 @@
 							{/if}
 							{#if settings.trainMode === 'classic' && settings.scrambleYourself}
 								<div class="card">
-									<div class="mb-4 flex items-center justify-between">
-										<Label class="section-label">Scramble Flow</Label>
-										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
-											>{settings.scrambleCountdownDuration}s delay</span
-										>
+									<Label class="section-label mb-4">Scramble Settings</Label>
+
+									<div>
+										<div class="mb-2 flex items-center justify-between">
+											<Label class="text-sm font-semibold">Transition Delay</Label>
+											<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+												{settings.scrambleCountdownDuration}s
+											</span>
+										</div>
+
+										<Range
+											id="scramble-delay"
+											min={0}
+											max={5}
+											step={0.25}
+											bind:value={settings.scrambleCountdownDuration}
+										/>
+
+										<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+											Time between completing scramble and seeing the case.
+										</p>
 									</div>
-									<Range
-										id="scramble-delay"
-										min={0}
-										max={5}
-										step={0.25}
-										bind:value={settings.scrambleCountdownDuration}
-									/>
-									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-										Time between completing scramble and seeing the case.
-									</p>
 									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
 										<Checkbox bind:checked={settings.scrambleShowCube}>
-											Show Cube While Scrambling
+											Show F2L While Scrambling
 										</Checkbox>
 										<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
-											Display the virtual cube updating as you scramble. When off, the cube is hidden until you start solving.
+											When disabled, the virtual cube hides all pieces except the centers.
 										</p>
 									</div>
 								</div>
@@ -451,14 +462,12 @@
 										</div>
 									{/if}
 
-									<div class="space-y-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<div class="flex items-center gap-2">
+									<div class="space-y-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<div>
 											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
-											<TooltipButton
-												id="btn-session-settings-auf"
-												tooltip="Adds a random U move to the end of the scramble"
-												icon={CircleQuestionMark}
-											/>
+											<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+												Adds a random U setup move to the beginning of the algorithm.
+											</p>
 										</div>
 										<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
 									</div>
