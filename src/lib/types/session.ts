@@ -32,6 +32,7 @@ export interface SessionSettings {
 	// Hints / Visuals
 	trainHintAlgorithm: HintAlgorithm;
 	trainHintStickering: HintStickering;
+	smartHintBehavior: 'auto' | 'manual';
 	backView: 'none' | 'floating';
 	backViewEnabled: boolean; // Controls back-view attribute: true = "top-right", false = "none"
 	crossColor: string[];

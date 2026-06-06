@@ -18,6 +18,7 @@ const createMockSettings = (): SessionSettings => ({
 	trainShowTimer: false,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	smartHintBehavior: 'auto',
 	backView: 'none',
 	backViewEnabled: false,
 	crossColor: ['white'],

@@ -28,6 +28,7 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	trainShowTimer: false,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	smartHintBehavior: 'auto',
 	backView: 'none',
 	backViewEnabled: false,
 	crossColor: ['white'],

@@ -16,6 +16,8 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
+	import HintButton from './HintButton.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical } from '@lucide/svelte';
 	import Details from './Details.svelte';
@@ -49,6 +51,16 @@
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 
 	let editAlgRef = $state<EditAlg>();
+	const hintManager = createHintManager();
+
+	function showHintAlg() {
+		hintManager.revealHint(
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
+			displayAlg,
+			false // twistyAlgViewerLoaded is false for smart modes
+		);
+	}
 
 	let smartTimerRef = $state<SmartTimer>();
 	let timerStarted = $state(false); // Track if timer has been started for current case
@@ -146,7 +158,6 @@
 
 	// Subscribe to move events when component is active
 	$effect(() => {
-		// Only subscribe when we have a current train case
 		const hasTrainCase = !!trainState.current;
 
 		if (hasTrainCase) {
@@ -154,6 +165,18 @@
 			return () => {
 				bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
 			};
+		}
+	});
+
+	$effect(() => {
+		void currentTrainCase;
+		if (currentTrainCase) {
+			hintManager.reset();
+			hintManager.initialize(
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+					DEFAULT_SETTINGS.trainHintAlgorithm,
+				false
+			);
 		}
 	});
 
@@ -198,8 +221,10 @@
 	);
 
 	function validateMoveProgress() {
-		// Disable algorithm validation and auto-rotation if the hint is hidden
-		if ((sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
+		// Disable algorithm validation and auto-rotation if the hint is hidden or manual
+		const hintAlgorithm = sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm;
+		const hintBehavior = sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+		if (hintAlgorithm === 'hidden' || hintBehavior === 'manual') {
 			return;
 		}
 
@@ -877,20 +902,35 @@
 
 	<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
 		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
-			<HintButtonSmart
-				alg={displayAlg}
-				movesAdded={alg}
-				{currentMoveIndex}
-				{validationFeedback}
-				{undoMoves}
-				editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
-				hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-					DEFAULT_SETTINGS.trainHintAlgorithm}
-				hasMadeFirstMove={timerStarted}
-				onEditAlg={() => {
-					editAlgRef?.openModal();
-				}}
-			/>
+			{#if (sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior) === 'manual'}
+				<HintButton
+					alg={displayAlg}
+					visible={true}
+					hintCounter={hintManager.counter}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					onclick={showHintAlg}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+					showAlgViewer={false}
+				/>
+			{:else}
+				<HintButtonSmart
+					alg={displayAlg}
+					movesAdded={alg}
+					{currentMoveIndex}
+					{validationFeedback}
+					{undoMoves}
+					editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					hasMadeFirstMove={timerStarted}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+				/>
+			{/if}
 		{/if}
 		<div
 			class:hidden={!(

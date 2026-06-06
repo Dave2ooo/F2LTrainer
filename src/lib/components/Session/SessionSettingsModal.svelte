@@ -472,6 +472,39 @@
 												</div>
 											</div>
 										</div>
+
+										<div class="border-t border-gray-200 pt-3 dark:border-gray-700">
+											<Label class="section-label mb-3">Smart Cube Hint Tracking</Label>
+											<p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
+												This setting only applies when training with a connected smart cube.
+											</p>
+											<div class="grid grid-cols-2 gap-2">
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.smartHintBehavior === 'auto'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.smartHintBehavior = 'auto')}
+												>
+													<RadioDot selected={settings.smartHintBehavior === 'auto'} />
+													<span class="text-sm text-gray-900 dark:text-white">Auto-track</span>
+												</div>
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.smartHintBehavior === 'manual'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.smartHintBehavior = 'manual')}
+												>
+													<RadioDot selected={settings.smartHintBehavior === 'manual'} />
+													<span class="text-sm text-gray-900 dark:text-white">Manual clicks</span>
+												</div>
+											</div>
+										</div>
 									{/if}
 
 									<div class="space-y-3 border-t border-gray-200 pt-3 dark:border-gray-700">

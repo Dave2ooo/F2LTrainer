@@ -16,6 +16,8 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
+	import HintButton from './HintButton.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import DrillTimer from './DrillTimer.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import {
@@ -71,6 +73,17 @@
 	let editAlgRef = $state<EditAlg>();
 	let twistyPlayerRef = $state<any>();
 	let drillTimerRef = $state<DrillTimer>();
+
+	const hintManager = createHintManager();
+
+	function showHintAlg() {
+		hintManager.revealHint(
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
+			displayAlg,
+			false // twistyAlgViewerLoaded is false for smart modes
+		);
+	}
 
 	let displayScramble = $state('');
 	let displayAlg = $state('');
@@ -159,13 +172,12 @@
 
 	// Reset state when case changes
 	$effect(() => {
-		if (currentTrainCase) {
+		if (currentTrainCase && currentTrainCase.solveId === undefined && phase === 'scrambling') {
 			untrack(() => {
-				currentMoveIndex = 0;
 				moveBuffer = [];
+				currentMoveIndex = 0;
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
-				undoMoves = [];
 				movesAdded = '';
 				caseHasRotation = false;
 				showRotationWarning = false;
@@ -173,6 +185,18 @@
 				if (checkTimeoutId) clearTimeout(checkTimeoutId);
 				drillTimerRef?.reset();
 			});
+		}
+	});
+
+	$effect(() => {
+		void currentTrainCase;
+		if (currentTrainCase) {
+			hintManager.reset();
+			hintManager.initialize(
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+					DEFAULT_SETTINGS.trainHintAlgorithm,
+				false
+			);
 		}
 	});
 
@@ -267,9 +291,12 @@
 	}
 
 	function validateMoveProgress() {
-		// Disable algorithm validation and auto-rotation if the hint is hidden
+		// Disable algorithm validation and auto-rotation if the hint is hidden or manual
 		// (but ONLY during the solving phases, we still need to validate the scramble!)
-		if (phase !== 'scrambling' && (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
+		const hintAlgorithm = sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm;
+		const hintBehavior = sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+		
+		if (phase !== 'scrambling' && (hintAlgorithm === 'hidden' || hintBehavior === 'manual')) {
 			return;
 		}
 
@@ -727,22 +754,37 @@
 		</div>
 
 		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
-		<HintButtonSmart
-			alg={displayAlg}
-			movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
-			currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
-			validationFeedback={phase === 'scrambling' || phase === 'countdown'
-				? 'neutral'
-				: validationFeedback}
-			undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
-			editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
-			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-				DEFAULT_SETTINGS.trainHintAlgorithm}
-			hasMadeFirstMove={phase === 'executing' || phase === 'transitioning'}
-			onEditAlg={() => {
-				editAlgRef?.openModal();
-			}}
-		/>
+			{#if (sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior) === 'manual'}
+				<HintButton
+					alg={displayAlg}
+					visible={true}
+					hintCounter={hintManager.counter}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					onclick={showHintAlg}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+					showAlgViewer={false}
+				/>
+			{:else}
+				<HintButtonSmart
+					alg={displayAlg}
+					movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
+					currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
+					validationFeedback={phase === 'scrambling' || phase === 'countdown'
+						? 'neutral'
+						: validationFeedback}
+					undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
+					editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					hasMadeFirstMove={phase === 'executing' || phase === 'transitioning'}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+				/>
+			{/if}
 		{/if}
 	</div>
 
