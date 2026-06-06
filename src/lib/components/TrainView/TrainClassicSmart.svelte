@@ -614,6 +614,15 @@
 	}
 
 	async function onNext() {
+		const wasTimerRunning = smartTimerRef?.getIsRunning();
+
+		if (timerStarted && wasTimerRunning) {
+			smartTimerRef?.stopTimer();
+			smartTimerRef?.resetTimer();
+			// User skipped an active case, reset the time to 0 instead of showing previous time
+			trainState.lastDisplayedTime = 0;
+		}
+
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 

@@ -71,6 +71,15 @@
 	}
 
 	async function onNext() {
+		const wasTimerRunning = timerRef?.getIsRunning();
+
+		if (wasTimerRunning) {
+			timerRef?.stopTimer();
+			timerRef?.resetTimer();
+			// User skipped an active case, reset the time to 0 instead of showing previous time
+			trainState.lastDisplayedTime = 0;
+		}
+
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 
