@@ -268,7 +268,8 @@
 
 	function validateMoveProgress() {
 		// Disable algorithm validation and auto-rotation if the hint is hidden
-		if ((sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
+		// (but ONLY during the solving phases, we still need to validate the scramble!)
+		if (phase !== 'scrambling' && (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) === 'hidden') {
 			return;
 		}
 
