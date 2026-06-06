@@ -212,7 +212,7 @@
 				<TabItem title="Training">
 					<div class="mt-4 flex flex-col gap-6">
 						<!-- Training Activity Section -->
-						<div class="flex flex-col gap-4">
+						<div class="flex flex-col gap-2">
 							<Label class="text-sm font-semibold">Training Activity</Label>
 
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -343,7 +343,7 @@
 						</div>
 
 						<!-- Frequency Section (Moved Up) -->
-						<div class="flex flex-col gap-4">
+						<div class="flex flex-col gap-2">
 							<Label class="text-sm font-semibold">Case Frequency</Label>
 
 							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -401,26 +401,39 @@
 
 						<!-- Configuration & Assistance Grid -->
 						<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-							<!-- Configuration (Cube Slots) -->
-							<div class="flex flex-col gap-4">
-								<Label class="text-sm font-semibold">Configuration</Label>
-								<div class="card h-full">
-									<Label class="mb-3 text-sm font-semibold">Cube Slots</Label>
-									<div class="space-y-2">
-										<Checkbox bind:checked={settings.trainSideSelection.left}>Left Slots</Checkbox>
-										<Checkbox bind:checked={settings.trainSideSelection.right}>Right Slots</Checkbox
-										>
+							<!-- Training Setup Column -->
+							<div class="flex flex-col gap-2">
+								<Label class="text-sm font-semibold">Training Setup</Label>
+								<div class="card h-full space-y-4">
+									<div>
+										<Label class="section-label mb-3">Cube Slots</Label>
+										<div class="space-y-2">
+											<Checkbox bind:checked={settings.trainSideSelection.left}>Left Slots</Checkbox
+											>
+											<Checkbox bind:checked={settings.trainSideSelection.right}
+												>Right Slots</Checkbox
+											>
+										</div>
+									</div>
+
+									<div class="space-y-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<div>
+											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
+											<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+												Adds a random U setup move to the beginning of the algorithm.
+											</p>
+										</div>
+										<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
 									</div>
 								</div>
 							</div>
 
-							<!-- Assistance & Tools -->
-							<div class="flex flex-col gap-4">
-								<Label class="text-sm font-semibold">Assistance & Tools</Label>
+							<!-- Algorithm Hints Column -->
+							<div class="flex flex-col gap-2">
+								<Label class="text-sm font-semibold">Algorithm Hints</Label>
 								<div class="card h-full space-y-4">
 									{#if settings.trainMode !== 'drill'}
 										<div>
-											<Label class="section-label mb-3">Algorithm Hint</Label>
 											<div class="grid grid-cols-2 gap-2">
 												<!-- svelte-ignore a11y_click_events_have_key_events -->
 												<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -506,16 +519,6 @@
 											</div>
 										</div>
 									{/if}
-
-									<div class="space-y-3 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<div>
-											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
-											<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
-												Adds a random U setup move to the beginning of the algorithm.
-											</p>
-										</div>
-										<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
-									</div>
 								</div>
 							</div>
 						</div>
