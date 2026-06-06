@@ -402,9 +402,15 @@
 						<!-- Configuration & Assistance Grid -->
 						<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 							<!-- Training Setup Column -->
-							<div class="flex flex-col gap-2">
+							<div
+								class="flex flex-col gap-2 {settings.trainMode === 'drill' ? 'sm:col-span-2' : ''}"
+							>
 								<Label class="text-sm font-semibold">Training Setup</Label>
-								<div class="card h-full space-y-4">
+								<div
+									class="card h-full {settings.trainMode === 'drill'
+										? 'space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0'
+										: 'space-y-4'}"
+								>
 									<div>
 										<Label class="section-label mb-3">Cube Slots</Label>
 										<div class="space-y-2">
@@ -416,7 +422,12 @@
 										</div>
 									</div>
 
-									<div class="space-y-3 border-t border-gray-200 pt-3 dark:border-gray-700">
+									<div
+										class="space-y-3 border-gray-200 dark:border-gray-700 {settings.trainMode ===
+										'drill'
+											? 'border-t pt-3 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4'
+											: 'border-t pt-3'}"
+									>
 										<div>
 											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
 											<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
@@ -429,10 +440,10 @@
 							</div>
 
 							<!-- Algorithm Hints Column -->
-							<div class="flex flex-col gap-2">
-								<Label class="text-sm font-semibold">Algorithm Hints</Label>
-								<div class="card h-full space-y-4">
-									{#if settings.trainMode !== 'drill'}
+							{#if settings.trainMode !== 'drill'}
+								<div class="flex flex-col gap-2">
+									<Label class="text-sm font-semibold">Algorithm Hints</Label>
+									<div class="card h-full space-y-4">
 										<div>
 											<div class="grid grid-cols-2 gap-2">
 												<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -518,9 +529,9 @@
 												</div>
 											</div>
 										</div>
-									{/if}
+									</div>
 								</div>
-							</div>
+							{/if}
 						</div>
 					</div>
 				</TabItem>
