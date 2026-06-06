@@ -106,13 +106,13 @@ describe('moveValidator', () => {
 		it('inverts rotation sequences', () => {
 			expect(inverseRotation('x')).toBe("x'");
 			expect(inverseRotation("y' z")).toBe("z' y");
-			expect(inverseRotation("z2 y'")).toBe("y z2");
+			expect(inverseRotation("z2 y'")).toBe('y z2');
 		});
 
 		it('inverts rotations without reversing order', () => {
 			expect(invertRotationsWithoutReversing('x')).toBe("x'");
 			expect(invertRotationsWithoutReversing("y' z")).toBe("y z'");
-			expect(invertRotationsWithoutReversing("z2 y'")).toBe("z2 y");
+			expect(invertRotationsWithoutReversing("z2 y'")).toBe('z2 y');
 		});
 	});
 
@@ -142,8 +142,8 @@ describe('moveValidator', () => {
 			expect(matchesMoveSequence(['R', 'U', "R'"], ['R', 'U', "R'"]).match).toBe(true);
 
 			// Match sequence with cancellations (normalizes to ['R', 'U'])
-			expect(matchesMoveSequence(['R', 'U', "F", "F'", "U'", 'U'], ['R', 'U']).match).toBe(true);
-			
+			expect(matchesMoveSequence(['R', 'U', 'F', "F'", "U'", 'U'], ['R', 'U']).match).toBe(true);
+
 			// Partial matches (matches longer prefix of expected)
 			const performed = ['R', 'U'];
 			const expected = ['R', 'U', "R'"];

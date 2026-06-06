@@ -166,13 +166,13 @@ export async function checkF2LState(
 		);
 
 		// Check if the entire F2L is solved (all 4 slots)
-		const entireF2LSolved = piecesToHide 
+		const entireF2LSolved = piecesToHide
 			? isF2LSolved(
 					normalizedPattern.patternData.CORNERS,
 					normalizedPattern.patternData.EDGES,
 					undefined,
 					side
-			  )
+				)
 			: f2lSolved;
 
 		// Check if cube is fully solved

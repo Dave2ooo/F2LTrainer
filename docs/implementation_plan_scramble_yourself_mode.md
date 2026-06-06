@@ -26,10 +26,12 @@ This mode combines Standard Practice (classic) with smart cube integration, requ
 ### Statistics Types & Compression
 
 #### [MODIFY] [statisticsState.ts](file:///d:/WebDevelopment/F2LTrainer/src/lib/statisticsState.ts)
+
 - Add `smartScramble` to TrainMode union: `'classic' | 'smart' | 'drill' | 'smartScramble'`
 - Add `ss` to CompressedSolve.m union: `'c' | 's' | 'd' | 'ss'`
 
 #### [MODIFY] [statisticsState.svelte.ts](file:///d:/WebDevelopment/F2LTrainer/src/lib/statisticsState.svelte.ts)
+
 - Add `smartScramble: 'ss'` to `MODE_MAP`
 - Add `ss: 'smartScramble'` to `REVERSE_MODE_MAP`
 
@@ -38,7 +40,9 @@ This mode combines Standard Practice (classic) with smart cube integration, requ
 ### Session Types & Settings
 
 #### [MODIFY] [session.ts](file:///d:/WebDevelopment/F2LTrainer/src/lib/session.ts)
+
 Add to `SessionSettings` interface:
+
 ```typescript
 scrambleYourself: boolean; // Enable "Scramble Yourself" mode
 scrambleCountdownDuration: number; // Seconds before solving starts (like drillTimeBetweenCases)
@@ -46,7 +50,9 @@ scrambleShowCube: boolean; // Show virtual cube while scrambling
 ```
 
 #### [MODIFY] [sessionState.svelte.ts](file:///d:/WebDevelopment/F2LTrainer/src/lib/sessionState.svelte.ts)
+
 Add to `DEFAULT_SETTINGS`:
+
 ```typescript
 scrambleYourself: false,
 scrambleCountdownDuration: 1.0,
@@ -58,11 +64,14 @@ scrambleShowCube: true,
 ### Session Settings UI
 
 #### [MODIFY] [SessionSettingsModal.svelte](file:///d:/WebDevelopment/F2LTrainer/src/lib/components/Session/SessionSettingsModal.svelte)
+
 Inside the Standard Practice radio card:
+
 - Add a Checkbox for "Scramble yourself" — always visible regardless of which trainMode is selected, but only takes effect when `trainMode === 'classic'`
 - Brief description: "Scramble your smart cube yourself. Requires Smart Cube."
 
 Below the Training Activity section (conditionally shown when `scrambleYourself === true` AND `trainMode === 'classic'`):
+
 - Add a "Scramble Flow" card (similar to the existing "Drill Flow" card)
 - Range slider for `scrambleCountdownDuration` (0–5s, step 0.25s)
   - Label: "Countdown Duration" with current value display (e.g., "1.0s")
@@ -75,19 +84,21 @@ Below the Training Activity section (conditionally shown when `scrambleYourself 
 ### Training View Routing
 
 #### [MODIFY] [TrainView.svelte](file:///d:/WebDevelopment/F2LTrainer/src/lib/components/TrainView/TrainView.svelte)
+
 Update the routing logic:
+
 ```svelte
 {#if activeSettings.trainMode === 'drill'}
-  <TrainDrill bind:isRunning={isDrillRunning} />
+	<TrainDrill bind:isRunning={isDrillRunning} />
 {:else if bluetoothState.isConnected && activeSettings.scrambleYourself}
-  <!-- Scramble Yourself mode (requires classic + connected smart cube) -->
-  <TrainClassicScramble />
+	<!-- Scramble Yourself mode (requires classic + connected smart cube) -->
+	<TrainClassicScramble />
 {:else if bluetoothState.isConnected}
-  <!-- Auto smart cube training when connected -->
-  <TrainClassicSmart />
+	<!-- Auto smart cube training when connected -->
+	<TrainClassicSmart />
 {:else}
-  <!-- Default Classic Mode -->
-  <TrainClassic />
+	<!-- Default Classic Mode -->
+	<TrainClassic />
 {/if}
 ```
 
@@ -96,6 +107,7 @@ Update the routing logic:
 ### New Training Component
 
 #### [NEW] [TrainClassicScramble.svelte](file:///d:/WebDevelopment/F2LTrainer/src/lib/components/TrainView/TrainClassicScramble.svelte)
+
 This is the main new component. It combines elements from `TrainClassicSmart` and `TrainDrill`.
 
 **State Machine Phases:**
@@ -132,6 +144,7 @@ This is the main new component. It combines elements from `TrainClassicSmart` an
   - After 500ms delay, advance to next case and reset to `scrambling`.
 
 **Key implementation details:**
+
 - During the scramble phase, the `TwistyPlayer` uses an empty scramble so the cube appears solved. The scramble moves get applied via `addMove()` as the user performs them on the physical cube.
 - The scramble sequence is parsed from the scramble string (using `getCaseScramble` + `concatinateAuf`).
 - During the solve phase, the cube already has the scramble applied. The user's solving moves are tracked via `addMove()`.
@@ -143,6 +156,7 @@ This is the main new component. It combines elements from `TrainClassicSmart` an
 - Rotation warning (from `TrainClassicSmart`) shown between cases if cumulative rotation is non-empty.
 
 **Components reused:**
+
 - `TwistyPlayer`
 - `HintButtonSmart`
 - `DrillTimer`
@@ -158,18 +172,22 @@ This is the main new component. It combines elements from `TrainClassicSmart` an
 ### Session Manager / Toolbar
 
 #### [MODIFY] [SessionToolbar.svelte](file:///d:/WebDevelopment/F2LTrainer/src/lib/components/Session/SessionToolbar.svelte)
+
 - If the session has `scrambleYourself: true` and `trainMode: 'classic'`, optionally show a visual indicator badge.
 
 #### [MODIFY] [SessionManagerModal.svelte](file:///d:/WebDevelopment/F2LTrainer/src/lib/components/Session/SessionManagerModal.svelte)
+
 - Same optional visual indicator for sessions with `scrambleYourself` enabled.
 
 ## Verification Plan
 
 ### Automated Tests
+
 - Run `npm run check` to verify TypeScript compilation
 - Run `npm run build` to ensure no build errors
 
 ### Manual Verification
+
 1. Create a new session, check "Scramble yourself" under Standard Practice
 2. Verify the "Scramble Flow" settings card appears with Range slider and "Show Cube" checkbox
 3. Connect a smart cube → verify `TrainClassicScramble` loads

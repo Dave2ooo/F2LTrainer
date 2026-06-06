@@ -179,7 +179,9 @@
 				>
 					<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
 						<Undo2 class="size-4 md:size-5" strokeWidth={2.5} />
-						<span class="text-xs font-semibold tracking-wide uppercase md:text-sm">Undo Required</span>
+						<span class="text-xs font-semibold tracking-wide uppercase md:text-sm"
+							>Undo Required</span
+						>
 					</div>
 					<div class="flex flex-wrap items-center justify-center gap-1">
 						{#each undoMoves as move}
