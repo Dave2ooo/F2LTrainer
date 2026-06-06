@@ -870,26 +870,30 @@
 		</div>
 	{/if}
 
-	<HintButtonSmart
-		alg={displayAlg}
-		movesAdded={alg}
-		{currentMoveIndex}
-		{validationFeedback}
-		{undoMoves}
-		editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
-		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-			DEFAULT_SETTINGS.trainHintAlgorithm}
-		hasMadeFirstMove={timerStarted}
-		onEditAlg={() => {
-			editAlgRef?.openModal();
-		}}
-	/>
-	<div
-		class:hidden={!(
-			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-		)}
-	>
-		<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+	<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
+		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
+			<HintButtonSmart
+				alg={displayAlg}
+				movesAdded={alg}
+				{currentMoveIndex}
+				{validationFeedback}
+				{undoMoves}
+				editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+				hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+					DEFAULT_SETTINGS.trainHintAlgorithm}
+				hasMadeFirstMove={timerStarted}
+				onEditAlg={() => {
+					editAlgRef?.openModal();
+				}}
+			/>
+		{/if}
+		<div
+			class:hidden={!(
+				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+			)}
+		>
+			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+		</div>
 	</div>
 
 	<RecapProgress />

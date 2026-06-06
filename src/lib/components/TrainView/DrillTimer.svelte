@@ -167,7 +167,7 @@
 	});
 </script>
 
-<div class="mt-0 mb-2 flex w-full flex-col items-center md:mt-0 md:mb-4">
+<div class="flex w-full flex-col items-center">
 	<div
 		class="relative min-w-60 rounded border bg-transparent p-4 shadow-sm transition-colors select-none"
 		class:border-gray-300={phase !== 'stopped'}

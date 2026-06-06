@@ -421,7 +421,19 @@
 									{#if settings.trainMode !== 'drill'}
 										<div>
 											<Label class="section-label mb-3">Algorithm Hint</Label>
-											<div class="grid grid-cols-3 gap-2">
+											<div class="grid grid-cols-2 gap-2">
+												<!-- svelte-ignore a11y_click_events_have_key_events -->
+												<!-- svelte-ignore a11y_no_static_element_interactions -->
+												<div
+													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'hidden'
+														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+													onclick={() => (settings.trainHintAlgorithm = 'hidden')}
+												>
+													<RadioDot selected={settings.trainHintAlgorithm === 'hidden'} />
+													<span class="text-sm text-gray-900 dark:text-white">Hidden</span>
+												</div>
 												<!-- svelte-ignore a11y_click_events_have_key_events -->
 												<!-- svelte-ignore a11y_no_static_element_interactions -->
 												<div

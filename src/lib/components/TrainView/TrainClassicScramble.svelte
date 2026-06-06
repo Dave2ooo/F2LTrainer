@@ -711,31 +711,34 @@
 		{/if}
 	</div>
 
-	<div
-		class="mt-2"
-		class:hidden={!(
-			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-		)}
-	>
-		<DrillTimer bind:this={drillTimerRef} />
-	</div>
+	<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
+		<div
+			class:hidden={!(
+				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+			)}
+		>
+			<DrillTimer bind:this={drillTimerRef} />
+		</div>
 
-	<HintButtonSmart
-		alg={displayAlg}
-		movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
-		currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
-		validationFeedback={phase === 'scrambling' || phase === 'countdown'
-			? 'neutral'
-			: validationFeedback}
-		undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
-		editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
-		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-			DEFAULT_SETTINGS.trainHintAlgorithm}
-		hasMadeFirstMove={phase === 'executing' || phase === 'transitioning'}
-		onEditAlg={() => {
-			editAlgRef?.openModal();
-		}}
-	/>
+		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
+		<HintButtonSmart
+			alg={displayAlg}
+			movesAdded={phase === 'scrambling' || phase === 'countdown' ? '' : movesAdded}
+			currentMoveIndex={phase === 'scrambling' || phase === 'countdown' ? 0 : currentMoveIndex}
+			validationFeedback={phase === 'scrambling' || phase === 'countdown'
+				? 'neutral'
+				: validationFeedback}
+			undoMoves={phase === 'scrambling' || phase === 'countdown' ? [] : undoMoves}
+			editDisabled={currentMoveIndex > 0 || movesAdded.trim() !== ''}
+			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm}
+			hasMadeFirstMove={phase === 'executing' || phase === 'transitioning'}
+			onEditAlg={() => {
+				editAlgRef?.openModal();
+			}}
+		/>
+		{/if}
+	</div>
 
 	<RecapProgress />
 {:else}

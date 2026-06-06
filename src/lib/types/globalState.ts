@@ -2,7 +2,7 @@ import type { GroupId } from './group';
 
 export type View = 'select' | 'train';
 
-export type HintAlgorithm = 'step' | 'allAtOnce' | 'always';
+export type HintAlgorithm = 'step' | 'allAtOnce' | 'always' | 'hidden';
 export type HintStickering = 'f2l' | 'fully' | 'centers-only';
 
 export interface GlobalState {

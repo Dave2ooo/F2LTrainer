@@ -144,7 +144,7 @@
 </script>
 
 <!-- Container holds the hint button UI -->
-<div class="my-2 flex w-full flex-col items-center md:my-4">
+<div class="flex w-full flex-col items-center">
 	<div class="relative flex max-w-full items-center justify-center gap-2">
 		<div class={`${className} ${getContainerFeedbackClass(validationFeedback)}`}>
 			{#if totalMoves > 0}
