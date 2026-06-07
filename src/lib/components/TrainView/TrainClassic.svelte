@@ -317,24 +317,24 @@
 </div>
 
 <div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
-{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
-<HintButton
-	{alg}
-	bind:algViewerContainer
-	showAlgViewer={hintManager.showAlgViewer}
-	visible={hintManager.showHintButton}
-	hintCounter={hintManager.counter}
-	hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-		DEFAULT_SETTINGS.trainHintAlgorithm}
-	onclick={showHintAlg}
-	onEditAlg={() => {
-		editAlgRef?.openModal();
-	}}
-/>
-{/if}
-{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
-	<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
-{/if}
+	<div class="w-full" style:display={(sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden' ? 'block' : 'none'}>
+		<HintButton
+			{alg}
+			bind:algViewerContainer
+			showAlgViewer={hintManager.showAlgViewer}
+			visible={hintManager.showHintButton}
+			hintCounter={hintManager.counter}
+			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm}
+			onclick={showHintAlg}
+			onEditAlg={() => {
+				editAlgRef?.openModal();
+			}}
+		/>
+	</div>
+	{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
+		<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
+	{/if}
 </div>
 <RecapProgress />
 

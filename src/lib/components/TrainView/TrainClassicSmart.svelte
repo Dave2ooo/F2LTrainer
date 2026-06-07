@@ -222,8 +222,11 @@
 
 	function validateMoveProgress() {
 		// Disable algorithm validation and auto-rotation if the hint is hidden or manual
-		const hintAlgorithm = sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm;
-		const hintBehavior = sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+		const hintAlgorithm =
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm;
+		const hintBehavior =
+			sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
 		if (hintAlgorithm === 'hidden' || hintBehavior === 'manual') {
 			return;
 		}
