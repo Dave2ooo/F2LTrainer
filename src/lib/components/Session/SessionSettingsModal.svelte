@@ -565,7 +565,8 @@
 																	onclick={() => (settings.smartHintBehavior = 'auto')}
 																>
 																	<RadioDot selected={settings.smartHintBehavior === 'auto'} />
-																	<span class="text-sm text-gray-900 dark:text-white">Auto-track</span
+																	<span class="text-sm text-gray-900 dark:text-white"
+																		>Auto-track</span
 																	>
 																</div>
 																<!-- svelte-ignore a11y_click_events_have_key_events -->

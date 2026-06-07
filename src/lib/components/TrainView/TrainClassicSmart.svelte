@@ -118,7 +118,8 @@
 				sessionState.activeSession?.settings.trainHintAlgorithm ??
 				DEFAULT_SETTINGS.trainHintAlgorithm;
 			const hintBehavior =
-				sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+				sessionState.activeSession?.settings.smartHintBehavior ??
+				DEFAULT_SETTINGS.smartHintBehavior;
 			const isAlgorithmValidationActive = hintAlgorithm !== 'hidden' && hintBehavior !== 'manual';
 
 			let isNextWideMove = false;

@@ -317,7 +317,13 @@
 </div>
 
 <div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
-	<div class="w-full" style:display={(sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden' ? 'block' : 'none'}>
+	<div
+		class="w-full"
+		style:display={(sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'
+			? 'block'
+			: 'none'}
+	>
 		<HintButton
 			{alg}
 			bind:algViewerContainer

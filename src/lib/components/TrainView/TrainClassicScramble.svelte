@@ -228,8 +228,10 @@
 				sessionState.activeSession?.settings.trainHintAlgorithm ??
 				DEFAULT_SETTINGS.trainHintAlgorithm;
 			const hintBehavior =
-				sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
-			const isAlgorithmValidationActive = phase === 'scrambling' || (hintAlgorithm !== 'hidden' && hintBehavior !== 'manual');
+				sessionState.activeSession?.settings.smartHintBehavior ??
+				DEFAULT_SETTINGS.smartHintBehavior;
+			const isAlgorithmValidationActive =
+				phase === 'scrambling' || (hintAlgorithm !== 'hidden' && hintBehavior !== 'manual');
 
 			let isNextWideMove = false;
 			if (isAlgorithmValidationActive) {
@@ -551,7 +553,7 @@
 					: 'opacity-100'}"
 			>
 				<div
-					class="relative flex min-w-48 flex-wrap items-center justify-center gap-1 overflow-hidden rounded-lg border-2 p-3 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
+					class="relative flex min-w-48 flex-wrap items-center justify-center gap-1 overflow-hidden rounded-lg border-2 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
 						validationFeedback
 					)}"
 				>
