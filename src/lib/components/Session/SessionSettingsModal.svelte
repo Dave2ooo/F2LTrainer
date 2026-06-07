@@ -161,7 +161,7 @@
 						bind:value={session.name}
 						placeholder="Enter session name"
 						maxlength={60}
-						class="w-64 rounded-md border-b-2 border-primary-500 bg-gray-50 px-1 py-0.5 text-xl font-medium text-gray-900 focus:outline-none dark:bg-gray-700 dark:text-white"
+						class="w-64 rounded-md border-b-2 border-transparent bg-gray-50 px-1 py-0.5 text-xl font-medium text-gray-900 focus:border-primary-500 focus:outline-none dark:bg-gray-700 dark:text-white"
 					/>
 				{:else}
 					<h3 class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white">
