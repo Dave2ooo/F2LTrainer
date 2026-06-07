@@ -26,6 +26,7 @@
 	import EdgeOrientationTooltipPreview from '$lib/components/Session/EdgeOrientationTooltipPreview.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
+	import type { SessionSettingsTab } from '$lib/types/globalState';
 
 	let {
 		open = $bindable(),
@@ -100,6 +101,12 @@
 		globalState.eoOrientedColor !== DEFAULT_EO_ORIENTED_COLOR ||
 			globalState.eoUnorientedColor !== DEFAULT_EO_UNORIENTED_COLOR
 	);
+	// Track selected settings tab (local state synced to globalState)
+	let selectedSettingsTab: SessionSettingsTab = $state(globalState.sessionSettingsTab);
+
+	$effect(() => {
+		globalState.sessionSettingsTab = selectedSettingsTab;
+	});
 </script>
 
 {#if session && settings}
@@ -124,12 +131,13 @@
 			</div>
 
 			<Tabs
+				bind:selected={selectedSettingsTab}
 				tabStyle="underline"
 				classes={{
 					content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
 				}}
 			>
-				<TabItem open title="Selection">
+				<TabItem key="selection" title="Selection">
 					<div class="mt-4 flex flex-col gap-4">
 						<!-- Group Selection Card -->
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -209,7 +217,7 @@
 					</div>
 				</TabItem>
 
-				<TabItem title="Training">
+				<TabItem key="training" title="Training">
 					<div class="mt-4 flex flex-col gap-4">
 						<!-- Training Activity Section -->
 						<div class="flex flex-col gap-4">
@@ -558,7 +566,7 @@
 					</div>
 				</TabItem>
 
-				<TabItem title="Appearance">
+				<TabItem key="appearance" title="Appearance">
 					<div class="mt-4 flex flex-col gap-4">
 						<!-- Cube Appearance Section -->
 						<div class="flex flex-col gap-4">

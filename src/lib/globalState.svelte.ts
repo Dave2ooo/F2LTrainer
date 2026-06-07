@@ -1,4 +1,4 @@
-import type { GlobalState } from '$lib/types/globalState';
+import type { GlobalState, SessionSettingsTab } from '$lib/types/globalState';
 import { GROUP_DEFINITIONS, GROUP_IDS, type GroupId } from './types/group';
 import { loadFromLocalStorage } from './utils/localStorage';
 
@@ -34,6 +34,7 @@ interface EphemeralState {
 	eoUnorientedColor: string;
 	showAdvancedTraining: boolean;
 	showAdvancedAppearance: boolean;
+	sessionSettingsTab: SessionSettingsTab;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -53,7 +54,8 @@ const defaultEphemeralState: EphemeralState = {
 	eoOrientedColor: DEFAULT_EO_ORIENTED_COLOR,
 	eoUnorientedColor: DEFAULT_EO_UNORIENTED_COLOR,
 	showAdvancedTraining: false,
-	showAdvancedAppearance: false
+	showAdvancedAppearance: false,
+	sessionSettingsTab: 'selection'
 };
 
 const persistedEphemeralState =
@@ -189,5 +191,12 @@ export const globalState: GlobalState = {
 	},
 	set showAdvancedAppearance(v) {
 		ephemeralState.showAdvancedAppearance = v;
+	},
+
+	get sessionSettingsTab() {
+		return ephemeralState.sessionSettingsTab;
+	},
+	set sessionSettingsTab(v) {
+		ephemeralState.sessionSettingsTab = v;
 	}
 };
