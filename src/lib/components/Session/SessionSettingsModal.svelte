@@ -21,7 +21,7 @@
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
-	import { CircleQuestionMark, Plus, RotateCcw, ChevronDown, ChevronRight } from '@lucide/svelte';
+	import { CircleQuestionMark, Plus, RotateCcw, ChevronDown, ChevronRight, Settings } from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import EdgeOrientationTooltipPreview from '$lib/components/Session/EdgeOrientationTooltipPreview.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
@@ -273,7 +273,7 @@
 									</p>
 
 									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<div class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+										<div class="flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400">
 											<span class="font-medium">Requires Smart Cube</span>
 										</div>
 									</div>
@@ -350,11 +350,11 @@
 							{/if}
 						</div>
 
-						<!-- Advanced Toggle -->
-						<div class="-mt-2">
+						<!-- Advanced Settings Well -->
+						<div class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40">
 							<button
 								type="button"
-								class="mt-2 flex w-full items-center justify-start gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+								class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() => (globalState.showAdvancedTraining = !globalState.showAdvancedTraining)}
 							>
 								{#if globalState.showAdvancedTraining}
@@ -364,12 +364,12 @@
 								{/if}
 								Advanced Settings
 							</button>
-						</div>
 
-						{#if globalState.showAdvancedTraining}
-							<!-- Frequency Section (Moved Up) -->
-							<div class="flex flex-col gap-2">
-								<Label class="text-sm font-semibold">Case Frequency</Label>
+							{#if globalState.showAdvancedTraining}
+								<div class="flex flex-col gap-4 border-t border-gray-200 p-4 dark:border-gray-700">
+									<!-- Frequency Section (Moved Up) -->
+									<div class="flex flex-col gap-2">
+										<Label class="text-sm font-semibold">Case Frequency</Label>
 
 								<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 									<!-- Smart Frequency Card -->
@@ -562,9 +562,11 @@
 									</div>
 								{/if}
 							</div>
-						{/if}
+						</div>
+					{/if}
 					</div>
-				</TabItem>
+				</div>
+			</TabItem>
 
 				<TabItem key="appearance" title="Appearance">
 					<div class="mt-4 flex flex-col gap-4">
@@ -739,11 +741,11 @@
 								</div>
 							</div>
 
-							<!-- Advanced Toggle -->
-							<div class="-mt-2">
+							<!-- Advanced Settings Well -->
+							<div class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40">
 								<button
 									type="button"
-									class="mt-2 flex w-full items-center justify-start gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
+									class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
 									onclick={() => (globalState.showAdvancedAppearance = !globalState.showAdvancedAppearance)}
 								>
 									{#if globalState.showAdvancedAppearance}
@@ -753,12 +755,11 @@
 									{/if}
 									Advanced Settings
 								</button>
-							</div>
 
-							{#if globalState.showAdvancedAppearance}
-								<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-									<!-- Cross Color -->
-									<div class="card">
+								{#if globalState.showAdvancedAppearance}
+									<div class="grid grid-cols-1 gap-4 border-t border-gray-200 p-4 dark:border-gray-700 md:grid-cols-2">
+										<!-- Cross Color -->
+										<div class="card">
 										<Label class="section-label mb-3">Cross Color</Label>
 										<div class="grid grid-cols-2 gap-2">
 											{#each STICKER_COLORS as color}
@@ -880,6 +881,7 @@
 								</div>
 							{/if}
 						</div>
+					</div>
 					</div>
 				</TabItem>
 			</Tabs>
