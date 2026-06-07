@@ -21,4 +21,6 @@ export interface GlobalState {
 	isSyncing: boolean;
 	eoOrientedColor: string;
 	eoUnorientedColor: string;
+	showAdvancedTraining: boolean;
+	showAdvancedAppearance: boolean;
 }

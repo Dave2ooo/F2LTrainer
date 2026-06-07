@@ -100,9 +100,6 @@
 		globalState.eoOrientedColor !== DEFAULT_EO_ORIENTED_COLOR ||
 			globalState.eoUnorientedColor !== DEFAULT_EO_UNORIENTED_COLOR
 	);
-
-	let showAdvancedTraining = $state(false);
-	let showAdvancedAppearance = $state(false);
 </script>
 
 {#if session && settings}
@@ -350,9 +347,9 @@
 							<button
 								type="button"
 								class="mt-2 flex w-full items-center justify-start gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-								onclick={() => (showAdvancedTraining = !showAdvancedTraining)}
+								onclick={() => (globalState.showAdvancedTraining = !globalState.showAdvancedTraining)}
 							>
-								{#if showAdvancedTraining}
+								{#if globalState.showAdvancedTraining}
 									<ChevronDown class="size-4" />
 								{:else}
 									<ChevronRight class="size-4" />
@@ -361,7 +358,7 @@
 							</button>
 						</div>
 
-						{#if showAdvancedTraining}
+						{#if globalState.showAdvancedTraining}
 							<!-- Frequency Section (Moved Up) -->
 							<div class="flex flex-col gap-2">
 								<Label class="text-sm font-semibold">Case Frequency</Label>
@@ -739,9 +736,9 @@
 								<button
 									type="button"
 									class="mt-2 flex w-full items-center justify-start gap-2 rounded-lg border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-300 dark:hover:bg-gray-800"
-									onclick={() => (showAdvancedAppearance = !showAdvancedAppearance)}
+									onclick={() => (globalState.showAdvancedAppearance = !globalState.showAdvancedAppearance)}
 								>
-									{#if showAdvancedAppearance}
+									{#if globalState.showAdvancedAppearance}
 										<ChevronDown class="size-4" />
 									{:else}
 										<ChevronRight class="size-4" />
@@ -750,7 +747,7 @@
 								</button>
 							</div>
 
-							{#if showAdvancedAppearance}
+							{#if globalState.showAdvancedAppearance}
 								<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 									<!-- Cross Color -->
 									<div class="card">

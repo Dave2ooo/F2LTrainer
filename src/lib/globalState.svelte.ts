@@ -32,6 +32,8 @@ interface EphemeralState {
 	isSyncing: boolean;
 	eoOrientedColor: string;
 	eoUnorientedColor: string;
+	showAdvancedTraining: boolean;
+	showAdvancedAppearance: boolean;
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -49,7 +51,9 @@ const defaultEphemeralState: EphemeralState = {
 	cameraLongitude: DEFAULT_CAMERA_LONGITUDE,
 	isSyncing: false,
 	eoOrientedColor: DEFAULT_EO_ORIENTED_COLOR,
-	eoUnorientedColor: DEFAULT_EO_UNORIENTED_COLOR
+	eoUnorientedColor: DEFAULT_EO_UNORIENTED_COLOR,
+	showAdvancedTraining: false,
+	showAdvancedAppearance: false
 };
 
 const persistedEphemeralState =
@@ -171,5 +175,19 @@ export const globalState: GlobalState = {
 	},
 	set eoUnorientedColor(v) {
 		ephemeralState.eoUnorientedColor = v;
+	},
+
+	get showAdvancedTraining() {
+		return ephemeralState.showAdvancedTraining;
+	},
+	set showAdvancedTraining(v) {
+		ephemeralState.showAdvancedTraining = v;
+	},
+
+	get showAdvancedAppearance() {
+		return ephemeralState.showAdvancedAppearance;
+	},
+	set showAdvancedAppearance(v) {
+		ephemeralState.showAdvancedAppearance = v;
 	}
 };
