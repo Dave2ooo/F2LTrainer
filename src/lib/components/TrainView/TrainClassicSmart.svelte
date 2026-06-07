@@ -914,7 +914,7 @@
 
 	<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
 		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
-			{#if (sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior) === 'manual'}
+			{#if (sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior) === 'manual' && (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'always'}
 				<HintButton
 					alg={displayAlg}
 					visible={true}
