@@ -172,18 +172,21 @@
 
 	// Reset state when case changes
 	$effect(() => {
-		if (currentTrainCase && currentTrainCase.solveId === undefined && phase === 'scrambling') {
+		if (currentTrainCase && currentTrainCase.solveId === undefined) {
 			untrack(() => {
+				phase = 'scrambling';
 				moveBuffer = [];
 				currentMoveIndex = 0;
 				validationFeedback = 'neutral';
 				cumulativeRotation = '';
+				undoMoves = [];
 				movesAdded = '';
 				caseHasRotation = false;
 				showRotationWarning = false;
 				showTargetSolvedCheck = false;
 				if (checkTimeoutId) clearTimeout(checkTimeoutId);
 				drillTimerRef?.reset();
+				twistyPlayerRef?.reset();
 			});
 		}
 	});
@@ -508,6 +511,7 @@
 		drillTimerRef?.reset();
 		advanceToNextTrainCase();
 		phase = 'scrambling';
+		undoMoves = [];
 		twistyPlayerRef?.reset();
 		movesAdded = '';
 	}
@@ -516,6 +520,7 @@
 		drillTimerRef?.reset();
 		advanceToPreviousTrainCase();
 		phase = 'scrambling';
+		undoMoves = [];
 		twistyPlayerRef?.reset();
 		movesAdded = '';
 	}
