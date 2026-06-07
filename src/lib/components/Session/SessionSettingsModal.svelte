@@ -548,7 +548,7 @@
 														</div>
 													</div>
 
-													{#if settings.trainHintAlgorithm !== 'hidden' && settings.trainHintAlgorithm !== 'always'}
+													{#if settings.trainHintAlgorithm !== 'hidden'}
 														<div class="border-t border-gray-200 pt-3 dark:border-gray-700">
 															<Label class="section-label mb-3">Smart Cube Hint Tracking</Label>
 															<p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
