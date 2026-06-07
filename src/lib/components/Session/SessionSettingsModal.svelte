@@ -28,7 +28,8 @@
 		RotateCcw,
 		ChevronDown,
 		ChevronRight,
-		Settings
+		Settings,
+		Pencil
 	} from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import EdgeOrientationTooltipPreview from '$lib/components/Session/EdgeOrientationTooltipPreview.svelte';
@@ -122,28 +123,62 @@
 	$effect(() => {
 		globalState.sessionSettingsTab = selectedSettingsTab;
 	});
+
+	let isEditingName = $state(false);
+	let nameInputEl = $state<HTMLInputElement | null>(null);
+
+	function startEditingName() {
+		isEditingName = true;
+		tick().then(() => {
+			if (nameInputEl) {
+				nameInputEl.focus();
+				nameInputEl.select();
+			}
+		});
+	}
+
+	$effect(() => {
+		if (open) {
+			isEditingName = false;
+		}
+	});
 </script>
 
 {#if session && settings}
 	<Modal
 		bind:open
-		title="Session Settings"
+		dismissable
 		size="lg"
 		outsideclose={false}
 		placement="top-center"
 		class="mt-8"
 	>
-		<div class="flex flex-col gap-2">
-			<!-- General Settings Section -->
-			<div class="card">
-				<Label for="session-name" class="label-text mb-2">Session Name</Label>
-				<Input
-					id="session-name"
-					bind:value={session.name}
-					placeholder="Enter session name"
-					maxlength={60}
-				/>
+		{#snippet header()}
+			<div class="flex items-center gap-1.5 pe-6">
+				{#if isEditingName}
+					<input
+						bind:this={nameInputEl}
+						bind:value={session.name}
+						placeholder="Enter session name"
+						maxlength={60}
+						class="w-64 rounded-md border-b-2 border-primary-500 bg-gray-50 px-1 py-0.5 text-xl font-medium text-gray-900 focus:outline-none dark:bg-gray-700 dark:text-white"
+					/>
+				{:else}
+					<h3 class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white">
+						{session.name || 'Unnamed Session'}
+						<button
+							type="button"
+							onclick={startEditingName}
+							class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+						>
+							<Pencil class="size-4" />
+						</button>
+					</h3>
+				{/if}
 			</div>
+		{/snippet}
+		<div class="flex flex-col gap-2 -mt-4">
+			<!-- General Settings Section -->
 
 			<Tabs
 				bind:selected={selectedSettingsTab}
