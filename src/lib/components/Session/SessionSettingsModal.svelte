@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import {
 		Input,
 		Label,
@@ -62,6 +63,13 @@
 					workingSession.settings = JSON.parse(JSON.stringify(existingSession.settings));
 				}
 			}
+
+			// Prevent mobile keyboard from opening by blurring the auto-focused input
+			tick().then(() => {
+				if (document.activeElement instanceof HTMLElement) {
+					document.activeElement.blur();
+				}
+			});
 		}
 	});
 
