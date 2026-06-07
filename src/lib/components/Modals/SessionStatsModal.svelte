@@ -120,10 +120,13 @@
 		}
 		const options = [];
 		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
-		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
-		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		if (types.has('smart')) options.push({ value: 'smart', name: 'Standard Practice (Smart)' });
 		if (types.has('smartScramble'))
-			options.push({ value: 'smartScramble', name: 'Smart Practice (scramble yourself)' });
+			options.push({
+				value: 'smartScramble',
+				name: 'Standard Practice (Smart, Scramble Yourself)'
+			});
+		if (types.has('drill')) options.push({ value: 'drill', name: 'Speed Drill' });
 		return options;
 	});
 
@@ -368,8 +371,9 @@
 
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
-			<div class="flex justify-center">
-				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-64" />
+			<div class="flex items-center justify-center gap-2">
+				<span class="text-sm font-medium text-gray-600 dark:text-gray-400">Train Mode:</span>
+				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}
 
