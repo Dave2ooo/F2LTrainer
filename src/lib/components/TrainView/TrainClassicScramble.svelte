@@ -223,15 +223,26 @@
 		try {
 			moveBuffer = [...moveBuffer, m];
 
-			let lookAheadIndex = currentMoveIndex;
-			while (
-				lookAheadIndex < algMovesParsed.length &&
-				isRotationMove(algMovesParsed[lookAheadIndex])
-			) {
-				lookAheadIndex++;
+			// Check if algorithm validation is active
+			const hintAlgorithm =
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm;
+			const hintBehavior =
+				sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+			const isAlgorithmValidationActive = phase === 'scrambling' || (hintAlgorithm !== 'hidden' && hintBehavior !== 'manual');
+
+			let isNextWideMove = false;
+			if (isAlgorithmValidationActive) {
+				let lookAheadIndex = currentMoveIndex;
+				while (
+					lookAheadIndex < algMovesParsed.length &&
+					isRotationMove(algMovesParsed[lookAheadIndex])
+				) {
+					lookAheadIndex++;
+				}
+				const nextNonRotationMove = algMovesParsed[lookAheadIndex];
+				isNextWideMove = !!(nextNonRotationMove && isWideMove(nextNonRotationMove));
 			}
-			const nextNonRotationMove = algMovesParsed[lookAheadIndex];
-			const isNextWideMove = nextNonRotationMove && isWideMove(nextNonRotationMove);
 
 			const inverseRot = inverseRotation(cumulativeRotation);
 			const transformedMove = applyRotationToMove(m, inverseRot);
