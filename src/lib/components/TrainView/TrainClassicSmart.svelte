@@ -113,18 +113,29 @@
 			// Log every raw move from smart cube
 			console.log('%c[Smart Cube Move]', 'color: #e91e63; font-weight: bold', m);
 
-			// Check if the next non-rotation expected move is a wide move
-			// We need to look past rotations because they are auto-applied during validation
-			// and the raw move from the smart cube might be consumed by a wide move after rotations
-			let lookAheadIndex = currentMoveIndex;
-			while (
-				lookAheadIndex < algMovesParsed.length &&
-				isRotationMove(algMovesParsed[lookAheadIndex])
-			) {
-				lookAheadIndex++;
+			// Check if algorithm validation is active
+			const hintAlgorithm =
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm;
+			const hintBehavior =
+				sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+			const isAlgorithmValidationActive = hintAlgorithm !== 'hidden' && hintBehavior !== 'manual';
+
+			let isNextWideMove = false;
+			if (isAlgorithmValidationActive) {
+				// Check if the next non-rotation expected move is a wide move
+				// We need to look past rotations because they are auto-applied during validation
+				// and the raw move from the smart cube might be consumed by a wide move after rotations
+				let lookAheadIndex = currentMoveIndex;
+				while (
+					lookAheadIndex < algMovesParsed.length &&
+					isRotationMove(algMovesParsed[lookAheadIndex])
+				) {
+					lookAheadIndex++;
+				}
+				const nextNonRotationMove = algMovesParsed[lookAheadIndex];
+				isNextWideMove = !!(nextNonRotationMove && isWideMove(nextNonRotationMove));
 			}
-			const nextNonRotationMove = algMovesParsed[lookAheadIndex];
-			const isNextWideMove = nextNonRotationMove && isWideMove(nextNonRotationMove);
 
 			// Transform move for TwistyPlayer (algorithm frame)
 			const inverseRot = inverseRotation(cumulativeRotation);
