@@ -50,13 +50,9 @@
 	let showPlaceholder = $derived(visible && hintCounter === -1 && hintMode !== 'always');
 	let showAlgorithm = $derived(visible && displayedAlg !== '');
 
-
-
 	// Tailwind classes - uses display-box utility from app.css and adds specific overrides
 	const className =
 		'display-box cursor-pointer text-xl md:text-2xl hover:bg-gray-50 dark:hover:bg-gray-700 focus:ring-2 focus:ring-primary-600 focus:outline-none';
-
-
 
 	const editButtonClass =
 		'hover:bg-opacity-90 flex-shrink-0 rounded-full p-2 text-primary-500 transition-all duration-200';
@@ -90,7 +86,7 @@
 					<span class="text-xl text-theme-text md:text-2xl">Press to show hint</span>
 				{:else if showAlgorithm}
 					<span
-						class="whitespace-pre-wrap font-mono text-xl font-semibold tracking-wide md:text-3xl"
+						class="font-mono text-xl font-semibold tracking-wide whitespace-pre-wrap md:text-3xl"
 					>
 						{displayedAlg}
 					</span>
