@@ -601,7 +601,7 @@
 				</div>
 				{#if undoMoves.length >= 2 && phase === 'scrambling'}
 					<div
-						class="mt-4 flex items-center gap-1.5 rounded-full bg-purple-600 px-3 py-1 text-md font-semibold text-white shadow-md transition-opacity"
+						class="text-md mt-4 flex items-center gap-1.5 rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md transition-opacity"
 					>
 						<Info class="size-4" />
 						<span>Hold cube as shown</span>
