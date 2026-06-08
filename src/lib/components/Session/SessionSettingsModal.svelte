@@ -64,13 +64,6 @@
 					workingSession.settings = JSON.parse(JSON.stringify(existingSession.settings));
 				}
 			}
-
-			// Prevent mobile keyboard from opening by blurring the auto-focused input
-			tick().then(() => {
-				if (document.activeElement instanceof HTMLElement) {
-					document.activeElement.blur();
-				}
-			});
 		}
 	});
 
@@ -145,14 +138,7 @@
 </script>
 
 {#if session && settings}
-	<Modal
-		bind:open
-		dismissable
-		size="lg"
-		outsideclose={false}
-		placement="top-center"
-		class="mt-8"
-	>
+	<Modal bind:open dismissable size="lg" outsideclose={false} placement="top-center" class="mt-8">
 		{#snippet header()}
 			<div class="flex items-center gap-1.5 pe-6">
 				{#if isEditingName}
@@ -164,7 +150,9 @@
 						class="w-64 rounded-md border-b-2 border-transparent bg-gray-50 px-1 py-0.5 text-xl font-medium text-gray-900 focus:border-primary-500 focus:outline-none dark:bg-gray-700 dark:text-white"
 					/>
 				{:else}
-					<h3 class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white">
+					<h3
+						class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white"
+					>
 						{session.name || 'Unnamed Session'}
 						<button
 							type="button"
@@ -177,7 +165,7 @@
 				{/if}
 			</div>
 		{/snippet}
-		<div class="flex flex-col gap-2 -mt-4">
+		<div class="-mt-4 flex flex-col gap-2">
 			<!-- General Settings Section -->
 
 			<Tabs
