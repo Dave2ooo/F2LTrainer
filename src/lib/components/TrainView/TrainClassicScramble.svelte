@@ -28,7 +28,8 @@
 		EllipsisVertical,
 		Undo2,
 		ArrowLeft,
-		ArrowRight
+		ArrowRight,
+		Info
 	} from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
@@ -553,7 +554,7 @@
 					: 'opacity-100'}"
 			>
 				<div
-					class="relative flex min-w-48 flex-wrap items-center justify-center gap-1 overflow-hidden rounded-lg border-2 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
+					class="relative flex min-w-48 flex-wrap items-center justify-center gap-1 rounded-lg border-2 font-mono text-xl font-semibold transition-colors md:text-3xl {getContainerFeedbackClass(
 						validationFeedback
 					)}"
 				>
@@ -582,7 +583,7 @@
 
 					{#if undoMoves.length > 0 && phase === 'scrambling'}
 						<div
-							class="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1 bg-amber-50/95 p-2 backdrop-blur-[2px] dark:bg-amber-950/95"
+							class="absolute top-1/2 left-1/2 z-10 flex min-h-[calc(100%+4px)] w-[calc(100%+4px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center gap-1 rounded-lg border-2 border-amber-500 bg-amber-50/95 p-0 backdrop-blur-[2px] dark:border-amber-600 dark:bg-amber-950/95"
 						>
 							<div class="flex items-center gap-2 text-amber-700 dark:text-amber-400">
 								<Undo2 class="size-4 md:size-5" strokeWidth={2.5} />
@@ -598,6 +599,14 @@
 						</div>
 					{/if}
 				</div>
+				{#if undoMoves.length >= 2 && phase === 'scrambling'}
+					<div
+						class="mt-4 flex items-center gap-1.5 rounded-full bg-purple-600 px-3 py-1 text-md font-semibold text-white shadow-md transition-opacity"
+					>
+						<Info class="size-4" />
+						<span>Hold cube as shown</span>
+					</div>
+				{/if}
 			</div>
 		</div>
 
