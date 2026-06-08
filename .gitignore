@@ -26,3 +26,6 @@ vite.config.ts.timestamp-*
 
 # Screenshots
 screenshots
+
+# Video Script
+docs/video-script.md

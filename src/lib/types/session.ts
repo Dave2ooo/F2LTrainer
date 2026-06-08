@@ -32,6 +32,7 @@ export interface SessionSettings {
 	// Hints / Visuals
 	trainHintAlgorithm: HintAlgorithm;
 	trainHintStickering: HintStickering;
+	smartHintBehavior: 'auto' | 'manual';
 	backView: 'none' | 'floating';
 	backViewEnabled: boolean; // Controls back-view attribute: true = "top-right", false = "none"
 	crossColor: string[];
@@ -43,6 +44,11 @@ export interface SessionSettings {
 	// Drill Mode
 	drillTimeBetweenCases: number; // Seconds between cases in drill mode
 	drillHideTwistyPlayer: boolean; // Hide TwistyPlayer after first move in drill mode
+
+	// Scramble Yourself Mode
+	scrambleYourself: boolean; // Enable "Scramble Yourself" mode
+	scrambleCountdownDuration: number; // Seconds before solving starts
+	scrambleShowCube: boolean; // Show virtual cube while scrambling
 }
 
 export interface Session {

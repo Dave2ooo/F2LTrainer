@@ -95,7 +95,7 @@
 	});
 </script>
 
-<div class="mt-0 mb-2 flex w-full flex-col items-center md:mt-0 md:mb-4">
+<div class="flex w-full flex-col items-center">
 	<div
 		class="relative min-w-60 rounded border border-gray-300 bg-transparent p-5 text-center font-mono text-4xl font-bold shadow-sm transition-colors select-none md:text-5xl"
 		aria-label="Timer"

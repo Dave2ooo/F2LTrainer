@@ -20,18 +20,8 @@
 	});
 </script>
 
-<FlowbiteModal bind:open classes={mergedClasses} {...restProps}>
+<FlowbiteModal bind:open classes={mergedClasses} header={headerSnippet} footer={footerSnippet} {...restProps}>
 	{#if children}
 		{@render children()}
-	{/if}
-	{#if headerSnippet}
-		{#snippet header()}
-			{@render headerSnippet()}
-		{/snippet}
-	{/if}
-	{#if footerSnippet}
-		{#snippet footer()}
-			{@render footerSnippet()}
-		{/snippet}
 	{/if}
 </FlowbiteModal>

@@ -18,13 +18,20 @@ const createMockSettings = (): SessionSettings => ({
 	trainShowTimer: false,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	smartHintBehavior: 'auto',
 	backView: 'none',
 	backViewEnabled: false,
 	crossColor: ['white'],
 	frontColor: ['red'],
 
+	trainLearnEO: false,
+
 	drillTimeBetweenCases: 1000,
-	drillHideTwistyPlayer: false
+	drillHideTwistyPlayer: false,
+
+	scrambleYourself: false,
+	scrambleCountdownDuration: 1.0,
+	scrambleShowCube: true
 });
 
 let mockSettings = createMockSettings();

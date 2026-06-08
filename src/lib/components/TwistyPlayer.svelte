@@ -47,12 +47,13 @@
 		showVisibilityToggle?: boolean;
 		tempoScale?: number;
 		showAlg?: boolean;
-		onF2LSolved?: () => void;
+		onF2LSolved?: (entireF2LSolved: boolean) => void;
 		onCubeSolved?: () => void;
 		backView?: 'none' | 'floating';
 		backViewEnabled?: boolean;
 		movesAdded?: string; // Transformed moves for display
 		enableEOColoring?: boolean;
+		disableAutoScramble?: boolean; // if true, scramble from groupid/caseid will not be applied
 	}
 
 	let {
@@ -81,7 +82,8 @@
 		backView = 'none',
 		backViewEnabled = false,
 		movesAdded = $bindable(''),
-		enableEOColoring = false
+		enableEOColoring = false,
+		disableAutoScramble = false
 	}: Props = $props();
 
 	// Raw moves tracked internally for F2L checking (not exposed to parent)
@@ -129,7 +131,11 @@
 	$effect(() => {
 		if (scrambleWithoutAUF !== undefined && algWithoutAUF !== undefined) {
 			const [newScramble, newAlg] = concatinateAuf(scrambleWithoutAUF, algWithoutAUF, auf);
-			scramble = newScramble;
+			if (!disableAutoScramble) {
+				scramble = newScramble;
+			} else {
+				scramble = '';
+			}
 			if (showAlg) {
 				alg = simplifyAlg(newAlg);
 			} else {
@@ -200,6 +206,10 @@
 	const TWISTY_PLAYER_INIT_DELAY = 100; // Delay in ms to ensure TwistyPlayer is fully initialized
 
 	let stickeringString = $derived.by(() => {
+		if (stickering === 'centers-only') {
+			// 24 hyphens for edges and 24 hyphens for corners to hide all their stickers
+			return 'EDGES:IIIIIIIIIIII,CORNERS:IIIIIIII,CENTERS:------';
+		}
 		if (stickering !== 'f2l' || !staticData) return undefined;
 
 		let baseStr = getStickeringString(staticData.pieceToHide, side, crossColor, frontColor);

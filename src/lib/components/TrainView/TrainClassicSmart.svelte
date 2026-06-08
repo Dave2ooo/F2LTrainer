@@ -16,6 +16,8 @@
 	import { casesStatic } from '$lib/casesStatic';
 	import { concatinateAuf } from '$lib/utils/addAuf';
 	import HintButtonSmart from './HintButtonSmart.svelte';
+	import HintButton from './HintButton.svelte';
+	import { createHintManager } from '$lib/utils/hintManager.svelte';
 	import { globalState } from '$lib/globalState.svelte';
 	import { Pointer, Check, RotateCcw, Bluetooth, EllipsisVertical } from '@lucide/svelte';
 	import Details from './Details.svelte';
@@ -49,6 +51,16 @@
 	import { createKeyboardHandlers } from './trainViewEventHandlers.svelte';
 
 	let editAlgRef = $state<EditAlg>();
+	const hintManager = createHintManager();
+
+	function showHintAlg() {
+		hintManager.revealHint(
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm,
+			displayAlg,
+			false // twistyAlgViewerLoaded is false for smart modes
+		);
+	}
 
 	let smartTimerRef = $state<SmartTimer>();
 	let timerStarted = $state(false); // Track if timer has been started for current case
@@ -101,18 +113,30 @@
 			// Log every raw move from smart cube
 			console.log('%c[Smart Cube Move]', 'color: #e91e63; font-weight: bold', m);
 
-			// Check if the next non-rotation expected move is a wide move
-			// We need to look past rotations because they are auto-applied during validation
-			// and the raw move from the smart cube might be consumed by a wide move after rotations
-			let lookAheadIndex = currentMoveIndex;
-			while (
-				lookAheadIndex < algMovesParsed.length &&
-				isRotationMove(algMovesParsed[lookAheadIndex])
-			) {
-				lookAheadIndex++;
+			// Check if algorithm validation is active
+			const hintAlgorithm =
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm;
+			const hintBehavior =
+				sessionState.activeSession?.settings.smartHintBehavior ??
+				DEFAULT_SETTINGS.smartHintBehavior;
+			const isAlgorithmValidationActive = hintAlgorithm !== 'hidden' && hintBehavior !== 'manual';
+
+			let isNextWideMove = false;
+			if (isAlgorithmValidationActive) {
+				// Check if the next non-rotation expected move is a wide move
+				// We need to look past rotations because they are auto-applied during validation
+				// and the raw move from the smart cube might be consumed by a wide move after rotations
+				let lookAheadIndex = currentMoveIndex;
+				while (
+					lookAheadIndex < algMovesParsed.length &&
+					isRotationMove(algMovesParsed[lookAheadIndex])
+				) {
+					lookAheadIndex++;
+				}
+				const nextNonRotationMove = algMovesParsed[lookAheadIndex];
+				isNextWideMove = !!(nextNonRotationMove && isWideMove(nextNonRotationMove));
 			}
-			const nextNonRotationMove = algMovesParsed[lookAheadIndex];
-			const isNextWideMove = nextNonRotationMove && isWideMove(nextNonRotationMove);
 
 			// Transform move for TwistyPlayer (algorithm frame)
 			const inverseRot = inverseRotation(cumulativeRotation);
@@ -146,7 +170,6 @@
 
 	// Subscribe to move events when component is active
 	$effect(() => {
-		// Only subscribe when we have a current train case
 		const hasTrainCase = !!trainState.current;
 
 		if (hasTrainCase) {
@@ -154,6 +177,18 @@
 			return () => {
 				bluetoothState.unsubscribeFromMoves(SUBSCRIBER_ID);
 			};
+		}
+	});
+
+	$effect(() => {
+		void currentTrainCase;
+		if (currentTrainCase) {
+			hintManager.reset();
+			hintManager.initialize(
+				sessionState.activeSession?.settings.trainHintAlgorithm ??
+					DEFAULT_SETTINGS.trainHintAlgorithm,
+				false
+			);
 		}
 	});
 
@@ -198,6 +233,16 @@
 	);
 
 	function validateMoveProgress() {
+		// Disable algorithm validation and auto-rotation if the hint is hidden or manual
+		const hintAlgorithm =
+			sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm;
+		const hintBehavior =
+			sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior;
+		if (hintAlgorithm === 'hidden' || hintBehavior === 'manual') {
+			return;
+		}
+
 		// Check if user is in undo mode (has pending undo moves)
 		if (undoMoves.length > 0) {
 			validateUndoProgress();
@@ -584,6 +629,15 @@
 	}
 
 	async function onNext() {
+		const wasTimerRunning = smartTimerRef?.getIsRunning();
+
+		if (timerStarted && wasTimerRunning) {
+			smartTimerRef?.stopTimer();
+			smartTimerRef?.resetTimer();
+			// User skipped an active case, reset the time to 0 instead of showing previous time
+			trainState.lastDisplayedTime = 0;
+		}
+
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 
@@ -862,7 +916,7 @@
 		{/if}
 	</div>
 
-	{#if undoMoves.length >= 2}
+	{#if undoMoves.length >= 2 && (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
 		<div class="mt-2 flex justify-center">
 			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
 				Hold Green Front, White Up
@@ -870,26 +924,45 @@
 		</div>
 	{/if}
 
-	<HintButtonSmart
-		alg={displayAlg}
-		movesAdded={alg}
-		{currentMoveIndex}
-		{validationFeedback}
-		{undoMoves}
-		editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
-		hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-			DEFAULT_SETTINGS.trainHintAlgorithm}
-		hasMadeFirstMove={timerStarted}
-		onEditAlg={() => {
-			editAlgRef?.openModal();
-		}}
-	/>
-	<div
-		class:hidden={!(
-			sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
-		)}
-	>
-		<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+	<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
+		{#if (sessionState.activeSession?.settings.trainHintAlgorithm ?? DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'}
+			{#if (sessionState.activeSession?.settings.smartHintBehavior ?? DEFAULT_SETTINGS.smartHintBehavior) === 'manual'}
+				<HintButton
+					alg={displayAlg}
+					visible={true}
+					hintCounter={hintManager.counter}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					onclick={showHintAlg}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+					showAlgViewer={false}
+				/>
+			{:else}
+				<HintButtonSmart
+					alg={displayAlg}
+					movesAdded={alg}
+					{currentMoveIndex}
+					{validationFeedback}
+					{undoMoves}
+					editDisabled={currentMoveIndex > 0 || alg.trim() !== ''}
+					hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+						DEFAULT_SETTINGS.trainHintAlgorithm}
+					hasMadeFirstMove={timerStarted}
+					onEditAlg={() => {
+						editAlgRef?.openModal();
+					}}
+				/>
+			{/if}
+		{/if}
+		<div
+			class:hidden={!(
+				sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer
+			)}
+		>
+			<SmartTimer bind:this={smartTimerRef} initialTime={displayTime} onStop={recordSolveTime} />
+		</div>
 	</div>
 
 	<RecapProgress />

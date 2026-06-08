@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import {
 		Input,
 		Label,
@@ -21,11 +22,20 @@
 	import { GROUP_IDS, GROUP_DEFINITIONS } from '$lib/types/group';
 	import { STICKER_COLORS, OPPOSITE_COLOR, type StickerColor } from '$lib/types/stickering';
 	import Update from '$lib/components/Modals/Buttons/Update.svelte';
-	import { CircleQuestionMark, Plus, RotateCcw } from '@lucide/svelte';
+	import {
+		CircleQuestionMark,
+		Plus,
+		RotateCcw,
+		ChevronDown,
+		ChevronRight,
+		Settings,
+		Pencil
+	} from '@lucide/svelte';
 	import TooltipButton from '$lib/components/Modals/TooltipButton.svelte';
 	import EdgeOrientationTooltipPreview from '$lib/components/Session/EdgeOrientationTooltipPreview.svelte';
 	import SessionIndividualCaseSelector from '$lib/components/Session/SessionIndividualCaseSelector.svelte';
 	import resolveStickerColors from '$lib/utils/resolveStickerColors';
+	import type { SessionSettingsTab } from '$lib/types/globalState';
 
 	let {
 		open = $bindable(),
@@ -100,36 +110,72 @@
 		globalState.eoOrientedColor !== DEFAULT_EO_ORIENTED_COLOR ||
 			globalState.eoUnorientedColor !== DEFAULT_EO_UNORIENTED_COLOR
 	);
+	// Track selected settings tab (local state synced to globalState)
+	let selectedSettingsTab: SessionSettingsTab = $state(globalState.sessionSettingsTab);
+
+	$effect(() => {
+		globalState.sessionSettingsTab = selectedSettingsTab;
+	});
+
+	let isEditingName = $state(false);
+	let nameInputEl = $state<HTMLInputElement | null>(null);
+
+	function startEditingName() {
+		isEditingName = true;
+		tick().then(() => {
+			if (nameInputEl) {
+				nameInputEl.focus();
+				nameInputEl.select();
+			}
+		});
+	}
+
+	$effect(() => {
+		if (open) {
+			isEditingName = false;
+		}
+	});
 </script>
 
 {#if session && settings}
-	<Modal
-		bind:open
-		title="Session Settings"
-		size="lg"
-		outsideclose={false}
-		placement="top-center"
-		class="mt-8"
-	>
-		<div class="flex flex-col gap-2">
-			<!-- General Settings Section -->
-			<div class="card">
-				<Label for="session-name" class="label-text mb-2">Session Name</Label>
-				<Input
-					id="session-name"
-					bind:value={session.name}
-					placeholder="Enter session name"
-					maxlength={60}
-				/>
+	<Modal bind:open dismissable size="lg" outsideclose={false} placement="top-center" class="mt-8">
+		{#snippet header()}
+			<div class="flex items-center gap-1.5 pe-6">
+				{#if isEditingName}
+					<input
+						bind:this={nameInputEl}
+						bind:value={session.name}
+						placeholder="Enter session name"
+						maxlength={60}
+						class="w-64 rounded-md border-b-2 border-transparent bg-gray-50 px-1 py-0.5 text-xl font-medium text-gray-900 focus:border-primary-500 focus:outline-none dark:bg-gray-700 dark:text-white"
+					/>
+				{:else}
+					<h3
+						class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white"
+					>
+						{session.name || 'Unnamed Session'}
+						<button
+							type="button"
+							onclick={startEditingName}
+							class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+						>
+							<Pencil class="size-4" />
+						</button>
+					</h3>
+				{/if}
 			</div>
+		{/snippet}
+		<div class="-mt-4 flex flex-col gap-2">
+			<!-- General Settings Section -->
 
 			<Tabs
+				bind:selected={selectedSettingsTab}
 				tabStyle="underline"
 				classes={{
 					content: 'p-0 bg-gray-50 rounded-lg dark:bg-gray-800 mt-0'
 				}}
 			>
-				<TabItem open title="Selection">
+				<TabItem key="selection" title="Selection">
 					<div class="mt-4 flex flex-col gap-4">
 						<!-- Group Selection Card -->
 						<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -209,8 +255,8 @@
 					</div>
 				</TabItem>
 
-				<TabItem title="Training">
-					<div class="mt-4 flex flex-col gap-6">
+				<TabItem key="training" title="Training">
+					<div class="mt-4 flex flex-col gap-4">
 						<!-- Training Activity Section -->
 						<div class="flex flex-col gap-4">
 							<Label class="text-sm font-semibold">Training Activity</Label>
@@ -234,6 +280,11 @@
 									</p>
 
 									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<Checkbox bind:checked={settings.scrambleYourself}>Scramble Smart Cube</Checkbox
+										>
+										<p class="mt-1 mb-3 ml-6 text-xs text-gray-500 dark:text-gray-400">
+											Scramble your smart cube yourself. Requires Smart Cube.
+										</p>
 										<p class="text-sm text-gray-600 dark:text-gray-400">
 											💡 Smart cube support activates automatically when connected.
 										</p>
@@ -260,7 +311,9 @@
 									</p>
 
 									<div class="ml-6 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<div class="flex items-center gap-2 text-sm text-blue-600 dark:text-blue-400">
+										<div
+											class="flex items-center gap-2 text-sm text-purple-600 dark:text-purple-400"
+										>
 											<span class="font-medium">Requires Smart Cube</span>
 										</div>
 									</div>
@@ -268,22 +321,28 @@
 							</div>
 							{#if settings.trainMode === 'drill'}
 								<div class="card">
-									<div class="mb-4 flex items-center justify-between">
-										<Label class="section-label">Drill Flow</Label>
-										<span class="text-sm font-medium text-gray-900 dark:text-gray-100"
-											>{settings.drillTimeBetweenCases}s delay</span
-										>
+									<Label class="section-label mb-4">Drill Settings</Label>
+
+									<div>
+										<div class="mb-2 flex items-center justify-between">
+											<Label class="text-sm font-semibold">Transition Delay</Label>
+											<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+												{settings.drillTimeBetweenCases}s
+											</span>
+										</div>
+
+										<Range
+											id="drill-delay"
+											min={0}
+											max={5}
+											step={0.25}
+											bind:value={settings.drillTimeBetweenCases}
+										/>
+
+										<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+											Time between solving a case and seeing the next one.
+										</p>
 									</div>
-									<Range
-										id="drill-delay"
-										min={0}
-										max={5}
-										step={0.25}
-										bind:value={settings.drillTimeBetweenCases}
-									/>
-									<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-										Time between solving a case and seeing the next one.
-									</p>
 									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
 										<Checkbox bind:checked={settings.drillHideTwistyPlayer}>
 											Hide Cube After First Move
@@ -295,189 +354,298 @@
 									</div>
 								</div>
 							{/if}
+							{#if settings.trainMode === 'classic' && settings.scrambleYourself}
+								<div class="card">
+									<Label class="section-label mb-4">Scramble Settings</Label>
+
+									<div>
+										<div class="mb-2 flex items-center justify-between">
+											<Label class="text-sm font-semibold">Transition Delay</Label>
+											<span class="text-sm font-medium text-gray-900 dark:text-gray-100">
+												{settings.scrambleCountdownDuration}s
+											</span>
+										</div>
+
+										<Range
+											id="scramble-delay"
+											min={0}
+											max={5}
+											step={0.25}
+											bind:value={settings.scrambleCountdownDuration}
+										/>
+
+										<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+											Time between completing scramble and seeing the case.
+										</p>
+									</div>
+									<div class="mt-4 border-t border-gray-200 pt-3 dark:border-gray-700">
+										<Checkbox bind:checked={settings.scrambleShowCube}>
+											Show F2L While Scrambling
+										</Checkbox>
+										<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+											When disabled, the virtual cube hides all pieces except the centers.
+										</p>
+									</div>
+								</div>
+							{/if}
 						</div>
 
-						<!-- Frequency Section (Moved Up) -->
-						<div class="flex flex-col gap-4">
-							<Label class="text-sm font-semibold">Case Frequency</Label>
+						<!-- Advanced Settings Well -->
+						<div
+							class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
+						>
+							<button
+								type="button"
+								class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+								onclick={() =>
+									(globalState.showAdvancedTraining = !globalState.showAdvancedTraining)}
+							>
+								{#if globalState.showAdvancedTraining}
+									<ChevronDown class="size-4" />
+								{:else}
+									<ChevronRight class="size-4" />
+								{/if}
+								Advanced Settings
+							</button>
 
-							<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-								<!-- Smart Frequency Card -->
-								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								<div
-									class="selectable-card flex h-full flex-col {settings.frequencyMode === 'smart'
-										? 'selectable-card-active'
-										: 'selectable-card-inactive'}"
-									onclick={() => (settings.frequencyMode = 'smart')}
-								>
-									<div class="mb-2 flex items-center gap-2">
-										<RadioDot selected={settings.frequencyMode === 'smart'} />
-										<span class="font-medium text-gray-900 dark:text-white">Smart Frequency</span>
-									</div>
+							{#if globalState.showAdvancedTraining}
+								<div class="flex flex-col gap-4 border-t border-gray-200 p-4 dark:border-gray-700">
+									<!-- Frequency Section (Moved Up) -->
+									<div class="flex flex-col gap-2">
+										<Label class="text-sm font-semibold">Case Frequency</Label>
 
-									<div
-										class="ml-6 space-y-2 pt-2 {settings.frequencyMode !== 'smart'
-											? 'pointer-events-none opacity-50'
-											: ''}"
-									>
-										<Checkbox
-											bind:checked={settings.smartFrequencySolved}
-											class="text-sm"
-											onclick={(e) => e.stopPropagation()}>Prioritize Unsolved</Checkbox
-										>
-										<Checkbox
-											bind:checked={settings.smartFrequencyTime}
-											class="text-sm"
-											onclick={(e) => e.stopPropagation()}>Prioritize Slow</Checkbox
-										>
-									</div>
-								</div>
-
-								<!-- Recap Mode Card -->
-								<!-- svelte-ignore a11y_click_events_have_key_events -->
-								<!-- svelte-ignore a11y_no_static_element_interactions -->
-								<div
-									class="selectable-card flex h-full flex-col {settings.frequencyMode === 'recap'
-										? 'selectable-card-active'
-										: 'selectable-card-inactive'}"
-									onclick={() => (settings.frequencyMode = 'recap')}
-								>
-									<div class="mb-2 flex items-center gap-2">
-										<RadioDot selected={settings.frequencyMode === 'recap'} />
-										<span class="font-medium text-gray-900 dark:text-white">Recap Mode</span>
-									</div>
-									<p class="ml-6 text-sm text-gray-500 dark:text-gray-400">
-										Cycles through all selected cases once.
-									</p>
-								</div>
-							</div>
-						</div>
-
-						<!-- Configuration & Assistance Grid -->
-						<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-							<!-- Configuration (Cube Slots) -->
-							<div class="flex flex-col gap-4">
-								<Label class="text-sm font-semibold">Configuration</Label>
-								<div class="card h-full">
-									<Label class="mb-3 text-sm font-semibold">Cube Slots</Label>
-									<div class="space-y-2">
-										<Checkbox bind:checked={settings.trainSideSelection.left}>Left Slots</Checkbox>
-										<Checkbox bind:checked={settings.trainSideSelection.right}>Right Slots</Checkbox
-										>
-									</div>
-								</div>
-							</div>
-
-							<!-- Assistance & Tools -->
-							<div class="flex flex-col gap-4">
-								<Label class="text-sm font-semibold">Assistance & Tools</Label>
-								<div class="card h-full space-y-4">
-									{#if settings.trainMode !== 'drill'}
-										<div>
-											<Label class="section-label mb-3">Algorithm Hint</Label>
-											<div class="grid grid-cols-3 gap-2">
-												<!-- svelte-ignore a11y_click_events_have_key_events -->
-												<!-- svelte-ignore a11y_no_static_element_interactions -->
-												<div
-													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
-													{settings.trainHintAlgorithm === 'step'
-														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
-													onclick={() => (settings.trainHintAlgorithm = 'step')}
-												>
-													<RadioDot selected={settings.trainHintAlgorithm === 'step'} />
-													<span class="text-sm text-gray-900 dark:text-white">Step-by-step</span>
+										<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+											<!-- Smart Frequency Card -->
+											<!-- svelte-ignore a11y_click_events_have_key_events -->
+											<!-- svelte-ignore a11y_no_static_element_interactions -->
+											<div
+												class="selectable-card flex h-full flex-col {settings.frequencyMode ===
+												'smart'
+													? 'selectable-card-active'
+													: 'selectable-card-inactive'}"
+												onclick={() => (settings.frequencyMode = 'smart')}
+											>
+												<div class="mb-2 flex items-center gap-2">
+													<RadioDot selected={settings.frequencyMode === 'smart'} />
+													<span class="font-medium text-gray-900 dark:text-white"
+														>Smart Frequency</span
+													>
 												</div>
-												<!-- svelte-ignore a11y_click_events_have_key_events -->
-												<!-- svelte-ignore a11y_no_static_element_interactions -->
+
 												<div
-													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
-													{settings.trainHintAlgorithm === 'allAtOnce'
-														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
-													onclick={() => (settings.trainHintAlgorithm = 'allAtOnce')}
+													class="ml-6 space-y-2 pt-2 {settings.frequencyMode !== 'smart'
+														? 'pointer-events-none opacity-50'
+														: ''}"
 												>
-													<RadioDot selected={settings.trainHintAlgorithm === 'allAtOnce'} />
-													<span class="text-sm text-gray-900 dark:text-white">All at once</span>
+													<Checkbox
+														bind:checked={settings.smartFrequencySolved}
+														class="text-sm"
+														onclick={(e) => e.stopPropagation()}>Prioritize Unsolved</Checkbox
+													>
+													<Checkbox
+														bind:checked={settings.smartFrequencyTime}
+														class="text-sm"
+														onclick={(e) => e.stopPropagation()}>Prioritize Slow</Checkbox
+													>
 												</div>
-												<!-- svelte-ignore a11y_click_events_have_key_events -->
-												<!-- svelte-ignore a11y_no_static_element_interactions -->
+											</div>
+
+											<!-- Recap Mode Card -->
+											<!-- svelte-ignore a11y_click_events_have_key_events -->
+											<!-- svelte-ignore a11y_no_static_element_interactions -->
+											<div
+												class="selectable-card flex h-full flex-col {settings.frequencyMode ===
+												'recap'
+													? 'selectable-card-active'
+													: 'selectable-card-inactive'}"
+												onclick={() => (settings.frequencyMode = 'recap')}
+											>
+												<div class="mb-2 flex items-center gap-2">
+													<RadioDot selected={settings.frequencyMode === 'recap'} />
+													<span class="font-medium text-gray-900 dark:text-white">Recap Mode</span>
+												</div>
+												<p class="ml-6 text-sm text-gray-500 dark:text-gray-400">
+													Cycles through all selected cases once, tracking your progress with a
+													progress bar.
+												</p>
+											</div>
+										</div>
+									</div>
+
+									<!-- Configuration & Assistance Grid -->
+									<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+										<!-- Training Setup Column -->
+										<div
+											class="flex flex-col gap-2 {settings.trainMode === 'drill'
+												? 'sm:col-span-2'
+												: ''}"
+										>
+											<Label class="text-sm font-semibold">Training Setup</Label>
+											<div
+												class="card h-full {settings.trainMode === 'drill'
+													? 'space-y-4 sm:grid sm:grid-cols-2 sm:gap-4 sm:space-y-0'
+													: 'space-y-4'}"
+											>
+												<div>
+													<Label class="section-label mb-3">Cube Slots</Label>
+													<div class="space-y-2">
+														<Checkbox bind:checked={settings.trainSideSelection.left}
+															>Left Slots</Checkbox
+														>
+														<Checkbox bind:checked={settings.trainSideSelection.right}
+															>Right Slots</Checkbox
+														>
+													</div>
+												</div>
+
 												<div
-													class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
-													{settings.trainHintAlgorithm === 'always'
-														? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-														: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
-													onclick={() => (settings.trainHintAlgorithm = 'always')}
+													class="space-y-3 border-gray-200 dark:border-gray-700 {settings.trainMode ===
+													'drill'
+														? 'border-t pt-3 sm:border-t-0 sm:border-l sm:pt-0 sm:pl-4'
+														: 'border-t pt-3'}"
 												>
-													<RadioDot selected={settings.trainHintAlgorithm === 'always'} />
-													<span class="text-sm text-gray-900 dark:text-white">Always show</span>
+													<div>
+														<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
+														<p class="mt-1 ml-6 text-xs text-gray-500 dark:text-gray-400">
+															Adds a random U setup move to the beginning of the algorithm.
+														</p>
+													</div>
+													<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
 												</div>
 											</div>
 										</div>
-									{/if}
 
-									<div class="space-y-2 border-t border-gray-200 pt-3 dark:border-gray-700">
-										<div class="flex items-center gap-2">
-											<Checkbox bind:checked={settings.trainAddAuf}>Add Random AUF</Checkbox>
-											<TooltipButton
-												id="btn-session-settings-auf"
-												tooltip="Adds a random U move to the end of the scramble"
-												icon={CircleQuestionMark}
-											/>
-										</div>
-										<Checkbox bind:checked={settings.trainShowTimer}>Show Timer</Checkbox>
+										<!-- Algorithm Hints Column -->
+										{#if settings.trainMode !== 'drill'}
+											<div class="flex flex-col gap-2">
+												<Label class="text-sm font-semibold">Algorithm Hints</Label>
+												<div class="card h-full space-y-4">
+													<div>
+														<div class="grid grid-cols-2 gap-2">
+															<!-- svelte-ignore a11y_click_events_have_key_events -->
+															<!-- svelte-ignore a11y_no_static_element_interactions -->
+															<div
+																class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'hidden'
+																	? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																	: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																onclick={() => (settings.trainHintAlgorithm = 'hidden')}
+															>
+																<RadioDot selected={settings.trainHintAlgorithm === 'hidden'} />
+																<span class="text-sm text-gray-900 dark:text-white">Hidden</span>
+															</div>
+															<!-- svelte-ignore a11y_click_events_have_key_events -->
+															<!-- svelte-ignore a11y_no_static_element_interactions -->
+															<div
+																class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'step'
+																	? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																	: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																onclick={() => (settings.trainHintAlgorithm = 'step')}
+															>
+																<RadioDot selected={settings.trainHintAlgorithm === 'step'} />
+																<span class="text-sm text-gray-900 dark:text-white"
+																	>Step-by-step</span
+																>
+															</div>
+															<!-- svelte-ignore a11y_click_events_have_key_events -->
+															<!-- svelte-ignore a11y_no_static_element_interactions -->
+															<div
+																class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'allAtOnce'
+																	? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																	: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																onclick={() => (settings.trainHintAlgorithm = 'allAtOnce')}
+															>
+																<RadioDot selected={settings.trainHintAlgorithm === 'allAtOnce'} />
+																<span class="text-sm text-gray-900 dark:text-white"
+																	>All at once</span
+																>
+															</div>
+															<!-- svelte-ignore a11y_click_events_have_key_events -->
+															<!-- svelte-ignore a11y_no_static_element_interactions -->
+															<div
+																class="flex cursor-pointer items-center gap-2 rounded-lg border p-3 transition-colors
+													{settings.trainHintAlgorithm === 'always'
+																	? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																	: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																onclick={() => (settings.trainHintAlgorithm = 'always')}
+															>
+																<RadioDot selected={settings.trainHintAlgorithm === 'always'} />
+																<span class="text-sm text-gray-900 dark:text-white"
+																	>Always show</span
+																>
+															</div>
+														</div>
+													</div>
+
+													{#if settings.trainHintAlgorithm !== 'hidden'}
+														<div class="border-t border-gray-200 pt-3 dark:border-gray-700">
+															<Label class="section-label mb-3">Smart Cube Hint Tracking</Label>
+															<p class="mb-3 text-xs text-gray-500 dark:text-gray-400">
+																Only applies when smart cube is connected.
+															</p>
+															<div class="grid grid-cols-2 gap-2">
+																<!-- svelte-ignore a11y_click_events_have_key_events -->
+																<!-- svelte-ignore a11y_no_static_element_interactions -->
+																<div
+																	class="flex cursor-pointer items-start gap-2 rounded-lg border p-3 transition-colors
+														{settings.smartHintBehavior === 'auto'
+																		? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																		: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																	onclick={() => (settings.smartHintBehavior = 'auto')}
+																>
+																	<div class="mt-0.5">
+																		<RadioDot selected={settings.smartHintBehavior === 'auto'} />
+																	</div>
+																	<div class="flex flex-col">
+																		<span class="text-sm font-medium text-gray-900 dark:text-white"
+																			>Smart Tracking</span
+																		>
+																		<span class="mt-0.5 text-xs text-gray-500 dark:text-gray-400"
+																			>Follows your moves and corrects you if needed.</span
+																		>
+																	</div>
+																</div>
+																<!-- svelte-ignore a11y_click_events_have_key_events -->
+																<!-- svelte-ignore a11y_no_static_element_interactions -->
+																<div
+																	class="flex cursor-pointer items-start gap-2 rounded-lg border p-3 transition-colors
+														{settings.smartHintBehavior === 'manual'
+																		? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20'
+																		: 'border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500'}"
+																	onclick={() => (settings.smartHintBehavior = 'manual')}
+																>
+																	<div class="mt-0.5">
+																		<RadioDot selected={settings.smartHintBehavior === 'manual'} />
+																	</div>
+																	<div class="flex flex-col">
+																		<span class="text-sm font-medium text-gray-900 dark:text-white"
+																			>Manual Mode</span
+																		>
+																		<span class="mt-0.5 text-xs text-gray-500 dark:text-gray-400"
+																			>Does not track moves.</span
+																		>
+																	</div>
+																</div>
+															</div>
+														</div>
+													{/if}
+												</div>
+											</div>
+										{/if}
 									</div>
 								</div>
-							</div>
+							{/if}
 						</div>
 					</div>
 				</TabItem>
 
-				<TabItem title="Appearance">
-					<div class="mt-4 flex flex-col gap-6">
+				<TabItem key="appearance" title="Appearance">
+					<div class="mt-4 flex flex-col gap-4">
 						<!-- Cube Appearance Section -->
 						<div class="flex flex-col gap-4">
-							<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-								<!-- Cross Color -->
-								<div class="card">
-									<Label class="section-label mb-3">Cross Color</Label>
-									<div class="grid grid-cols-2 gap-2">
-										{#each STICKER_COLORS as color}
-											<Checkbox bind:group={settings.crossColor} value={color}>
-												{color.charAt(0).toUpperCase() + color.slice(1)}
-											</Checkbox>
-										{/each}
-									</div>
-								</div>
-
-								<!-- Front Color -->
-								<div class="card">
-									<Label class="section-label mb-3">Front Color</Label>
-									<div class="grid grid-cols-2 gap-2">
-										{#each STICKER_COLORS as color}
-											{@const isDisabled =
-												settings.crossColor.length > 1 ||
-												(settings.crossColor.length === 1 &&
-													!settings.crossColor.every(
-														(c: any) => c !== color && OPPOSITE_COLOR[c as StickerColor] !== color
-													))}
-											<Checkbox
-												bind:group={settings.frontColor}
-												value={color}
-												disabled={isDisabled}
-											>
-												{color.charAt(0).toUpperCase() + color.slice(1)}
-											</Checkbox>
-										{/each}
-									</div>
-									{#if settings.crossColor.length > 1}
-										<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-											Randomized when multiple cross colors selected.
-										</p>
-									{/if}
-								</div>
-
+							<div class="grid grid-cols-1 gap-2 md:grid-cols-2">
 								<!-- Sticker Style -->
 								<div class="card">
 									<Label class="section-label mb-3">Stickering Style</Label>
@@ -507,7 +675,7 @@
 												triggeredBy="#btn-f2l-stickering-help"
 												trigger="click"
 												class="p-2"
-												placement="left"
+												placement="top"
 											>
 												<twisty-player
 													style="width: 120px; height: 120px;"
@@ -550,7 +718,7 @@
 												triggeredBy="#btn-fully-stickered-help"
 												trigger="click"
 												class="p-2"
-												placement="left"
+												placement="top"
 											>
 												<twisty-player
 													style="width: 120px; height: 120px;"
@@ -593,7 +761,7 @@
 												triggeredBy="#btn-floating-stickers-help"
 												trigger="click"
 												class="p-2"
-												placement="left"
+												placement="top"
 											>
 												<twisty-player
 													style="width: 120px; height: 120px;"
@@ -624,7 +792,7 @@
 												triggeredBy="#btn-back-view-help"
 												trigger="click"
 												class="p-2"
-												placement="left"
+												placement="top"
 											>
 												<twisty-player
 													style="width: 120px; height: 120px;"
@@ -644,88 +812,153 @@
 										</div>
 									</div>
 								</div>
+							</div>
 
-								<!-- Edge Orientation -->
-								<div class="card">
-									<Label class="mb-3 text-sm font-semibold">Edge Orientation</Label>
-									<div class="space-y-4">
-										<div class="flex items-center gap-2">
-											<Checkbox bind:checked={settings.trainLearnEO}
-												>Learn Edge Orientation</Checkbox
-											>
-											<Button
-												id="btn-edge-orientation-help"
-												class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
-												type="button"
-												onclick={(e: MouseEvent) => e.stopPropagation()}
-											>
-												<CircleQuestionMark class="text-primary-600" />
-											</Button>
-											<Tooltip
-												triggeredBy="#btn-edge-orientation-help"
-												trigger="click"
-												class="p-3"
-												placement="left"
-											>
-												<div class="space-y-3">
-													<p class="max-w-xs text-xs text-gray-600 dark:text-gray-300">
-														When enabled, highlight F2L edges by orientation
-													</p>
-													<div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
-														<EdgeOrientationTooltipPreview
-															caseId={1}
-															description="Oriented edge"
-															class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
-														/>
-														<EdgeOrientationTooltipPreview
-															caseId={11}
-															description="Unoriented edge"
-															class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
-														/>
-													</div>
-												</div>
-											</Tooltip>
-										</div>
-										{#if settings.trainLearnEO}
-											<div
-												class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3 dark:border-gray-700"
-											>
-												<div>
-													<Label class="mb-2 text-xs">Oriented Color</Label>
-													<input
-														type="color"
-														bind:value={globalState.eoOrientedColor}
-														class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
-													/>
-												</div>
-												<div>
-													<Label class="mb-2 text-xs">Unoriented Color</Label>
-													<input
-														type="color"
-														bind:value={globalState.eoUnorientedColor}
-														class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
-													/>
-												</div>
+							<!-- Advanced Settings Well -->
+							<div
+								class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
+							>
+								<button
+									type="button"
+									class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+									onclick={() =>
+										(globalState.showAdvancedAppearance = !globalState.showAdvancedAppearance)}
+								>
+									{#if globalState.showAdvancedAppearance}
+										<ChevronDown class="size-4" />
+									{:else}
+										<ChevronRight class="size-4" />
+									{/if}
+									Advanced Settings
+								</button>
+
+								{#if globalState.showAdvancedAppearance}
+									<div
+										class="grid grid-cols-1 gap-4 border-t border-gray-200 p-4 md:grid-cols-2 dark:border-gray-700"
+									>
+										<!-- Cross Color -->
+										<div class="card">
+											<Label class="section-label mb-3">Cross Color</Label>
+											<div class="grid grid-cols-2 gap-2">
+												{#each STICKER_COLORS as color}
+													<Checkbox bind:group={settings.crossColor} value={color}>
+														{color.charAt(0).toUpperCase() + color.slice(1)}
+													</Checkbox>
+												{/each}
 											</div>
-											{#if hasChangedEOColors}
-												<div class="mt-4 flex justify-end">
-													<Button
-														size="xs"
-														color="alternative"
-														onclick={() => {
-															globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
-															globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;
-														}}
-														class="gap-1.5"
+										</div>
+
+										<!-- Front Color -->
+										<div class="card">
+											<Label class="section-label mb-3">Front Color</Label>
+											<div class="grid grid-cols-2 gap-2">
+												{#each STICKER_COLORS as color}
+													{@const isDisabled =
+														settings.crossColor.length > 1 ||
+														(settings.crossColor.length === 1 &&
+															!settings.crossColor.every(
+																(c: any) =>
+																	c !== color && OPPOSITE_COLOR[c as StickerColor] !== color
+															))}
+													<Checkbox
+														bind:group={settings.frontColor}
+														value={color}
+														disabled={isDisabled}
 													>
-														<RotateCcw size={14} />
-														Reset to Default
-													</Button>
-												</div>
+														{color.charAt(0).toUpperCase() + color.slice(1)}
+													</Checkbox>
+												{/each}
+											</div>
+											{#if settings.crossColor.length > 1}
+												<p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+													Randomized when multiple cross colors selected.
+												</p>
 											{/if}
-										{/if}
+										</div>
+
+										<!-- Edge Orientation -->
+										<div class="card">
+											<Label class="mb-3 text-sm font-semibold">Edge Orientation</Label>
+											<div class="space-y-4">
+												<div class="flex items-center gap-2">
+													<Checkbox bind:checked={settings.trainLearnEO}
+														>Learn Edge Orientation</Checkbox
+													>
+													<Button
+														id="btn-edge-orientation-help"
+														class="bg-transparent p-1 hover:bg-transparent focus:bg-transparent dark:bg-transparent dark:hover:bg-transparent dark:focus:bg-transparent"
+														type="button"
+														onclick={(e: MouseEvent) => e.stopPropagation()}
+													>
+														<CircleQuestionMark class="text-primary-600" />
+													</Button>
+													<Tooltip
+														triggeredBy="#btn-edge-orientation-help"
+														trigger="click"
+														class="p-2"
+														placement="bottom"
+													>
+														<div class="w-min space-y-3">
+															<p class="text-xs text-gray-600 dark:text-gray-300">
+																When enabled, highlight F2L edges by orientation
+															</p>
+															<div class="grid w-max grid-cols-1 gap-3 sm:grid-cols-2">
+																<EdgeOrientationTooltipPreview
+																	caseId={1}
+																	description="Oriented edge"
+																	class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
+																/>
+																<EdgeOrientationTooltipPreview
+																	caseId={11}
+																	description="Unoriented edge"
+																	class="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/80"
+																/>
+															</div>
+														</div>
+													</Tooltip>
+												</div>
+												{#if settings.trainLearnEO}
+													<div
+														class="grid grid-cols-2 gap-4 border-t border-gray-200 pt-3 dark:border-gray-700"
+													>
+														<div>
+															<Label class="mb-2 text-xs">Oriented Color</Label>
+															<input
+																type="color"
+																bind:value={globalState.eoOrientedColor}
+																class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
+															/>
+														</div>
+														<div>
+															<Label class="mb-2 text-xs">Unoriented Color</Label>
+															<input
+																type="color"
+																bind:value={globalState.eoUnorientedColor}
+																class="h-8 w-full cursor-pointer rounded border border-gray-300 p-0"
+															/>
+														</div>
+													</div>
+													{#if hasChangedEOColors}
+														<div class="mt-4 flex justify-end">
+															<Button
+																size="xs"
+																color="alternative"
+																onclick={() => {
+																	globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
+																	globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;
+																}}
+																class="gap-1.5"
+															>
+																<RotateCcw size={14} />
+																Reset to Default
+															</Button>
+														</div>
+													{/if}
+												{/if}
+											</div>
+										</div>
 									</div>
-								</div>
+								{/if}
 							</div>
 						</div>
 					</div>

@@ -120,8 +120,13 @@
 		}
 		const options = [];
 		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
-		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
-		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		if (types.has('smart')) options.push({ value: 'smart', name: 'Standard Practice (Smart)' });
+		if (types.has('smartScramble'))
+			options.push({
+				value: 'smartScramble',
+				name: 'Standard Practice (Smart, Scramble Yourself)'
+			});
+		if (types.has('drill')) options.push({ value: 'drill', name: 'Speed Drill' });
 		return options;
 	});
 
@@ -139,7 +144,7 @@
 			.map((s) => {
 				let time = s.time;
 				if (trainTypeFilter === 'smart') time = s.executionTime;
-				if (trainTypeFilter === 'drill')
+				if (trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble')
 					time =
 						s.recognitionTime !== undefined && s.executionTime !== undefined
 							? s.recognitionTime + s.executionTime
@@ -168,12 +173,12 @@
 	const meanTime = $derived(calculateMean(displaySolves));
 	// Drill specific means
 	const meanRec = $derived(
-		trainTypeFilter === 'drill'
+		trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'
 			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.recognitionTime }) as Solve))
 			: undefined
 	);
 	const meanExec = $derived(
-		trainTypeFilter === 'drill'
+		trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'
 			? calculateMean(displaySolves.map((s) => ({ ...s, time: s.executionTime }) as Solve))
 			: undefined
 	);
@@ -366,14 +371,16 @@
 
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
-			<div class="flex justify-center">
-				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-64" />
+			<div class="flex items-center justify-center gap-2">
+				<span class="text-sm font-medium text-gray-600 dark:text-gray-400">Train Mode:</span>
+				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}
 
 		<!-- Summary Stats Grid -->
 		<div
-			class="grid gap-3 text-center {trainTypeFilter === 'drill'
+			class="grid gap-3 text-center {trainTypeFilter === 'drill' ||
+			trainTypeFilter === 'smartScramble'
 				? 'grid-cols-3 sm:grid-cols-7'
 				: 'grid-cols-3 sm:grid-cols-5'}"
 		>
@@ -422,7 +429,7 @@
 			</div>
 
 			<!-- Drill Split Stats -->
-			{#if trainTypeFilter === 'drill'}
+			{#if trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble'}
 				<div class="stat-card">
 					<span class="text-secondary sm:text-base">Mean Rec</span>
 					<span class="font-mono text-lg leading-tight font-bold text-gray-900 dark:text-white"

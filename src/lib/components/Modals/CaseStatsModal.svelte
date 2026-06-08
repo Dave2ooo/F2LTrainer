@@ -75,8 +75,13 @@
 		}
 		const options = [];
 		if (types.has('classic')) options.push({ value: 'classic', name: 'Standard Practice' });
-		if (types.has('smart')) options.push({ value: 'smart', name: 'Smart Practice' });
-		if (types.has('drill')) options.push({ value: 'drill', name: 'Drill' });
+		if (types.has('smart')) options.push({ value: 'smart', name: 'Standard Practice (Smart)' });
+		if (types.has('smartScramble'))
+			options.push({
+				value: 'smartScramble',
+				name: 'Standard Practice (Smart, Scramble Yourself)'
+			});
+		if (types.has('drill')) options.push({ value: 'drill', name: 'Speed Drill' });
 		return options;
 	});
 
@@ -102,7 +107,7 @@
 			.map((s) => {
 				let time = s.time;
 				if (trainTypeFilter === 'smart') time = s.executionTime;
-				if (trainTypeFilter === 'drill')
+				if (trainTypeFilter === 'drill' || trainTypeFilter === 'smartScramble')
 					time =
 						s.recognitionTime !== undefined && s.executionTime !== undefined
 							? s.recognitionTime + s.executionTime
@@ -436,7 +441,8 @@
 
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
-			<div class="flex justify-center">
+			<div class="flex items-center justify-center gap-2">
+				<span class="text-sm font-medium text-gray-600 dark:text-gray-400">Train Mode:</span>
 				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}
@@ -541,7 +547,7 @@
 								>
 							{:else}
 								<Badge
-									color="light"
+									color="amber"
 									rounded
 									class="cursor-pointer !bg-transparent text-sm {hoveredIndex === realIndex ||
 									selectedIndex === realIndex

@@ -71,6 +71,15 @@
 	}
 
 	async function onNext() {
+		const wasTimerRunning = timerRef?.getIsRunning();
+
+		if (wasTimerRunning) {
+			timerRef?.stopTimer();
+			timerRef?.resetTimer();
+			// User skipped an active case, reset the time to 0 instead of showing previous time
+			trainState.lastDisplayedTime = 0;
+		}
+
 		if (currentTrainCase) {
 			const { groupId, caseId } = currentTrainCase;
 
@@ -307,22 +316,32 @@
 	{/if}
 </div>
 
-<HintButton
-	{alg}
-	bind:algViewerContainer
-	showAlgViewer={hintManager.showAlgViewer}
-	visible={hintManager.showHintButton}
-	hintCounter={hintManager.counter}
-	hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
-		DEFAULT_SETTINGS.trainHintAlgorithm}
-	onclick={showHintAlg}
-	onEditAlg={() => {
-		editAlgRef?.openModal();
-	}}
-/>
-{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
-	<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
-{/if}
+<div class="my-2 flex w-full flex-col items-center gap-2 md:my-4 md:gap-4">
+	<div
+		class="w-full"
+		style:display={(sessionState.activeSession?.settings.trainHintAlgorithm ??
+			DEFAULT_SETTINGS.trainHintAlgorithm) !== 'hidden'
+			? 'block'
+			: 'none'}
+	>
+		<HintButton
+			{alg}
+			bind:algViewerContainer
+			showAlgViewer={hintManager.showAlgViewer}
+			visible={hintManager.showHintButton}
+			hintCounter={hintManager.counter}
+			hintMode={sessionState.activeSession?.settings.trainHintAlgorithm ??
+				DEFAULT_SETTINGS.trainHintAlgorithm}
+			onclick={showHintAlg}
+			onEditAlg={() => {
+				editAlgRef?.openModal();
+			}}
+		/>
+	</div>
+	{#if sessionState.activeSession?.settings.trainShowTimer ?? DEFAULT_SETTINGS.trainShowTimer}
+		<Timer bind:this={timerRef} onStop={handleTimerStop} initialTime={displayTime} />
+	{/if}
+</div>
 <RecapProgress />
 
 <div class="flex flex-row items-center justify-center gap-2">

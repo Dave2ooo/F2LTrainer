@@ -28,13 +28,17 @@ export const DEFAULT_SETTINGS: SessionSettings = {
 	trainShowTimer: false,
 	trainHintAlgorithm: 'step',
 	trainHintStickering: 'f2l',
+	smartHintBehavior: 'auto',
 	backView: 'none',
 	backViewEnabled: false,
 	crossColor: ['white'],
 	frontColor: ['red'],
 	trainLearnEO: false,
 	drillTimeBetweenCases: 1.0,
-	drillHideTwistyPlayer: false
+	drillHideTwistyPlayer: false,
+	scrambleYourself: false,
+	scrambleCountdownDuration: 1.0,
+	scrambleShowCube: true
 };
 
 class SessionState {
