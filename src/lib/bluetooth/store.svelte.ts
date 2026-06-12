@@ -1,4 +1,5 @@
-import { GiikerCube } from './core/bluetooth';
+import type { SmartCubeConnection } from 'smartcube-web-bluetooth';
+import type { Subscription } from 'rxjs';
 
 // Move subscription types
 type MoveSubscriber = {
@@ -12,6 +13,10 @@ let deviceName = $state<string | null>(null);
 let deviceId = $state<string | null>(null);
 let deviceMac = $state<string | null>(null);
 let batteryLevel = $state<number | null>(null);
+
+let currentConnection = $state<SmartCubeConnection | null>(null);
+let eventSubscription: Subscription | null = null;
+
 let facelet = $state<string | null>(null);
 let lastMove = $state<string | null>(null);
 let moveCounter = $state(0);
@@ -60,6 +65,16 @@ export const bluetoothState = {
 	get errorMessage() {
 		return errorMessage;
 	},
+	get currentConnection() {
+		return currentConnection;
+	},
+	setCurrentConnection(conn: SmartCubeConnection | null, sub: Subscription | null) {
+		if (eventSubscription) {
+			eventSubscription.unsubscribe();
+		}
+		currentConnection = conn;
+		eventSubscription = sub;
+	},
 	setConnected(connected: boolean) {
 		isConnected = connected;
 		if (connected) {
@@ -69,6 +84,11 @@ export const bluetoothState = {
 			lastMove = null;
 			moveCounter = 0;
 			history = [];
+			if (eventSubscription) {
+				eventSubscription.unsubscribe();
+				eventSubscription = null;
+			}
+			currentConnection = null;
 		}
 	},
 	setDeviceName(name: string | null) {
@@ -152,7 +172,7 @@ export const bluetoothState = {
 		}
 	},
 	getMovesSince(lastCounter: number) {
-		return history.filter((h) => h.counter > lastCounter);
+		return history.filter((h: { move: string; counter: number }) => h.counter > lastCounter);
 	},
 	// Connection process state
 	get isConnecting() {

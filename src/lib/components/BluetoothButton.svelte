@@ -33,11 +33,7 @@
 			return;
 		}
 
-		if (latestSavedCube) {
-			await connectSavedCube(latestSavedCube.id);
-		} else {
-			await connectNewCube();
-		}
+		await connectNewCube();
 	}
 </script>
 
