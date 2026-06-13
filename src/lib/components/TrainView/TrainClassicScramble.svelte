@@ -523,7 +523,7 @@
 
 	async function onNext() {
 		drillTimerRef?.reset();
-		
+
 		if (currentTrainCase && currentTrainCase.solveId === undefined) {
 			const solveId = crypto.randomUUID();
 			statisticsState.addSolve({
@@ -543,7 +543,7 @@
 		const shouldShowWarning = cumulativeRotation !== '';
 
 		advanceToNextTrainCase();
-		
+
 		await tick();
 
 		phase = 'scrambling';
@@ -564,7 +564,7 @@
 
 	async function onPrevious() {
 		drillTimerRef?.reset();
-		
+
 		if (currentTrainCase && currentTrainCase.solveId === undefined) {
 			const solveId = crypto.randomUUID();
 			statisticsState.addSolve({
@@ -584,7 +584,7 @@
 		const shouldShowWarning = cumulativeRotation !== '';
 
 		advanceToPreviousTrainCase();
-		
+
 		await tick();
 
 		phase = 'scrambling';
