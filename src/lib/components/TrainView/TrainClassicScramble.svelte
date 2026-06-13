@@ -521,22 +521,86 @@
 		return 'border-transparent';
 	};
 
-	function onNext() {
+	async function onNext() {
 		drillTimerRef?.reset();
+		
+		if (currentTrainCase && currentTrainCase.solveId === undefined) {
+			const solveId = crypto.randomUUID();
+			statisticsState.addSolve({
+				id: solveId,
+				groupId: currentTrainCase.groupId,
+				caseId: currentTrainCase.caseId,
+				timestamp: Date.now(),
+				auf: currentTrainCase.auf,
+				side: currentTrainCase.side,
+				scrambleSelection: currentTrainCase.scramble,
+				sessionId: sessionState.activeSessionId || undefined,
+				trainMode: 'smartScramble'
+			});
+			currentTrainCase.solveId = solveId;
+		}
+
+		const shouldShowWarning = cumulativeRotation !== '';
+
 		advanceToNextTrainCase();
+		
+		await tick();
+
 		phase = 'scrambling';
 		undoMoves = [];
 		twistyPlayerRef?.reset();
 		movesAdded = '';
+		cumulativeRotation = '';
+
+		if (shouldShowWarning) {
+			showRotationWarning = true;
+			setTimeout(() => {
+				showRotationWarning = false;
+			}, 1500);
+		} else {
+			showRotationWarning = false;
+		}
 	}
 
-	function onPrevious() {
+	async function onPrevious() {
 		drillTimerRef?.reset();
+		
+		if (currentTrainCase && currentTrainCase.solveId === undefined) {
+			const solveId = crypto.randomUUID();
+			statisticsState.addSolve({
+				id: solveId,
+				groupId: currentTrainCase.groupId,
+				caseId: currentTrainCase.caseId,
+				timestamp: Date.now(),
+				auf: currentTrainCase.auf,
+				side: currentTrainCase.side,
+				scrambleSelection: currentTrainCase.scramble,
+				sessionId: sessionState.activeSessionId || undefined,
+				trainMode: 'smartScramble'
+			});
+			currentTrainCase.solveId = solveId;
+		}
+
+		const shouldShowWarning = cumulativeRotation !== '';
+
 		advanceToPreviousTrainCase();
+		
+		await tick();
+
 		phase = 'scrambling';
 		undoMoves = [];
 		twistyPlayerRef?.reset();
 		movesAdded = '';
+		cumulativeRotation = '';
+
+		if (shouldShowWarning) {
+			showRotationWarning = true;
+			setTimeout(() => {
+				showRotationWarning = false;
+			}, 1500);
+		} else {
+			showRotationWarning = false;
+		}
 	}
 </script>
 

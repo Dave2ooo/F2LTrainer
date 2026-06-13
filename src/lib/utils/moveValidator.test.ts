@@ -139,7 +139,7 @@ describe('moveValidator', () => {
 			const seq1 = ['R', 'U', "R'"];
 			const seq2 = ['R', 'U', "R'"];
 			// Match full sequence
-			expect(matchesMoveSequence(['R', 'U', "R'"], ['R', 'U', "R'"]).match).toBe(true);
+			expect(matchesMoveSequence(seq1, seq2).match).toBe(true);
 
 			// Match sequence with cancellations (normalizes to ['R', 'U'])
 			expect(matchesMoveSequence(['R', 'U', 'F', "F'", "U'", 'U'], ['R', 'U']).match).toBe(true);

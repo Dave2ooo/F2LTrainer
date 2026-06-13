@@ -207,7 +207,7 @@
 
 	let stickeringString = $derived.by(() => {
 		if (stickering === 'centers-only') {
-			// 24 hyphens for edges and 24 hyphens for corners to hide all their stickers
+			// 12 'I' chars for edges and 8 'I' chars for corners to ignore all their stickers
 			return 'EDGES:IIIIIIIIIIII,CORNERS:IIIIIIII,CENTERS:------';
 		}
 		if (stickering !== 'f2l' || !staticData) return undefined;

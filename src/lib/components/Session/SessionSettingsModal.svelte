@@ -158,6 +158,8 @@
 							type="button"
 							onclick={startEditingName}
 							class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+							aria-label="Edit session name"
+							title="Edit session name"
 						>
 							<Pencil class="size-4" />
 						</button>
