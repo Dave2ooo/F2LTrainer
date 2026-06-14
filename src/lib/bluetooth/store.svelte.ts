@@ -18,6 +18,7 @@ let errorMessage = $state<string | null>(null);
 const macAddressRequest = $state({
 	isOpen: false,
 	isWrongKey: false,
+	deviceName: null as string | null,
 	deviceMac: null as string | null,
 	defaultMac: null as string | null,
 	resolve: null as ((mac: string | undefined) => void) | null
@@ -88,12 +89,14 @@ export const bluetoothState = {
 	// MAC Address Request Handling
 	requestMacAddress(
 		isWrongKey: boolean,
+		deviceName: string | null,
 		deviceMac: string | null,
 		defaultMac: string | null,
 		resolve: (mac: string | undefined) => void
 	) {
 		macAddressRequest.isOpen = true;
 		macAddressRequest.isWrongKey = isWrongKey;
+		macAddressRequest.deviceName = deviceName;
 		macAddressRequest.deviceMac = deviceMac;
 		macAddressRequest.defaultMac = defaultMac;
 		macAddressRequest.resolve = resolve;
@@ -110,10 +113,12 @@ export const bluetoothState = {
 		}
 		bluetoothState.resetMacAddressRequest();
 		isConnected = false;
+		isConnecting = false;
 	},
 	resetMacAddressRequest() {
 		macAddressRequest.isOpen = false;
 		macAddressRequest.isWrongKey = false;
+		macAddressRequest.deviceName = null;
 		macAddressRequest.deviceMac = null;
 		macAddressRequest.defaultMac = null;
 		macAddressRequest.resolve = null;

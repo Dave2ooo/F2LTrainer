@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import { Button, Spinner, Input } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
@@ -18,6 +19,7 @@
 
 	let editingCubeId = $state<string | null>(null);
 	let editingCubeName = $state('');
+	let nameInputEl = $state<HTMLInputElement | null>(null);
 	let removeCubeModal: RemoveCubeModal;
 	let feedbackModal: FeedbackModal;
 
@@ -105,6 +107,12 @@
 		if (cube) {
 			editingCubeId = deviceId;
 			editingCubeName = cube.customName;
+			tick().then(() => {
+				if (nameInputEl) {
+					nameInputEl.focus();
+					nameInputEl.select();
+				}
+			});
 		}
 	}
 
@@ -196,7 +204,12 @@
 							class:dark:border-gray-700={!isConnectedCube}
 						>
 							{#if editingCubeId === cube.id}
-								<Input type="text" bind:value={editingCubeName} class="flex-1" maxlength={40} />
+								<input
+									bind:this={nameInputEl}
+									bind:value={editingCubeName}
+									maxlength={40}
+									class="flex-1 rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500"
+								/>
 								<Button size="xs" color="green" onclick={saveEditCube}>
 									<Check class="size-4" />
 								</Button>

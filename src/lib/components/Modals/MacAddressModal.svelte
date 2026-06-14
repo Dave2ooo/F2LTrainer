@@ -59,7 +59,7 @@
 	class="z-[60]"
 >
 	<form
-		class="flex flex-col gap-4"
+		class="flex flex-col gap-2"
 		onsubmit={(e) => {
 			e.preventDefault();
 			handleSubmit();
@@ -80,6 +80,7 @@
 
 			<hr class="mb-4 border-blue-200 dark:border-blue-800" />
 
+			<!-- Chrome experimental flags section hidden - automatic discovery via flag
 			<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
 			<p class="mb-2">
 				To enable automatic discovery (no manual MAC address needed), enable the following flag and
@@ -94,42 +95,54 @@
 					{copiedChromeFlags ? 'Copied!' : 'Copy'}
 				</Button>
 			</div>
-			<p class="mt-2 text-sm opacity-75">
-				You must copy and paste this into your browser's address bar.
-			</p>
-			<p class="mt-3">
-				Alternatively, you can find your cube's MAC address by visiting the following URL in Chrome
-				or Edge after pairing your cube:
-			</p>
-			<div class="mt-2 flex items-center gap-2">
-				<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-sm dark:bg-blue-900/50">
-					chrome://bluetooth-internals/#devices
-				</code>
-				<Button
-					size="xs"
-					color="light"
-					onclick={copyBluetoothInternals}
-					class="gap-1 whitespace-nowrap"
-				>
-					<Copy class="size-3" />
-					{copiedBluetoothInternals ? 'Copied!' : 'Copy'}
-				</Button>
+			-->
+			<div class="space-y-2">
+				<p class="font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
+				<p>
+					You can find your cube's MAC address by visiting the following URL in Chrome or Edge after
+					pairing your cube:
+				</p>
+				{#if bluetoothState.macAddressRequest.deviceName}
+					<p class="text-sm">
+						Look for a device named <strong class="font-mono"
+							>{bluetoothState.macAddressRequest.deviceName}</strong
+						> in the device list.
+					</p>
+				{/if}
+				<div class="flex items-center gap-2">
+					<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-sm dark:bg-blue-900/50">
+						chrome://bluetooth-internals/#devices
+					</code>
+					<Button
+						size="xs"
+						color="light"
+						onclick={copyBluetoothInternals}
+						class="gap-1 whitespace-nowrap"
+					>
+						<Copy class="size-3" />
+						{copiedBluetoothInternals ? 'Copied!' : 'Copy'}
+					</Button>
+				</div>
+				<p class="text-sm opacity-75">
+					You must copy and paste this into your browser's address bar.
+				</p>
 			</div>
 		</div>
 
 		<hr class="border-gray-200 dark:border-gray-700" />
-
+		<!--
 		<p class:text-red-500={bluetoothState.macAddressRequest.isWrongKey}>
 			{bluetoothState.macAddressRequest.isWrongKey
 				? 'The MAC provided might be wrong! Please enter the Bluetooth MAC address of your cube:'
 				: 'Please enter the Bluetooth MAC address of your cube:'}
 		</p>
+		-->
 		<div class="flex flex-col gap-2">
 			<Label>MAC Address</Label>
 			<Input
 				type="text"
 				bind:value={macInput}
-				placeholder="xx:xx:xx:xx:xx:xx"
+				placeholder="XX:XX:XX:XX:XX:XX"
 				required
 				pattern={macPattern}
 				maxlength={17}

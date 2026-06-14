@@ -36,7 +36,7 @@ export async function connectCube(savedCube?: SavedCube) {
 				}
 
 				return new Promise((resolve) => {
-					bluetoothState.requestMacAddress(!!isFallbackCall, null, null, (mac) => {
+					bluetoothState.requestMacAddress(!!isFallbackCall, device.name || null, null, null, (mac) => {
 						resolve(mac || null);
 					});
 				});
