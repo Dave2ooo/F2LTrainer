@@ -1,5 +1,4 @@
-import { GiikerCube } from './core/bluetooth';
-
+// Core bluetooth import removed
 // Move subscription types
 type MoveSubscriber = {
 	callback: (move: string) => void;
@@ -122,37 +121,34 @@ export const bluetoothState = {
 	get macAddressRequest() {
 		return macAddressRequest;
 	},
-	handleCubeCallback(newFacelet: string, prevMoves: string[]) {
+	setFacelet(newFacelet: string) {
 		facelet = newFacelet;
-		if (prevMoves.length > 0) {
-			lastMove = prevMoves[0];
-			moveCounter++;
-			history.push({ move: lastMove, counter: moveCounter });
-			// keep history small
-			if (history.length > 50) {
-				history.shift();
+	},
+	pushMove(moveStr: string) {
+		lastMove = moveStr;
+		moveCounter++;
+		history.push({ move: lastMove, counter: moveCounter });
+		// keep history small
+		if (history.length > 50) {
+			history.shift();
+		}
+
+		// Dispatch move to highest-priority subscriber only
+		if (moveSubscribers.size > 0) {
+			let highestPriority = -Infinity;
+			let activeSubscriber: MoveSubscriber | null = null;
+
+			for (const subscriber of moveSubscribers.values()) {
+				if (subscriber.priority > highestPriority) {
+					highestPriority = subscriber.priority;
+					activeSubscriber = subscriber;
+				}
 			}
 
-			// Dispatch move to highest-priority subscriber only
-			if (moveSubscribers.size > 0) {
-				let highestPriority = -Infinity;
-				let activeSubscriber: MoveSubscriber | null = null;
-
-				for (const subscriber of moveSubscribers.values()) {
-					if (subscriber.priority > highestPriority) {
-						highestPriority = subscriber.priority;
-						activeSubscriber = subscriber;
-					}
-				}
-
-				if (activeSubscriber) {
-					activeSubscriber.callback(lastMove);
-				}
+			if (activeSubscriber) {
+				activeSubscriber.callback(lastMove);
 			}
 		}
-	},
-	getMovesSince(lastCounter: number) {
-		return history.filter((h) => h.counter > lastCounter);
 	},
 	// Connection process state
 	get isConnecting() {

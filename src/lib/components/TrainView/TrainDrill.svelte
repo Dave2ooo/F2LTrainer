@@ -49,7 +49,7 @@
 	import RecapProgress from './RecapProgress.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
-	import { connectNewCube, connectSavedCube } from '$lib/bluetooth/actions';
+	import { connectCube } from '$lib/bluetooth/actions';
 	import { isUMove } from '$lib/utils/moveValidator';
 	import { simplifyAlg } from '$lib/utils/simplifyAlg';
 
@@ -319,9 +319,9 @@
 		}
 
 		if (latestSavedCube) {
-			await connectSavedCube(latestSavedCube.id);
+			await connectCube(latestSavedCube);
 		} else {
-			await connectNewCube();
+			await connectCube();
 		}
 	}
 

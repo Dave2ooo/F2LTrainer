@@ -7,7 +7,8 @@ import { savedCubesSyncService } from '$lib/services/savedCubesSyncService';
 
 export interface SavedCube {
 	uuid: string; // Globally unique ID for sync (crypto.randomUUID())
-	id: string; // Bluetooth device ID (browser-specific, not synced)
+	id: string; // Bluetooth device ID or MAC
+	deviceName?: string; // Original device name from Bluetooth
 	customName: string; // User-provided name
 	macAddress?: string; // MAC address if available
 	dateAdded: number; // Timestamp when added
@@ -47,75 +48,38 @@ export const savedCubesState = {
 		return cubes.filter((c) => !c.deletedAt);
 	},
 
-	addCube(deviceId: string, deviceName: string, customName?: string, macAddress?: string) {
+	addCube(id: string, deviceName: string, customName?: string, macAddress?: string) {
 		const now = Date.now();
-
-		// Normalize MAC address to lowercase for case-insensitive comparison
 		const normalizedMac = macAddress?.toLowerCase();
 
-		// First, check if a cube with the same MAC address already exists
-		// This handles the case where deviceId changes between connections
-		let existingMacIndex = normalizedMac ? cubes.findIndex((c) => c.macAddress?.toLowerCase() === normalizedMac) : -1;
+		const existingIndex = cubes.findIndex((c) => c.id === id && !c.deletedAt);
 
-		// Also check for deviceId match (might be a stale entry)
-		const existingIdIndex = cubes.findIndex((c) => c.id === deviceId && !c.deletedAt);
-
-		if (existingMacIndex >= 0) {
-			// Found a cube with matching MAC - update it
-			const existingCube = cubes[existingMacIndex];
-
-			// If there's a DIFFERENT entry with the same deviceId, remove it (stale entry)
-			if (existingIdIndex >= 0 && existingIdIndex !== existingMacIndex) {
-				cubes = cubes.filter((_, i) => i !== existingIdIndex);
-				// Recalculate the MAC index after removal
-				existingMacIndex = cubes.findIndex((c) => c.macAddress?.toLowerCase() === normalizedMac);
-			}
-
-			if (existingMacIndex >= 0) {
-				cubes[existingMacIndex] = {
-					...cubes[existingMacIndex],
-					id: deviceId, // Update deviceId in case it changed
-					customName: customName || cubes[existingMacIndex].customName,
-					macAddress: normalizedMac || cubes[existingMacIndex].macAddress,
-					lastConnected: now,
-					lastModified: now,
-					deletedAt: undefined // Undelete if it was soft-deleted
-				};
-				cubes = [...cubes]; // Trigger reactivity
-				
-				// Sync update
-				savedCubesSyncService.updateCube(cubes[existingMacIndex].uuid, {
-					customName: cubes[existingMacIndex].customName,
-					macAddress: cubes[existingMacIndex].macAddress,
-					lastConnected: now,
-					lastModified: now,
-					deletedAt: undefined // Undelete in cloud
-				});
-			}
-		} else if (existingIdIndex >= 0) {
-			cubes[existingIdIndex] = {
-				...cubes[existingIdIndex],
-				customName: customName || cubes[existingIdIndex].customName,
-				macAddress: normalizedMac || cubes[existingIdIndex].macAddress,
+		if (existingIndex >= 0) {
+			cubes[existingIndex] = {
+				...cubes[existingIndex],
+				deviceName,
+				customName: customName || cubes[existingIndex].customName,
+				macAddress: normalizedMac || cubes[existingIndex].macAddress,
 				lastConnected: now,
 				lastModified: now,
-				deletedAt: undefined // Undelete if it was soft-deleted
+				deletedAt: undefined
 			};
-			cubes = [...cubes]; // Trigger reactivity
+			cubes = [...cubes];
 
 			// Sync update
-			savedCubesSyncService.updateCube(cubes[existingIdIndex].uuid, {
-				customName: cubes[existingIdIndex].customName,
-				macAddress: cubes[existingIdIndex].macAddress,
+			savedCubesSyncService.updateCube(cubes[existingIndex].uuid, {
+				customName: cubes[existingIndex].customName,
+				macAddress: cubes[existingIndex].macAddress,
 				lastConnected: now,
 				lastModified: now,
-				deletedAt: undefined // Undelete in cloud
+				deletedAt: undefined
 			});
 		} else {
 			// Add new cube
 			const newCube: SavedCube = {
 				uuid: crypto.randomUUID(),
-				id: deviceId,
+				id,
+				deviceName,
 				customName: customName || deviceName,
 				macAddress: normalizedMac,
 				dateAdded: now,
@@ -123,7 +87,7 @@ export const savedCubesState = {
 				lastModified: now
 			};
 			cubes = [...cubes, newCube];
-			
+
 			// Sync add
 			savedCubesSyncService.addCube(newCube);
 		}

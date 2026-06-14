@@ -1,79 +1,83 @@
-import { GiikerCube } from './index';
 import { bluetoothState } from './store.svelte';
-import { savedCubesState } from './savedCubes.svelte';
+import { savedCubesState, type SavedCube } from './savedCubes.svelte';
+import { connectSmartCube, type SmartCubeConnection } from 'smartcube-web-bluetooth';
 
-export async function connectNewCube() {
+let activeConnection: SmartCubeConnection | null = null;
+
+export async function connectCube(savedCube?: SavedCube) {
 	if (bluetoothState.isConnecting) return;
 
 	bluetoothState.setIsConnecting(true);
 	bluetoothState.setErrorMessage(null);
-	console.log('[F2LTrainer] Connecting to new cube...');
+	console.log('[F2LTrainer] Connecting to cube...', savedCube?.deviceName || 'new');
 
 	try {
-		await GiikerCube.init(false, undefined);
-		// After successful connection, check if cube already exists by MAC address
-		if (bluetoothState.deviceId && bluetoothState.deviceName) {
-			// First check by MAC address (more reliable than deviceId)
-			const existingByMac = bluetoothState.deviceMac
-				? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
-				: null;
-			// Fall back to deviceId check
-			const existingById = savedCubesState.getCube(bluetoothState.deviceId);
-			const existing = existingByMac || existingById;
+		const conn = await connectSmartCube({
+			deviceName: savedCube?.deviceName,
+			macAddressProvider: async (device, isFallbackCall) => {
+				// We don't have device.id stored for Giiker/GoCube, but for GAN cubes
+				// where MAC is required, we can check if we've saved it by macAddress
+				// or if we happened to save device.id previously before the migration.
+				const existing = savedCubesState.cubes.find((c) => c.id === device.id);
+				if (existing?.macAddress && !isFallbackCall) {
+					return existing.macAddress;
+				}
 
-			// Auto-save or update the cube entry
-			savedCubesState.addCube(
-				bluetoothState.deviceId,
-				bluetoothState.deviceName,
-				existing?.customName, // Keep existing name or use device name as default
-				bluetoothState.deviceMac || undefined
-			);
-		}
-		console.log('[F2LTrainer] Successfully connected to new cube:', bluetoothState.deviceName);
+				return new Promise((resolve) => {
+					bluetoothState.requestMacAddress(!!isFallbackCall, null, null, (mac) => {
+						resolve(mac || null);
+					});
+				});
+			}
+		});
+
+		activeConnection = conn;
+
+		// Setup subscriptions
+		conn.events$.subscribe({
+			next: (event) => {
+				if (event.type === 'MOVE') {
+					bluetoothState.pushMove(event.move);
+				} else if (event.type === 'FACELETS') {
+					bluetoothState.setFacelet(event.facelets);
+				} else if (event.type === 'BATTERY') {
+					bluetoothState.setBatteryLevel(event.batteryLevel);
+				} else if (event.type === 'DISCONNECT') {
+					bluetoothState.setConnected(false);
+					activeConnection = null;
+				}
+			},
+			error: (err) => {
+				console.error('[F2LTrainer] Connection error:', err);
+				bluetoothState.setErrorMessage(err.toString());
+				bluetoothState.setConnected(false);
+				activeConnection = null;
+			}
+		});
+
+		bluetoothState.setConnected(true);
+		bluetoothState.setDeviceName(conn.deviceName);
+
+		const idToSave = conn.deviceMAC || conn.deviceName;
+		bluetoothState.setDeviceId(idToSave);
+		bluetoothState.setDeviceMac(conn.deviceMAC || null);
+
+		// Auto-save or update the cube entry
+		savedCubesState.addCube(
+			idToSave,
+			conn.deviceName,
+			savedCube?.customName, // Keep existing name if reconnecting
+			conn.deviceMAC || undefined
+		);
+
+		console.log('[F2LTrainer] Successfully connected to cube:', conn.deviceName);
 	} catch (e: any) {
-		if (e.message !== 'MAC address required') {
-			console.error('[F2LTrainer] Connection failed:', e);
+		console.error('[F2LTrainer] Connection failed:', e);
+		if (e.name !== 'NotFoundError' && e.message !== 'User cancelled the requestDevice() chooser.') {
 			bluetoothState.setErrorMessage(e.toString());
 		} else {
-			console.log('[F2LTrainer] Connection cancelled by user (MAC required)');
+			console.log('[F2LTrainer] Connection cancelled by user');
 		}
-	} finally {
-		bluetoothState.setIsConnecting(false);
-	}
-}
-
-export async function connectSavedCube(deviceId: string) {
-	if (bluetoothState.isConnecting) return;
-
-	const saved = savedCubesState.getCube(deviceId);
-	if (!saved) return;
-
-	console.log('[F2LTrainer] Connecting to saved cube:', saved.customName, 'MAC:', saved.macAddress);
-	bluetoothState.setIsConnecting(true);
-	bluetoothState.setErrorMessage(null);
-
-	try {
-		await GiikerCube.init(true, saved.macAddress);
-		if (bluetoothState.deviceId && bluetoothState.deviceName) {
-			// Check if the connected cube matches any existing cube by MAC
-			const existingByMac = bluetoothState.deviceMac
-				? savedCubesState.getCubeByMac(bluetoothState.deviceMac)
-				: null;
-
-			// Auto-save or update the cube entry
-			savedCubesState.addCube(
-				bluetoothState.deviceId,
-				bluetoothState.deviceName,
-				existingByMac?.customName, // Keep existing name or use device name as default
-				bluetoothState.deviceMac || undefined
-			);
-		} else {
-			savedCubesState.updateLastConnected(deviceId);
-		}
-		console.log('[F2LTrainer] Successfully connected to saved cube:', saved.customName);
-	} catch (e: any) {
-		console.error('[F2LTrainer] Connection to saved cube failed:', e);
-		bluetoothState.setErrorMessage(e.toString());
 	} finally {
 		bluetoothState.setIsConnecting(false);
 	}
@@ -81,11 +85,13 @@ export async function connectSavedCube(deviceId: string) {
 
 export async function disconnectCube() {
 	console.log('[F2LTrainer] User requested disconnect');
-	try {
-		await GiikerCube.stop();
-		console.log('[F2LTrainer] Disconnected successfully');
-	} catch (e: any) {
-		console.warn('[F2LTrainer] Disconnect error:', e);
-		// Don't show error to user - disconnect errors are usually harmless
+	if (activeConnection) {
+		try {
+			await activeConnection.disconnect();
+			console.log('[F2LTrainer] Disconnected successfully');
+		} catch (e: any) {
+			console.warn('[F2LTrainer] Disconnect error:', e);
+		}
+		activeConnection = null;
 	}
 }

@@ -10,7 +10,7 @@
 	import type { TwistyPlayerElement } from '$lib/types/twisty';
 
 	import MacAddressModal from './MacAddressModal.svelte';
-	import { connectNewCube, connectSavedCube, disconnectCube } from '$lib/bluetooth/actions';
+	import { connectCube, disconnectCube } from '$lib/bluetooth/actions';
 
 	let { open = $bindable(false) } = $props();
 
@@ -65,11 +65,14 @@
 	});
 
 	async function onConnect() {
-		await connectNewCube();
+		await connectCube();
 	}
 
 	async function onConnectSaved(deviceId: string) {
-		await connectSavedCube(deviceId);
+		const cube = savedCubesState.getCube(deviceId);
+		if (cube) {
+			await connectCube(cube);
+		}
 	}
 
 	async function onDisconnect() {
