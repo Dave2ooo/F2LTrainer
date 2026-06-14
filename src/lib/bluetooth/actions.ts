@@ -3,9 +3,19 @@ import { savedCubesState, type SavedCube } from './savedCubes.svelte';
 import { connectSmartCube, type SmartCubeConnection } from 'smartcube-web-bluetooth';
 
 let activeConnection: SmartCubeConnection | null = null;
+let activeSubscription: { unsubscribe(): void } | null = null;
+
+function cleanupConnection() {
+	if (activeSubscription) {
+		activeSubscription.unsubscribe();
+		activeSubscription = null;
+	}
+	activeConnection = null;
+}
 
 export async function connectCube(savedCube?: SavedCube) {
 	if (bluetoothState.isConnecting) return;
+	if (bluetoothState.isConnected) return;
 
 	bluetoothState.setIsConnecting(true);
 	bluetoothState.setErrorMessage(null);
@@ -13,15 +23,13 @@ export async function connectCube(savedCube?: SavedCube) {
 
 	try {
 		const conn = await connectSmartCube({
-			deviceName: savedCube?.deviceName,
+			// For migrated cubes that don't yet have deviceName stored,
+			// fall back to customName (which defaults to the original device name)
+			deviceName: savedCube?.deviceName ?? savedCube?.customName,
 			macAddressProvider: async (device, isFallbackCall) => {
-				// We don't have device.id stored for Giiker/GoCube, but for GAN cubes
-				// where MAC is required, we can check if we've saved it by macAddress
-				// or if we happened to save device.id previously before the migration.
-				const existing = savedCubesState.cubes.find((c) => 
-					c.id === device.id || 
-					(device.name && c.deviceName === device.name) ||
-					(device.name && c.customName === device.name)
+				const existing = savedCubesState.cubes.find((c) =>
+					c.id === device.id ||
+					(device.name && c.deviceName === device.name)
 				);
 				if (existing?.macAddress && !isFallbackCall) {
 					return existing.macAddress;
@@ -35,10 +43,12 @@ export async function connectCube(savedCube?: SavedCube) {
 			}
 		});
 
+		// Clean up any previous connection before setting up the new one
+		cleanupConnection();
 		activeConnection = conn;
 
-		// Setup subscriptions
-		conn.events$.subscribe({
+		// Setup event subscription
+		activeSubscription = conn.events$.subscribe({
 			next: (event) => {
 				if (event.type === 'MOVE') {
 					bluetoothState.pushMove(event.move);
@@ -46,32 +56,47 @@ export async function connectCube(savedCube?: SavedCube) {
 					bluetoothState.setFacelet(event.facelets);
 				} else if (event.type === 'BATTERY') {
 					bluetoothState.setBatteryLevel(event.batteryLevel);
+				} else if (event.type === 'HARDWARE') {
+					console.log('[F2LTrainer] Successfully connected to cube:', {
+						hardwareName: event.hardwareName,
+						softwareVersion: event.softwareVersion,
+						hardwareVersion: event.hardwareVersion,
+						productDate: event.productDate,
+						gyroSupported: event.gyroSupported
+					});
 				} else if (event.type === 'DISCONNECT') {
 					bluetoothState.setConnected(false);
-					activeConnection = null;
+					cleanupConnection();
 				}
 			},
 			error: (err) => {
 				console.error('[F2LTrainer] Connection error:', err);
 				bluetoothState.setErrorMessage(err.toString());
 				bluetoothState.setConnected(false);
-				activeConnection = null;
+				cleanupConnection();
 			}
 		});
 
 		bluetoothState.setConnected(true);
 		bluetoothState.setDeviceName(conn.deviceName);
 
-		const idToSave = conn.deviceMAC || conn.deviceName;
+		// deviceMAC is '' (empty string) for cubes that don't use MAC-based encryption
+		// (Giiker, GoCube, MoYu-MHC). In that case, fall back to deviceName as the ID.
+		// Note: deviceName may not be unique across multiple physical cubes of the same brand.
+		const mac = conn.deviceMAC || undefined;
+		const idToSave = mac || conn.deviceName;
 		bluetoothState.setDeviceId(idToSave);
-		bluetoothState.setDeviceMac(conn.deviceMAC || null);
+		bluetoothState.setDeviceMac(mac ?? null);
 
 		// Auto-save or update the cube entry
+		// Only carry over the saved cube's custom name if the connected cube
+		// actually matches — the user may have picked a different device in the BLE picker
+		const isReconnectingSameCube = savedCube != null && idToSave === savedCube.id;
 		savedCubesState.addCube(
 			idToSave,
 			conn.deviceName,
-			savedCube?.customName, // Keep existing name if reconnecting
-			conn.deviceMAC || undefined
+			isReconnectingSameCube ? savedCube.customName : undefined,
+			mac
 		);
 
 		console.log('[F2LTrainer] Successfully connected to cube:', conn.deviceName);
@@ -96,6 +121,7 @@ export async function disconnectCube() {
 		} catch (e: any) {
 			console.warn('[F2LTrainer] Disconnect error:', e);
 		}
-		activeConnection = null;
 	}
+	cleanupConnection();
+	bluetoothState.setConnected(false);
 }

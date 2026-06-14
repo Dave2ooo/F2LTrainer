@@ -57,7 +57,6 @@ export const savedCubesState = {
 		const matchingIndexes: number[] = [];
 		for (let i = 0; i < cubes.length; i++) {
 			const c = cubes[i];
-			if (c.deletedAt) continue;
 
 			if (c.id === id) {
 				matchingIndexes.push(i);
@@ -102,12 +101,14 @@ export const savedCubesState = {
 				savedCubesSyncService.deleteCube(cubes[dupIndex].uuid);
 			}
 
+			// Capture reference before array reassignment for robustness
+			const updatedPrimary = cubes[primaryIndex];
 			cubes = [...cubes];
 
 			// Sync update
-			savedCubesSyncService.updateCube(cubes[primaryIndex].uuid, {
-				customName: cubes[primaryIndex].customName,
-				macAddress: cubes[primaryIndex].macAddress,
+			savedCubesSyncService.updateCube(updatedPrimary.uuid, {
+				customName: updatedPrimary.customName,
+				macAddress: updatedPrimary.macAddress,
 				lastConnected: now,
 				lastModified: now,
 				deletedAt: undefined
