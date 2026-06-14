@@ -52,24 +52,62 @@ export const savedCubesState = {
 		const now = Date.now();
 		const normalizedMac = macAddress?.toLowerCase();
 
-		const existingIndex = cubes.findIndex((c) => c.id === id && !c.deletedAt);
+		// Find all existing cubes that could represent this physical cube
+		// This handles migrating old browser IDs and deduping if multiple entries exist
+		const matchingIndexes: number[] = [];
+		for (let i = 0; i < cubes.length; i++) {
+			const c = cubes[i];
+			if (c.deletedAt) continue;
 
-		if (existingIndex >= 0) {
-			cubes[existingIndex] = {
-				...cubes[existingIndex],
+			if (c.id === id) {
+				matchingIndexes.push(i);
+				continue;
+			}
+			if (normalizedMac && c.macAddress?.toLowerCase() === normalizedMac) {
+				matchingIndexes.push(i);
+				continue;
+			}
+			if (!normalizedMac && !c.macAddress && (c.customName === deviceName || c.deviceName === deviceName)) {
+				matchingIndexes.push(i);
+				continue;
+			}
+		}
+
+		if (matchingIndexes.length > 0) {
+			// Keep the oldest entry to preserve uuid and original dateAdded
+			matchingIndexes.sort((a, b) => cubes[a].dateAdded - cubes[b].dateAdded);
+			
+			const primaryIndex = matchingIndexes[0];
+			const primaryCube = cubes[primaryIndex];
+
+			cubes[primaryIndex] = {
+				...primaryCube,
+				id, // Migrate to new stable ID
 				deviceName,
-				customName: customName || cubes[existingIndex].customName,
-				macAddress: normalizedMac || cubes[existingIndex].macAddress,
+				customName: customName || primaryCube.customName,
+				macAddress: normalizedMac || primaryCube.macAddress,
 				lastConnected: now,
 				lastModified: now,
 				deletedAt: undefined
 			};
+
+			// Soft delete any duplicates
+			for (let i = 1; i < matchingIndexes.length; i++) {
+				const dupIndex = matchingIndexes[i];
+				cubes[dupIndex] = {
+					...cubes[dupIndex],
+					deletedAt: now,
+					lastModified: now
+				};
+				savedCubesSyncService.deleteCube(cubes[dupIndex].uuid);
+			}
+
 			cubes = [...cubes];
 
 			// Sync update
-			savedCubesSyncService.updateCube(cubes[existingIndex].uuid, {
-				customName: cubes[existingIndex].customName,
-				macAddress: cubes[existingIndex].macAddress,
+			savedCubesSyncService.updateCube(cubes[primaryIndex].uuid, {
+				customName: cubes[primaryIndex].customName,
+				macAddress: cubes[primaryIndex].macAddress,
 				lastConnected: now,
 				lastModified: now,
 				deletedAt: undefined

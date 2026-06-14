@@ -18,7 +18,11 @@ export async function connectCube(savedCube?: SavedCube) {
 				// We don't have device.id stored for Giiker/GoCube, but for GAN cubes
 				// where MAC is required, we can check if we've saved it by macAddress
 				// or if we happened to save device.id previously before the migration.
-				const existing = savedCubesState.cubes.find((c) => c.id === device.id);
+				const existing = savedCubesState.cubes.find((c) => 
+					c.id === device.id || 
+					(device.name && c.deviceName === device.name) ||
+					(device.name && c.customName === device.name)
+				);
 				if (existing?.macAddress && !isFallbackCall) {
 					return existing.macAddress;
 				}
