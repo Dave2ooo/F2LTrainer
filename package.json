@@ -108,7 +108,7 @@
 		"flowbite-svelte-blocks": "^2.1.0",
 		"lz-string": "^1.5.0",
 		"rxjs": "^7.8.2",
-		"smartcube-web-bluetooth": "file:smartcube_tmp",
+		"smartcube-web-bluetooth": "file:./vendor/smartcube-web-bluetooth-4.0.0.tgz",
 		"svelte-clerk": "^0.20.3",
 		"svelte-confetti": "^2.3.2",
 		"svelte-splitpanes": "^8.0.9",

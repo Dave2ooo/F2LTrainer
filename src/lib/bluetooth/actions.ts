@@ -2,7 +2,7 @@ import { bluetoothState } from './store.svelte';
 import { savedCubesState } from './savedCubes.svelte';
 import { connectSmartCube } from 'smartcube-web-bluetooth';
 
-export async function connectNewCube() {
+export async function connectNewCube(targetDeviceId?: string) {
 	if (bluetoothState.isConnecting) return;
 
 	bluetoothState.setIsConnecting(true);
@@ -12,9 +12,20 @@ export async function connectNewCube() {
 	try {
 		const conn = await connectSmartCube({
 			macAddressProvider: async (device, isFallbackCall) => {
+				let existingCube = savedCubesState.getCube(device.id);
+				
+				// If we don't know this browser device ID, check if we were explicitly 
+				// told which saved cube we are trying to connect to
+				if (!existingCube && targetDeviceId) {
+					existingCube = savedCubesState.getCube(targetDeviceId);
+				}
+
+				// If we know the MAC address and this isn't a retry (which means the MAC might be wrong)
+				if (existingCube?.macAddress && !isFallbackCall) {
+					return existingCube.macAddress;
+				}
+
 				return new Promise((resolve) => {
-					// Use existing logic to get MAC
-					const existingCube = savedCubesState.getCube(device.id);
 					bluetoothState.requestMacAddress(
 						isFallbackCall ?? false,
 						existingCube?.macAddress || null,
@@ -84,7 +95,7 @@ export async function connectSavedCube(deviceId: string) {
 	// is the exact same process as connecting to a new one
 	// because the browser handles the device picker and pairing natively.
 	// Just launch the picker.
-	await connectNewCube();
+	await connectNewCube(deviceId);
 }
 
 export async function disconnectCube() {

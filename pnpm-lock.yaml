@@ -42,8 +42,8 @@ importers:
         specifier: ^7.8.2
         version: 7.8.2
       smartcube-web-bluetooth:
-        specifier: file:smartcube_tmp
-        version: file:smartcube_tmp
+        specifier: file:./vendor/smartcube-web-bluetooth-4.0.0.tgz
+        version: file:vendor/smartcube-web-bluetooth-4.0.0.tgz
       svelte-clerk:
         specifier: ^0.20.3
         version: 0.20.3(@sveltejs/kit@2.48.1(@sveltejs/vite-plugin-svelte@6.2.1(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(svelte@5.42.3)(vite@7.1.12(@types/node@22.18.12)(jiti@2.6.1)(lightningcss@1.30.2)))(react@19.2.4)(svelte@5.42.3)
@@ -2047,8 +2047,9 @@ packages:
     resolution: {integrity: sha512-2wcC/oGxHis/BoHkkPwldgiPSYcpZK3JU28WoMVv55yHJgcZ8rlXvuG9iZggz+sU1d4bRgIGASwyWqjxu3FM0g==}
     engines: {node: '>=18'}
 
-  smartcube-web-bluetooth@file:smartcube_tmp:
-    resolution: {directory: smartcube_tmp, type: directory}
+  smartcube-web-bluetooth@file:vendor/smartcube-web-bluetooth-4.0.0.tgz:
+    resolution: {integrity: sha512-zyg2oEwQK+T+oTfUUgbWoMFQiOyMosUK84NckJ3cdtWKxNRuwMafygwOvBBwCkhZLpyhXzBPu3MVkuG52XUO/Q==, tarball: file:vendor/smartcube-web-bluetooth-4.0.0.tgz}
+    version: 4.0.0
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -4031,7 +4032,7 @@ snapshots:
       mrmime: 2.0.1
       totalist: 3.0.1
 
-  smartcube-web-bluetooth@file:smartcube_tmp:
+  smartcube-web-bluetooth@file:vendor/smartcube-web-bluetooth-4.0.0.tgz:
     dependencies:
       '@types/web-bluetooth': 0.0.20
       aes-js: 3.1.2
