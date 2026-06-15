@@ -235,16 +235,23 @@
 					</div>
 
 					<div class="space-y-2">
-						<p class="font-medium">Tested & Supported Cubes:</p>
+						<p class="font-medium">
+							All cubes listed <A
+								href="https://github.com/poliva/smartcube-web-bluetooth#supported-smart-cubes"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+								>here</A
+							> are supported. The following cubes have been tested:
+						</p>
 						<ul class="list-inside list-disc space-y-1 pl-2">
 							<li>QiYi Smart Cube</li>
-							<li>MoYu Super WeiLong V2 AI</li>
 							<li>MoYu WeiLong V10 AI</li>
-							<li>GAN356 i3</li>
 							<li>GAN356 i carry S</li>
-							<li>GAN 12 ui</li>
-							<li>GAN Monster Go MG3 AI</li>
-							<li>GAN i4 (Issues on macOS)</li>
+							<li>GAN356 i3</li>
+							<li>GAN i4</li>
+							<li>GAN12 ui</li>
+							<li>GAN16 ui</li>
 						</ul>
 						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 							Have a different smart cube? Let us know if it works using the
