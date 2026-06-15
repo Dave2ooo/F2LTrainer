@@ -65,66 +65,84 @@
 			handleSubmit();
 		}}
 	>
-		<div class="rounded-lg bg-blue-50 p-3 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300">
-			<div class="mb-4 space-y-2">
-				<p class="font-semibold text-blue-900 dark:text-blue-200">iOS (iPhone/iPad) Users:</p>
-				<p>
-					Safari on iOS does not support Web Bluetooth. Please download <a
-						href="https://apps.apple.com/app/bluefy-web-bluetooth-browser/id1492822055"
-						target="_blank"
-						class="underline hover:text-blue-700 dark:hover:text-blue-100"
-						>Bluefy - Web Bluetooth Browser</a
-					> from the App Store and open the F2L Trainer inside it.
-				</p>
+		<div
+			class="rounded-lg bg-blue-50 p-4 text-sm text-blue-800 dark:bg-blue-900/30 dark:text-blue-300"
+		>
+			<!-- Chrome/Edge Section -->
+			<div class="mb-4 space-y-3">
+				<h3 class="text-lg font-bold text-blue-900 dark:text-blue-200">Chrome / Edge</h3>
+
+				<div class="rounded bg-white/50 p-3 dark:bg-black/20">
+					<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">
+						GAN Cubes (Automatic Discovery)
+					</p>
+					<p class="mb-2">
+						To enable automatic discovery for GAN cubes, enable the following experimental flag, and
+						connect again:
+					</p>
+					<div class="flex items-center gap-2">
+						<code class="flex-1 rounded bg-blue-100 p-1.5 font-mono text-xs dark:bg-blue-900/50">
+							chrome://flags/#enable-experimental-web-platform-features
+						</code>
+						<Button
+							size="xs"
+							color="light"
+							onclick={copyChromeFlags}
+							class="gap-1 whitespace-nowrap"
+						>
+							<Copy class="size-3" />
+							{copiedChromeFlags ? 'Copied!' : 'Copy'}
+						</Button>
+					</div>
+					<p class="text-xs opacity-75">
+						You must copy and paste this into your browser's address bar.
+					</p>
+				</div>
+
+				<div class="rounded bg-white/50 p-3 dark:bg-black/20">
+					<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">Enter Manually</p>
+					<p class="mb-2">
+						Alternatively, you can find your cube's MAC address by visiting the following URL:
+					</p>
+					{#if bluetoothState.macAddressRequest.deviceName}
+						<p class="mb-2">
+							Look for <strong class="font-mono"
+								>{bluetoothState.macAddressRequest.deviceName}</strong
+							>.
+						</p>
+					{/if}
+					<div class="mb-1 flex items-center gap-2">
+						<code class="flex-1 rounded bg-blue-100 p-1.5 font-mono text-xs dark:bg-blue-900/50">
+							chrome://bluetooth-internals/#devices
+						</code>
+						<Button
+							size="xs"
+							color="light"
+							onclick={copyBluetoothInternals}
+							class="gap-1 whitespace-nowrap"
+						>
+							<Copy class="size-3" />
+							{copiedBluetoothInternals ? 'Copied!' : 'Copy'}
+						</Button>
+					</div>
+					<p class="text-xs opacity-75">
+						You must copy and paste this into your browser's address bar.
+					</p>
+				</div>
 			</div>
 
 			<hr class="mb-4 border-blue-200 dark:border-blue-800" />
 
-			<!-- Chrome experimental flags section hidden - automatic discovery via flag
-			<p class="mb-2 font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
-			<p class="mb-2">
-				To enable automatic discovery (no manual MAC address needed), enable the following flag and
-				connect again:
-			</p>
-			<div class="flex items-center gap-2">
-				<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-sm dark:bg-blue-900/50">
-					chrome://flags/#enable-experimental-web-platform-features
-				</code>
-				<Button size="xs" color="light" onclick={copyChromeFlags} class="gap-1 whitespace-nowrap">
-					<Copy class="size-3" />
-					{copiedChromeFlags ? 'Copied!' : 'Copy'}
-				</Button>
-			</div>
-			-->
+			<!-- iOS Section -->
 			<div class="space-y-2">
-				<p class="font-semibold text-blue-900 dark:text-blue-200">Chrome/Edge Users:</p>
+				<h3 class="text-lg font-bold text-blue-900 dark:text-blue-200">iOS (iPhone/iPad)</h3>
 				<p>
-					You can find your cube's MAC address by visiting the following URL in Chrome or Edge after
-					pairing your cube:
-				</p>
-				{#if bluetoothState.macAddressRequest.deviceName}
-					<p class="text-sm">
-						Look for a device named <strong class="font-mono"
-							>{bluetoothState.macAddressRequest.deviceName}</strong
-						> in the device list.
-					</p>
-				{/if}
-				<div class="flex items-center gap-2">
-					<code class="flex-1 rounded bg-blue-100 p-1 font-mono text-sm dark:bg-blue-900/50">
-						chrome://bluetooth-internals/#devices
-					</code>
-					<Button
-						size="xs"
-						color="light"
-						onclick={copyBluetoothInternals}
-						class="gap-1 whitespace-nowrap"
-					>
-						<Copy class="size-3" />
-						{copiedBluetoothInternals ? 'Copied!' : 'Copy'}
-					</Button>
-				</div>
-				<p class="text-sm opacity-75">
-					You must copy and paste this into your browser's address bar.
+					Safari on iOS does not support Web Bluetooth. Please download <a
+						href="https://apps.apple.com/app/bluefy-web-bluetooth-browser/id1492822055"
+						target="_blank"
+						class="font-medium underline hover:text-blue-700 dark:hover:text-blue-100"
+						>Bluefy - Web Bluetooth Browser</a
+					> from the App Store and open the F2L Trainer inside it.
 				</p>
 			</div>
 		</div>

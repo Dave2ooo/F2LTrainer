@@ -303,7 +303,7 @@
 			disabled={bluetoothState.isConnecting || bluetoothState.isConnected}
 		>
 			{#if bluetoothState.isConnecting}
-				<Spinner class="mr-2" size="4" />Connecting...
+				<Spinner class="mr-2" size="4" />{bluetoothState.statusMessage || 'Connecting...'}
 			{:else}
 				<Plus class="mr-2 size-4" />
 				Connect New Cube

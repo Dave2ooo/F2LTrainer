@@ -55,7 +55,7 @@
 			<Bluetooth class="mr-2 size-6" />
 		{/if}
 		<span class="text-base font-medium"
-			>{bluetoothState.isConnecting ? 'Connecting...' : buttonLabel}</span
+			>{bluetoothState.isConnecting ? (bluetoothState.statusMessage || 'Connecting...') : buttonLabel}</span
 		>
 	</Button>
 	<Button

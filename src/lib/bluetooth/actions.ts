@@ -19,6 +19,7 @@ export async function connectCube(savedCube?: SavedCube) {
 
 	bluetoothState.setIsConnecting(true);
 	bluetoothState.setErrorMessage(null);
+	bluetoothState.setStatusMessage(null);
 	console.log('[F2LTrainer] Connecting to cube...', savedCube?.deviceName || 'new');
 
 	try {
@@ -26,17 +27,29 @@ export async function connectCube(savedCube?: SavedCube) {
 			// For migrated cubes that don't yet have deviceName stored,
 			// fall back to customName (which defaults to the original device name)
 			deviceName: savedCube?.deviceName ?? savedCube?.customName,
+			enableAddressSearch: true,
+			onStatus: (msg) => {
+				console.log('[F2LTrainer] Status:', msg);
+				bluetoothState.setStatusMessage(msg);
+			},
 			macAddressProvider: async (device, isFallbackCall) => {
 				const existing = savedCubesState.cubes.find((c) =>
 					c.id === device.id ||
 					(device.name && c.deviceName === device.name)
 				);
-				if (existing?.macAddress && !isFallbackCall) {
+				if (existing?.macAddress) {
 					return existing.macAddress;
 				}
 
+				// If the library is just checking if we have a cached MAC (isFallbackCall = false),
+				// and we don't have one, return null immediately so it can try automatic discovery.
+				if (!isFallbackCall) {
+					return null;
+				}
+
+				// The library failed to find the MAC automatically. Prompt the user as a last resort.
 				return new Promise((resolve) => {
-					bluetoothState.requestMacAddress(!!isFallbackCall, device.name || null, null, null, (mac) => {
+					bluetoothState.requestMacAddress(!!isFallbackCall, null, null, device.name || null, (mac) => {
 						resolve(mac || null);
 					});
 				});
@@ -109,6 +122,7 @@ export async function connectCube(savedCube?: SavedCube) {
 		}
 	} finally {
 		bluetoothState.setIsConnecting(false);
+		bluetoothState.setStatusMessage(null);
 	}
 }
 

@@ -15,12 +15,13 @@ let facelet = $state<string | null>(null);
 let lastMove = $state<string | null>(null);
 let moveCounter = $state(0);
 let errorMessage = $state<string | null>(null);
+let statusMessage = $state<string | null>(null);
 const macAddressRequest = $state({
 	isOpen: false,
 	isWrongKey: false,
-	deviceName: null as string | null,
 	deviceMac: null as string | null,
 	defaultMac: null as string | null,
+	deviceName: null as string | null,
 	resolve: null as ((mac: string | undefined) => void) | null
 });
 
@@ -60,6 +61,9 @@ export const bluetoothState = {
 	get errorMessage() {
 		return errorMessage;
 	},
+	get statusMessage() {
+		return statusMessage;
+	},
 	setConnected(connected: boolean) {
 		isConnected = connected;
 		if (connected) {
@@ -86,19 +90,22 @@ export const bluetoothState = {
 	setErrorMessage(msg: string | null) {
 		errorMessage = msg;
 	},
+	setStatusMessage(msg: string | null) {
+		statusMessage = msg;
+	},
 	// MAC Address Request Handling
 	requestMacAddress(
 		isWrongKey: boolean,
-		deviceName: string | null,
 		deviceMac: string | null,
 		defaultMac: string | null,
+		deviceName: string | null,
 		resolve: (mac: string | undefined) => void
 	) {
 		macAddressRequest.isOpen = true;
 		macAddressRequest.isWrongKey = isWrongKey;
-		macAddressRequest.deviceName = deviceName;
 		macAddressRequest.deviceMac = deviceMac;
 		macAddressRequest.defaultMac = defaultMac;
+		macAddressRequest.deviceName = deviceName;
 		macAddressRequest.resolve = resolve;
 	},
 	submitMacAddress(mac: string) {
@@ -118,9 +125,9 @@ export const bluetoothState = {
 	resetMacAddressRequest() {
 		macAddressRequest.isOpen = false;
 		macAddressRequest.isWrongKey = false;
-		macAddressRequest.deviceName = null;
 		macAddressRequest.deviceMac = null;
 		macAddressRequest.defaultMac = null;
+		macAddressRequest.deviceName = null;
 		macAddressRequest.resolve = null;
 	},
 	get macAddressRequest() {
