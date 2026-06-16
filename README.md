@@ -19,9 +19,9 @@
 ## 🛠️ Built With
 
 - **Framework:** [Svelte 5](https://svelte.dev) & SvelteKit
-- **Styling:** [TailwindCSS v4](https://tailwindcss.com) & [Flowbite](https://flowbite.com)
+- **Styling:** [TailwindCSS v4](https://tailwindcss.com) & [Flowbite Svelte](https://flowbite-svelte.com/)
 - **Cube Logic:** [cubing.js](https://js.cubing.net/cubing/)
-- **Charts:** ApexCharts
+- **Smartcube Integration:** [smartcube-web-bluetooth](https://github.com/poliva/smartcube-web-bluetooth)
 
 This F2L Trainer was inspired by JPerms [OLL Trainer](https://jperm.net/algs/oll) and Romans [OLL Trainer](https://bestsiteever.ru/oll/) / [PLL Trainer](https://bestsiteever.ru/pll/).
 
