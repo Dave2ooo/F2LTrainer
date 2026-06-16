@@ -40,6 +40,22 @@
 			const cleanup = startWakeLockManager();
 			return cleanup;
 		});
+
+		// Remove the initial HTML loader once the app is mounted
+		$effect(() => {
+			if (typeof window !== 'undefined' && (window as any).completeLoadingProgress) {
+				(window as any).completeLoadingProgress();
+			}
+
+			const loader = document.getElementById('initial-loader');
+			if (loader) {
+				// Wait for the progress bar to visually hit 100% before fading out
+				setTimeout(() => {
+					loader.style.opacity = '0';
+					setTimeout(() => loader.remove(), 400); // Matches the CSS transition time
+				}, 250);
+			}
+		});
 	}
 </script>
 
