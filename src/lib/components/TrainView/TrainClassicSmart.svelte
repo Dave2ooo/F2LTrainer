@@ -968,6 +968,7 @@
 	<RecapProgress />
 {:else}
 	<!-- Not connected - show Connect button group -->
+	<!--
 	<div class="flex flex-col items-center justify-center gap-6 py-20">
 		<div class="flex flex-col items-center gap-3">
 			<P class="text-center text-sm text-gray-500 dark:text-gray-400">
@@ -989,6 +990,7 @@
 			</ButtonGroup>
 		</div>
 	</div>
+	-->
 {/if}
 
 <div class="flex flex-row items-center justify-center gap-2">
