@@ -164,8 +164,6 @@
 		color: #1f2937;
 	}
 
-
-
 	.progress-bar {
 		height: 5px;
 		background: var(--progress-color);
