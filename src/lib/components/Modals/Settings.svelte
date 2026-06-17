@@ -2,9 +2,7 @@
 	import { Button, Range, Label } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import { Trash2, RotateCcw, Cloud, HardDrive, AlertTriangle } from '@lucide/svelte';
-	import ClearLocalDataModal from './ClearLocalDataModal.svelte';
-	import ClearCloudDataModal from './ClearCloudDataModal.svelte';
-	import ClearAllDataModal from './ClearAllDataModal.svelte';
+	import ConfirmationModal from './ConfirmationModal.svelte';
 	import { clearAllLocalStorage } from '$lib/utils/localStorage';
 	import ThemeSwitch from '$lib/components/ThemeSwitch.svelte';
 	import {
@@ -19,9 +17,9 @@
 	import { addToast } from '$lib/toastState.svelte';
 
 	let open = $state(false);
-	let clearLocalDataModal: ClearLocalDataModal;
-	let clearCloudDataModal: ClearCloudDataModal;
-	let clearAllDataModal: ClearAllDataModal;
+	let showClearLocalData = $state(false);
+	let showClearCloudData = $state(false);
+	let showClearAllData = $state(false);
 	let twistyPlayerLoaded = $state(false);
 	let previewPlayer: HTMLElement | undefined = $state();
 	let isDeleting = $state(false);
@@ -33,26 +31,26 @@
 		open = true;
 	}
 
-	async function handleClearLocalData() {
+	function handleClearLocalData() {
 		if (isDeleting) return;
+		showClearLocalData = true;
+	}
 
-		const confirmed = await clearLocalDataModal.confirm();
-		if (confirmed) {
-			isDeleting = true;
-			try {
-				clearAllLocalStorage();
-				addToast('Local data cleared successfully', 'success');
-				// Reload the page to reset all state
-				window.location.reload();
-			} catch (error) {
-				console.error('Error clearing local data:', error);
-				addToast('Failed to clear local data', 'error');
-				isDeleting = false;
-			}
+	function doClearLocalData() {
+		isDeleting = true;
+		try {
+			clearAllLocalStorage();
+			addToast('Local data cleared successfully', 'success');
+			// Reload the page to reset all state
+			window.location.reload();
+		} catch (error) {
+			console.error('Error clearing local data:', error);
+			addToast('Failed to clear local data', 'error');
+			isDeleting = false;
 		}
 	}
 
-	async function handleClearCloudData() {
+	function handleClearCloudData() {
 		if (isDeleting) return;
 
 		// Check if user is authenticated
@@ -67,22 +65,23 @@
 			return;
 		}
 
-		const confirmed = await clearCloudDataModal.confirm();
-		if (confirmed) {
-			isDeleting = true;
-			try {
-				await client.mutation(api.deleteUserData.deleteMyData, {});
-				addToast('Cloud data deleted successfully', 'success');
-			} catch (error) {
-				console.error('Error deleting cloud data:', error);
-				addToast('Failed to delete cloud data. Please try again.', 'error');
-			} finally {
-				isDeleting = false;
-			}
+		showClearCloudData = true;
+	}
+
+	async function doClearCloudData() {
+		isDeleting = true;
+		try {
+			await client.mutation(api.deleteUserData.deleteMyData, {});
+			addToast('Cloud data deleted successfully', 'success');
+		} catch (error) {
+			console.error('Error deleting cloud data:', error);
+			addToast('Failed to delete cloud data. Please try again.', 'error');
+		} finally {
+			isDeleting = false;
 		}
 	}
 
-	async function handleClearAllData() {
+	function handleClearAllData() {
 		if (isDeleting) return;
 
 		// Prevent deletion during sync
@@ -91,37 +90,38 @@
 			return;
 		}
 
-		const confirmed = await clearAllDataModal.confirm();
-		if (confirmed) {
-			isDeleting = true;
-			try {
-				// If authenticated, delete cloud data first
-				if (ctx.session) {
-					try {
-						await client.mutation(api.deleteUserData.deleteMyData, {});
-					} catch (error) {
-						console.error('Error deleting cloud data:', error);
-						// Ask user if they want to proceed with local deletion
-						const proceedAnyway = confirm(
-							'Failed to delete cloud data. Do you still want to clear local data?'
-						);
-						if (!proceedAnyway) {
-							isDeleting = false;
-							return;
-						}
+		showClearAllData = true;
+	}
+
+	async function doClearAllData() {
+		isDeleting = true;
+		try {
+			// If authenticated, delete cloud data first
+			if (ctx.session) {
+				try {
+					await client.mutation(api.deleteUserData.deleteMyData, {});
+				} catch (error) {
+					console.error('Error deleting cloud data:', error);
+					// Ask user if they want to proceed with local deletion
+					const proceedAnyway = confirm(
+						'Failed to delete cloud data. Do you still want to clear local data?'
+					);
+					if (!proceedAnyway) {
+						isDeleting = false;
+						return;
 					}
 				}
-
-				// Clear local data
-				clearAllLocalStorage();
-				addToast('All data cleared successfully', 'success');
-				// Reload the page to reset all state
-				window.location.reload();
-			} catch (error) {
-				console.error('Error clearing all data:', error);
-				addToast('Failed to clear all data', 'error');
-				isDeleting = false;
 			}
+
+			// Clear local data
+			clearAllLocalStorage();
+			addToast('All data cleared successfully', 'success');
+			// Reload the page to reset all state
+			window.location.reload();
+		} catch (error) {
+			console.error('Error clearing all data:', error);
+			addToast('Failed to clear all data', 'error');
+			isDeleting = false;
 		}
 	}
 
@@ -292,6 +292,53 @@
 	</div>
 </Modal>
 
-<ClearLocalDataModal bind:this={clearLocalDataModal} />
-<ClearCloudDataModal bind:this={clearCloudDataModal} />
-<ClearAllDataModal bind:this={clearAllDataModal} />
+<ConfirmationModal
+	bind:open={showClearLocalData}
+	title="Clear Local Data?"
+	onConfirm={doClearLocalData}
+	confirmText="Clear Local Data"
+	confirmColor="red"
+>
+	<p>
+		Are you sure you want to clear all local data? This will delete all your saved settings, case
+		states, sessions, and progress stored on this device.
+	</p>
+	<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+		Your cloud backup will remain safe and unchanged.
+	</p>
+</ConfirmationModal>
+
+<ConfirmationModal
+	bind:open={showClearCloudData}
+	title="Clear Cloud Data?"
+	onConfirm={doClearCloudData}
+	confirmText="Clear Cloud Data"
+	confirmColor="red"
+>
+	<p>
+		Are you sure you want to delete all your cloud data? This will permanently delete all your
+		synced case states, sessions, solves, and saved Bluetooth cubes from the cloud.
+	</p>
+	<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
+		Your local data on this device will remain unchanged. This action cannot be undone.
+	</p>
+</ConfirmationModal>
+
+<ConfirmationModal
+	bind:open={showClearAllData}
+	title="Clear All Data?"
+	onConfirm={doClearAllData}
+	confirmText="Delete Everything"
+	confirmColor="red"
+>
+	<p class="mb-4 font-semibold text-red-700 dark:text-red-500">⚠️ This will delete EVERYTHING</p>
+	<p>Are you sure you want to clear all data everywhere? This will permanently delete:</p>
+	<ul class="mt-2 list-inside list-disc space-y-1 text-sm text-gray-700 dark:text-gray-300">
+		<li>All local data on this device</li>
+		<li>All cloud data (case states, sessions, solves, saved Bluetooth cubes)</li>
+		<li>All your saved settings and progress</li>
+	</ul>
+	<p class="mt-4 text-sm font-semibold text-red-600 dark:text-red-400">
+		This action cannot be undone!
+	</p>
+</ConfirmationModal>
