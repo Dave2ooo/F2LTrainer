@@ -78,15 +78,14 @@
 
 				<span class="toast-message">{message}</span>
 
-				<Button
-					color={'none' as any}
+				<button
 					type="button"
-					class="dismiss-btn p-0"
+					class="ml-auto inline-flex size-7 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-300 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
 					onclick={handleDismiss}
 					aria-label="Dismiss notification"
 				>
-					<X class="h-4 w-4" />
-				</Button>
+					<X class="size-4" />
+				</button>
 			</div>
 
 			<!-- Progress bar -->
@@ -165,30 +164,7 @@
 		color: #1f2937;
 	}
 
-	.dismiss-btn {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 28px;
-		height: 28px;
-		border-radius: 6px;
-		background: transparent;
-		border: none;
-		color: #9ca3af;
-		cursor: pointer;
-		transition: all 0.15s ease;
-		flex-shrink: 0;
-	}
 
-	.dismiss-btn:hover {
-		background: rgba(255, 255, 255, 0.1);
-		color: #f9fafb;
-	}
-
-	:global(:not(.dark)) .dismiss-btn:hover {
-		background: rgba(0, 0, 0, 0.05);
-		color: #1f2937;
-	}
 
 	.progress-bar {
 		height: 5px;
