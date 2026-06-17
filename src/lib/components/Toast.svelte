@@ -79,7 +79,7 @@
 				<span class="toast-message">{message}</span>
 
 				<Button
-					color={"none" as any}
+					color={'none' as any}
 					type="button"
 					class="dismiss-btn p-0"
 					onclick={handleDismiss}

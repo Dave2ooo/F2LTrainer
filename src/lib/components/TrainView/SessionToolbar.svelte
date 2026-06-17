@@ -46,7 +46,8 @@
 	<div class="flex items-center gap-2">
 		<div class="relative">
 			<Button
-				color="gray" outline
+				color="gray"
+				outline
 				disabled={isDrillRunning}
 				class="flex items-center gap-2 border-gray-300 bg-white !px-3 font-medium text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
 			>
@@ -149,7 +150,7 @@
 					class="w-full bg-gray-50 hover:bg-gray-100 dark:bg-gray-800 dark:hover:bg-gray-600"
 					onclick={() => (showSessionManager = true)}
 				>
-					<div class="flex w-full items-center gap-2 text-gray-600 dark:text-gray-400">
+					<div class="flex w-full items-center gap-2 text-gray-500 dark:text-gray-400">
 						<FolderCog size={16} /> Manage Sessions
 					</div>
 				</DropdownItem>
@@ -157,7 +158,8 @@
 		</div>
 
 		<Button
-			color="gray" outline
+			color="gray"
+			outline
 			size="sm"
 			disabled={isDrillRunning}
 			class="border-gray-300 bg-white !p-2.5 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
@@ -166,7 +168,7 @@
 				isNewSession = false;
 			}}
 		>
-			<SettingsIcon size={16} class="text-gray-600 dark:text-gray-300" />
+			<SettingsIcon size={16} class="text-gray-500 dark:text-gray-300 dark:text-gray-400" />
 		</Button>
 	</div>
 </div>

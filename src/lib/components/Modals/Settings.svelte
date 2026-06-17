@@ -151,14 +151,16 @@
 		<!-- Appearance Section -->
 		<section class="rounded-lg border border-gray-300 p-4 dark:border-gray-600">
 			<div class="flex items-center justify-between">
-				<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Appearance</h3>
+				<h3 class="text-xl font-semibold text-gray-900 md:text-2xl dark:text-white">Appearance</h3>
 				<ThemeSwitch />
 			</div>
 		</section>
 
 		<!-- Cube Visualization Section -->
 		<section class="rounded-lg border border-gray-300 p-4 dark:border-gray-600">
-			<h3 class="mb-4 text-lg font-semibold text-gray-900 dark:text-white">Cube Visualization</h3>
+			<h3 class="mb-4 text-xl font-semibold text-gray-900 md:text-2xl dark:text-white">
+				Cube Visualization
+			</h3>
 
 			<!-- TwistyPlayer Preview -->
 			<div class="mb-4 flex justify-center">
@@ -233,7 +235,9 @@
 		<section
 			class="rounded-lg border border-red-300 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/10"
 		>
-			<h3 class="mb-3 text-lg font-semibold text-red-700 dark:text-red-500">Danger Zone</h3>
+			<h3 class="mb-3 text-xl font-semibold text-red-700 md:text-2xl dark:text-red-500">
+				Danger Zone
+			</h3>
 			<p class="mb-4 text-sm text-red-600 dark:text-red-400">
 				Delete your data locally, from the cloud, or both. These actions cannot be undone.
 			</p>

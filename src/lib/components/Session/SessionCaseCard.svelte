@@ -35,7 +35,7 @@
 </script>
 
 <Button
-	color={"none" as any}
+	color={'none' as any}
 	type="button"
 	onclick={toggleSelection}
 	class="flex cursor-pointer items-center gap-1 rounded-lg border-2 p-0 pl-1 transition-all hover:shadow-md focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500

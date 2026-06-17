@@ -227,9 +227,7 @@
 										<span class="whitespace-nowrap">{formatDate(cube.lastConnected)}</span>
 										{#if cube.macAddress}
 											<span>•</span>
-											<span class="font-mono text-xs whitespace-nowrap opacity-75"
-												>{cube.macAddress}</span
-											>
+											<span class="font-mono text-xs whitespace-nowrap">{cube.macAddress}</span>
 										{/if}
 										{#if isConnectedCube && bluetoothState.batteryLevel !== null}
 											<span>•</span>

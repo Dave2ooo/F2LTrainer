@@ -55,7 +55,7 @@
 <Navbar
 	breakpoint="sm"
 	fluid={true}
-	color={"none" as any}
+	color={'none' as any}
 	class="relative z-50 bg-gray-100 px-4 py-2 sm:py-0 sm:pr-0 md:pr-2 dark:bg-gray-900"
 >
 	<NavBrand>
@@ -145,7 +145,7 @@
 				</Button>
 				<Popover triggeredBy="#user-menu-out" trigger="click" placement="bottom">
 					<div class="flex min-w-[200px] flex-col gap-3 p-3">
-						<ul class="space-y-1.5 text-sm text-gray-600 dark:text-gray-300">
+						<ul class="space-y-1.5 text-sm text-gray-500 dark:text-gray-300 dark:text-gray-400">
 							<li class="flex items-center gap-2">
 								<CloudUpload class="size-4 text-primary-600" />
 								Sync across devices
@@ -214,7 +214,8 @@
 					<div class="flex min-w-[150px] flex-col gap-2 p-2">
 						<Button
 							onclick={() => ctx.clerk?.openUserProfile({ appearance })}
-							color="gray" outline
+							color="gray"
+							outline
 							class="flex items-center gap-2 text-base"
 						>
 							<UserRound class="size-5" />

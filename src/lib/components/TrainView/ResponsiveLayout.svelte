@@ -54,8 +54,8 @@
 		<!-- Desktop: Open Button (shown when right pane is closed) -->
 		{#if isMdOrLarger && !isRightPaneOpen}
 			<Button
-				color={"none" as any}
-				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+				color={'none' as any}
+				class="!focus:ring-0 absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Expand right pane"
 			>
@@ -66,8 +66,8 @@
 		<!-- Mobile: Toggle Button (always shown effectively, as per original logic for drawer) -->
 		{#if !isMdOrLarger}
 			<Button
-				color={"none" as any}
-				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+				color={'none' as any}
+				class="!focus:ring-0 absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Toggle right pane"
 			>
@@ -84,8 +84,8 @@
 		>
 			<!-- Close Button -->
 			<Button
-				color={"none" as any}
-				class="absolute top-1/2 -left-6 z-50 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+				color={'none' as any}
+				class="!focus:ring-0 absolute top-1/2 -left-6 z-50 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Collapse right pane"
 			>

@@ -27,8 +27,10 @@
 
 <Modal bind:open size="xs" autoclose={false}>
 	<div class="text-center">
-		<TriangleAlert class="mx-auto mb-4 h-12 w-12 text-gray-400 dark:text-gray-200" />
-		<h3 class="mb-5 text-lg font-normal text-gray-500 dark:text-gray-400">
+		<TriangleAlert
+			class="mx-auto mb-4 h-12 w-12 text-gray-500 dark:text-gray-200 dark:text-gray-400"
+		/>
+		<h3 class="mb-5 text-xl font-bold text-gray-500 md:text-3xl dark:text-gray-400">
 			{title}
 			<div class="mt-2 text-sm">
 				{message}

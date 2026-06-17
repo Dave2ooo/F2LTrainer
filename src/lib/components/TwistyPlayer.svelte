@@ -483,7 +483,7 @@
 	<!-- Visibility toggle button (top-left corner) -->
 	{#if showVisibilityToggle}
 		<Button
-			color={"none" as any}
+			color={'none' as any}
 			type="button"
 			onclick={toggleVisibility}
 			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-600 transition-all duration-200 focus:ring-0"
@@ -500,7 +500,7 @@
 
 	{#if showResetButton && !hidePlayer}
 		<Button
-			color={"none" as any}
+			color={'none' as any}
 			type="button"
 			onclick={resetView}
 			class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-600 transition-all duration-200"

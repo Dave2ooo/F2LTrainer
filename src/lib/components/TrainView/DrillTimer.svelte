@@ -178,7 +178,7 @@
 		<!-- Recognition Time -->
 		<div class="flex items-center justify-between gap-4">
 			<span
-				class="text-sm font-medium text-gray-600 dark:text-gray-400"
+				class="text-sm font-medium text-gray-500 dark:text-gray-400"
 				class:text-primary-600={phase === 'recognition'}
 				class:dark:text-primary-400={phase === 'recognition'}
 			>
@@ -196,7 +196,7 @@
 		<!-- Execution Time -->
 		<div class="flex items-center justify-between gap-4">
 			<span
-				class="text-sm font-medium text-gray-600 dark:text-gray-400"
+				class="text-sm font-medium text-gray-500 dark:text-gray-400"
 				class:text-green-600={phase === 'execution'}
 				class:dark:text-green-400={phase === 'execution'}
 			>

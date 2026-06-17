@@ -372,7 +372,7 @@
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
 			<div class="flex items-center justify-center gap-2">
-				<span class="text-sm font-medium text-gray-600 dark:text-gray-400">Train Mode:</span>
+				<span class="text-sm font-medium text-gray-500 dark:text-gray-400">Train Mode:</span>
 				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}
@@ -476,7 +476,7 @@
 				>
 					<table class="w-full text-left text-sm">
 						<thead
-							class="sticky top-0 bg-gray-100 text-xs text-gray-600 uppercase dark:bg-gray-700 dark:text-gray-400"
+							class="sticky top-0 bg-gray-100 text-xs text-gray-500 uppercase dark:bg-gray-700 dark:text-gray-400"
 						>
 							<tr>
 								<th
@@ -595,26 +595,26 @@
 											: 'text-gray-900 dark:text-white'}">{caseData.displayName}</td
 									>
 									{#if hasMixedSolves}
-										<td class="px-2 py-2 text-center text-gray-600 dark:text-gray-400"
+										<td class="px-2 py-2 text-center text-gray-500 dark:text-gray-400"
 											>{caseData.timedCount}</td
 										>
-										<td class="px-2 py-2 text-center text-gray-600 dark:text-gray-400"
+										<td class="px-2 py-2 text-center text-gray-500 dark:text-gray-400"
 											>{caseData.untimedCount}</td
 										>
 									{:else}
-										<td class="px-2 py-2 text-center text-gray-600 dark:text-gray-400"
+										<td class="px-2 py-2 text-center text-gray-500 dark:text-gray-400"
 											>{caseData.count}</td
 										>
 									{/if}
 									<td class="px-2 py-2 text-right font-mono text-green-600 dark:text-green-400"
 										>{formatTime(caseData.best)}</td
 									>
-									<td class="px-2 py-2 text-right font-mono text-gray-600 dark:text-gray-400"
+									<td class="px-2 py-2 text-right font-mono text-gray-500 dark:text-gray-400"
 										>{formatTime(caseData.mean)}</td
 									>
 									<td class="px-2 py-2 text-right">
 										<Button
-											color={"none" as any}
+											color={'none' as any}
 											type="button"
 											class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
 											onclick={(e: MouseEvent) => {

@@ -40,7 +40,7 @@
 {#if currentTrainCase && caseState}
 	<div class="mt-4 flex flex-col items-center gap-2 text-center">
 		<Button
-			color={"none" as any}
+			color={'none' as any}
 			type="button"
 			class="p-0 text-sm text-theme-text-secondary underline hover:text-gray-900 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-white"
 			onclick={() => (globalState.showDetails = !globalState.showDetails)}

@@ -416,7 +416,7 @@
 		<div class="animate-pulse text-9xl font-bold text-primary-600 dark:text-primary-400">
 			{countdownNumber}
 		</div>
-		<P class="mt-4 text-gray-600 dark:text-gray-400">Get ready...</P>
+		<P class="mt-4 text-gray-500 dark:text-gray-400">Get ready...</P>
 		<div class="mt-8 flex justify-center">
 			<span class="text-md rounded-full bg-purple-600 px-3 py-1 font-semibold text-white shadow-md">
 				Hold Green Front, White Up
@@ -437,7 +437,7 @@
 			<div
 				class="absolute inset-0 z-40 flex items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-800"
 			>
-				<P class="px-4 text-center text-xl font-semibold text-gray-400 dark:text-gray-500">
+				<P class="px-4 text-center text-xl font-semibold text-gray-500 dark:text-gray-400">
 					Solving...
 				</P>
 			</div>
@@ -571,8 +571,10 @@
 	<!-- Drill is stopped - show Start button or Connect button -->
 	<div class="flex flex-col items-center justify-center gap-6 py-6">
 		<div class="text-center">
-			<h2 class="mb-2 text-2xl font-bold text-gray-800 dark:text-gray-200">Drill Mode</h2>
-			<P class="text-center text-gray-600 dark:text-gray-400">
+			<h2 class="mb-2 text-2xl font-bold text-gray-800 md:text-3xl dark:text-gray-200">
+				Drill Mode
+			</h2>
+			<P class="text-center text-gray-500 dark:text-gray-400">
 				Test your recognition and execution speed without hints.
 			</P>
 		</div>

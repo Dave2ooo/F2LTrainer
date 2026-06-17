@@ -51,7 +51,7 @@
 
 <h2 class={`group ${className}`}>
 	<Button
-		color={"none" as any}
+		color={'none' as any}
 		type="button"
 		onclick={handleToggle}
 		class={`flex w-full items-center justify-start border-b border-gray-200 px-2 py-2 text-left font-medium text-theme-text group-first:rounded-t-xl group-first:border-t hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:ring-gray-800 ${

@@ -193,8 +193,8 @@
 		onclick={() => sessionStatsModal?.openModal()}
 	>
 		<div class="flex items-center justify-between">
-			<h4 class="text-lg font-semibold text-gray-900 dark:text-white">Session Stats</h4>
-			<ChevronRight class="size-4 text-gray-400 dark:text-gray-500" />
+			<h4 class="text-xl font-semibold text-gray-900 md:text-2xl dark:text-white">Session Stats</h4>
+			<ChevronRight class="size-4 text-gray-500 dark:text-gray-400" />
 		</div>
 		<div class="mt-2 grid grid-cols-4 gap-2 text-center">
 			<div class="flex flex-col">
@@ -228,13 +228,13 @@
 
 	<!-- Solves Header -->
 	<div class="mb-2 flex items-center gap-3">
-		<h3 class="text-lg font-semibold text-gray-900 dark:text-white">Session History</h3>
+		<h3 class="text-xl font-semibold text-gray-900 md:text-2xl dark:text-white">Session History</h3>
 		{#if listItems().some((i) => i.type === 'solved')}
 			<Button
 				color="red"
 				outline
 				size="xs"
-				class="border-transparent! bg-transparent! p-1.5! text-gray-400 hover:text-red-600 dark:text-gray-500 dark:hover:text-red-500"
+				class="border-transparent! bg-transparent! p-1.5! text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-500"
 				onclick={() => (showClearConfirmation = true)}
 			>
 				<Trash2 class="size-4" />
@@ -288,7 +288,7 @@
 									<span
 										role="button"
 										tabindex="0"
-										class="cursor-pointer font-mono text-sm text-gray-400 hover:text-gray-600 hover:underline dark:text-gray-500 dark:hover:text-gray-300"
+										class="cursor-pointer font-mono text-sm text-gray-500 hover:text-gray-600 hover:underline dark:text-gray-400 dark:hover:text-gray-300"
 										onclick={(e) => handleStatsClick(e, unsolvedCase.groupId, unsolvedCase.caseId)}
 										onkeydown={(e) =>
 											e.key === 'Enter' &&
@@ -327,10 +327,11 @@
 			{#if hasMoreSolves}
 				<div class="mt-3 flex justify-center">
 					<Button
-						color="gray" outline
+						color="gray"
+						outline
 						size="sm"
 						onclick={showMoreSolves}
-						class="text-gray-600 dark:text-gray-400"
+						class="text-gray-500 dark:text-gray-400"
 					>
 						Show More ({remainingSolves} remaining)
 					</Button>

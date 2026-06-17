@@ -124,11 +124,13 @@
 
 <div class="flex w-full flex-col items-center">
 	<Button
-		color={"none" as any}
+		color={'none' as any}
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="display-box relative cursor-pointer font-mono text-4xl font-bold hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 {isReady ? 'text-green-500' : ''}"
+		class="display-box relative cursor-pointer font-mono text-4xl font-bold hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 {isReady
+			? 'text-green-500'
+			: ''}"
 		aria-label="Timer"
 	>
 		<span class="tabular-nums">{formattedTime}</span>

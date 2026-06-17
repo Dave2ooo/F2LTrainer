@@ -97,7 +97,7 @@
 
 		{#if showEditButton}
 			<Button
-				color={"none" as any}
+				color={'none' as any}
 				type="button"
 				onclick={(e: MouseEvent) => {
 					e.stopPropagation();

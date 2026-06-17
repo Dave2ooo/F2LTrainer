@@ -379,7 +379,8 @@
 		{#if sessionsWithSolves.length > 1}
 			<div class="absolute top-2.5 right-12 z-20 md:right-14">
 				<Button
-					color="gray" outline
+					color="gray"
+					outline
 					class="relative rounded-lg border-none !bg-transparent !p-1.5 text-gray-500 shadow-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:ring-0 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
 				>
 					<Funnel
@@ -442,7 +443,7 @@
 		<!-- Train Type Filter -->
 		{#if trainTypeOptions.length > 1}
 			<div class="flex items-center justify-center gap-2">
-				<span class="text-sm font-medium text-gray-600 dark:text-gray-400">Train Mode:</span>
+				<span class="text-sm font-medium text-gray-500 dark:text-gray-400">Train Mode:</span>
 				<Select bind:value={trainTypeFilter} items={trainTypeOptions} placeholder="" class="w-80" />
 			</div>
 		{/if}

@@ -473,14 +473,14 @@
 							class="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900"
 						>
 							<div class="min-w-0 flex-1">
-								<span class="truncate font-medium text-gray-600 dark:text-gray-400">
+								<span class="truncate font-medium text-gray-500 dark:text-gray-400">
 									{session.name || 'Unnamed Session'}
 								</span>
 								<!-- Session config badges (archived) -->
 								<div class="mt-1.5 flex flex-wrap items-center gap-1.5">
 									<!-- Case count -->
 									<span
-										class="inline-flex items-center gap-1 rounded-md bg-gray-100/50 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700/50 dark:text-gray-400"
+										class="inline-flex items-center gap-1 rounded-md bg-gray-100/50 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-700/50 dark:text-gray-400"
 									>
 										{(() => {
 											const caseCount = getNumberOfSelectedCases(session.settings);
@@ -516,7 +516,7 @@
 										</span>
 									{/if}
 								</div>
-								<p class="mt-1 text-xs text-gray-400 dark:text-gray-500">
+								<p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
 									{solveCounts[session.id] || 0} solve{(solveCounts[session.id] || 0) === 1
 										? ''
 										: 's'} • Archived • Last played: {formatDate(session.lastPlayedAt)}

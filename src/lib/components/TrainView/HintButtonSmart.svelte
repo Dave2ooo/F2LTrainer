@@ -105,14 +105,14 @@
 
 	// Future moves - blurred when step mode or allAtOnce before first move, visible when full algorithm revealed
 	const futureChipBlurred =
-		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
+		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-500 dark:text-gray-400 blur-sm';
 	const futureChipVisible =
 		'rounded bg-gray-100 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-600 dark:text-gray-400';
 	let futureChipClass = $derived(showFullAlgorithm ? futureChipVisible : futureChipBlurred);
 
 	// Current move chip - blurred version for allAtOnce before first move
 	const currentChipBlurred =
-		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-400 dark:text-gray-500 blur-sm';
+		'rounded bg-gray-200 dark:bg-gray-700 px-2 py-1 font-mono font-semibold text-gray-500 dark:text-gray-400 blur-sm';
 	let currentChipClassDynamic = $derived(isAllBlurred ? currentChipBlurred : currentChipClass);
 
 	// Undo moves - warning style with amber colors
@@ -167,7 +167,7 @@
 				</div>
 
 				<!-- Progress indicator -->
-				<!-- <div class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+				<!-- <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
 					Progress: {currentMoveIndex}/{totalMoves} moves
 				</div> -->
 			{:else}
@@ -195,7 +195,7 @@
 
 		{#if showEditButton}
 			<Button
-				color={"none" as any}
+				color={'none' as any}
 				type="button"
 				onclick={(e: MouseEvent) => {
 					e.stopPropagation();
@@ -214,7 +214,7 @@
 	</div>
 
 	<!-- <div class="mt-2 flex flex-col items-center gap-1">
-		<span class="text-xs tracking-wide text-gray-500 uppercase dark:text-gray-400"
+		<span class="text-xs tracking-wide uppercase text-gray-500 dark:text-gray-400"
 			>Applied Moves</span
 		>
 		<div class="flex flex-wrap items-center justify-center gap-1">

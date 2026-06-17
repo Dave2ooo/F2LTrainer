@@ -37,7 +37,7 @@
 			synced case states, sessions, solves, and saved Bluetooth cubes from the cloud.
 		</p>
 
-		<p class="text-sm text-gray-600 dark:text-gray-400">
+		<p class="text-sm text-gray-500 dark:text-gray-400">
 			Your local data on this device will remain unchanged. This action cannot be undone.
 		</p>
 

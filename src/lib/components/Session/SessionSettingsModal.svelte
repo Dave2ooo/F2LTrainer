@@ -151,14 +151,14 @@
 					/>
 				{:else}
 					<h3
-						class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white"
+						class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-bold text-gray-900 md:text-3xl dark:text-white"
 					>
 						{session.name || 'Unnamed Session'}
 						<Button
-							color={"none" as any}
+							color={'none' as any}
 							type="button"
 							onclick={startEditingName}
-							class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
+							class="rounded-lg p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
 							aria-label="Edit session name"
 							title="Edit session name"
 						>
@@ -288,7 +288,7 @@
 										<p class="mt-1 mb-3 ml-6 text-xs text-gray-500 dark:text-gray-400">
 											Scramble your smart cube yourself. Requires Smart Cube.
 										</p>
-										<p class="text-sm text-gray-600 dark:text-gray-400">
+										<p class="text-sm text-gray-500 dark:text-gray-400">
 											💡 Smart cube support activates automatically when connected.
 										</p>
 									</div>
@@ -398,7 +398,7 @@
 							class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
 						>
 							<Button
-								color={"none" as any}
+								color={'none' as any}
 								type="button"
 								class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() =>
@@ -823,7 +823,7 @@
 								class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
 							>
 								<Button
-									color={"none" as any}
+									color={'none' as any}
 									type="button"
 									class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
 									onclick={() =>
@@ -904,7 +904,9 @@
 														placement="bottom"
 													>
 														<div class="w-min space-y-3">
-															<p class="text-xs text-gray-600 dark:text-gray-300">
+															<p
+																class="text-xs text-gray-500 dark:text-gray-300 dark:text-gray-400"
+															>
 																When enabled, highlight F2L edges by orientation
 															</p>
 															<div class="grid w-max grid-cols-1 gap-3 sm:grid-cols-2">
@@ -947,7 +949,8 @@
 														<div class="mt-4 flex justify-end">
 															<Button
 																size="xs"
-																color="gray" outline
+																color="gray"
+																outline
 																onclick={() => {
 																	globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
 																	globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;

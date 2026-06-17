@@ -110,7 +110,7 @@
 </script>
 
 <Button
-	color={"none" as any}
+	color={'none' as any}
 	type="button"
 	onclick={cycleTrainStates}
 	class="group relative flex w-full items-center rounded-2xl border-2 p-0 transition-shadow hover:shadow-xl focus:ring-2 {getCaseBorderClass(

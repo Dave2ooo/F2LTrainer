@@ -20,7 +20,9 @@
 		>
 			<CircleCheck class="h-10 w-10 text-emerald-500" strokeWidth={2} />
 		</div>
-		<h3 class="mb-2 text-xl font-semibold text-gray-900 dark:text-white">Awesome, thanks!</h3>
+		<h3 class="mb-2 text-xl font-bold text-gray-900 md:text-3xl dark:text-white">
+			Awesome, thanks!
+		</h3>
 		<p class="text-gray-800 dark:text-gray-300">
 			Your message is on its way. I really appreciate the feedback and will respond as soon as I
 			can.

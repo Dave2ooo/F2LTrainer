@@ -37,7 +37,7 @@
 			states, sessions, and progress stored on this device.
 		</p>
 
-		<p class="text-sm text-gray-600 dark:text-gray-400">
+		<p class="text-sm text-gray-500 dark:text-gray-400">
 			Your cloud backup will remain safe and unchanged.
 		</p>
 

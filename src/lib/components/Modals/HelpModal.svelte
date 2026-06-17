@@ -63,7 +63,7 @@
 							</li>
 						</ol>
 					</div>
-					<p class="text-gray-600 dark:text-gray-400">
+					<p class="text-gray-500 dark:text-gray-400">
 						Use the interactive 3D cube to visualize cases — you can rotate it by dragging!
 					</p>
 				</div>
@@ -88,7 +88,7 @@
 							Practice F2L cases at your own pace using a physical cube. Optionally use the timer to
 							track your solve times, or practice without pressure.
 						</p>
-						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>Press and hold <kbd class="kbd">Space</kbd> to prime the timer (optional)</li>
 							<li>Release to start timing, press again to stop</li>
 							<li>
@@ -110,7 +110,7 @@
 							Similar to Standard Practice, but with smart cube integration. The cube automatically
 							tracks your moves and displays them in real-time — no manual scrambling needed!
 						</p>
-						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>Requires a connected smart cube</li>
 							<li>Real-time move tracking on the 3D cube</li>
 							<li>No need to scramble manually — just follow along</li>
@@ -129,7 +129,7 @@
 							Challenge yourself to improve recognition and execution times for algorithms you
 							already know. This mode is focused on speed, not learning.
 						</p>
-						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="mt-2 list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>Requires a connected smart cube</li>
 							<li>
 								<strong>Recognition time:</strong> From case shown until your first non-U move
@@ -161,7 +161,7 @@
 						<p>
 							Optimize your practice by letting the trainer choose cases based on your performance:
 						</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>
 								<strong>Prioritize Unsolved:</strong> Shows cases you haven't solved yet more frequently.
 							</li>
@@ -179,7 +179,7 @@
 							<span>Algorithm Hints</span>
 						</div>
 						<p>Choose how algorithms are displayed during training:</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li><strong>Reveal step-by-step:</strong> Show the next move one at a time.</li>
 							<li><strong>Reveal all at once:</strong> Show the full algorithm after a click.</li>
 							<li>
@@ -194,7 +194,7 @@
 							<Eye class="size-4 text-green-500" />
 							<span>Visualization</span>
 						</div>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>
 								<strong>Add Random AUF:</strong> Adds a random U-layer rotation to the end of scrambles
 								to test your top-layer recognition.
@@ -253,10 +253,10 @@
 							<li>GAN12 ui</li>
 							<li>GAN16 ui</li>
 						</ul>
-						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+						<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
 							Have a different smart cube? Let us know if it works using the
 							<Button
-								color={"none" as any}
+								color={'none' as any}
 								type="button"
 								class="inline p-0 font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() => feedbackModal.openModal()}
@@ -301,7 +301,7 @@
 							Sessions help you organize your practice. Each session can have different cases
 							selected, different settings, and tracks its own statistics.
 						</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>Create multiple sessions for different practice focuses</li>
 							<li>Switch between sessions from the dropdown in training view</li>
 							<li>Configure hint settings, timer display, and more per session</li>
@@ -310,7 +310,7 @@
 
 					<div class="space-y-2">
 						<p class="font-medium">Understanding Your Statistics:</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>
 								<strong>Best Time:</strong> Your fastest solve for a case.
 							</li>
@@ -329,7 +329,7 @@
 						</ul>
 					</div>
 
-					<p class="text-gray-600 dark:text-gray-400">
+					<p class="text-gray-500 dark:text-gray-400">
 						View detailed statistics by clicking on the case card or the session stats in the right
 						panel.
 					</p>
@@ -347,7 +347,7 @@
 				<div class="text-md space-y-3 px-3 py-1 text-gray-700 dark:text-gray-300">
 					<div class="space-y-2">
 						<p class="font-medium">Practice Tips:</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>
 								<strong>Start Small:</strong> Pick 3-5 cases and master them before adding more. This
 								prevents feeling overwhelmed.
@@ -373,7 +373,7 @@
 
 					<div class="space-y-2">
 						<p class="font-medium">Common Issues:</p>
-						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-600 dark:text-gray-400">
+						<ul class="list-inside list-disc space-y-1 pl-2 text-gray-500 dark:text-gray-400">
 							<li>
 								<strong>Moves not tracking properly:</strong> Ensure you are using a supported cube.
 								Calibrate your cube in its native app if moves are missing.
@@ -385,7 +385,7 @@
 							<li>
 								<strong>Smart cube moves not tracking properly:</strong>
 								<ul
-									class="mt-2 list-inside list-disc space-y-1 pl-4 text-gray-600 dark:text-gray-400"
+									class="mt-2 list-inside list-disc space-y-1 pl-4 text-gray-500 dark:text-gray-400"
 								>
 									<li>Hold your cube with white on top and green in front at all times.</li>
 									<li>Only rotate the cube when the algorithm tells you to.</li>
@@ -401,7 +401,7 @@
 						<p class="text-blue-800 dark:text-blue-200">
 							<strong>Need more help?</strong> Use the
 							<Button
-								color={"none" as any}
+								color={'none' as any}
 								type="button"
 								class="inline p-0 font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() => feedbackModal.openModal()}

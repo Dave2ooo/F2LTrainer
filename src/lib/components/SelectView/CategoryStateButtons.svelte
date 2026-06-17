@@ -49,9 +49,11 @@
 	onkeydown={(e) => e.stopPropagation()}
 >
 	<Button
-		color={"none" as any}
+		color={'none' as any}
 		type="button"
-		class="rounded border-3 border-theme-border p-0 md:border-4 focus:ring-2 {!allUnlearned ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
+		class="rounded border-3 border-theme-border p-0 focus:ring-2 md:border-4 {!allUnlearned
+			? 'size-5 md:size-6'
+			: 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.unlearned}"
 		onclick={(e: MouseEvent) => {
 			e.stopPropagation();
@@ -60,7 +62,7 @@
 		aria-label="Set all cases to unlearned"
 	></Button>
 	<Button
-		color={"none" as any}
+		color={'none' as any}
 		type="button"
 		class="rounded p-0 focus:ring-2 {!allLearning ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.learning}"
@@ -71,7 +73,7 @@
 		aria-label="Set all cases to learning"
 	></Button>
 	<Button
-		color={"none" as any}
+		color={'none' as any}
 		type="button"
 		class="rounded p-0 focus:ring-2 {!allFinished ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.finished}"

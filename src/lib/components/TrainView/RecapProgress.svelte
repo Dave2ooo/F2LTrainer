@@ -84,7 +84,7 @@
 			</div>
 		{/if}
 
-		<div class="mb-1 flex justify-between text-sm text-gray-600 dark:text-gray-400">
+		<div class="mb-1 flex justify-between text-sm text-gray-500 dark:text-gray-400">
 			<span>Recap</span>
 			<span>{label}</span>
 		</div>
