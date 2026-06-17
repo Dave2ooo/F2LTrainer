@@ -73,7 +73,7 @@
 			class="p-1 text-primary-600 hover:bg-transparent dark:text-primary-600 dark:hover:bg-transparent [&>svg]:size-8 md:[&>svg]:size-10"
 		/>
 	</div>
-	<NavUl>
+	<NavUl ulClass="sm:p-3">
 		<li class="mx-1 my-2 sm:my-0 xl:mx-3">
 			<Button
 				class="btn-icon-transparent flex items-center justify-start"
