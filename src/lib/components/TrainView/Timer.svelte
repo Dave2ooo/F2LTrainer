@@ -2,6 +2,7 @@
 	import { onDestroy } from 'svelte';
 	import { Pointer } from '@lucide/svelte';
 	import { globalState } from '$lib/globalState.svelte';
+	import { Button } from 'flowbite-svelte';
 
 	// Props - time is now in centiseconds (1/100s)
 	interface Props {
@@ -122,17 +123,17 @@
 </script>
 
 <div class="flex w-full flex-col items-center">
-	<button
+	<Button
+		color={"none" as any}
 		type="button"
 		onpointerdown={handlePointerDown}
 		onpointerup={handlePointerUp}
-		class="display-box relative cursor-pointer font-mono text-4xl font-bold hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700"
-		class:text-green-500={isReady}
+		class="display-box relative cursor-pointer font-mono text-4xl font-bold hover:bg-gray-50 focus:ring-2 focus:ring-primary-600 focus:outline-none md:text-5xl dark:hover:bg-gray-700 {isReady ? 'text-green-500' : ''}"
 		aria-label="Timer"
 	>
 		<span class="tabular-nums">{formattedTime}</span>
 		{#if !isRunning && !isReady && !globalState.hasUsedTimer}
 			<Pointer class="absolute right-2 bottom-2 size-6 animate-bounce text-primary-600" />
 		{/if}
-	</button>
+	</Button>
 </div>

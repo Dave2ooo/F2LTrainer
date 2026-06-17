@@ -2,6 +2,7 @@
 	import type { HintAlgorithm } from '$lib/types/globalState';
 	import { Pencil, Undo2 } from '@lucide/svelte';
 	import { isRotationMove } from '$lib/utils/moveValidator';
+	import { Button } from 'flowbite-svelte';
 
 	interface Props {
 		alg: string;
@@ -193,9 +194,10 @@
 		</div>
 
 		{#if showEditButton}
-			<button
+			<Button
+				color={"none" as any}
 				type="button"
-				onclick={(e) => {
+				onclick={(e: MouseEvent) => {
 					e.stopPropagation();
 					if (!editDisabled) {
 						onEditAlg();
@@ -207,7 +209,7 @@
 				aria-disabled={editDisabled}
 			>
 				<Pencil class="size-6" strokeWidth={3} />
-			</button>
+			</Button>
 		{/if}
 	</div>
 

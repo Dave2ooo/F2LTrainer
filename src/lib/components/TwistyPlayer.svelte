@@ -15,6 +15,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import { RotateCw, Eye, EyeOff } from '@lucide/svelte';
 	import { setupTwistyPlayerClickHandlers } from '$lib/utils/twistyPlayerClickHandler';
+	import { Button } from 'flowbite-svelte';
 	import type { HintStickering } from '$lib/types/globalState';
 	import { checkF2LState } from '$lib/utils/checkF2LState';
 	import { globalState } from '$lib/globalState.svelte';
@@ -481,10 +482,11 @@
 
 	<!-- Visibility toggle button (top-left corner) -->
 	{#if showVisibilityToggle}
-		<button
+		<Button
+			color={"none" as any}
 			type="button"
 			onclick={toggleVisibility}
-			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-600 transition-all duration-200"
+			class="hover:bg-opacity-90 absolute top-1 left-1 z-20 rounded-full p-2 text-primary-600 transition-all duration-200 focus:ring-0"
 			title={hidePlayer ? 'Show Cube' : 'Hide Cube'}
 			aria-label={hidePlayer ? 'Show Cube' : 'Hide Cube'}
 		>
@@ -493,11 +495,12 @@
 			{:else}
 				<EyeOff class="size-6" strokeWidth={3} />
 			{/if}
-		</button>
+		</Button>
 	{/if}
 
 	{#if showResetButton && !hidePlayer}
-		<button
+		<Button
+			color={"none" as any}
 			type="button"
 			onclick={resetView}
 			class="hover:bg-opacity-90 absolute top-1 right-1 rounded-full p-2 text-primary-600 transition-all duration-200"
@@ -505,7 +508,7 @@
 			aria-label="Reset camera view"
 		>
 			<RotateCw class="size-6" strokeWidth={3} />
-		</button>
+		</Button>
 	{/if}
 </div>
 

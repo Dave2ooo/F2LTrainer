@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { HintAlgorithm } from '$lib/types/globalState';
 	import { Pencil } from '@lucide/svelte';
+	import { Button } from 'flowbite-svelte';
 
 	interface Props {
 		alg: string;
@@ -95,9 +96,10 @@
 		{/if}
 
 		{#if showEditButton}
-			<button
+			<Button
+				color={"none" as any}
 				type="button"
-				onclick={(e) => {
+				onclick={(e: MouseEvent) => {
 					e.stopPropagation();
 					onEditAlg();
 				}}
@@ -106,7 +108,7 @@
 				aria-label="Edit algorithm"
 			>
 				<Pencil class="size-6" strokeWidth={3} />
-			</button>
+			</Button>
 		{/if}
 	</div>
 </div>

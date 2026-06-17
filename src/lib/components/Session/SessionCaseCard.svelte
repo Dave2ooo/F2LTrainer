@@ -4,6 +4,7 @@
 	import { getCaseName } from '$lib/casesState.svelte';
 	import type { CaseId, GroupId } from '$lib/types/group';
 	import type { StickerColor } from '$lib/types/stickering';
+	import { Button } from 'flowbite-svelte';
 
 	let {
 		groupId,
@@ -33,10 +34,11 @@
 	}
 </script>
 
-<button
+<Button
+	color={"none" as any}
 	type="button"
 	onclick={toggleSelection}
-	class="flex cursor-pointer items-center gap-1 rounded-lg border-2 pl-1 transition-all hover:shadow-md
+	class="flex cursor-pointer items-center gap-1 rounded-lg border-2 p-0 pl-1 transition-all hover:shadow-md focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500
 		{isSelected
 		? 'border-blue-500 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/30'
 		: 'border-gray-200 bg-white hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-gray-600'}"
@@ -61,4 +63,4 @@
 			class="size-full"
 		/>
 	</div>
-</button>
+</Button>

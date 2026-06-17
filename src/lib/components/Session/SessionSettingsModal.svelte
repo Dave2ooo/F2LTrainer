@@ -154,7 +154,8 @@
 						class="flex items-center gap-1.5 px-1 py-0.5 text-xl font-medium text-gray-900 dark:text-white"
 					>
 						{session.name || 'Unnamed Session'}
-						<button
+						<Button
+							color={"none" as any}
 							type="button"
 							onclick={startEditingName}
 							class="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:text-gray-500 dark:hover:bg-gray-700 dark:hover:text-white"
@@ -162,7 +163,7 @@
 							title="Edit session name"
 						>
 							<Pencil class="size-4" />
-						</button>
+						</Button>
 					</h3>
 				{/if}
 			</div>
@@ -396,9 +397,10 @@
 						<div
 							class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
 						>
-							<button
+							<Button
+								color={"none" as any}
 								type="button"
-								class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+								class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() =>
 									(globalState.showAdvancedTraining = !globalState.showAdvancedTraining)}
 							>
@@ -408,7 +410,7 @@
 									<ChevronRight class="size-4" />
 								{/if}
 								Advanced Settings
-							</button>
+							</Button>
 
 							{#if globalState.showAdvancedTraining}
 								<div class="flex flex-col gap-4 border-t border-gray-200 p-4 dark:border-gray-700">
@@ -820,9 +822,10 @@
 							<div
 								class="-mt-2 rounded-xl border border-gray-200 bg-gray-50/50 shadow-sm dark:border-gray-700 dark:bg-gray-800/40"
 							>
-								<button
+								<Button
+									color={"none" as any}
 									type="button"
-									class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+									class="flex w-full items-center justify-start gap-2 p-4 text-sm font-medium text-blue-600 transition-colors hover:text-blue-800 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
 									onclick={() =>
 										(globalState.showAdvancedAppearance = !globalState.showAdvancedAppearance)}
 								>
@@ -832,7 +835,7 @@
 										<ChevronRight class="size-4" />
 									{/if}
 									Advanced Settings
-								</button>
+								</Button>
 
 								{#if globalState.showAdvancedAppearance}
 									<div

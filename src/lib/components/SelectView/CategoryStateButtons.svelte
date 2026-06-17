@@ -2,6 +2,7 @@
 	import type { GroupId, CaseId } from '$lib/types/group';
 	import type { TrainState } from '$lib/types/caseState';
 	import { casesState, TrainStateColors, updateCaseState } from '$lib/casesState.svelte';
+	import { Button } from 'flowbite-svelte';
 
 	let {
 		groupId,
@@ -47,46 +48,37 @@
 	onclick={(e) => e.stopPropagation()}
 	onkeydown={(e) => e.stopPropagation()}
 >
-	<button
+	<Button
+		color={"none" as any}
 		type="button"
-		class="rounded border-3 border-theme-border md:border-4"
-		class:size-5={!allUnlearned}
-		class:size-7={allUnlearned}
-		class:md:size-6={!allUnlearned}
-		class:md:size-8={allUnlearned}
+		class="rounded border-3 border-theme-border p-0 md:border-4 focus:ring-2 {!allUnlearned ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.unlearned}"
-		onclick={(e) => {
+		onclick={(e: MouseEvent) => {
 			e.stopPropagation();
 			setCategoryState('unlearned');
 		}}
 		aria-label="Set all cases to unlearned"
-	></button>
-	<button
+	></Button>
+	<Button
+		color={"none" as any}
 		type="button"
-		class="rounded"
-		class:size-5={!allLearning}
-		class:size-7={allLearning}
-		class:md:size-6={!allLearning}
-		class:md:size-8={allLearning}
+		class="rounded p-0 focus:ring-2 {!allLearning ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.learning}"
-		onclick={(e) => {
+		onclick={(e: MouseEvent) => {
 			e.stopPropagation();
 			setCategoryState('learning');
 		}}
 		aria-label="Set all cases to learning"
-	></button>
-	<button
+	></Button>
+	<Button
+		color={"none" as any}
 		type="button"
-		class="rounded"
-		class:size-5={!allFinished}
-		class:size-7={allFinished}
-		class:md:size-6={!allFinished}
-		class:md:size-8={allFinished}
+		class="rounded p-0 focus:ring-2 {!allFinished ? 'size-5 md:size-6' : 'size-7 md:size-8'}"
 		style="background-color: {TrainStateColors.finished}"
-		onclick={(e) => {
+		onclick={(e: MouseEvent) => {
 			e.stopPropagation();
 			setCategoryState('finished');
 		}}
 		aria-label="Set all cases to finished"
-	></button>
+	></Button>
 </div>

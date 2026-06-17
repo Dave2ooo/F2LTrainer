@@ -2,6 +2,7 @@
 	import { CheckCircle, XCircle, X } from '@lucide/svelte';
 	import { fly, fade } from 'svelte/transition';
 	import { cubicOut } from 'svelte/easing';
+	import { Button } from 'flowbite-svelte';
 
 	let {
 		message,
@@ -77,14 +78,15 @@
 
 				<span class="toast-message">{message}</span>
 
-				<button
+				<Button
+					color={"none" as any}
 					type="button"
-					class="dismiss-btn"
+					class="dismiss-btn p-0"
 					onclick={handleDismiss}
 					aria-label="Dismiss notification"
 				>
 					<X class="h-4 w-4" />
-				</button>
+				</Button>
 			</div>
 
 			<!-- Progress bar -->

@@ -55,7 +55,7 @@
 <Navbar
 	breakpoint="sm"
 	fluid={true}
-	color="none"
+	color={"none" as any}
 	class="relative z-50 bg-gray-100 px-4 py-2 sm:py-0 sm:pr-0 md:pr-2 dark:bg-gray-900"
 >
 	<NavBrand>

@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
 	import { Accordion, AccordionItem } from '../Accordion';
-	import { A } from 'flowbite-svelte';
+	import { A, Button } from 'flowbite-svelte';
 	import FeedbackModal from './FeedbackModal.svelte';
 	import {
 		Rocket,
@@ -255,13 +255,14 @@
 						</ul>
 						<p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
 							Have a different smart cube? Let us know if it works using the
-							<button
+							<Button
+								color={"none" as any}
 								type="button"
-								class="font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+								class="inline p-0 font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() => feedbackModal.openModal()}
 							>
 								Feedback form
-							</button>!
+							</Button>!
 						</p>
 					</div>
 
@@ -399,13 +400,14 @@
 					>
 						<p class="text-blue-800 dark:text-blue-200">
 							<strong>Need more help?</strong> Use the
-							<button
+							<Button
+								color={"none" as any}
 								type="button"
-								class="font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+								class="inline p-0 font-semibold text-blue-600 underline hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
 								onclick={() => feedbackModal.openModal()}
 							>
 								Feedback form
-							</button>
+							</Button>
 							to report issues or suggest improvements. You can also visit our
 							<A
 								href="https://github.com/Dave2ooo/F2LTrainer"

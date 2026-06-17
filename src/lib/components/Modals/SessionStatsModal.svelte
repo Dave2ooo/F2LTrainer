@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Modal from '../Modal.svelte';
-	import { P, Select } from 'flowbite-svelte';
+	import { P, Select, Button } from 'flowbite-svelte';
 	import type { Solve, TrainMode } from '$lib/types/statisticsState';
 	import { Chart } from '@flowbite-svelte-plugins/chart';
 	import { ArrowUp, ArrowDown, ChartNoAxesColumn } from '@lucide/svelte';
@@ -613,16 +613,17 @@
 										>{formatTime(caseData.mean)}</td
 									>
 									<td class="px-2 py-2 text-right">
-										<button
+										<Button
+											color={"none" as any}
 											type="button"
 											class="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-gray-900 focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-700"
-											onclick={(e) => {
+											onclick={(e: MouseEvent) => {
 												e.stopPropagation();
 												openCaseStats(caseData.groupId, caseData.caseId);
 											}}
 										>
 											<ChartNoAxesColumn size={16} />
-										</button>
+										</Button>
 									</td>
 								</tr>
 							{/each}

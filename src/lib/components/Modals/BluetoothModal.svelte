@@ -283,13 +283,14 @@
 			{:else}
 				<p class="text-center text-sm text-red-500">
 					{bluetoothState.errorMessage}
-					<button
+					<Button
+						color={"none" as any}
 						type="button"
-						class="ml-1 font-semibold underline hover:text-red-700"
+						class="ml-1 p-0 font-semibold underline hover:text-red-700"
 						onclick={() => feedbackModal.openModal(bluetoothState.errorMessage ?? undefined)}
 					>
 						Report this issue
-					</button>
+					</Button>
 				</p>
 			{/if}
 		{/if}

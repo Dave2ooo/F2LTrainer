@@ -109,10 +109,11 @@
 	}
 </script>
 
-<button
+<Button
+	color={"none" as any}
 	type="button"
 	onclick={cycleTrainStates}
-	class="group relative flex w-full items-center rounded-2xl border-2 transition-shadow hover:shadow-xl {getCaseBorderClass(
+	class="group relative flex w-full items-center rounded-2xl border-2 p-0 transition-shadow hover:shadow-xl focus:ring-2 {getCaseBorderClass(
 		caseState.trainState
 	)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
@@ -183,7 +184,7 @@
 		<Button onclick={handlePauseClick}>Pause</Button>
 		<Button onclick={handleTogglePlayClick}>Toggle Play</Button>
 	</div> -->
-</button>
+</Button>
 
 <EditAlg bind:this={editAlgRef} {groupId} {caseId} {side} />
 <CaseStatsModal bind:this={caseStatsRef} {groupId} {caseId} />

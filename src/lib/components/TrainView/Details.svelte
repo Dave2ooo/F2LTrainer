@@ -3,6 +3,7 @@
 	import { casesState } from '$lib/casesState.svelte';
 	import { GROUP_DEFINITIONS } from '$lib/types/group';
 	import { globalState } from '$lib/globalState.svelte';
+	import { Button } from 'flowbite-svelte';
 
 	let currentTrainCase = $derived(trainState.current);
 	let caseState = $derived(
@@ -38,13 +39,14 @@
 
 {#if currentTrainCase && caseState}
 	<div class="mt-4 flex flex-col items-center gap-2 text-center">
-		<button
+		<Button
+			color={"none" as any}
 			type="button"
-			class="text-sm text-theme-text-secondary underline hover:text-gray-900 dark:hover:text-white"
+			class="p-0 text-sm text-theme-text-secondary underline hover:text-gray-900 focus:ring-0 focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-white"
 			onclick={() => (globalState.showDetails = !globalState.showDetails)}
 		>
 			{globalState.showDetails ? 'Hide Details' : 'Show Details'}
-		</button>
+		</Button>
 
 		{#if globalState.showDetails}
 			<p class="text-sm text-theme-text-secondary">

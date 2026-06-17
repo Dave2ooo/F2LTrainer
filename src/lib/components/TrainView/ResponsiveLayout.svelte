@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { Drawer } from 'flowbite-svelte';
+	import { Drawer, Button } from 'flowbite-svelte';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
 	import type { Snippet } from 'svelte';
 	import RightPaneContent from './RightPaneContent.svelte';
@@ -53,24 +53,26 @@
 
 		<!-- Desktop: Open Button (shown when right pane is closed) -->
 		{#if isMdOrLarger && !isRightPaneOpen}
-			<button
-				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+			<Button
+				color={"none" as any}
+				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Expand right pane"
 			>
 				<ChevronLeft class="size-4 text-gray-500 dark:text-gray-400" />
-			</button>
+			</Button>
 		{/if}
 
 		<!-- Mobile: Toggle Button (always shown effectively, as per original logic for drawer) -->
 		{#if !isMdOrLarger}
-			<button
-				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+			<Button
+				color={"none" as any}
+				class="absolute top-1/2 right-0 z-10 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Toggle right pane"
 			>
 				<ChevronLeft class="size-4 text-gray-500 dark:text-gray-400" />
-			</button>
+			</Button>
 		{/if}
 	</div>
 
@@ -81,13 +83,14 @@
 			transition:fly={{ x: 200, duration: 300 }}
 		>
 			<!-- Close Button -->
-			<button
-				class="absolute top-1/2 -left-6 z-50 flex h-12 w-6 -translate-y-1/2 items-center justify-center rounded-l-md border border-r-0 border-gray-300 bg-white shadow-sm hover:bg-gray-100 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
+			<Button
+				color={"none" as any}
+				class="absolute top-1/2 -left-6 z-50 flex h-12 w-6 -translate-y-1/2 items-center justify-center !rounded-l-md !rounded-r-none border border-r-0 border-gray-300 bg-white p-0 shadow-sm hover:bg-gray-100 !focus:ring-0 focus-visible:!ring-2 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"
 				onclick={toggleRightPane}
 				aria-label="Collapse right pane"
 			>
 				<ChevronRight class="size-4 text-gray-500 dark:text-gray-400" />
-			</button>
+			</Button>
 
 			<!-- Scrollable Content -->
 			<div class="h-full overflow-y-auto">
