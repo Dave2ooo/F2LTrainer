@@ -37,7 +37,7 @@
 		<Button color={confirmColor} class="me-2 gap-2" onclick={handleConfirm}
 			><Trash2 class="size-4" />{confirmText}</Button
 		>
-		<Button color="alternative" class="gap-2" onclick={() => (open = false)}
+		<Button color="gray" outline class="gap-2" onclick={() => (open = false)}
 			>Cancel<X class="size-4" /></Button
 		>
 	</div>

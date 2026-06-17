@@ -3,7 +3,7 @@
 	import { Button, Spinner, Input } from 'flowbite-svelte';
 	import Modal from '../Modal.svelte';
 	import RemoveCubeModal from './RemoveCubeModal.svelte';
-	import { Bluetooth, Plus, Trash2, Edit2, Check, X } from '@lucide/svelte';
+	import { Bluetooth, Plus, Trash2, Pencil, Check, X } from '@lucide/svelte';
 	import FeedbackModal from './FeedbackModal.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
@@ -176,7 +176,7 @@
 				<p class="text-center text-sm text-gray-500 dark:text-gray-400">
 					Connection test only—no need to sync with your physical cube.
 				</p>
-				<Button color="light" size="sm" onclick={onSync}>Sync (Reset)</Button>
+				<Button color="gray" outline size="sm" onclick={onSync}>Sync (Reset)</Button>
 			</div>
 		{:else}
 			<div class="flex flex-col items-center gap-2 text-gray-500 dark:text-gray-400">
@@ -213,7 +213,7 @@
 								<Button size="xs" color="green" onclick={saveEditCube}>
 									<Check class="size-4" />
 								</Button>
-								<Button size="xs" color="alternative" onclick={cancelEditCube}>
+								<Button size="xs" color="gray" outline onclick={cancelEditCube}>
 									<X class="size-4" />
 								</Button>
 							{:else}
@@ -252,8 +252,8 @@
 											Connect
 										</Button>
 									{/if}
-									<Button size="xs" color="light" onclick={() => startEditingCube(cube.id)}>
-										<Edit2 class="size-4" />
+									<Button size="xs" color="gray" outline onclick={() => startEditingCube(cube.id)}>
+										<Pencil class="size-4" />
 									</Button>
 									<Button
 										size="xs"
@@ -284,7 +284,7 @@
 				<p class="text-center text-sm text-red-500">
 					{bluetoothState.errorMessage}
 					<Button
-						color={"none" as any}
+						color={'none' as any}
 						type="button"
 						class="ml-1 p-0 font-semibold underline hover:text-red-700"
 						onclick={() => feedbackModal.openModal(bluetoothState.errorMessage ?? undefined)}
@@ -297,7 +297,8 @@
 
 		<!-- Connect new cube button -->
 		<Button
-			color="alternative"
+			color="gray"
+			outline
 			size="sm"
 			class="w-full"
 			onclick={onConnect}

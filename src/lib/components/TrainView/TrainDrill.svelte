@@ -540,7 +540,7 @@
 				<div class="font-mono text-xl font-semibold">{displayAlg}</div>
 			</div>
 			<div class="flex gap-2">
-				<Button color="alternative" onclick={onRedo}>
+				<Button color="gray" outline onclick={onRedo}>
 					<RotateCw class="mr-2 size-4" />
 					Redo
 				</Button>
@@ -590,7 +590,7 @@
 					Connect a smart cube to start drilling
 				</P>
 				<ButtonGroup>
-					<Button color="light" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
+					<Button color="blue" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
 						{#if bluetoothState.isConnecting}
 							<Spinner class="mr-2" size="5" />
 							<span class="text-base font-medium">Connecting...</span>
@@ -599,7 +599,7 @@
 							<span class="text-base font-medium">{connectButtonLabel}</span>
 						{/if}
 					</Button>
-					<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
+					<Button color="blue" onclick={() => (bluetoothModalOpen = true)}>
 						<EllipsisVertical class="size-5" />
 					</Button>
 				</ButtonGroup>

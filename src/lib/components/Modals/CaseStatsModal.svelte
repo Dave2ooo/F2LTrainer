@@ -379,7 +379,7 @@
 		{#if sessionsWithSolves.length > 1}
 			<div class="absolute top-2.5 right-12 z-20 md:right-14">
 				<Button
-					color="alternative"
+					color="gray" outline
 					class="relative rounded-lg border-none !bg-transparent !p-1.5 text-gray-500 shadow-none transition-colors hover:bg-gray-100 hover:text-gray-900 focus:ring-0 focus:outline-none dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
 				>
 					<Funnel

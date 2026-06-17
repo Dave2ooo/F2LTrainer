@@ -884,13 +884,14 @@
 
 	<RecapProgress />
 {:else}
+	<!--
 	<div class="flex flex-col items-center justify-center gap-6 py-20">
 		<div class="flex flex-col items-center gap-3">
 			<P class="text-center text-sm text-gray-500 dark:text-gray-400">
 				Connect a smart cube to start training
 			</P>
 			<ButtonGroup>
-				<Button color="light" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
+				<Button color="blue" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
 					{#if bluetoothState.isConnecting}
 						<Spinner class="mr-2" size="5" />
 						<span class="text-base font-medium">Connecting...</span>
@@ -899,12 +900,13 @@
 						<span class="text-base font-medium">{connectButtonLabel}</span>
 					{/if}
 				</Button>
-				<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
+				<Button color="blue" onclick={() => (bluetoothModalOpen = true)}>
 					<EllipsisVertical class="size-5" />
 				</Button>
 			</ButtonGroup>
 		</div>
 	</div>
+	-->
 {/if}
 
 <div class="flex flex-row items-center justify-center gap-2">

@@ -327,7 +327,7 @@
 			{#if hasMoreSolves}
 				<div class="mt-3 flex justify-center">
 					<Button
-						color="alternative"
+						color="gray" outline
 						size="sm"
 						onclick={showMoreSolves}
 						class="text-gray-600 dark:text-gray-400"

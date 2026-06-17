@@ -297,7 +297,7 @@
 							<Button size="xs" color="green" onclick={confirmPendingCopy}>
 								<Check class="size-4" />
 							</Button>
-							<Button size="xs" color="alternative" onclick={cancelPendingCopy}>
+							<Button size="xs" color="gray" outline onclick={cancelPendingCopy}>
 								<X class="size-4" />
 							</Button>
 						</div>
@@ -317,7 +317,7 @@
 									<Button size="xs" color="green" onclick={saveEditSession}>
 										<Check class="size-4" />
 									</Button>
-									<Button size="xs" color="alternative" onclick={cancelEditSession}>
+									<Button size="xs" color="gray" outline onclick={cancelEditSession}>
 										<X class="size-4" />
 									</Button>
 								</div>
@@ -384,7 +384,8 @@
 								</div>
 								<div class="grid shrink-0 grid-cols-3 gap-1 sm:flex sm:items-center">
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2"
 										title="Rename session"
@@ -393,7 +394,8 @@
 										<Pencil class="size-4" />
 									</Button>
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2"
 										title="Session settings"
@@ -402,7 +404,8 @@
 										<Settings2 class="size-4" />
 									</Button>
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2"
 										title="Duplicate session"
@@ -411,7 +414,8 @@
 										<Copy class="size-4" />
 									</Button>
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2 {session.favorite
 											? 'text-yellow-500 hover:text-yellow-600'
@@ -422,7 +426,8 @@
 										<Star class="size-4" fill={session.favorite ? 'currentColor' : 'none'} />
 									</Button>
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2"
 										title="View session stats"
@@ -432,7 +437,8 @@
 									</Button>
 
 									<Button
-										color="alternative"
+										color="gray"
+										outline
 										size="xs"
 										class="!p-2 text-red-500 hover:text-red-600 dark:text-red-400 dark:hover:text-red-300"
 										title="Archive session"
@@ -448,7 +454,7 @@
 					<!-- Merge Sessions button -->
 					{#if activeSessions.length >= 2}
 						<div class="mt-4 flex justify-end border-t border-gray-200 pt-4 dark:border-gray-700">
-							<Button color="alternative" size="sm" onclick={openMergeModal}>
+							<Button color="gray" outline size="sm" onclick={openMergeModal}>
 								<GitMerge class="mr-2 size-4" /> Merge Sessions
 							</Button>
 						</div>
@@ -518,7 +524,8 @@
 							</div>
 							<div class="flex shrink-0 items-center gap-1">
 								<Button
-									color="alternative"
+									color="gray"
+									outline
 									size="xs"
 									class="!p-2"
 									title="View session stats"
@@ -527,7 +534,8 @@
 									<ChartNoAxesColumn class="size-4" />
 								</Button>
 								<Button
-									color="alternative"
+									color="gray"
+									outline
 									size="xs"
 									class="!p-2 text-green-600 hover:text-green-700 dark:text-green-500 dark:hover:text-green-400"
 									title="Restore session"
@@ -536,7 +544,8 @@
 									<RotateCcw class="size-4" />
 								</Button>
 								<Button
-									color="alternative"
+									color="gray"
+									outline
 									size="xs"
 									class="!p-2 text-red-600 hover:text-red-700 dark:text-red-500 dark:hover:text-red-400"
 									title="Delete permanently"

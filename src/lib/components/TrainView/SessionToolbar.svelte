@@ -46,7 +46,7 @@
 	<div class="flex items-center gap-2">
 		<div class="relative">
 			<Button
-				color="light"
+				color="gray" outline
 				disabled={isDrillRunning}
 				class="flex items-center gap-2 border-gray-300 bg-white !px-3 font-medium text-gray-900 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600"
 			>
@@ -157,7 +157,7 @@
 		</div>
 
 		<Button
-			color="light"
+			color="gray" outline
 			size="sm"
 			disabled={isDrillRunning}
 			class="border-gray-300 bg-white !p-2.5 shadow-sm hover:bg-gray-50 dark:border-gray-600 dark:bg-gray-700 dark:hover:bg-gray-600"

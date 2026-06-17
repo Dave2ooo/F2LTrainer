@@ -975,7 +975,7 @@
 				Connect a smart cube to start training
 			</P>
 			<ButtonGroup>
-				<Button color="light" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
+				<Button color="blue" onclick={handleSmartConnect} disabled={bluetoothState.isConnecting}>
 					{#if bluetoothState.isConnecting}
 						<Spinner class="mr-2" size="5" />
 						<span class="text-base font-medium">Connecting...</span>
@@ -984,7 +984,7 @@
 						<span class="text-base font-medium">{connectButtonLabel}</span>
 					{/if}
 				</Button>
-				<Button color="light" onclick={() => (bluetoothModalOpen = true)}>
+				<Button color="blue" onclick={() => (bluetoothModalOpen = true)}>
 					<EllipsisVertical class="size-5" />
 				</Button>
 			</ButtonGroup>

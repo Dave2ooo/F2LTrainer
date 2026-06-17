@@ -947,7 +947,7 @@
 														<div class="mt-4 flex justify-end">
 															<Button
 																size="xs"
-																color="alternative"
+																color="gray" outline
 																onclick={() => {
 																	globalState.eoOrientedColor = DEFAULT_EO_ORIENTED_COLOR;
 																	globalState.eoUnorientedColor = DEFAULT_EO_UNORIENTED_COLOR;

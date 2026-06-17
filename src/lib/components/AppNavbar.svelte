@@ -214,7 +214,7 @@
 					<div class="flex min-w-[150px] flex-col gap-2 p-2">
 						<Button
 							onclick={() => ctx.clerk?.openUserProfile({ appearance })}
-							color="alternative"
+							color="gray" outline
 							class="flex items-center gap-2 text-base"
 						>
 							<UserRound class="size-5" />

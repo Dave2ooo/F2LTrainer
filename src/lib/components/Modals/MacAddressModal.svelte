@@ -86,7 +86,7 @@
 						</code>
 						<Button
 							size="xs"
-							color="light"
+							color="gray" outline
 							onclick={copyChromeFlags}
 							class="gap-1 whitespace-nowrap"
 						>
@@ -117,7 +117,7 @@
 						</code>
 						<Button
 							size="xs"
-							color="light"
+							color="gray" outline
 							onclick={copyBluetoothInternals}
 							class="gap-1 whitespace-nowrap"
 						>

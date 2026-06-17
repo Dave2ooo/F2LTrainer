@@ -223,7 +223,7 @@
 			</div>
 
 			<!-- Reset Button -->
-			<Button size="xs" color="alternative" onclick={resetCameraDefaults} class="gap-1.5">
+			<Button size="xs" color="gray" outline onclick={resetCameraDefaults} class="gap-1.5">
 				<RotateCcw size={14} />
 				Reset to Default
 			</Button>
