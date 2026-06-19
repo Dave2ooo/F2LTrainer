@@ -238,9 +238,6 @@
 			<h3 class="mb-3 text-xl font-semibold text-red-700 md:text-2xl dark:text-red-500">
 				Danger Zone
 			</h3>
-			<p class="mb-4 text-sm text-red-600 dark:text-red-400">
-				Delete your data locally, from the cloud, or both. These actions cannot be undone.
-			</p>
 
 			<div class="space-y-2">
 				<!-- First row: Local and Cloud buttons (side by side on sm+) -->
@@ -304,7 +301,7 @@
 		states, sessions, and progress stored on this device.
 	</p>
 	<p class="mt-4 text-sm text-gray-500 dark:text-gray-400">
-		Your cloud backup will remain safe and unchanged.
+		If you created an account, your cloud backup will remain safe and unchanged.
 	</p>
 </ConfirmationModal>
 
