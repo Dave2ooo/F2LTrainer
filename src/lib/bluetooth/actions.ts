@@ -93,6 +93,16 @@ export async function connectCube(savedCube?: SavedCube) {
 		bluetoothState.setConnected(true);
 		bluetoothState.setDeviceName(conn.deviceName);
 
+		if (conn.capabilities?.hardware) {
+			await conn.sendCommand({ type: 'REQUEST_HARDWARE' }).catch(console.warn);
+		}
+		if (conn.capabilities?.facelets) {
+			await conn.sendCommand({ type: 'REQUEST_FACELETS' }).catch(console.warn);
+		}
+		if (conn.capabilities?.battery) {
+			await conn.sendCommand({ type: 'REQUEST_BATTERY' }).catch(console.warn);
+		}
+
 		// deviceMAC is '' (empty string) for cubes that don't use MAC-based encryption
 		// (Giiker, GoCube, MoYu-MHC). In that case, fall back to deviceName as the ID.
 		// Note: deviceName may not be unique across multiple physical cubes of the same brand.

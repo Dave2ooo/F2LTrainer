@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Spinner } from 'flowbite-svelte';
-	import { Bluetooth, BluetoothConnected, EllipsisVertical } from '@lucide/svelte';
+	import { Bluetooth, BluetoothConnected, EllipsisVertical, Battery } from '@lucide/svelte';
 	import BluetoothModal from './Modals/BluetoothModal.svelte';
 	import { bluetoothState } from '$lib/bluetooth/store.svelte';
 	import { savedCubesState } from '$lib/bluetooth/savedCubes.svelte';
@@ -59,6 +59,14 @@
 				? bluetoothState.statusMessage || 'Connecting...'
 				: buttonLabel}</span
 		>
+		{#if bluetoothState.isConnected && bluetoothState.batteryLevel !== null}
+			<div
+				class="ml-3 flex items-center gap-1 text-sm font-medium text-green-600 dark:text-green-400"
+			>
+				<!-- <Battery class="size-4" /> -->
+				<span>{bluetoothState.batteryLevel}%</span>
+			</div>
+		{/if}
 	</Button>
 	<Button
 		class="rounded-l-none border border-l-0 border-gray-200 bg-white px-1.5 py-1.5 text-gray-500 text-gray-900 hover:bg-gray-100 focus:text-blue-700 focus:ring-2 focus:ring-blue-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white dark:focus:ring-gray-500"
