@@ -14,7 +14,8 @@
 		Timer,
 		Settings2,
 		Eye,
-		Shuffle
+		Shuffle,
+		Youtube
 	} from '@lucide/svelte';
 
 	let open = $state(false);
@@ -32,6 +33,28 @@
 <Modal bind:open title="Help" size="lg" outsideclose={true} autoclose={false}>
 	<div class="max-h-[70vh] space-y-2 overflow-y-auto pr-2">
 		<Accordion>
+			<!-- Video Tutorial -->
+			<AccordionItem open={true}>
+				{#snippet header()}
+					<div class="flex items-center gap-2">
+						<Youtube class="size-4 text-red-600 dark:text-red-500" />
+						<span>Video Tutorial</span>
+					</div>
+				{/snippet}
+				<div class="px-3 py-2">
+					<div
+						class="overflow-hidden rounded-lg border border-gray-200 shadow-sm dark:border-gray-700"
+					>
+						<iframe
+							class="aspect-video w-full border-0"
+							src="https://www.youtube.com/embed/UpPg1hKqkLE"
+							title="F2L Trainer Tutorial"
+							allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+							allowfullscreen
+						></iframe>
+					</div>
+				</div>
+			</AccordionItem>
 			<!-- Getting Started -->
 			<AccordionItem>
 				{#snippet header()}

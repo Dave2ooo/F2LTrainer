@@ -24,6 +24,10 @@
 	// Single selection logic
 	const self = Symbol('accordion-item');
 
+	if (open && context && !context.multiple) {
+		context.selectedItem = self;
+	}
+
 	// Handle single-selection mode: when this item opens, register it as selected
 	// When another item becomes selected, close this one
 	$effect(() => {
