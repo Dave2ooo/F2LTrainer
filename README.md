@@ -8,6 +8,8 @@
 
 > 🚀 **[Live Demo](https://f2l-trainer.top/)**
 
+[![F2L Trainer Video](static/images/thumbnail_play_button.png)](https://youtu.be/UpPg1hKqkLE?si=bS5Jkk4sHrCdi1DR)
+
 ## ✨ Features
 
 - **🎯 Specialized Training:** Dedicated modes for learning and drilling F2L algorithms.
