@@ -26,6 +26,10 @@ export interface GroupDefinition {
 	readonly editName: string;
 	readonly numberCases: number;
 	readonly categories: readonly { name: string; cases: readonly CaseId[] }[];
+	readonly pairedCategories?: readonly {
+		name: string;
+		cases: readonly (CaseId | readonly CaseId[])[];
+	}[];
 	readonly ignoreAUF?: readonly CaseId[];
 	readonly caseNumberMapping?: Readonly<Record<CaseId, string>>;
 	readonly piecesToHide?: Readonly<Record<number, StickerHidden>>;
@@ -49,6 +53,55 @@ const BASIC_DEFINITION: GroupDefinition = {
 		{ name: 'Edge flipped', cases: [31, 35, 36, 40, 41, 37] },
 		{ name: 'Corner on Bottom / Edge on Top / Edge oriented', cases: [27, 30, 25] },
 		{ name: 'Corner on Bottom / Edge on Top / Edge unoriented', cases: [29, 28, 26] }
+	],
+	pairedCategories: [
+		{
+			name: 'Pieces on Top / White facing Front',
+			cases: [
+				[1, 11],
+				[15, 13],
+				[7, 3],
+				[5, 9]
+			]
+		},
+		{
+			name: 'Pieces on Top / White facing Side',
+			cases: [
+				[14, 16],
+				[12, 2],
+				[10, 6],
+				[4, 8]
+			]
+		},
+		{
+			name: 'Pieces on Top / White facing Up',
+			cases: [
+				[17, 24],
+				[23, 18],
+				[21, 20],
+				[19, 22]
+			]
+		},
+		{
+			name: 'Edge in correct Slot / Corner on Top',
+			cases: [
+				[33, 35],
+				[34, 36],
+				[32, 31]
+			]
+		},
+		{
+			name: 'Corner in correct Slot / Edge on Top',
+			cases: [
+				[27, 29],
+				[30, 28],
+				[25, 26]
+			]
+		},
+		{
+			name: 'Pieces in correct Slot',
+			cases: [[38, 40], [39, 41], [37]]
+		}
 	],
 	ignoreAUF: [37, 38, 39, 40, 41],
 	edgeState: {
@@ -114,6 +167,55 @@ const BASIC_BACK_DEFINITION: GroupDefinition = {
 		{ name: 'Corner on Bottom / Edge on Top / Edge oriented', cases: [28, 29, 26] },
 		{ name: 'Corner on Bottom / Edge on Top / Edge unoriented', cases: [30, 27, 25] }
 	],
+	pairedCategories: [
+		{
+			name: 'Pieces on Top / White facing Back',
+			cases: [
+				[2, 12],
+				[6, 10],
+				[8, 4],
+				[16, 14]
+			]
+		},
+		{
+			name: 'Pieces on Top / White facing Side',
+			cases: [
+				[13, 15],
+				[3, 7],
+				[9, 5],
+				[11, 1]
+			]
+		},
+		{
+			name: 'Pieces on Top / White facing Up',
+			cases: [
+				[18, 23],
+				[20, 21],
+				[22, 19],
+				[24, 17]
+			]
+		},
+		{
+			name: 'Edge in correct Slot / Corner on Top',
+			cases: [
+				[34, 36],
+				[33, 35],
+				[32, 31]
+			]
+		},
+		{
+			name: 'Corner in correct Slot / Edge on Top',
+			cases: [
+				[28, 30],
+				[29, 27],
+				[26, 25]
+			]
+		},
+		{
+			name: 'Pieces in correct Slot',
+			cases: [[39, 41], [38, 40], [37]]
+		}
+	],
 	ignoreAUF: [37, 38, 39, 40, 41],
 	edgeState: {
 		1: { slot: 'br', oriented: false },
@@ -177,6 +279,90 @@ const ADVANCED_DEFINITION: GroupDefinition = {
 		{
 			name: 'Basic Cases / Free Slot',
 			cases: [43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
+		}
+	],
+	pairedCategories: [
+		{
+			name: 'Slot in Front / White facing Front',
+			cases: [
+				[9, 10],
+				[13, 14]
+			]
+		},
+		{
+			name: 'Slot in Front / White facing Side',
+			cases: [
+				[7, 8],
+				[11, 12]
+			]
+		},
+		{
+			name: 'Slot in Front  / White facing Up',
+			cases: [
+				[1, 2],
+				[3, 4]
+			]
+		},
+		{
+			name: 'Slot in Front / Corner in Adjacent Slot',
+			cases: [
+				[19, 20],
+				[21, 22],
+				[23, 24]
+			]
+		},
+		{
+			name: 'Slot in Back / Edge in Adjacent Front Slot',
+			cases: [
+				[38, 41],
+				[39, 42],
+				[37, 40]
+			]
+		},
+		{
+			name: 'Slot in Back / Corner in Adjacent Front Slot',
+			cases: [
+				[30, 29],
+				[28, 27],
+				[26, 25]
+			]
+		},
+		{
+			name: 'Edge in Opposite Slot',
+			cases: [
+				[17, 18],
+				[15, 16],
+				[5, 6]
+			]
+		},
+		{
+			name: 'Corner in Opposite Slot',
+			cases: [
+				[33, 36],
+				[35, 34],
+				[31, 32]
+			]
+		},
+		{
+			name: 'Basic Cases / Free Slot',
+			cases: [
+				[43],
+				[44],
+				[45],
+				[46],
+				[47, 49],
+				[48, 50],
+				[51],
+				[52],
+				[53],
+				[54],
+				[55],
+				[56],
+				[57],
+				[58],
+				[59],
+				[60]
+			]
 		}
 	],
 	caseNumberMapping: {
@@ -342,6 +528,28 @@ const EXPERT_DEFINITION: GroupDefinition = {
 		},
 		{ name: 'Edge flipped / Corner in Adjacent Slot', cases: [10, 11, 12, 13, 14, 15] },
 		{ name: 'Other easy cases', cases: [16, 17] }
+	],
+	pairedCategories: [
+		// same as categories
+		{
+			name: 'Corner is solved',
+			cases: [
+				[1, 2],
+				[3, 4],
+				[5, 6]
+			]
+		},
+		{ name: 'Pair in wrong slot', cases: [[7], [8], [9], [18]] },
+		{
+			name: 'Both pieces in wrong slot / Edge oriented',
+			cases: [[19], [21], [22], [24], [26], [29], [31], [33]]
+		},
+		{
+			name: 'Both pieces in wrong slot / Edge unoriented',
+			cases: [[20], [23], [25], [27], [28], [30], [32]]
+		},
+		{ name: 'Edge flipped / Corner in Adjacent Slot', cases: [[10], [11], [12], [13], [14], [15]] },
+		{ name: 'Other easy cases', cases: [[16], [17]] }
 	],
 	piecesToHide: {
 		1: 'br',
