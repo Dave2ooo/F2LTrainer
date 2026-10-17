@@ -37,7 +37,9 @@
 	"types": "./dist/index.d.ts",
 	"type": "module",
 	"pnpm": {
-		"onlyBuiltDependencies": ["smartcube-web-bluetooth"]
+		"onlyBuiltDependencies": [
+			"smartcube-web-bluetooth"
+		]
 	},
 	"exports": {
 		".": {
