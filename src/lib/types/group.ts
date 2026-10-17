@@ -345,24 +345,7 @@ const ADVANCED_DEFINITION: GroupDefinition = {
 		},
 		{
 			name: 'Basic Cases / Free Slot',
-			cases: [
-				[43],
-				[44],
-				[45],
-				[46],
-				[47, 49],
-				[48, 50],
-				[51],
-				[52],
-				[53],
-				[54],
-				[55],
-				[56],
-				[57],
-				[58],
-				[59],
-				[60]
-			]
+			cases: [43, 44, 45, 46, [47, 49], [48, 50], 51, 52, 53, 54, 55, 56, 57, 58, 59, 60]
 		}
 	],
 	caseNumberMapping: {
@@ -539,17 +522,17 @@ const EXPERT_DEFINITION: GroupDefinition = {
 				[5, 6]
 			]
 		},
-		{ name: 'Pair in wrong slot', cases: [[7], [8], [9], [18]] },
+		{ name: 'Pair in wrong slot', cases: [7, 8, 9, 18] },
 		{
 			name: 'Both pieces in wrong slot / Edge oriented',
-			cases: [[19], [21], [22], [24], [26], [29], [31], [33]]
+			cases: [19, 21, 22, 24, 26, 29, 31, 33]
 		},
 		{
 			name: 'Both pieces in wrong slot / Edge unoriented',
-			cases: [[20], [23], [25], [27], [28], [30], [32]]
+			cases: [20, 23, 25, 27, 28, 30, 32]
 		},
-		{ name: 'Edge flipped / Corner in Adjacent Slot', cases: [[10], [11], [12], [13], [14], [15]] },
-		{ name: 'Other easy cases', cases: [[16], [17]] }
+		{ name: 'Edge flipped / Corner in Adjacent Slot', cases: [10, 11, 12, 13, 14, 15] },
+		{ name: 'Other easy cases', cases: [16, 17] }
 	],
 	piecesToHide: {
 		1: 'br',

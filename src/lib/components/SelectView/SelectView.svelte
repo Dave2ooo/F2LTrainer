@@ -17,6 +17,14 @@
 			previousTab = selectedTab;
 		}
 	});
+
+	let viewModes = [
+		{ value: 'standard', name: 'Standard' },
+		{ value: 'paired', name: 'Paired EO' }
+	];
+
+	const isDev = new URLSearchParams(window.location.search).has('dev');
+	if (!isDev) globalState.selectViewMode = 'standard';
 </script>
 
 <Tabs
@@ -37,15 +45,25 @@
 				</span>
 			{/snippet}
 
-			<div class="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700">
+			<div class="px-4 pt-4 pb-2 border-b border-gray-200 dark:border-gray-700 flex gap-2">
 				<Button
 					color="alternative"
-					class="w-full gap-2 shadow-sm border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
+					class="flex-1 gap-2 shadow-sm border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700"
 					onclick={() => (isFilterOpen = !isFilterOpen)}
 				>
 					<Funnel size={16} />
 					{isFilterOpen ? 'Hide Filter' : 'Filter Cases'}
 				</Button>
+				{#if isDev}
+					<select
+						bind:value={globalState.selectViewMode}
+						class="appearance-auto bg-none block rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+					>
+						{#each viewModes as mode}
+							<option value={mode.value}>{mode.name}</option>
+						{/each}
+					</select>
+				{/if}
 			</div>
 
 			{#if isFilterOpen}

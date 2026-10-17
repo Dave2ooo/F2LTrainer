@@ -11,9 +11,13 @@
 		groupId: GroupId;
 	} = $props();
 
-	const groupDefinition = GROUP_DEFINITIONS[groupId];
-	const categories = groupDefinition.categories;
-	const categoriesOpenedArr = globalState.categoriesOpenedObj[groupId];
+	const groupDefinition = $derived(GROUP_DEFINITIONS[groupId]);
+	const categories = $derived(
+		globalState.selectViewMode === 'paired' && groupDefinition.pairedCategories
+			? groupDefinition.pairedCategories
+			: groupDefinition.categories
+	);
+	const categoriesOpenedArr = $derived(globalState.categoriesOpenedObj[groupId]);
 </script>
 
 <Accordion multiple>
@@ -22,7 +26,7 @@
 			{#snippet header()}
 				<div class="flex min-h-8 items-center gap-3">
 					<span class="text-lg md:text-xl">{category.name}</span>
-					<CategoryStateButtons {groupId} categoryCases={category.cases} />
+					<CategoryStateButtons {groupId} categoryCases={categories[categoryIndex].cases.flat() as any} />
 				</div>
 			{/snippet}
 			<CategoryComponent {groupId} {categoryIndex} />

@@ -36,6 +36,7 @@ interface EphemeralState {
 	showAdvancedAppearance: boolean;
 	sessionSettingsTab: SessionSettingsTab;
 	filterCases: FilterCasesState;
+	selectViewMode: 'standard' | 'paired';
 }
 
 const defaultEphemeralState: EphemeralState = {
@@ -63,7 +64,8 @@ const defaultEphemeralState: EphemeralState = {
 		cornerOrientations: [],
 		edgePositions: [],
 		edgeOrientations: []
-	}
+	},
+	selectViewMode: 'standard'
 };
 
 const persistedEphemeralState =
@@ -232,5 +234,12 @@ export const globalState: GlobalState = {
 	},
 	set filterCases(v) {
 		ephemeralState.filterCases = v;
+	},
+
+	get selectViewMode() {
+		return ephemeralState.selectViewMode;
+	},
+	set selectViewMode(v) {
+		ephemeralState.selectViewMode = v;
 	}
 };

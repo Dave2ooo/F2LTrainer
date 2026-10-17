@@ -42,4 +42,5 @@ export interface GlobalState {
 	showAdvancedAppearance: boolean;
 	sessionSettingsTab: SessionSettingsTab;
 	filterCases: FilterCasesState;
+	selectViewMode: 'standard' | 'paired';
 }
