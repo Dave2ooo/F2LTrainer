@@ -32,15 +32,11 @@
 		groupId,
 		caseId,
 		showJumpButton = false,
-		noBorder = false,
-		cornerClass = '',
 		onJumpClick
 	}: {
 		groupId: GroupId;
 		caseId: CaseId;
 		showJumpButton?: boolean;
-		noBorder?: boolean;
-		cornerClass?: string;
 		onJumpClick?: () => void;
 	} = $props();
 
@@ -121,9 +117,9 @@
 	color={'none' as any}
 	type="button"
 	onclick={cycleTrainStates}
-	class="group relative flex w-full items-center p-0 transition-shadow hover:shadow-xl focus:ring-2 {noBorder
-		? 'rounded-none !border-0'
-		: 'rounded-2xl border-2 ' + getCaseBorderClass(caseState.trainState)} {cornerClass}"
+	class="group relative flex w-full items-center rounded-2xl border-2 p-0 transition-shadow hover:shadow-xl focus:ring-2 {getCaseBorderClass(
+		caseState.trainState
+	)}"
 	style="background-color: {TrainStateColors[caseState.trainState]};"
 >
 	<span class="font-arial px-1 md:text-lg {getCaseTextClass(caseState.trainState)}">
