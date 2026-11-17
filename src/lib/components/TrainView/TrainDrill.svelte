@@ -637,20 +637,22 @@
 	</div>
 {/if}
 
-<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
+{#if drillPhase !== 'stopped' && drillPhase !== 'countdown'}
+	<Hr class="mx-auto my-4 h-1 w-80 rounded border-0 bg-gray-300 dark:bg-gray-600" />
 
-<div class="flex flex-row justify-center gap-2">
-	<TrainStateSelect />
-</div>
+	<div class="flex flex-row justify-center gap-2">
+		<TrainStateSelect />
+	</div>
 
-<div class="mt-4">
-	<Details />
-</div>
+	<div class="mt-4">
+		<Details />
+	</div>
+
+	<div class="h-20 w-full shrink-0"></div>
+{/if}
 
 <Settings bind:this={settingsRef} />
 <BluetoothModal bind:open={bluetoothModalOpen} />
-
-<div class="h-20 w-full shrink-0"></div>
 
 <style>
 	@keyframes countdown {
