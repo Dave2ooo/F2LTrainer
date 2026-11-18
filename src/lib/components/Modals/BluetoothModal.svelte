@@ -137,6 +137,16 @@
 		editingCubeName = '';
 	}
 
+	// Returns true for any error that means Web Bluetooth isn't available in this browser/platform.
+	function isBluetoothUnsupportedError(msg: string): boolean {
+		return (
+			msg === 'Web Bluetooth API is not available in this browser' ||
+			// WebKit (Safari / all iOS browsers): "undefined is not an object (evaluating 'navigator.bluetooth.requestDevice')"
+			msg.includes("navigator.bluetooth") ||
+			msg.includes("navigator.bluetooth.requestDevice")
+		);
+	}
+
 	function formatDate(timestamp: number): string {
 		const date = new Date(timestamp);
 		const now = new Date();
@@ -299,12 +309,39 @@
 
 		<!-- Error messages -->
 		{#if bluetoothState.errorMessage}
-			{#if bluetoothState.errorMessage === 'Web Bluetooth API is not available in this browser'}
+			{#if isBluetoothUnsupportedError(bluetoothState.errorMessage)}
 				<div class="text-center text-sm">
-					<p class="mb-1 text-red-500">{bluetoothState.errorMessage}</p>
-					<p class="text-gray-500 dark:text-gray-400">
-						Please use Google Chrome or Microsoft Edge as an alternative browser.
-					</p>
+					<p class="mb-1 text-red-500">Web Bluetooth is not supported in this browser.</p>
+					<div class="mt-1 space-y-1 text-gray-500 dark:text-gray-400">
+						<p>
+							<strong>Mac / Windows / Android:</strong> Please use
+							<a
+								href="https://www.google.com/chrome/"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline hover:text-gray-700 dark:hover:text-gray-300">Google Chrome</a
+							>
+							or
+							<a
+								href="https://www.microsoft.com/edge"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline hover:text-gray-700 dark:hover:text-gray-300">Microsoft Edge</a
+							>.
+						</p>
+						<p>
+							<strong>iPhone / iPad:</strong> iOS restricts Bluetooth access in all browsers.
+							Install
+							<a
+								href="https://apps.apple.com/app/bluefy-web-ble-browser/id1492822055"
+								target="_blank"
+								rel="noopener noreferrer"
+								class="underline hover:text-gray-700 dark:hover:text-gray-300"
+								>Bluefy – Web BLE Browser</a
+							>
+							from the App Store and open this page there.
+						</p>
+					</div>
 				</div>
 			{:else}
 				<p class="text-center text-sm text-red-500">
