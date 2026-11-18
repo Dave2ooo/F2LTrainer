@@ -142,8 +142,8 @@
 		return (
 			msg === 'Web Bluetooth API is not available in this browser' ||
 			// WebKit (Safari / all iOS browsers): "undefined is not an object (evaluating 'navigator.bluetooth.requestDevice')"
-			msg.includes("navigator.bluetooth") ||
-			msg.includes("navigator.bluetooth.requestDevice")
+			msg.includes('navigator.bluetooth') ||
+			msg.includes('navigator.bluetooth.requestDevice')
 		);
 	}
 
