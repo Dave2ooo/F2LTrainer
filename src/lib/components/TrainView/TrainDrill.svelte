@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Button, ButtonGroup, P, Spinner, Hr } from 'flowbite-svelte';
+	import { Button, ButtonGroup, P, Spinner, Hr, Tooltip } from 'flowbite-svelte';
 	import TwistyPlayer from '../TwistyPlayer.svelte';
 	import {
 		advanceToNextTrainCase,
@@ -33,6 +33,7 @@
 			twistyPlayerRef?.reset();
 		});
 	});
+	import EditAlg from '$lib/components/Modals/EditAlgModal.svelte';
 	import {
 		Flag,
 		SkipForward,
@@ -41,7 +42,8 @@
 		Play,
 		Check,
 		Bluetooth,
-		EllipsisVertical
+		EllipsisVertical,
+		Pencil
 	} from '@lucide/svelte';
 	import Details from './Details.svelte';
 	import TrainStateSelect from './TrainStateSelect.svelte';
@@ -73,6 +75,7 @@
 
 	let twistyPlayerRef = $state<TwistyPlayerRef>();
 	let settingsRef = $state<Settings>();
+	let editAlgRef = $state<EditAlg>();
 
 	let transitionDuration = $derived(
 		sessionState.activeSession?.settings.drillTimeBetweenCases ??
@@ -556,11 +559,28 @@
 	{#if drillPhase === 'gave_up'}
 		<!-- Show algorithm and Redo/Resume buttons -->
 		<div class="mt-4 flex flex-col items-center gap-4">
-			<div
-				class="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800"
-			>
-				<div class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Algorithm:</div>
-				<div class="font-mono text-xl font-semibold">{displayAlg}</div>
+			<div class="relative flex max-w-full items-center justify-center gap-2">
+				<div
+					class="rounded-lg border border-gray-300 bg-gray-50 p-4 dark:border-gray-600 dark:bg-gray-800"
+				>
+					<div class="mb-2 text-sm font-medium text-gray-500 dark:text-gray-400">Algorithm:</div>
+					<div class="font-mono text-xl font-semibold">{displayAlg}</div>
+				</div>
+				<div class="flex flex-col gap-1">
+					<Button
+						color={'none' as any}
+						type="button"
+						onclick={(e: MouseEvent) => {
+							e.stopPropagation();
+							editAlgRef?.openModal();
+						}}
+						class="flex-shrink-0 rounded-full p-2 transition-all duration-200 focus:ring-0 focus:outline-none text-primary-500 hover:bg-opacity-90 cursor-pointer"
+						aria-label="Edit algorithm"
+					>
+						<Pencil class="size-6" strokeWidth={3} />
+					</Button>
+					<Tooltip placement="right">Edit Algorithm</Tooltip>
+				</div>
 			</div>
 			<div class="flex gap-2">
 				<Button color="gray" outline onclick={onRedo}>
@@ -652,6 +672,14 @@
 {/if}
 
 <Settings bind:this={settingsRef} />
+{#if currentTrainCase}
+	<EditAlg
+		bind:this={editAlgRef}
+		groupId={currentTrainCase.groupId}
+		caseId={currentTrainCase.caseId}
+		side={currentTrainCase.side}
+	/>
+{/if}
 <BluetoothModal bind:open={bluetoothModalOpen} />
 
 <style>
