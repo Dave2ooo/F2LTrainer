@@ -55,36 +55,51 @@
 				selectedTab
 			);
 		}
-		animateTwistyPlayer(side);
+		// Reset the player to the beginning of the newly selected algorithm
+		resetTwistyPlayerToStart(side);
+		// animateTwistyPlayer(side);
 	};
 
-	function animateTwistyPlayer(side: Side) {
+	// Reset player to the start of the newly selected algorithm so it doesn't stay
+	// mid-animation from a previous play. No timeout needed.
+	function resetTwistyPlayerToStart(side: Side) {
 		const twistyPlayerRef = side === 'left' ? twistyPlayerLeftRef : twistyPlayerRightRef;
-
-		if (!globalState.playOnAlgChange) return;
-
-		// Clear any previously scheduled play for this side
-		if (animationTimeouts[side]) {
-			clearTimeout(animationTimeouts[side]);
-			animationTimeouts[side] = null;
+		if (twistyPlayerRef) {
+			twistyPlayerRef.jumpToStart();
 		}
-
-		// Schedule play after 500ms
-		animationTimeouts[side] = setTimeout(() => {
-			if (twistyPlayerRef) {
-				twistyPlayerRef.play();
-			}
-			animationTimeouts[side] = null;
-		}, 200);
-
-		// Return a cleanup function (not strictly required if not used elsewhere)
-		return () => {
-			if (animationTimeouts[side]) {
-				clearTimeout(animationTimeouts[side]);
-				animationTimeouts[side] = null;
-			}
-		};
 	}
+
+	// Previously used to auto-play the algorithm on selection.
+	// Kept here for reference, but auto-play on selection was removed to avoid
+	// user confusion caused by the global "Autoplay" checkbox in a per-case modal.
+	// Users can manually trigger playback using the twisty player control panel.
+	// function animateTwistyPlayer(side: Side) {
+	// 	const twistyPlayerRef = side === 'left' ? twistyPlayerLeftRef : twistyPlayerRightRef;
+	//
+	// 	if (!globalState.playOnAlgChange) return;
+	//
+	// 	// Clear any previously scheduled play for this side
+	// 	if (animationTimeouts[side]) {
+	// 		clearTimeout(animationTimeouts[side]);
+	// 		animationTimeouts[side] = null;
+	// 	}
+	//
+	// 	// Schedule play after 500ms
+	// 	animationTimeouts[side] = setTimeout(() => {
+	// 		if (twistyPlayerRef) {
+	// 			twistyPlayerRef.play();
+	// 		}
+	// 		animationTimeouts[side] = null;
+	// 	}, 200);
+	//
+	// 	// Return a cleanup function (not strictly required if not used elsewhere)
+	// 	return () => {
+	// 		if (animationTimeouts[side]) {
+	// 			clearTimeout(animationTimeouts[side]);
+	// 			animationTimeouts[side] = null;
+	// 		}
+	// 	};
+	// }
 
 	let onCustomAlgChange = (customAlgorithm: string, side: Side) => {
 		// console.log('Custom Alg ' + side + ' changed to ', customAlgorithm);
@@ -201,9 +216,17 @@
 				class="size-50 md:size-70"
 			/>
 		{/if}
-		<Checkbox bind:checked={globalState.playOnAlgChange}
+		<!--
+			Autoplay checkbox disabled/commented out:
+			This was previously a global setting (globalState.playOnAlgChange) that auto-played
+			the algorithm whenever a new one was selected. Because this is a per-case modal,
+			having a global setting here caused confusion for users thinking it applied only
+			to the active case. Users can now preview algorithms directly using the control panel
+			play button on the TwistyPlayer.
+		-->
+		<!-- <Checkbox bind:checked={globalState.playOnAlgChange}
 			><span class="m-1 md:text-lg">Autoplay</span></Checkbox
-		>
+		> -->
 		<div class="flex justify-center">
 			<ToggleSwitch bind:selected={selectedTab} leftLabel="Left" rightLabel="Right" />
 		</div>
