@@ -39,6 +39,7 @@
 		SkipForward,
 		Square,
 		RotateCw,
+		RotateCcw,
 		Play,
 		Check,
 		Bluetooth,
@@ -379,6 +380,16 @@
 	}
 
 	/**
+	 * Reset the current case in gave_up mode back to scrambled state
+	 */
+	function onResetCase() {
+		alg = '';
+		twistyPlayerRef?.reset();
+	}
+
+	let isResetDisabled = $derived(alg.trim() === '');
+
+	/**
 	 * Redo the current case after giving up
 	 */
 	async function onRedo() {
@@ -580,6 +591,25 @@
 						<Pencil class="size-6" strokeWidth={3} />
 					</Button>
 					<Tooltip placement="right">Edit Algorithm</Tooltip>
+
+					<Button
+						color={'none' as any}
+						type="button"
+						onclick={(e: MouseEvent) => {
+							e.stopPropagation();
+							if (!isResetDisabled) {
+								onResetCase();
+							}
+						}}
+						class="flex-shrink-0 rounded-full p-2 transition-all duration-200 focus:ring-0 focus:outline-none {isResetDisabled
+							? 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+							: 'cursor-pointer text-primary-500 hover:bg-opacity-90'}"
+						aria-label="Reset case"
+						aria-disabled={isResetDisabled}
+					>
+						<RotateCcw class="size-6" strokeWidth={3} />
+					</Button>
+					<Tooltip placement="right">Reset Case</Tooltip>
 				</div>
 			</div>
 			<div class="flex gap-2">
